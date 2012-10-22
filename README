@@ -1,0 +1,26 @@
+
+MOSAICS
+=======
+
+Mosaics is a collection of utility apis.
+
+
+Quick Start
+----------
+
+- Install Java 6
+- Install Maven 3
+- Install Git
+
+
+> git clone https://YOURGITHUBUSERNAME@github.com/kirkch/Mosaics.git
+> cd mosaics
+> mvn -T 2 clean install
+
+
+Overview
+-------
+
+lang - A collection of Java language utilities. New types, patterns and maths.
+gis  - Tools for storing data in location aware data structures.
+io   - a collection of i/o tools
