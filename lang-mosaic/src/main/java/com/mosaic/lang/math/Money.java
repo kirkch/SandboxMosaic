@@ -5,44 +5,58 @@ import java.math.BigDecimal;
 /**
  *
  */
-public class Money extends AbstractIntegerNumber<Money> {
+public class Money extends AbstractLongNumber<Money> {
     private static final long serialVersionUID = 3069432892432894004L;
 
     public static final Money ZERO = new Money(0);
 
-    Money(int v) {
+    // Stores internally in tenths of the minor currency
+
+    public static Money gbp( int pounds ) {
+        return new Money( pounds * 1000L );
+    }
+
+    public static Money pence( int pence ) {
+        return new Money( pence * 10L );
+    }
+
+    /**
+     * @param v major currency
+     */
+    public Money( double v ) {
+        this( new BigDecimal( v ).movePointRight( 3 ).longValue() );
+    }
+
+    /**
+     * @param v major currency
+     */
+    public Money( String v ) {
+        this( new BigDecimal( v ).movePointRight( 3 ).longValue() );
+    }
+
+    /**
+     * @param v tenths of minor currency
+     */
+    private Money(long v) {
         super(ZERO, v);
     }
 
-    public Money( double v ) {
-        this( new BigDecimal(v).movePointRight(3).intValue() );
-    }
-
-    public Money( String v ) {
-        super( ZERO, new BigDecimal(v).movePointRight(3).intValue() );
-    }
-
     @Override
-    protected Money newInstance(int v) {
+    protected Money newInstance(long v) {
         return new Money(v);
     }
 
-    public double toDouble() {
-        return Double.parseDouble(this.toString());
+    public int asInt() {
+        return (int) (super.asLong()/1000);
+    }
+
+    public double asDouble() {
+        return super.asDouble() / 1000.0;
     }
 
     @Override
     public String toString() {
-        int major = v / 1000;
-        int minor = (Math.abs((v - major*1000)) + 5)/10;
-
-        if ( minor == 0 ) {
-            return major+"";
-        } else if ( minor < 10 ) {
-            return major + ".0" + minor;
-        } else {
-            return major + "." + minor;
-        }
+        return String.format("%.2f", asDouble());
     }
 
     @Override

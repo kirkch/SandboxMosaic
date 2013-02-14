@@ -36,6 +36,23 @@ public abstract class AbstractLongNumber<T extends AbstractLongNumber> extends M
         return newInstance( this.v / b.v );
     }
 
+    @Override
+    public T abs() {
+        return newInstance( Math.abs(this.v) );
+    }
+
+    public int asInt() {
+        return (int) v;
+    }
+
+    public long asLong() {
+        return v;
+    }
+
+    public double asDouble() {
+        return v;
+    }
+
     public int compareTo(T b) {
         return new Long(this.v).compareTo(new Long(b.v));
     }

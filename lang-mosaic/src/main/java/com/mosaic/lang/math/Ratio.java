@@ -64,6 +64,18 @@ public class Ratio extends MathematicalNumber<Ratio> {
         return this;
     }
 
+    public int asInt() {
+        return asPercentage().asInt();
+    }
+
+    public long asLong() {
+        return asPercentage().asLong();
+    }
+
+    public double asDouble() {
+        return asPercentage().asDouble();
+    }
+
     public Percentage asPercentage() {
         return new Percentage( numerator, denominator );
     }

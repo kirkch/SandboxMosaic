@@ -10,8 +10,8 @@ import java.io.Reader;
 import java.util.regex.Pattern;
 
 /**
- * Powerful tool for incrementally breaking a stream of characters into identified tokens. This Tokenizer is a pull tokenizer,
- * meaning that it only processes characters as it is commanded to. No more, no less. Making it extremely efficient.<p/>
+ * Tool for incrementally breaking a stream of characters into identified tokens. This Tokenizer is a pull tokenizer,
+ * meaning that it only processes characters as it is commanded to. No more, no less.<p/>
  *
  * Methods fall into two categories, 1) scan along the incoming bytes, 2) extract string from mark up to current position.
  */

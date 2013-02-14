@@ -24,6 +24,14 @@ public abstract class MathematicalNumber<T extends MathematicalNumber> extends O
     public abstract T abs();
 
 
+    public abstract int asInt();
+    public abstract long asLong();
+    public abstract double asDouble();
+
+    public T zero() {
+        return zero;
+    }
+
     public boolean isZero() {
         return this.equals( zero );
     }

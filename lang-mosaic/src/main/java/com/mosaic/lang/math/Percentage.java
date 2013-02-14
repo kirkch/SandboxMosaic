@@ -64,6 +64,18 @@ public class Percentage extends MathematicalNumber<Percentage> {
         return isLTZero() ? new Percentage(this.v * -1) : this;
     }
 
+    public int asInt() {
+        return (int) asDouble();
+    }
+
+    public long asLong() {
+        return (long) asDouble();
+    }
+
+    public double asDouble() {
+        return this.v;
+    }
+
     public int compareTo(Percentage o) {
         double a = this.v;
         double b = o.v;

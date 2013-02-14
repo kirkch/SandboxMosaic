@@ -39,7 +39,7 @@ public class Lockable<T extends Lockable<T>> implements IsLockable<T> {
     }
 
 
-    private boolean isLocked;
+    protected boolean isLocked;
 
     @Override
     public IsLockable<T> lock() {

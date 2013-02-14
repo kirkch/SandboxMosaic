@@ -43,6 +43,19 @@ public abstract class AbstractIntegerNumber<T extends AbstractIntegerNumber> ext
         return isLTZero() ? newInstance(this.v * -1) : (T) this;
     }
 
+    public int asInt() {
+        return v;
+    }
+
+    public long asLong() {
+        return asInt();
+    }
+
+    public double asDouble() {
+        return asInt();
+    }
+
+
     public int compareTo(T b) {
         return this.v - b.v;
     }
