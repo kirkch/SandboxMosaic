@@ -7,7 +7,7 @@ import java.io.Writer;
 /**
  * Converts a source object into an alternative representation, and optionally back again.
  */
-public interface Codec<T> {
+public interface StringCodec<T> {
     public String encode( T v );
     public void encodeTo( T v, Writer out ) throws IOException;
 

@@ -5,7 +5,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
+ * Pulls tokens from the tokenizer and converts them into Match objects. This represents the grammatical part of the parse.
+ * As matches occur, 'callbacks' can be registered with each expression allowing the match to be further processed. The
+ * runtime context passed through the match is passed to the callbacks to facilitate other lookups that may affect the
+ * processing. It is not used by the grammar or tokenizer themselves (unless you pull them in to it ;).
  *
+ * The default text within the Match objects is the parsed token characters. These characters can be elevated to other
+ * objects via the callbacks registered with each expression. Thus it is important to document with each BNFExpression
+ * what type is passed up within each Match object (hence the generic on Match).
  */
 public abstract class BNFExpression<T> {
 

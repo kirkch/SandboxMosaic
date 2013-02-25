@@ -1,0 +1,44 @@
+<html>
+<body>
+<h1>Object Arena<h1>
+<p>
+    A runtime environment for interacting objects. Arena adds the ability to persist objects, monitor and spread
+    load across multiple CPU cores and machines while keeping overheads such as memory and cpu low.
+</p>
+
+<p>
+    Objects interact with each other asynchronously through strongly typed proxy classes. As such managed objects must offer their
+    functionality through an interface. Where each method on the feature interface must return either void or a Future.
+    Every type referenced from the interface and stored within the managed object must be serializable.
+</p>
+
+<p>
+    All interactions with the arena, such as registering new managed objects and looking them up by id is handled
+    through an instance of Env. Managed objects gain access to Env by having a private transient field in their
+    implementation. The runtime environment will set it, or unset it through the objects life cycle.
+</p>
+
+Managed objects must:
+<ul>
+    <li>Managed objects must provide their functionality via an interface, which will be used to proxy the object</li>
+    <li>Methods on the Managed Objects interface must return either void or a Future</li>
+    <li>Managed objects must be serializable</li>
+    <li>Every argument passed through the managed objects interface must be serializable</li>
+</ul>
+
+Managed objects may:
+<ul>
+    <li>Managed objects may access their runtime by having a private transient field called env and of type Env.</li>
+    <li>Managed objects may store references to other managed objects safely. However the references could be safely unlinked by the runtime.</li>
+</ul>
+
+Managed objects should not:
+<ul>
+    <li>Create/manage threads</li>
+    <li>Synchronize or use other concurrency controls</li>
+    <li>Persist themselves to disk</li>
+    <li>Manage network IO</li>
+    <li>Block the calling thread</li>
+</ul>
+</body>
+</html>

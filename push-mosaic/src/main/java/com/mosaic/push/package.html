@@ -1,0 +1,32 @@
+<html>
+<body>
+<h1>PUSH Mosaic (CEP for the win)</h1>
+<p>
+    A Java library for processing data along pipelines organised in a graph. PUSH sits in the Complex Event Processing (CEP) camp,
+    and is a framework for flowing data along a graph of processing nodes which provides a result at the end. The processing nodes
+    are loosely coupled, meaning that they do not directly know about each other. This empowers the framework to offer extra
+    services such as multiple cpu support, persistence, robust fail-over, distributed processing and tools for diagnostics and design.
+    In short, PUSH makes it much easier to create manageable solutions to complex, asynchronous problems that need to scale elastically.
+</p>
+
+<h1>How does PUSH achieve this?</h1>
+<p>
+    Lets start with an example.
+</p>
+
+
+
+* A node within a processing graph. Think of a processing node as being similar to a Unix command that was designed to
+* be chained; such as 'sort', 'head', 'grep', 'tail', or 'cut'. <p/>
+*
+* Each processing node solves exactly one problem, and it solves it very well. Just as with Unix commands, processing
+* nodes support being chained without any knowledge of the chain itself.<p/>
+*
+* Unlike Unix commands, processing nodes are allowed to be stateful. The rule however is that they must be immutable.
+* This trade off empowers the runtime environment to offer more value add services while staying simple. In order
+* for a node to change its state, when processing its input the node must create a new instance of itself with the
+* new state and then return that new instance as the result of process(input). The runtime framework will then manage
+* the rest.
+
+</body>
+</html>

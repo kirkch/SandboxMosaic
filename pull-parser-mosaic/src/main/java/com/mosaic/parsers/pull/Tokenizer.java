@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 public class Tokenizer {
     private static final int DEFAULT_BUFFER_SIZE  = 8192;
 
-    public static Tokenizer autoskipWhitespace( Reader in ) {
+    public static Tokenizer createWhitespaceSkippingTokenizerFor( Reader in ) {
         Tokenizer tokenizer = new Tokenizer( in );
         tokenizer.autoskipWhitespace( true );
 

@@ -16,6 +16,8 @@
         <module>lang-mosaic</module>
         <module>collections-mosaic</module>
 		<module>pull-parser-mosaic</module>
+        <module>csv-parser-mosaic</module>
+        <module>push-mosaic</module>
 	</modules>
 
     <properties>
@@ -30,8 +32,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
 
