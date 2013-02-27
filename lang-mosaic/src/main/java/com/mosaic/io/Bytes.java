@@ -178,13 +178,6 @@ class BytesMultiBucketWrapper extends Bytes {
     private final List<Bytes> buckets;
     private final long        streamOffset;
 
-    BytesMultiBucketWrapper( Bytes bucket ) {
-        this.buckets      = new ArrayList<Bytes>(1);
-        this.streamOffset = bucket.streamOffset();
-
-        this.buckets.add( bucket );
-    }
-
     BytesMultiBucketWrapper( List<Bytes> buckets, long streamOffset ) {
         this.buckets        = buckets;
         this.streamOffset   = streamOffset;
