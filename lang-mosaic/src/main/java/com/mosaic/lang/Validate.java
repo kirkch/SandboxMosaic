@@ -340,6 +340,12 @@ public class Validate {
         throw new IllegalStateException( formattedMessage );
     }
 
+    private static void throwIndexOutOfBoundsException( String msg, Object...values ) {
+        String formattedMessage = String.format( msg, formatValues(values) );
+
+        throw new IndexOutOfBoundsException( formattedMessage );
+    }
+
     private static Object[] formatValues( Object[] values ) {
         int      numValues       = values.length;
         Object[] formattedValues = new Object[numValues];
@@ -408,5 +414,14 @@ public class Validate {
 
     public static <T extends Comparable<T>> void isEqualTo( T a, T b, String fieldName ) {
         isTrue( a.compareTo(b) == 0, "%s (%s) must be == %s", fieldName, a, b );
+    }
+
+    /**
+     * Validates that minInc <= n < maxExc and throws IndexOutOfBoundsException if it fails.
+     */
+    public static void indexBounds( int minInc, int n, int maxExc, String fieldName ) {
+        if ( !(minInc <= n && n < maxExc) ) {
+            throwIndexOutOfBoundsException( "%s (%d) must be >= %d and < %d", fieldName, n, minInc, maxExc );
+        }
     }
 }

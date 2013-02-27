@@ -4,9 +4,8 @@ import org.junit.Test;
 
 import java.nio.ByteBuffer;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  *
@@ -47,7 +46,7 @@ public abstract class BaseBytesTestCases {
     @Test
     public void givenThreeBytes_consumeOneByte_expectStreamOffset1() {
         Bytes bytes1 = createBytes( new byte[] {96, 97, 98} );
-        Bytes bytes2 = bytes1.consume( 1 );
+        Bytes bytes2 = bytes1.skipBytes( 1 );
 
         assertEquals(  1, bytes2.streamOffset() );
     }
@@ -55,7 +54,7 @@ public abstract class BaseBytesTestCases {
     @Test
     public void givenThreeBytes_consumeTwoBytes_expectStreamOffset2() {
         Bytes bytes1 = createBytes( new byte[] {96, 97, 98} );
-        Bytes bytes2 = bytes1.consume( 2 );
+        Bytes bytes2 = bytes1.skipBytes( 2 );
 
         assertEquals(  2, bytes2.streamOffset() );
     }
@@ -63,8 +62,8 @@ public abstract class BaseBytesTestCases {
     @Test
     public void givenThreeBytes_consumeOneByteTwice_expectStreamOffset2() {
         Bytes bytes1 = createBytes( new byte[] {96,97,98} );
-        Bytes bytes2 = bytes1.consume( 1 );
-        Bytes bytes3 = bytes2.consume( 1 );
+        Bytes bytes2 = bytes1.skipBytes( 1 );
+        Bytes bytes3 = bytes2.skipBytes( 1 );
 
         assertEquals(  2, bytes3.streamOffset() );
     }
@@ -74,7 +73,7 @@ public abstract class BaseBytesTestCases {
         Bytes bytes1 = createBytes( new byte[] {96,97,98} );
         Bytes bytes2 = createBytes( new byte[] {99, 100} );
         Bytes bytes3 = bytes1.appendBytes( bytes2 );
-        Bytes bytes4 = bytes3.consume(4);
+        Bytes bytes4 = bytes3.skipBytes( 4 );
 
         assertEquals(   4, bytes4.streamOffset() );
         assertEquals(   1, bytes4.length() );
@@ -87,7 +86,7 @@ public abstract class BaseBytesTestCases {
         Bytes bytes2 = createBytes( new byte[] {98,99} );
         Bytes bytes3 = createBytes( new byte[] {100,101} );
         Bytes bytes4 = bytes1.appendBytes( bytes2 ).appendBytes( bytes3 );
-        Bytes bytes5 = bytes4.consume(2).consume( 3 );
+        Bytes bytes5 = bytes4.skipBytes( 2 ).skipBytes( 3 );
 
         assertEquals(   5, bytes5.streamOffset() );
         assertEquals(   1, bytes5.length() );
@@ -99,7 +98,7 @@ public abstract class BaseBytesTestCases {
         Bytes bytes1 = createBytes( new byte[] {96,97} );
         Bytes bytes2 = createBytes( new byte[] {98,99} );
         Bytes bytes3 = createBytes( new byte[] {100, 101} );
-        Bytes bytes4 = bytes1.consume(1).appendBytes( bytes2 ).consume( 1 ).appendBytes( bytes3 );
+        Bytes bytes4 = bytes1.skipBytes( 1 ).appendBytes( bytes2 ).skipBytes( 1 ).appendBytes( bytes3 );
 
         assertEquals(   2, bytes4.streamOffset() );
         assertEquals(   4, bytes4.length() );
@@ -258,7 +257,7 @@ public abstract class BaseBytesTestCases {
     @Test
     public void givenEmptyBuffer_consumeZeroBytes_expectOriginalBufferBack() {
         Bytes bytes1 = createBytes( new byte[] {} );
-        Bytes bytes2 = bytes1.consume(0);
+        Bytes bytes2 = bytes1.skipBytes( 0 );
 
         assertTrue( bytes1 == bytes2 );
     }
@@ -268,7 +267,7 @@ public abstract class BaseBytesTestCases {
         Bytes bytes1 = createBytes( new byte[] {} );
 
         try {
-            bytes1.consume( 1 );
+            bytes1.skipBytes( 1 );
             fail( "Expected IllegalArgumentException" );
         } catch (IllegalArgumentException e) {
             assertEquals( "'numBytes' (1) must be <= 0", e.getMessage() );
@@ -278,7 +277,7 @@ public abstract class BaseBytesTestCases {
     @Test
     public void givenThreeBytes_consumeOneByte_expectResultToHoldLastTwoBytes() {
         Bytes bytes1 = createBytes( new byte[] {96,97,98} );
-        Bytes bytes2 = bytes1.consume(1);
+        Bytes bytes2 = bytes1.skipBytes( 1 );
 
         assertEquals(  2, bytes2.length() );
         assertEquals( 97, bytes2.getByte(0) );
@@ -288,7 +287,7 @@ public abstract class BaseBytesTestCases {
     @Test
     public void givenTwoBytes_consumeAllBytes_expectResultToBeEmpty() {
         Bytes bytes1 = createBytes( new byte[] {96,97} );
-        Bytes bytes2 = bytes1.consume(2);
+        Bytes bytes2 = bytes1.skipBytes( 2 );
 
         assertEquals(  0, bytes2.length() );
     }
@@ -298,7 +297,7 @@ public abstract class BaseBytesTestCases {
         Bytes bytes1 = createBytes( new byte[] {96,97} );
 
         try {
-            bytes1.consume( 3 );
+            bytes1.skipBytes( 3 );
             fail( "Expected IllegalArgumentException" );
         } catch (IllegalArgumentException e) {
             assertEquals( "'numBytes' (3) must be <= 2", e.getMessage() );
@@ -371,7 +370,7 @@ public abstract class BaseBytesTestCases {
     @Test
     public void givenTwoBytesLeftAfterBeingConsumedBuffer_writeToByteBuffer1Byte_expectSuccessfulTransfer() {
         Bytes      bytes1     = createBytes( new byte[] {90,91,92} );
-        Bytes      bytes2     = bytes1.consume(1);
+        Bytes      bytes2     = bytes1.skipBytes( 1 );
         ByteBuffer destBuffer = ByteBuffer.allocate( 10 );
 
         bytes2.writeTo( destBuffer, 1 );
@@ -380,9 +379,11 @@ public abstract class BaseBytesTestCases {
         assertEquals( 91, destBuffer.get(0) );
     }
 
+
+
 // asByteBuffer
 // asByteArray
 // slice
-// from
+
 
 }

@@ -3,6 +3,8 @@ package com.mosaic.io;
 import com.mosaic.lang.Validate;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An immutable collection of bytes. Modification of these bytes returns a new immutable instance of Bytes.
@@ -61,18 +63,39 @@ public abstract class Bytes {
      */
     public abstract Characters toCharacters( String characterSet );
 
-
+    /**
+     * Join two instances of Bytes together. Does so by creating a wrapper around both instances of Bytes, making them
+     * appear as one.
+     */
     public abstract Bytes appendBytes( Bytes bytes );
 
+    /**
+     * Jump over the specified number of bytes. If this instance of Bytes is a wrapper around multiple instances
+     * of Bytes and all of the bytes of the first instance have now been 'consumed' then the reference to that
+     * instance will be dropped. Making it possible to GC it.
+     */
+    public abstract Bytes skipBytes( int numBytes );
 
-    public abstract Bytes consume( int numBytes );
-
-
+    /**
+     * Write the contents of this instance of Bytes into the target ByteBuffer. If the ByteBuffer is too small to take
+     * all of the bytes then the write will stop at the buffers limit.
+     */
     public void writeTo( ByteBuffer targetBuffer ) {
         writeTo( targetBuffer, this.length() );
     }
 
+    /**
+     * Write the contents of this instance of Bytes into the target ByteBuffer. If the ByteBuffer is too small to take
+     * all of the bytes then the write will stop at the buffers limit.
+     */
     public abstract void writeTo( ByteBuffer targetBuffer, int numBytes );
+
+
+    /**
+     * An internal setter for ensuring that the stream offset is accurate, even when multiple instances of Bytes are
+     * being appended together.
+     */
+    abstract Bytes setStreamOffset( long newStreamOffset );
 }
 
 
@@ -113,18 +136,17 @@ class BytesNIOWrapper extends Bytes {
             return this;
         }
 
-        ByteBuffer buf = ByteBuffer.allocate( this.buf.remaining() + other.length() );   // todo remove need to copy
-        this.writeTo( buf );
-        other.writeTo( buf );
-        buf.flip();
+        List<Bytes> buckets = new ArrayList(2);
+        buckets.add( this );
+        buckets.add( other.setStreamOffset(this.streamOffset+this.length()) );
 
-        return new BytesNIOWrapper( buf, 0, this.streamOffset ); // todo 0L is wrong
+        return new BytesMultiBucketWrapper( buckets, this.streamOffset );
     }
 
-    public Bytes consume( int numBytes ) {
+    public Bytes skipBytes( int numBytes ) {
         Validate.isLTE( numBytes, this.length(), "numBytes" );
 
-        if ( numBytes == 0 ) {               // todo drop unused ByteBuffers
+        if ( numBytes == 0 ) {
             return this;
         }
 
@@ -140,5 +162,132 @@ class BytesNIOWrapper extends Bytes {
         for ( int i=buf.position()+this.positionOffset; i<limit; i++ ) {
             targetBuffer.put( buf.get(i) );
         }
+    }
+
+    Bytes setStreamOffset( long newStreamOffset ) {
+        return new BytesNIOWrapper( this.buf, this.positionOffset, newStreamOffset );
+    }
+}
+
+
+/**
+ * Wraps other instances of Bytes. Allows appending instances together without copying all of the bytes around. Also
+ * allows for the deallocation of consumed bytes on the fly, again without copying bytes around.
+ */
+class BytesMultiBucketWrapper extends Bytes {
+    private final List<Bytes> buckets;
+    private final long        streamOffset;
+
+    BytesMultiBucketWrapper( Bytes bucket ) {
+        this.buckets      = new ArrayList<Bytes>(1);
+        this.streamOffset = bucket.streamOffset();
+
+        this.buckets.add( bucket );
+    }
+
+    BytesMultiBucketWrapper( List<Bytes> buckets, long streamOffset ) {
+        this.buckets        = buckets;
+        this.streamOffset   = streamOffset;
+    }
+
+    public long streamOffset() {
+        return streamOffset;
+    }
+
+    public int length() {
+        int remaining = 0;
+
+        for ( Bytes b : buckets ) {
+            remaining += b.length();
+        }
+
+        return remaining;
+    }
+
+    public byte getByte( final int index ) {
+        int i = index;
+        for ( Bytes b : buckets ) {
+            int length = b.length();
+
+            if ( i < length ) {
+                return b.getByte( i );
+            } else {
+                i -= length;
+            }
+        }
+
+        throw new IndexOutOfBoundsException( );
+    }
+
+    public Characters toCharacters( String characterSet ) {
+        return null;  // todo
+    }
+
+    public Bytes appendBytes( Bytes other ) {
+        Validate.notNull( other, "other" );
+
+        if ( this.length() == 0 ) {
+            return other;
+        } else if ( other.length() == 0 ) {
+            return this;
+        }
+
+        List<Bytes> newBytes = new ArrayList(this.buckets.size()+1);  // todo replace with an immutable variant
+        newBytes.addAll(this.buckets);
+        newBytes.add(other.setStreamOffset(this.streamOffset+this.length()));
+
+        return new BytesMultiBucketWrapper( newBytes, streamOffset );
+    }
+
+    public Bytes skipBytes( int numBytes ) {
+        Validate.isLTE( numBytes, this.length(), "numBytes" );
+
+        if ( numBytes == 0 ) {
+            return this;
+        }
+
+        int         bytesLeftToConsume = numBytes;
+        List<Bytes> newBuckets         = new ArrayList(this.buckets.size());
+
+        for ( Bytes bucket : buckets ) {
+            if ( bytesLeftToConsume == 0 ) {
+                newBuckets.add( bucket );
+            } else {
+                int numBytesInBucket = bucket.length();
+                if ( bytesLeftToConsume < numBytesInBucket ) {
+                    newBuckets.add( bucket.skipBytes(bytesLeftToConsume) );
+
+                    bytesLeftToConsume = 0;
+                } else {
+                    bytesLeftToConsume -= numBytesInBucket;
+                }
+            }
+        }
+
+        return new BytesMultiBucketWrapper( newBuckets, this.streamOffset+numBytes );
+    }
+
+    public void writeTo( ByteBuffer targetBuffer, final int numBytes ) {
+        Validate.isLTE( numBytes, this.length(), "numBytes" );
+
+        int numBytesLeftToWrite = numBytes;
+
+        for ( Bytes bucket : buckets ) {
+            int numBytesInBucket = bucket.length();
+
+            if ( numBytesInBucket < numBytesLeftToWrite ) {
+                bucket.writeTo( targetBuffer, numBytesLeftToWrite );
+
+                break;
+            } else {
+                bucket.writeTo( targetBuffer );
+
+                numBytesLeftToWrite -= numBytesInBucket;
+            }
+        }
+    }
+
+    Bytes setStreamOffset( long newStreamOffset ) {
+        return new BytesMultiBucketWrapper( this.buckets, newStreamOffset );
     }
 }
