@@ -85,8 +85,6 @@ public abstract class Bytes {
         CharBuffer     destBuffer     = CharBuffer.allocate( (int) (this.length()*decoder.averageCharsPerByte()+1) );
         Bytes          bytesRemaining = decodeBytesToBufferAndReturningUndecodedBytes( decoder, destBuffer );
 
-//        decoder.flush( destBuffer );
-
         destBuffer.flip();
 
         Characters decodedCharacters = Characters.wrapCharBuffer( destBuffer );
