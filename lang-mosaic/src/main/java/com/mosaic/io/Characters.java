@@ -11,6 +11,8 @@ import java.util.List;
  */
 public abstract class Characters {
 
+    public static final Characters EMPTY = wrapCharBuffer( CharBuffer.allocate( 0 ) );
+
     /**
      * Create an instance of Characters containing the remaining contents of buffer, that is the characters between position
      * and limit. Defensively makes a copy of the src buffer. The position of the buffer will be returned back to its

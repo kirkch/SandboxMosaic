@@ -2,10 +2,13 @@ package com.mosaic.io;
 
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.CharConversionException;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -180,8 +183,84 @@ public abstract class BaseBytesTestCases {
 // toCharacters tests
 
     @Test
-    public void givenEmptyBuffer_callToCharacters_expectEmptyCharacters() {
-        // TODO
+    public void givenEmptyBuffer_callToCharacters_expectEmptyCharacters() throws CharConversionException {
+        Bytes              bytes  = createBytes( new byte[] {} );
+        DecodedBytesResult result = bytes.toCharacters( "ASCII" );
+
+        assertEquals( 0, result.decodedCharacters.length() );
+        assertEquals( 0, result.remainingBytes.length() );
+    }
+
+    @Test
+    public void givenThreeASCIIBytes_callToCharacters_expectThreeCharacters() throws CharConversionException {
+        Bytes              bytes  = createBytes( new byte[] {'a','b','c'} );
+        DecodedBytesResult result = bytes.toCharacters( "ASCII" );
+
+        assertEquals( 3, result.decodedCharacters.length() );
+        assertEquals( 0, result.decodedCharacters.streamOffset() );
+
+        assertEquals( 0, result.remainingBytes.length() );
+        assertEquals( 3, result.remainingBytes.streamOffset() );
+
+        assertEquals( 'a', result.decodedCharacters.getChar(0) );
+        assertEquals( 'b', result.decodedCharacters.getChar( 1 ) );
+        assertEquals( 'c', result.decodedCharacters.getChar( 2 ) );
+    }
+
+    @Test
+    public void givenThreeUTF8BytesForTwoCharacters_callToCharacters_expectTwoCharacters() throws IOException {
+        Bytes              bytes  = createBytes( "£a", "UTF-8" );
+        DecodedBytesResult result = bytes.toCharacters( "UTF-8" );
+
+        assertEquals( 2, result.decodedCharacters.length() );
+        assertEquals( 0, result.decodedCharacters.streamOffset() );
+
+        assertEquals( 0, result.remainingBytes.length() );
+        assertEquals( 3, result.remainingBytes.streamOffset() );
+
+        assertEquals( '£', result.decodedCharacters.getChar(0) );
+        assertEquals( 'a', result.decodedCharacters.getChar(1) );
+    }
+
+    @Test
+    public void givenFirstByteOfMultiByteCharacter_callToCharacters_expectNoDecoding() throws IOException {
+        Bytes              bytes1  = createBytes( "£", "UTF-8" );
+        Bytes              bytes2  = bytes1.subset( 0, 1 );
+        DecodedBytesResult result = bytes2.toCharacters( "UTF-8" );
+
+        assertEquals( 0, result.decodedCharacters.length() );
+        assertEquals( 0, result.decodedCharacters.streamOffset() );
+
+        assertEquals( 1, result.remainingBytes.length() );
+        assertEquals( 0, result.remainingBytes.streamOffset() );
+    }
+
+    @Test
+    public void givenFirstByteOfMultiByteCharacter_callToCharactersThenAppendFinishingBytes_expectDecoding() throws IOException {
+        Bytes              bytes1 = createBytes( "£", "UTF-8" );
+        Bytes              bytes2 = bytes1.subset(0,1);
+        Bytes              bytes3 = bytes2.appendBytes( bytes1.subset(1,2) );
+
+
+
+//        ByteBuffer buf = ByteBuffer.allocate( 2 );
+//        bytes3.writeTo( buf );
+//        buf.flip();
+//
+//        CharBuffer cb = Charset.forName( "UTF-8" ).decode( buf );
+//        cb.flip();
+//        System.out.println( "cb.toString() = " + cb.toString() );
+
+
+
+        DecodedBytesResult result = bytes3.toCharacters( "UTF-8" );
+
+        assertEquals( 1, result.decodedCharacters.length() );
+        assertEquals( 0, result.decodedCharacters.streamOffset() );
+        assertEquals( '£', result.decodedCharacters.getChar(0) );
+
+        assertEquals( 0, result.remainingBytes.length() );
+        assertEquals( 2, result.remainingBytes.streamOffset() );
     }
 
 // appendBytes tests
@@ -252,7 +331,7 @@ public abstract class BaseBytesTestCases {
         assertEquals( 0, bytes3.streamOffset() );
     }
 
-// consume tests
+// skipBytes tests
 
     @Test
     public void givenEmptyBuffer_consumeZeroBytes_expectOriginalBufferBack() {
@@ -281,7 +360,7 @@ public abstract class BaseBytesTestCases {
 
         assertEquals(  2, bytes2.length() );
         assertEquals( 97, bytes2.getByte(0) );
-        assertEquals( 98, bytes2.getByte(1) );
+        assertEquals( 98, bytes2.getByte( 1 ) );
     }
 
     @Test
@@ -304,6 +383,91 @@ public abstract class BaseBytesTestCases {
         }
     }
 
+// subset tests
+
+    @Test
+    public void givenEmptyBytes_subset0To0_expectIdenticalBytesBack() {
+        Bytes bytes1 = createBytes( new byte[] {} );
+
+        Bytes bytes2 = bytes1.subset(0,0);
+
+        assertTrue( bytes1 == bytes2 );
+    }
+
+    @Test
+    public void givenEmptyBytes_subset0To1_expectException() {
+        Bytes bytes1 = createBytes( new byte[] {} );
+
+        try {
+            bytes1.subset( 0, 1 );
+            fail( "Expected IndexOutOfBoundsException" );
+        } catch (IndexOutOfBoundsException e) {
+            assertEquals( "'fromInc' (0) must be >= 0 and < 0", e.getMessage() );
+        }
+    }
+
+    @Test
+    public void givenEmptyBytes_subsetM1To0_expectException() {
+        Bytes bytes1 = createBytes( new byte[] {} );
+
+        try {
+            bytes1.subset( -1, 0 );
+            fail( "Expected IndexOutOfBoundsException" );
+        } catch (IndexOutOfBoundsException e) {
+            assertEquals( "'fromInc' (-1) must be >= 0 and < 0", e.getMessage() );
+        }
+    }
+
+    @Test
+    public void givenThreeBytes_subsetM1To0_expectException() {
+        Bytes bytes1 = createBytes( new byte[] {97,98,99} );
+
+        try {
+            bytes1.subset( -1, 0 );
+            fail( "Expected IndexOutOfBoundsException" );
+        } catch (IndexOutOfBoundsException e) {
+            assertEquals( "'fromInc' (-1) must be >= 0 and < 3", e.getMessage() );
+        }
+    }
+
+    @Test
+    public void givenThreeBytes_subsetM1To3_expectException() {
+        Bytes bytes1 = createBytes( new byte[] {97,98,99} );
+
+        try {
+            bytes1.subset( -1, 3 );
+            fail( "Expected IndexOutOfBoundsException" );
+        } catch (IndexOutOfBoundsException e) {
+            assertEquals( "'fromInc' (-1) must be >= 0 and < 3", e.getMessage() );
+        }
+    }
+
+    @Test
+    public void givenThreeBytes_subset1To2_expectOneByteBack() {
+        Bytes bytes1 = createBytes( new byte[] {97,98,99} );
+
+        Bytes bytes2 = bytes1.subset( 1, 2 );
+
+        assertEquals( 1, bytes2.length() );
+        assertEquals( 1, bytes2.streamOffset() );
+        assertEquals( 98, bytes2.getByte(0) );
+    }
+
+    @Test
+    public void givenThreeBytes_subset1To3_expectOneByteBack() {
+        Bytes bytes1 = createBytes( new byte[] {97,98,99} );
+
+        Bytes bytes2 = bytes1.subset( 1, 3 );
+
+        assertEquals( 2, bytes2.length() );
+        assertEquals( 1, bytes2.streamOffset() );
+        assertEquals( 98, bytes2.getByte(0) );
+        assertEquals( 99, bytes2.getByte(1) );
+    }
+
+    // TODO append then subview from first bucket
+    // TODO append then subview from cross both buckets
+    // TODO append then subview from second bucket
 
 // writeTo(ByteBuffer,int numBytes) tests
 
@@ -379,11 +543,40 @@ public abstract class BaseBytesTestCases {
         assertEquals( 91, destBuffer.get(0) );
     }
 
+// writeTo tests
+
+    @Test
+    public void givenTwoBytesSplitAcrossTwoBuckets_writeTo_expectTwoBytes() throws IOException {
+        Bytes              bytes1 = createBytes( "£", "UTF-8" );
+        Bytes              bytes2 = bytes1.subset(0,1);
+        Bytes              bytes3 = bytes2.appendBytes( bytes1.subset(1,2) );
+
+        ByteBuffer destBuf = ByteBuffer.allocate( 2 );
+        bytes3.writeTo( destBuf );
+
+        assertEquals( 2, destBuf.position() );
+        assertEquals( bytes1.getByte(0), bytes3.getByte(0) );
+        assertEquals( bytes1.getByte(1), bytes3.getByte(1) );
+    }
+
+
 
 
 // asByteBuffer
 // asByteArray
 // slice
 
+
+
+
+    private Bytes createBytes( String str, String charset ) throws IOException {
+        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+        OutputStreamWriter out = new OutputStreamWriter( byteOutputStream, "UTF-8" );
+
+        out.write( "£a" );
+        out.flush();
+
+        return createBytes( byteOutputStream.toByteArray() );
+    }
 
 }

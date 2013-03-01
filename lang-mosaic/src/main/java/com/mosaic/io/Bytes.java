@@ -2,7 +2,12 @@ package com.mosaic.io;
 
 import com.mosaic.lang.Validate;
 
+import java.io.CharConversionException;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CoderResult;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +66,38 @@ public abstract class Bytes {
      * Converts this instance of bytes into an immutable instance of Characters. If the bytes end part way through a
      * multi-byte character then conversion will stop at the end of the last complete character.
      */
-    public abstract Characters toCharacters( String characterSet );
+    public DecodedBytesResult toCharacters( String characterSet ) throws CharConversionException {
+        Charset charset = Charset.forName(characterSet);
+
+        return toCharacters( charset );
+    }
+
+    /**
+     * Converts this instance of bytes into an immutable instance of Characters. If the bytes end part way through a
+     * multi-byte character then conversion will stop at the end of the last complete character.
+     */
+    public DecodedBytesResult toCharacters( Charset charset ) throws CharConversionException {
+        if ( this.length() == 0 ) {
+            return new DecodedBytesResult(this,Characters.EMPTY);
+        }
+
+        CharsetDecoder decoder        = charset.newDecoder();
+        CharBuffer     destBuffer     = CharBuffer.allocate( (int) (this.length()*decoder.averageCharsPerByte()+1) );
+        Bytes          bytesRemaining = decodeBytesToBufferAndReturningUndecodedBytes( decoder, destBuffer );
+
+//        decoder.flush( destBuffer );
+
+        destBuffer.flip();
+
+        Characters decodedCharacters = Characters.wrapCharBuffer( destBuffer );
+        return new DecodedBytesResult( bytesRemaining, decodedCharacters );
+    }
+
+    /**
+     * @return bytes remaining
+     */
+    protected abstract Bytes decodeBytesToBufferAndReturningUndecodedBytes( CharsetDecoder decoder, CharBuffer destBuffer ) throws CharConversionException;
+
 
     /**
      * Join two instances of Bytes together. Does so by creating a wrapper around both instances of Bytes, making them
@@ -75,6 +111,8 @@ public abstract class Bytes {
      * instance will be dropped. Making it possible to GC it.
      */
     public abstract Bytes skipBytes( int numBytes );
+
+    public abstract Bytes subset( int fromInc, int toExc );
 
     /**
      * Write the contents of this instance of Bytes into the target ByteBuffer. If the ByteBuffer is too small to take
@@ -123,8 +161,17 @@ class BytesNIOWrapper extends Bytes {
         return buf.get( index + positionOffset );
     }
 
-    public Characters toCharacters( String characterSet ) {
-        return null;
+    protected Bytes decodeBytesToBufferAndReturningUndecodedBytes( CharsetDecoder decoder, CharBuffer destBuffer ) throws CharConversionException {
+        ByteBuffer shallowClonedBytes = this.buf.duplicate();
+        shallowClonedBytes.position( this.positionOffset );
+
+        CoderResult v = decoder.decode( shallowClonedBytes, destBuffer, false );
+        if ( v.isMalformed() ) {
+            throw new CharConversionException( "Malformed bytes after offset " + streamOffset() );
+        }
+        int numBytesConsumed = shallowClonedBytes.position() - this.positionOffset;
+
+        return new BytesNIOWrapper( this.buf, shallowClonedBytes.position(), streamOffset+numBytesConsumed );
     }
 
     public Bytes appendBytes( Bytes other ) {
@@ -151,6 +198,23 @@ class BytesNIOWrapper extends Bytes {
         }
 
         return new BytesNIOWrapper( this.buf, this.positionOffset+numBytes, this.streamOffset+numBytes );
+    }
+
+    public Bytes subset( int fromInc, int toExc ) {
+        int length = this.length();
+
+        if ( fromInc == 0 && toExc == 0 && length == 0 ) {
+            return this;
+        }
+
+        Validate.indexBounds( 0, fromInc, length, "fromInc" );
+        Validate.indexBounds( 0, toExc, length+1, "toExc" );
+
+
+        ByteBuffer clonedBuffer = this.buf.duplicate();
+        clonedBuffer.limit( toExc );
+
+        return new BytesNIOWrapper( clonedBuffer, this.positionOffset+fromInc, this.streamOffset+fromInc );
     }
 
     public void writeTo( ByteBuffer targetBuffer, int numBytes ) {
@@ -212,8 +276,22 @@ class BytesMultiBucketWrapper extends Bytes {
         throw new IndexOutOfBoundsException( );
     }
 
-    public Characters toCharacters( String characterSet ) {
-        return null;  // todo
+    protected Bytes decodeBytesToBufferAndReturningUndecodedBytes( CharsetDecoder decoder, CharBuffer destBuffer ) throws CharConversionException {
+//        int numBytesConsumed = 0;            this approach is ''efficient'' but sadly decoder does not carry state when a char is split over two calls :(
+//        for ( Bytes bucket : this.buckets ) {
+//            Bytes remainingBytes = bucket.decodeBytesToBufferAndReturningUndecodedBytes( decoder, destBuffer );
+//
+//            numBytesConsumed += remainingBytes.length() - bucket.length();
+//        }
+//
+//        return subset( 0, numBytesConsumed );
+
+        ByteBuffer allBytes = ByteBuffer.allocate( this.length() );
+        this.writeTo( allBytes );
+        allBytes.flip();
+
+        Bytes b = Bytes.wrapBytesBufferNoCopy( allBytes );
+        return b.decodeBytesToBufferAndReturningUndecodedBytes( decoder, destBuffer );
     }
 
     public Bytes appendBytes( Bytes other ) {
@@ -260,6 +338,12 @@ class BytesMultiBucketWrapper extends Bytes {
         return new BytesMultiBucketWrapper( newBuckets, this.streamOffset+numBytes );
     }
 
+    public Bytes subset( int fromInc, int toExc ) {
+
+throw new UnsupportedOperationException( "todo" );
+//        return this; // todo
+    }
+
     public void writeTo( ByteBuffer targetBuffer, final int numBytes ) {
         Validate.isLTE( numBytes, this.length(), "numBytes" );
 
@@ -269,13 +353,13 @@ class BytesMultiBucketWrapper extends Bytes {
             int numBytesInBucket = bucket.length();
 
             if ( numBytesInBucket < numBytesLeftToWrite ) {
-                bucket.writeTo( targetBuffer, numBytesLeftToWrite );
-
-                break;
-            } else {
                 bucket.writeTo( targetBuffer );
 
                 numBytesLeftToWrite -= numBytesInBucket;
+            } else {
+                bucket.writeTo( targetBuffer, numBytesInBucket );
+
+                break;
             }
         }
     }
