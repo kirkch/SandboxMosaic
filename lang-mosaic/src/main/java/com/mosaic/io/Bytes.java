@@ -275,7 +275,8 @@ class BytesMultiBucketWrapper extends Bytes {
     }
 
     protected Bytes decodeBytesToBufferAndReturningUndecodedBytes( CharsetDecoder decoder, CharBuffer destBuffer ) throws CharConversionException {
-//        int numBytesConsumed = 0;            this approach is ''efficient'' but sadly decoder does not carry state when a char is split over two calls :(
+
+//        int numBytesConsumed = 0;
 //        for ( Bytes bucket : this.buckets ) {
 //            Bytes remainingBytes = bucket.decodeBytesToBufferAndReturningUndecodedBytes( decoder, destBuffer );
 //
