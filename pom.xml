@@ -17,7 +17,7 @@
         <module>collections-mosaic</module>
 		<module>pull-parser-mosaic</module>
         <module>csv-parser-mosaic</module>
-        <module>push-mosaic</module>
+        <module>push-mosaic</module><module>push-parser-mosaic</module>
 	</modules>
 
     <properties>

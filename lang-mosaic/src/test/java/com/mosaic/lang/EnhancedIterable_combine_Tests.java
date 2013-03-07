@@ -16,7 +16,7 @@ public class EnhancedIterable_combine_Tests {
     @Test
     public void combineNull_expectException() {
         try {
-            EnhancedIterable.combine( null );
+            EnhancedIterable.combine( (Iterable[]) null );
             fail( "expected IAE" );
         } catch ( IllegalArgumentException e ) {
             assertEquals( "'iterables' is not allowed to be null", e.getMessage() );

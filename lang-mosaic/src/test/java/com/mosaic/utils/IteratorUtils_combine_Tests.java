@@ -15,7 +15,7 @@ public class IteratorUtils_combine_Tests {
     @Test
     public void combineNull_expectException() {
         try {
-            IteratorUtils.combine( null );
+            IteratorUtils.combine( (Iterator[]) null );
             fail( "expected IAE" );
         } catch ( IllegalArgumentException e ) {
             assertEquals( "'iterators' is not allowed to be null", e.getMessage() );
