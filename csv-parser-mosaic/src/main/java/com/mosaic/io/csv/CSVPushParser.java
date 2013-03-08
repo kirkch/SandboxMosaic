@@ -28,7 +28,7 @@ public class CSVPushParser /* extends PushParser<CSVPushParser> */{
 //    public SELF processCharacters( Characters in ) {
 //        Matcher newMatcher = currentMatcher.processCharacters(in);
 //
-//        return constructor.newInstance(newMatcher);
+//        return myConstructor.newInstance(newMatcher);
 //    }
 //
 //    public int getLineNumber() {

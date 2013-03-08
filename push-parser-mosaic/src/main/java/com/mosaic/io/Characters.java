@@ -13,6 +13,10 @@ public abstract class Characters {
 
     public static final Characters EMPTY = wrapCharBuffer( CharBuffer.allocate( 0 ) );
 
+    public static Characters wrapString( String str ) {
+        return wrapCharBuffer( CharBuffer.wrap( str ) );
+    }
+
     /**
      * Create an instance of Characters containing the remaining contents of buffer, that is the characters between position
      * and limit. Defensively makes a copy of the src buffer. The position of the buffer will be returned back to its
@@ -92,6 +96,32 @@ public abstract class Characters {
      * being appended together.
      */
     abstract Characters setStreamOffset( long newStreamOffset );
+
+
+    public boolean startsWith( String targetString ) {
+        return containsAt( targetString, 0 );
+    }
+
+    public boolean containsAt( String targetString, int fromIndex ) {
+        Validate.isGTEZero( fromIndex, "fromIndex" );
+
+        int targetStringLength = targetString.length();
+        if ( this.length()-fromIndex < targetStringLength ) {
+            return false;
+        }
+
+
+        for ( int i=0; i<targetStringLength; i++ ) {
+            char c = getChar( i+fromIndex );
+            char t = targetString.charAt( i );
+
+            if ( c != t ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
 
 

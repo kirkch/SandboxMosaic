@@ -380,6 +380,90 @@ public abstract class BaseCharactersTestCases {
     }
 
 
+// containsAt tests
+
+    @Test
+    public void givenEmptyChars_containsABCAt0_expectFalse() {
+        Characters chars = createCharacters( new char[] {} );
+
+        assertFalse( chars.containsAt("abc", 0) );
+    }
+
+    @Test
+    public void givenFirstTwoTargetChars_containsABCAt0_expectFalse() {
+        Characters chars = createCharacters( new char[] {'a','b'} );
+
+        assertFalse( chars.containsAt("abc", 0) );
+    }
+
+    @Test
+    public void givenAllTargetChars_containsABCAt0_expectTrue() {
+        Characters chars = createCharacters( new char[] {'a','b','c'} );
+
+        assertTrue( chars.containsAt( "abc", 0 ) );
+    }
+
+    @Test
+    public void givenAllTargetAndMoreChars_containsABCAt0_expectTrue() {
+        Characters chars = createCharacters( new char[] {'a','b','c','d','e'} );
+
+        assertTrue( chars.containsAt( "abc", 0 ) );
+    }
+
+    @Test
+    public void givenAllTargetCharsInMiddleOfString_containsABCAt0_expectFalse() {
+        Characters chars = createCharacters( new char[] {'0','1','a','b','c','d','e'} );
+
+        assertFalse( chars.containsAt( "abc", 0 ) );
+    }
+
+    @Test
+    public void givenAllTargetCharsInMiddleOfString_containsABCAt1_expectFalse() {
+        Characters chars = createCharacters( new char[] {'0','1','a','b','c','d','e'} );
+
+        assertFalse( chars.containsAt( "abc", 1 ) );
+    }
+
+    @Test
+    public void givenAllTargetCharsInMiddleOfString_containsABCAt2_expectTrue() {
+        Characters chars = createCharacters( new char[] {'0','1','a','b','c','d','e'} );
+
+        assertTrue( chars.containsAt( "abc", 2 ) );
+    }
+
+    @Test
+    public void givenAllTargetCharsInMiddleOfString_containsABCAt3_expectFalse() {
+        Characters chars = createCharacters( new char[] {'0','1','a','b','c','d','e'} );
+
+        assertFalse( chars.containsAt( "abc", 3 ) );
+    }
+
+    @Test
+    public void givenAllTargetCharsInMiddleOfString_containsABCAt5_expectFalse() {
+        Characters chars = createCharacters( new char[] {'0','1','a','b','c','d','e'} );
+
+        assertFalse( chars.containsAt( "abc", 5 ) );
+    }
+
+    @Test
+    public void givenAllTargetCharsInMiddleOfString_containsABCAt8_expectFalse() {
+        Characters chars = createCharacters( new char[] {'0','1','a','b','c','d','e'} );
+
+        assertFalse( chars.containsAt( "abc", 8 ) );
+    }
+
+    @Test
+    public void givenAllTargetCharsInMiddleOfString_containsABCAtM1_expectFalse() {
+        Characters chars = createCharacters( new char[] {'0','1','a','b','c','d','e'} );
+
+        try {
+            chars.containsAt( "abc", -1 );
+            fail( "Expected IllegalArgumentException" );
+        } catch (IllegalArgumentException e) {
+            assertEquals( "'fromIndex' (-1) must be >= 0", e.getMessage() );
+        }
+    }
+
 
 // asCharBuffer
 // asByteArray
