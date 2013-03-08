@@ -33,14 +33,14 @@ public abstract class BaseCharactersTestCases {
     public void givenEmptyCharactersBuffer_callStreamOffset_expectZero() {
         Characters      chars = createCharacters( new char[] {} );
 
-        assertEquals( 0, chars.streamOffset() );
+        assertEquals( 0, chars.getStreamOffset() );
     }
 
     @Test
     public void givenTwoCharactersBuffer_callStreamOffset_expectZero() {
         Characters      chars = createCharacters( new char[] {97,98} );
 
-        assertEquals( 0, chars.streamOffset() );
+        assertEquals( 0, chars.getStreamOffset() );
     }
 
     @Test
@@ -48,7 +48,7 @@ public abstract class BaseCharactersTestCases {
         Characters chars1 = createCharacters( new char[] {96, 97, 98} );
         Characters chars2 = chars1.skipCharacters( 1 );
 
-        assertEquals(  1, chars2.streamOffset() );
+        assertEquals(  1, chars2.getStreamOffset() );
     }
 
     @Test
@@ -56,7 +56,7 @@ public abstract class BaseCharactersTestCases {
         Characters chars1 = createCharacters( new char[] {96, 97, 98} );
         Characters chars2 = chars1.skipCharacters( 2 );
 
-        assertEquals(  2, chars2.streamOffset() );
+        assertEquals(  2, chars2.getStreamOffset() );
     }
 
     @Test
@@ -65,7 +65,7 @@ public abstract class BaseCharactersTestCases {
         Characters chars2 = chars1.skipCharacters( 1 );
         Characters chars3 = chars2.skipCharacters( 1 );
 
-        assertEquals(  2, chars3.streamOffset() );
+        assertEquals(  2, chars3.getStreamOffset() );
     }
 
     @Test
@@ -75,7 +75,7 @@ public abstract class BaseCharactersTestCases {
         Characters chars3 = chars1.appendCharacters( chars2 );
         Characters chars4 = chars3.skipCharacters( 4 );
 
-        assertEquals(   4, chars4.streamOffset() );
+        assertEquals(   4, chars4.getStreamOffset() );
         assertEquals(   1, chars4.length() );
         assertEquals( 100, chars4.getChar( 0 ) );
     }
@@ -88,7 +88,7 @@ public abstract class BaseCharactersTestCases {
         Characters chars4 = chars1.appendCharacters( chars2 ).appendCharacters( chars3 );
         Characters chars5 = chars4.skipCharacters( 2 ).skipCharacters( 3 );
 
-        assertEquals(   5, chars5.streamOffset() );
+        assertEquals(   5, chars5.getStreamOffset() );
         assertEquals(   1, chars5.length() );
         assertEquals( 101, chars5.getChar( 0 ) );
     }
@@ -100,7 +100,7 @@ public abstract class BaseCharactersTestCases {
         Characters chars3 = createCharacters( new char[] {100, 101} );
         Characters chars4 = chars1.skipCharacters( 1 ).appendCharacters( chars2 ).skipCharacters( 1 ).appendCharacters( chars3 );
 
-        assertEquals(   2, chars4.streamOffset() );
+        assertEquals(   2, chars4.getStreamOffset() );
         assertEquals(   4, chars4.length() );
         assertEquals(  98, chars4.getChar( 0 ) );
         assertEquals(  99, chars4.getChar( 1 ) );
@@ -249,7 +249,7 @@ public abstract class BaseCharactersTestCases {
 
         Characters chars3 = chars1.appendCharacters( chars2 );
 
-        assertEquals( 0, chars3.streamOffset() );
+        assertEquals( 0, chars3.getStreamOffset() );
     }
 
 // consume tests

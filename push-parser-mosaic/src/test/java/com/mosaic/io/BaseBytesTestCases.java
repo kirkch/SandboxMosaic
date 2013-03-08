@@ -197,7 +197,7 @@ public abstract class BaseBytesTestCases {
         DecodedBytesResult result = bytes.toCharacters( "ASCII" );
 
         assertEquals( 3, result.decodedCharacters.length() );
-        assertEquals( 0, result.decodedCharacters.streamOffset() );
+        assertEquals( 0, result.decodedCharacters.getStreamOffset() );
 
         assertEquals( 0, result.remainingBytes.length() );
         assertEquals( 3, result.remainingBytes.streamOffset() );
@@ -213,7 +213,7 @@ public abstract class BaseBytesTestCases {
         DecodedBytesResult result = bytes.toCharacters( "UTF-8" );
 
         assertEquals( 2, result.decodedCharacters.length() );
-        assertEquals( 0, result.decodedCharacters.streamOffset() );
+        assertEquals( 0, result.decodedCharacters.getStreamOffset() );
 
         assertEquals( 0, result.remainingBytes.length() );
         assertEquals( 3, result.remainingBytes.streamOffset() );
@@ -229,7 +229,7 @@ public abstract class BaseBytesTestCases {
         DecodedBytesResult result = bytes2.toCharacters( "UTF-8" );
 
         assertEquals( 0, result.decodedCharacters.length() );
-        assertEquals( 0, result.decodedCharacters.streamOffset() );
+        assertEquals( 0, result.decodedCharacters.getStreamOffset() );
 
         assertEquals( 1, result.remainingBytes.length() );
         assertEquals( 0, result.remainingBytes.streamOffset() );
@@ -256,7 +256,7 @@ public abstract class BaseBytesTestCases {
         DecodedBytesResult result = bytes3.toCharacters( "UTF-8" );
 
         assertEquals( 1, result.decodedCharacters.length() );
-        assertEquals( 0, result.decodedCharacters.streamOffset() );
+        assertEquals( 0, result.decodedCharacters.getStreamOffset() );
         assertEquals( '£', result.decodedCharacters.getChar(0) );
 
         assertEquals( 0, result.remainingBytes.length() );

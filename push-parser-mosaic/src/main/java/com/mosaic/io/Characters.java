@@ -33,7 +33,7 @@ public abstract class Characters {
         src.position( originalPosition );
 
 
-        return new CharactersNIOWrapper(new CharPosition(), copy,0,0L);
+        return new CharactersNIOWrapper(new CharPosition(), copy,0);
     }
 
     /**
@@ -44,7 +44,7 @@ public abstract class Characters {
     public static Characters wrapCharactersBufferNoCopy( CharBuffer src ) {
         Validate.notNull( src, "src" );
 
-        return new CharactersNIOWrapper(new CharPosition(), src,src.position(),0L);
+        return new CharactersNIOWrapper(new CharPosition(), src,src.position());
     }
 
 
@@ -60,7 +60,17 @@ public abstract class Characters {
      * The index of where these characters start from in relation to the start of the original stream of characters. Appending
      * and consuming characters will maintain this value.
      */
-    public abstract long streamOffset();
+    public long getStreamOffset() {
+        return this.position.getCharacterOffset();
+    }
+
+    public int getLineNumber() {
+        return this.position.getLineNumber();
+    }
+
+    public int getColumnNumber() {
+        return this.position.getColumnNumber();
+    }
 
     /**
      * The number of characters represented by this collection.
@@ -143,18 +153,12 @@ public abstract class Characters {
 class CharactersNIOWrapper extends Characters {
     private final CharBuffer buf;
     private final int        bufOffset;
-    private final long       streamOffset;
 
-    CharactersNIOWrapper( CharPosition position, CharBuffer src, int bufOffset, long streamOffset ) {
+    CharactersNIOWrapper( CharPosition position, CharBuffer src, int bufOffset ) {
         super( position );
 
-        this.buf            = src;
+        this.buf       = src;
         this.bufOffset = bufOffset;
-        this.streamOffset   = streamOffset;
-    }
-
-    public long streamOffset() {
-        return streamOffset;
     }
 
     public int length() {
@@ -176,9 +180,9 @@ class CharactersNIOWrapper extends Characters {
 
         List<Characters> buckets = new ArrayList(2);
         buckets.add( this );
-        buckets.add( other.setStreamOffset(this.streamOffset+this.length()) );
+        buckets.add( other.setStreamOffset(this.getStreamOffset()+this.length()) );
 
-        return new CharactersMultiBucketWrapper( this.getPosition(), buckets, this.streamOffset );
+        return new CharactersMultiBucketWrapper( this.getPosition(), buckets );
     }
 
     public Characters skipCharacters( int numCharacters ) {
@@ -189,7 +193,7 @@ class CharactersNIOWrapper extends Characters {
         }
 
         CharPosition newPosition = this.getPosition().walkCharacters( numCharacters, this );
-        return new CharactersNIOWrapper( newPosition, this.buf, this.bufOffset +numCharacters, this.streamOffset+numCharacters );
+        return new CharactersNIOWrapper( newPosition, this.buf, this.bufOffset +numCharacters );
     }
 
     public void writeTo( CharBuffer targetBuffer, int numCharacters ) {
@@ -204,7 +208,7 @@ class CharactersNIOWrapper extends Characters {
     }
 
     Characters setStreamOffset( long newStreamOffset ) {
-        return new CharactersNIOWrapper( this.getPosition().setCharacterOffset(newStreamOffset), this.buf, this.bufOffset, newStreamOffset );
+        return new CharactersNIOWrapper( this.getPosition().setCharacterOffset(newStreamOffset), this.buf, this.bufOffset );
     }
 }
 
@@ -215,17 +219,11 @@ class CharactersNIOWrapper extends Characters {
  */
 class CharactersMultiBucketWrapper extends Characters {
     private final List<Characters> buckets;
-    private final long        streamOffset;
 
-    CharactersMultiBucketWrapper( CharPosition pos, List<Characters> buckets, long streamOffset ) {
+    CharactersMultiBucketWrapper( CharPosition pos, List<Characters> buckets ) {
         super(pos);
 
-        this.buckets        = buckets;
-        this.streamOffset   = streamOffset;
-    }
-
-    public long streamOffset() {
-        return streamOffset;
+        this.buckets = buckets;
     }
 
     public int length() {
@@ -264,9 +262,9 @@ class CharactersMultiBucketWrapper extends Characters {
 
         List<Characters> newCharacters = new ArrayList(this.buckets.size()+1);  // todo replace with an immutable variant
         newCharacters.addAll(this.buckets);
-        newCharacters.add(other.setStreamOffset(this.streamOffset+this.length()));
+        newCharacters.add(other.setStreamOffset(this.getStreamOffset()+this.length()));
 
-        return new CharactersMultiBucketWrapper( this.getPosition(), newCharacters, streamOffset );
+        return new CharactersMultiBucketWrapper( this.getPosition(), newCharacters );
     }
 
     public Characters skipCharacters( int numCharacters ) {
@@ -297,7 +295,7 @@ class CharactersMultiBucketWrapper extends Characters {
             }
         }
 
-        return new CharactersMultiBucketWrapper( pos, newBuckets, this.streamOffset+numCharacters );
+        return new CharactersMultiBucketWrapper( pos, newBuckets );
     }
 
     public void writeTo( CharBuffer targetBuffer, final int numCharacters ) {
@@ -321,6 +319,6 @@ class CharactersMultiBucketWrapper extends Characters {
     }
 
     Characters setStreamOffset( long newStreamOffset ) {
-        return new CharactersMultiBucketWrapper( this.getPosition().setCharacterOffset(newStreamOffset), this.buckets, newStreamOffset );
+        return new CharactersMultiBucketWrapper( this.getPosition().setCharacterOffset(newStreamOffset), this.buckets );
     }
 }
