@@ -94,4 +94,29 @@ public class ConstantMatcherTest {
         assertEquals( "abc", result2.getResult() );
     }
 
+    @Test
+    public void givenBytesThatMatchOverTwoCalls_expectMatchOnSecond() {
+        Characters      input1  = Characters.wrapString("ab");
+        Characters      input2  = Characters.wrapString("c");
+        Matcher<String> matcher = Matchers.constant( "abc" );
+
+        Matcher<String> result1 = matcher.processCharacters( input1 );
+
+        assertEquals( 0, result1.getLineNumber() );
+        assertEquals( 0, result1.getColumnNumber() );
+        assertEquals( 0, result1.getCharacterOffset() );
+        assertEquals( "ab", result1.getRemainingCharacters().toString() );
+        assertEquals( null, result1.getResult() );
+
+        Matcher<String> result2 = result1.processCharacters( input2 );
+
+        assertEquals( "abc", result2.getResult() );
+        assertEquals( 0, result2.getLineNumber() );
+        assertEquals( 0, result2.getColumnNumber() );
+        assertEquals( 0, result2.getCharacterOffset() );
+        assertEquals( "", result2.getRemainingCharacters().toString() );
+
+        assertEquals( 3, result2.getRemainingCharacters().getColumnNumber() );
+    }
+
 }

@@ -31,7 +31,19 @@ public abstract class Matcher<T> {
      * with the remaining bytes of any previous run. Thus allowing the supply of characters to drip or burst in to the
      * parser at any rate without blocking the thread.
      */
-    public abstract Matcher<T> processCharacters( Characters in );
+    public final Matcher<T> processCharacters( Characters in ) {
+        if ( in.length() == 0 ) {
+            return this;
+        }
+
+        Characters characters = this.getRemainingCharacters();
+        characters = characters == null ? in : characters.appendCharacters( in );
+
+        return _processCharacters( characters );
+    }
+
+    protected abstract Matcher<T> _processCharacters( Characters in );
+
 
     /**
      * Returns the 'parsed' match from this matcher. Which will be null until a full match is made.

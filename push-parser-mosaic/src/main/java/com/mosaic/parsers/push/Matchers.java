@@ -4,6 +4,8 @@ import com.mosaic.io.CharPosition;
 import com.mosaic.io.Characters;
 import com.mosaic.lang.Validate;
 
+import java.util.regex.Pattern;
+
 /**
  * A collection of common matchers and matcher decorators.
  */
@@ -16,6 +18,25 @@ public class Matchers {
         return new ConstantMatcher(targetString);
     }
 
+    public static Matcher<String> regexp( String regexp ) {
+        return regexp( Pattern.compile(regexp) );
+    }
+
+    public static Matcher<String> regexp( Pattern regexp ) {
+        return new RegExpMatcher(regexp);
+    }
+
+    // regexp
+    // skipWhitespace
+    // list
+    // zeroOrMore
+    // issueCallback
+    // discard
+
+// private static final Matcher<String> csvColumn = skipWhitespace(regexp("^[,EOL]+"))
+
+    // private static final Matcher<List<String>> row  = list( csvColumn, comma, eol )
+    // private static final Matcher               rows = zeroOrMore( issueCallbackAndSkip(row,this,"rowParsed",List<String>.class) )
 }
 
 
@@ -37,12 +58,52 @@ class ConstantMatcher extends Matcher<String> {
     }
 
     @Override
-    public Matcher<String> processCharacters( Characters in ) {
+    protected Matcher<String> _processCharacters( Characters in ) {
         if ( in.startsWith(targetString) ) {
             Characters remainingBytes = in.skipCharacters( targetString.length() );
 
             return new ConstantMatcher( targetString, targetString, remainingBytes, in.getPosition() );
+        } else {
+            Characters remainingBytes = this.appendCharacters(in);
+
+            return new ConstantMatcher( targetString, null, remainingBytes, this.getStartingPosition() );
         }
+    }
+
+    private Characters appendCharacters( Characters in ) {
+        Characters remaining = this.getRemainingCharacters();
+        if ( remaining == null ) {
+            return in;
+        } else {
+            return remaining.appendCharacters( in );
+        }
+    }
+
+}
+
+
+
+class RegExpMatcher extends Matcher<String> {
+
+    private final Pattern regexp;
+
+    public RegExpMatcher( Pattern regexp ) {
+        this( regexp, null, null, null );
+    }
+
+    private RegExpMatcher( Pattern regexp, String result, Characters remainingBytes, CharPosition startingPosition ) {
+        super( result, remainingBytes, startingPosition );
+
+        this.regexp = regexp;
+    }
+
+    @Override
+    protected Matcher<String> _processCharacters( Characters in ) {
+//        if ( in.startsWith( targetString ) ) {
+//            Characters remainingBytes = in.skipCharacters( targetString.length() );
+//
+//            return new ConstantMatcher( targetString, targetString, remainingBytes, in.getPosition() );
+//        }
 
         return this;
     }
