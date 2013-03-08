@@ -202,9 +202,9 @@ public abstract class BaseBytesTestCases {
         assertEquals( 0, result.remainingBytes.length() );
         assertEquals( 3, result.remainingBytes.streamOffset() );
 
-        assertEquals( 'a', result.decodedCharacters.getChar(0) );
-        assertEquals( 'b', result.decodedCharacters.getChar( 1 ) );
-        assertEquals( 'c', result.decodedCharacters.getChar( 2 ) );
+        assertEquals( 'a', result.decodedCharacters.charAt( 0 ) );
+        assertEquals( 'b', result.decodedCharacters.charAt( 1 ) );
+        assertEquals( 'c', result.decodedCharacters.charAt( 2 ) );
     }
 
     @Test
@@ -218,8 +218,8 @@ public abstract class BaseBytesTestCases {
         assertEquals( 0, result.remainingBytes.length() );
         assertEquals( 3, result.remainingBytes.streamOffset() );
 
-        assertEquals( '£', result.decodedCharacters.getChar(0) );
-        assertEquals( 'a', result.decodedCharacters.getChar(1) );
+        assertEquals( '£', result.decodedCharacters.charAt( 0 ) );
+        assertEquals( 'a', result.decodedCharacters.charAt( 1 ) );
     }
 
     @Test
@@ -257,7 +257,7 @@ public abstract class BaseBytesTestCases {
 
         assertEquals( 1, result.decodedCharacters.length() );
         assertEquals( 0, result.decodedCharacters.getStreamOffset() );
-        assertEquals( '£', result.decodedCharacters.getChar(0) );
+        assertEquals( '£', result.decodedCharacters.charAt( 0 ) );
 
         assertEquals( 0, result.remainingBytes.length() );
         assertEquals( 2, result.remainingBytes.streamOffset() );

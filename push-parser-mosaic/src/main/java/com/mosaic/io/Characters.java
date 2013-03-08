@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * An immutable collection of characters. Modification of these characters returns a new immutable instance of Characters.
  */
-public abstract class Characters {
+public abstract class Characters implements CharSequence {
 
     public static final Characters EMPTY = wrapCharBuffer( CharBuffer.allocate( 0 ) );
 
@@ -80,7 +80,7 @@ public abstract class Characters {
     /**
      * Fetch the character at the specified index. The index starts from zero.
      */
-    public abstract char getChar( int index );
+    public abstract char charAt( int index );
 
 
     public CharPosition getPosition() {
@@ -99,6 +99,11 @@ public abstract class Characters {
      * instance will be dropped. Making it possible to GC it.
      */
     public abstract Characters skipCharacters( int numCharacters );
+
+
+    public CharSequence subSequence(int start, int end) {
+        throw new UnsupportedOperationException( "" );
+    }
 
     /**
      * Write the contents of this instance of Characters into the target CharBuffer. If the CharBuffer is too small to take
@@ -136,7 +141,7 @@ public abstract class Characters {
 
 
         for ( int i=0; i<targetStringLength; i++ ) {
-            char c = getChar( i+fromIndex );
+            char c = charAt( i + fromIndex );
             char t = targetString.charAt( i );
 
             if ( c != t ) {
@@ -152,7 +157,22 @@ public abstract class Characters {
 
         StringBuilder buf = new StringBuilder( numChars );
         for ( int i=0; i<numChars; i++ ) {
-            buf.append( this.getChar(i) );
+            buf.append( this.charAt( i ) );
+        }
+
+        return buf.toString();
+    }
+
+    /**
+     * Extract the string starting from startIndexInc (inclusive) and endIndexExc (exclusive).
+     */
+    public String toString( int startIndexInc, int endIndexExc ) {
+        Validate.withinRange( 0, startIndexInc, endIndexExc, this.length(), "startIndexInc", "endIndexExc" );
+
+        StringBuilder buf = new StringBuilder( endIndexExc-startIndexInc );
+
+        for ( int i=startIndexInc; i<endIndexExc; i++ ) {
+            buf.append( this.charAt(i) );
         }
 
         return buf.toString();
@@ -176,7 +196,7 @@ class CharactersNIOWrapper extends Characters {
         return buf.remaining() - bufOffset;
     }
 
-    public char getChar( int index ) {
+    public char charAt( int index ) {
         return buf.get( index + bufOffset );
     }
 
@@ -247,13 +267,13 @@ class CharactersMultiBucketWrapper extends Characters {
         return remaining;
     }
 
-    public char getChar( final int index ) {
+    public char charAt( final int index ) {
         int i = index;
         for ( Characters b : buckets ) {
             int length = b.length();
 
             if ( i < length ) {
-                return b.getChar( i );
+                return b.charAt( i );
             } else {
                 i -= length;
             }
@@ -272,7 +292,7 @@ class CharactersMultiBucketWrapper extends Characters {
         }
 
         List<Characters> newCharacters = new ArrayList(this.buckets.size()+1);  // todo replace with an immutable variant
-        newCharacters.addAll(this.buckets);
+        newCharacters.addAll( this.buckets );
         newCharacters.add(other.setStreamOffset(this.getStreamOffset()+this.length()));
 
         return new CharactersMultiBucketWrapper( this.getPosition(), newCharacters );

@@ -58,7 +58,7 @@ public class CharPosition {
         long totalStreamOffset = this.charOffset;
 
         for ( int i=0; i<numCharacters; i++ ) {
-            char c = characters.getChar( i );
+            char c = characters.charAt( i );
 
 
             totalStreamOffset++;

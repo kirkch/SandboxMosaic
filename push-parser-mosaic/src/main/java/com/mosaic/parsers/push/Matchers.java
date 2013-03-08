@@ -19,6 +19,8 @@ public class Matchers {
     }
 
     public static Matcher<String> regexp( String regexp ) {
+        Validate.isGTZero( regexp.length(), "regexp.length()" );
+
         return regexp( Pattern.compile(regexp) );
     }
 
@@ -99,13 +101,28 @@ class RegExpMatcher extends Matcher<String> {
 
     @Override
     protected Matcher<String> _processCharacters( Characters in ) {
-//        if ( in.startsWith( targetString ) ) {
-//            Characters remainingBytes = in.skipCharacters( targetString.length() );
-//
-//            return new ConstantMatcher( targetString, targetString, remainingBytes, in.getPosition() );
-//        }
-
-        return this;
+        return _processCharacters(in,true);
     }
 
+    @Override
+    public Matcher<String> endOfStream() {
+        return _processCharacters(getRemainingCharacters(),false);
+    }
+
+    private Matcher<String> _processCharacters( Characters in, boolean isGreedy ) {
+        java.util.regex.Matcher m = regexp.matcher( in );
+
+        if ( !m.lookingAt() ) {
+            return new RegExpMatcher( regexp, null, in, getStartingPosition() );
+        }
+
+        int parsedUptoExc = m.end();
+        if ( isGreedy && parsedUptoExc == in.length() ) {
+            return new RegExpMatcher( regexp, null, in, getStartingPosition() ); // geedy match, wait for more input
+        }
+
+        String matchedString = in.toString(0,parsedUptoExc);
+
+        return new RegExpMatcher( regexp, matchedString, in.skipCharacters(parsedUptoExc), getStartingPosition() );
+    }
 }

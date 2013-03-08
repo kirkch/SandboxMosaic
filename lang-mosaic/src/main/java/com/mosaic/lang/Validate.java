@@ -424,4 +424,14 @@ public class Validate {
             throwIndexOutOfBoundsException( "%s (%d) must be >= %d and < %d", fieldName, n, minInc, maxExc );
         }
     }
+
+    /**
+     * The specified range must equal or be within specified range.
+     */
+    public static void withinRange( int minInc, int minValue, int maxValue, int maxExc, String minValueName, String maxValueName ) {
+        indexBounds( minInc, minValue, maxExc, minValueName );
+        indexBounds( minInc, maxValue, maxExc+1, maxValueName );
+
+        isTrue( minValue < maxValue, "%s (%s) < %s (%s)", minValueName,minValue, maxValueName,maxValue );
+    }
 }

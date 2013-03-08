@@ -36,6 +36,8 @@ public abstract class Matcher<T> {
             return this;
         }
 
+        assert this.value == null : "Result already generated, while is this matcher still receiving input?";
+
         Characters characters = this.getRemainingCharacters();
         characters = characters == null ? in : characters.appendCharacters( in );
 
@@ -44,6 +46,13 @@ public abstract class Matcher<T> {
 
     protected abstract Matcher<T> _processCharacters( Characters in );
 
+    /**
+     * No more characters will be received. Used when the Matcher is greedily matching as much as it can and need to
+     * accept what it already has is its full match. By default this is a no-op, and returns itself.
+     */
+    public Matcher<T> endOfStream() {
+        return this;
+    }
 
     /**
      * Returns the 'parsed' match from this matcher. Which will be null until a full match is made.

@@ -77,7 +77,7 @@ public abstract class BaseCharactersTestCases {
 
         assertEquals(   4, chars4.getStreamOffset() );
         assertEquals(   1, chars4.length() );
-        assertEquals( 100, chars4.getChar( 0 ) );
+        assertEquals( 100, chars4.charAt( 0 ) );
     }
 
     @Test
@@ -90,7 +90,7 @@ public abstract class BaseCharactersTestCases {
 
         assertEquals(   5, chars5.getStreamOffset() );
         assertEquals(   1, chars5.length() );
-        assertEquals( 101, chars5.getChar( 0 ) );
+        assertEquals( 101, chars5.charAt( 0 ) );
     }
 
     @Test
@@ -102,10 +102,10 @@ public abstract class BaseCharactersTestCases {
 
         assertEquals(   2, chars4.getStreamOffset() );
         assertEquals(   4, chars4.length() );
-        assertEquals(  98, chars4.getChar( 0 ) );
-        assertEquals(  99, chars4.getChar( 1 ) );
-        assertEquals( 100, chars4.getChar( 2 ) );
-        assertEquals( 101, chars4.getChar( 3 ) );
+        assertEquals(  98, chars4.charAt( 0 ) );
+        assertEquals(  99, chars4.charAt( 1 ) );
+        assertEquals( 100, chars4.charAt( 2 ) );
+        assertEquals( 101, chars4.charAt( 3 ) );
     }
 
 // length tests
@@ -128,7 +128,7 @@ public abstract class BaseCharactersTestCases {
     public void given3ByteCharactersBuffer_callGetByteFollowedByLength_expectGetByteToNotHaveChangedTheLength() {
         Characters chars = createCharacters( new char[] {97, 98, 99} );
 
-        chars.getChar(0);
+        chars.charAt( 0 );
 
         assertEquals( 3, chars.length() );
     }
@@ -141,7 +141,7 @@ public abstract class BaseCharactersTestCases {
         Characters chars = createCharacters( new char[] {} );
 
         try {
-            chars.getChar( 0 );
+            chars.charAt( 0 );
 
             fail( "Expected IndexOutOfBoundsException" );
         } catch (IndexOutOfBoundsException e) {
@@ -153,27 +153,27 @@ public abstract class BaseCharactersTestCases {
     public void givenNoneEmptyBuffer_getFirstByte_expectByte() {
         Characters chars = createCharacters( new char[] {97,98} );
 
-        assertEquals( 97, chars.getChar(0) );
+        assertEquals( 97, chars.charAt( 0 ) );
     }
 
     @Test
     public void givenNoneEmptyBuffer_getFirstByteTwice_expectSameByteBackEachTime() {
         Characters chars = createCharacters( new char[] {97,98} );
 
-        assertEquals( 97, chars.getChar(0) );
-        assertEquals( 97, chars.getChar(0) );
+        assertEquals( 97, chars.charAt( 0 ) );
+        assertEquals( 97, chars.charAt( 0 ) );
     }
 
     @Test
     public void givenNoneEmptyBuffer_readEachByteBackMultipleTimesInAndOutOfOrder() {
         Characters chars = createCharacters( new char[] {97,98,99} );
 
-        assertEquals( 97, chars.getChar(0) );
-        assertEquals( 98, chars.getChar(1) );
-        assertEquals( 99, chars.getChar(2) );
-        assertEquals( 98, chars.getChar(1) );
-        assertEquals( 99, chars.getChar(2) );
-        assertEquals( 97, chars.getChar(0) );
+        assertEquals( 97, chars.charAt( 0 ) );
+        assertEquals( 98, chars.charAt( 1 ) );
+        assertEquals( 99, chars.charAt( 2 ) );
+        assertEquals( 98, chars.charAt( 1 ) );
+        assertEquals( 99, chars.charAt( 2 ) );
+        assertEquals( 97, chars.charAt( 0 ) );
     }
 
 
@@ -235,11 +235,11 @@ public abstract class BaseCharactersTestCases {
 
         Characters chars3 = chars1.appendCharacters( chars2 );
 
-        assertEquals( 97, chars3.getChar(0) );
-        assertEquals( 98, chars3.getChar(1) );
-        assertEquals( 99, chars3.getChar(2) );
-        assertEquals(100, chars3.getChar(3) );
-        assertEquals( 101, chars3.getChar( 4 ) );
+        assertEquals( 97, chars3.charAt( 0 ) );
+        assertEquals( 98, chars3.charAt( 1 ) );
+        assertEquals( 99, chars3.charAt( 2 ) );
+        assertEquals(100, chars3.charAt( 3 ) );
+        assertEquals( 101, chars3.charAt( 4 ) );
     }
 
     @Test
@@ -280,8 +280,8 @@ public abstract class BaseCharactersTestCases {
         Characters chars2 = chars1.skipCharacters( 1 );
 
         assertEquals(  2, chars2.length() );
-        assertEquals( 97, chars2.getChar(0) );
-        assertEquals( 98, chars2.getChar(1) );
+        assertEquals( 97, chars2.charAt( 0 ) );
+        assertEquals( 98, chars2.charAt( 1 ) );
     }
 
     @Test
