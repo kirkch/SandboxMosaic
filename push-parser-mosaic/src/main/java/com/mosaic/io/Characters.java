@@ -146,6 +146,17 @@ public abstract class Characters {
 
         return true;
     }
+
+    public String toString() {
+        int numChars = this.length();
+
+        StringBuilder buf = new StringBuilder( numChars );
+        for ( int i=0; i<numChars; i++ ) {
+            buf.append( this.getChar(i) );
+        }
+
+        return buf.toString();
+    }
 }
 
 
