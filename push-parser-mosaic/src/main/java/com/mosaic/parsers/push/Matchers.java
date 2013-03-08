@@ -28,8 +28,12 @@ public class Matchers {
         return new RegExpMatcher(regexp);
     }
 
-    // regexp
-    // skipWhitespace
+    public static <T> Matcher<T> skipWhitespace( Matcher<T> matcher ) {
+        return new SkipWhitespaceMatcher(matcher);
+    }
+
+
+    //
     // list
     // zeroOrMore
     // issueCallback
@@ -125,4 +129,44 @@ class RegExpMatcher extends Matcher<String> {
 
         return new RegExpMatcher( regexp, matchedString, in.skipCharacters(parsedUptoExc), getStartingPosition() );
     }
+}
+
+
+
+class SkipWhitespaceMatcher<T> extends Matcher<T> {
+
+    private static final CharPredicate WHITESPACE_PREDICATE = new CharPredicate() {
+        @Override
+        public boolean matches( char c ) {
+            return Character.isWhitespace(c);
+        }
+    };
+
+
+    private final Matcher<T> wrappedMatcher;
+
+    public SkipWhitespaceMatcher( Matcher<T> wrappedMatcher ) {
+        this( wrappedMatcher, null, null, null );
+
+        Validate.notNull( wrappedMatcher, "wrappedMatcher" );
+    }
+
+    private SkipWhitespaceMatcher( Matcher<T> wrappedMatcher, T result, Characters remainingBytes, CharPosition startingPosition ) {
+        super( result, remainingBytes, startingPosition );
+
+        this.wrappedMatcher = wrappedMatcher;
+    }
+
+    @Override
+    protected Matcher<T> _processCharacters( Characters in ) {
+        Characters modifiedInput = in.skipWhile( WHITESPACE_PREDICATE );
+
+        return wrappedMatcher._processCharacters( modifiedInput );
+    }
+
+    @Override
+    public Matcher<T> endOfStream() {
+        return wrappedMatcher.endOfStream();
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.mosaic.io;
 
+import com.mosaic.parsers.push.CharPredicate;
 import org.junit.Test;
 
 import java.nio.CharBuffer;
@@ -462,6 +463,64 @@ public abstract class BaseCharactersTestCases {
         } catch (IllegalArgumentException e) {
             assertEquals( "'fromIndex' (-1) must be >= 0", e.getMessage() );
         }
+    }
+
+
+// skipWhile tests
+
+    @Test
+    public void givenCharacters_matchNoneWithSkipWhile_expectExactSameInputBack() {
+        Characters chars = createCharacters( new char[] {'0','1','a','b','c','d','e'} );
+
+        Characters result = chars.skipWhile( new CharPredicate() {
+            public boolean matches( char c ) {
+                return false;
+            }
+        } );
+
+        assertTrue( result == chars );
+    }
+
+    @Test
+    public void givenCharacters_matchFirstWithSkipWhile_expectRestCharsBack() {
+        Characters chars = createCharacters( new char[] {'0','1','a','b','c','d','e'} );
+
+        Characters result = chars.skipWhile( new CharPredicate() {
+            public boolean matches( char c ) {
+                return c == '0';
+            }
+        } );
+
+        assertEquals( 1, result.getColumnNumber() );
+        assertEquals( "1abcde", result.toString() );
+    }
+
+    @Test
+    public void givenCharacters_matchFirstTwoCharsWithSkipWhile_expectRestCharsBack() {
+        Characters chars = createCharacters( new char[] {'0','1','a','b','c','d','e'} );
+
+        Characters result = chars.skipWhile( new CharPredicate() {
+            public boolean matches( char c ) {
+                return c == '0' || c == '1';
+            }
+        } );
+
+        assertEquals( 2, result.getColumnNumber() );
+        assertEquals( "abcde", result.toString() );
+    }
+
+    @Test
+    public void givenCharacters_skipAll_expectNoCharsBack() {
+        Characters chars = createCharacters( new char[] {'0','1','a','b','c','d','e'} );
+
+        Characters result = chars.skipWhile( new CharPredicate() {
+            public boolean matches( char c ) {
+                return true;
+            }
+        } );
+
+        assertEquals( 7, result.getColumnNumber() );
+        assertEquals( "", result.toString() );
     }
 
 

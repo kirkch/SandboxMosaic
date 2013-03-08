@@ -1,6 +1,7 @@
 package com.mosaic.io;
 
 import com.mosaic.lang.Validate;
+import com.mosaic.parsers.push.CharPredicate;
 
 import java.nio.CharBuffer;
 import java.util.ArrayList;
@@ -176,6 +177,21 @@ public abstract class Characters implements CharSequence {
         }
 
         return buf.toString();
+    }
+
+    public Characters skipWhile( CharPredicate predicate ) {
+        int length = length();
+        int i      = 0;
+
+        while ( i < length && predicate.matches(this.charAt(i)) ) {
+            i++;
+        }
+
+        if ( i == 0 ) {
+            return this;
+        }
+
+        return skipCharacters(i);
     }
 }
 
