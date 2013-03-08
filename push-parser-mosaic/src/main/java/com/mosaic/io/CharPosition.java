@@ -5,11 +5,15 @@ package com.mosaic.io;
  */
 public class CharPosition {
 
-    private final int lineNumber;
-    private final int columnNumber;
-    private final int charOffset;
+    private final int  lineNumber;
+    private final int  columnNumber;
+    private final long charOffset;
 
-    public CharPosition( int lineNumber, int columnNumber, int charOffset ) {
+    public CharPosition() {
+        this(0,0,0);
+    }
+
+    public CharPosition( int lineNumber, int columnNumber, long charOffset ) {
         this.lineNumber   = lineNumber;
         this.columnNumber = columnNumber;
         this.charOffset   = charOffset;
@@ -37,8 +41,40 @@ public class CharPosition {
     /**
      * The character offset from the start of the stream where this matcher started to match from.
      */
-    public int getCharacterOffset() {
+    public long getCharacterOffset() {
         return charOffset;
     }
 
+
+    /**
+     * Create a new CharPosition based on walking over the supplied characters.
+     *
+     * @param numCharacters how many characters to consume
+     * @param characters the characters to walk overr
+     */
+    CharPosition walkCharacters( int numCharacters, Characters characters ) {
+        int  line              = this.lineNumber;
+        int  col               = this.columnNumber;
+        long totalStreamOffset = this.charOffset;
+
+        for ( int i=0; i<numCharacters; i++ ) {
+            char c = characters.getChar( i );
+
+
+            totalStreamOffset++;
+
+            if ( c == '\n' ) {
+                col = 0;
+                line++;
+            } else {
+                col++;
+            }
+        }
+
+        return new CharPosition( line, col, totalStreamOffset );
+    }
+
+    public CharPosition setCharacterOffset( long newStreamOffset ) {
+        return new CharPosition( this.lineNumber, this.columnNumber, newStreamOffset );
+    }
 }

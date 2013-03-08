@@ -68,7 +68,7 @@ public abstract class Matcher<T> {
         return p == null ? 0 : p.getColumnNumber();
     }
 
-    public int getCharacterOffset() {
+    public long getCharacterOffset() {
         CharPosition p = startingPosition;
 
         return p == null ? 0 : p.getCharacterOffset();

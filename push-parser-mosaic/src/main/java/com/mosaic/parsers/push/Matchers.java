@@ -40,17 +40,17 @@ class ConstantMatcher extends Matcher<String> {
     public Matcher<String> processCharacters( Characters in ) {
         int numCharacters = in.length();
 
-//        if ( numCharacters < targetString.length() ) {
-//            return this;
-//        }
+        if ( numCharacters < targetString.length() ) {
+            return this;
+        }
 
-//        if ( in.containsAt(targetString,0) ) {
-//            Characters remainingBytes = in.skipCharacters( targetString.length() );
-//
+        if ( in.containsAt(targetString,0) ) {
+            Characters remainingBytes = in.skipCharacters( targetString.length() );
+
 //            return new ConstantMatcher( targetString, targetString, remainingBytes, in.getPosition() );
-//        } else {
-//
-//        }
+        } else {
+
+        }
 
         return this;
     }
