@@ -193,6 +193,10 @@ public abstract class Characters implements CharSequence {
 
         return skipCharacters(i);
     }
+
+    public boolean hasContents() {
+        return length() > 0;
+    }
 }
 
 

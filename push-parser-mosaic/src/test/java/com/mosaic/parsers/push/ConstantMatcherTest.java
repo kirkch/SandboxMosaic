@@ -91,6 +91,8 @@ public class ConstantMatcherTest {
         assertEquals( 3, result2.getCharacterOffset() );
         assertEquals( "123", result2.getRemainingCharacters().toString() );
 
+        assertTrue( result2.hasCompleted() );
+        assertTrue( result2.hasResult() );
         assertEquals( "abc", result2.getResult() );
     }
 
@@ -107,6 +109,7 @@ public class ConstantMatcherTest {
         assertEquals( 0, result1.getCharacterOffset() );
         assertEquals( "ab", result1.getRemainingCharacters().toString() );
         assertEquals( null, result1.getResult() );
+        assertFalse( result1.hasCompleted() );
 
         Matcher<String> result2 = result1.processCharacters( input2 );
 
@@ -116,7 +119,32 @@ public class ConstantMatcherTest {
         assertEquals( 0, result2.getCharacterOffset() );
         assertEquals( "", result2.getRemainingCharacters().toString() );
 
+        assertTrue( result2.hasCompleted() );
         assertEquals( 3, result2.getRemainingCharacters().getColumnNumber() );
+    }
+
+    @Test
+    public void givenBytesThatWillNotMatch_expectFailure() {
+        Characters      input   = Characters.wrapString("d");
+        Matcher<String> matcher = Matchers.constant( "abc" );
+
+        Matcher<String> result = matcher.processCharacters( input );
+
+        assertTrue( result.hasCompleted() );
+        assertTrue( result.hasFailedToMatch() );
+        assertEquals( "expected 'abc'", result.getFailedToMatchDescription() );
+    }
+
+    @Test
+    public void givenFirstPartOfMatch_thenEndStream_expectFailedToMatch() {
+        Characters      input   = Characters.wrapString("ab");
+        Matcher<String> matcher = Matchers.constant( "abc" );
+
+        Matcher<String> result = matcher.processCharacters( input ).processEndOfStream();
+
+        assertTrue( result.hasCompleted() );
+        assertTrue( result.hasFailedToMatch() );
+        assertEquals( "expected 'abc'", result.getFailedToMatchDescription() );
     }
 
 }

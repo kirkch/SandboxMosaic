@@ -21,13 +21,14 @@ public class SkipWhitespaceMatcherTest {
     }
 
     @Test
-    public void givenEmptyBytes_expectSameInstanceOfMatcherBack() {
+    public void givenEmptyBytes_expectFailedToMatch() {
         Characters      input   = Characters.wrapString("");
         Matcher<String> matcher = Matchers.skipWhitespace( Matchers.constant("a") );
 
-        Matcher<String> result = matcher.processCharacters( input );
+        Matcher<String> result = matcher.processCharacters( input ).processEndOfStream();
 
-        assertTrue( result == matcher );
+        assertTrue( result.hasFailedToMatch() );
+        assertEquals( "expected 'a'", result.getFailedToMatchDescription() );
     }
 
     @Test
@@ -54,6 +55,8 @@ public class SkipWhitespaceMatcherTest {
 
         assertEquals( "a", result.getResult() );
 
+        assertTrue( result.hasResult() );
+
         assertEquals( 0, result.getLineNumber() );
         assertEquals( 2, result.getColumnNumber() );
         assertEquals( 2, result.getCharacterOffset() );
@@ -68,6 +71,39 @@ public class SkipWhitespaceMatcherTest {
         Matcher<String> result = matcher.processCharacters( input );
 
         assertEquals( null, result.getResult() );
+
+        assertEquals(  0, result.getLineNumber() );
+        assertEquals(  0, result.getColumnNumber() );
+        assertEquals(  0, result.getCharacterOffset() );
+        assertEquals( "", result.getRemainingCharacters().toString() );
+    }
+
+    @Test
+    public void givenWhitespace_expectWhitespaceToBeConsumedByMatcherToStillBeParsing() {
+        Characters      input   = Characters.wrapString("   ");
+        Matcher<String> matcher = Matchers.skipWhitespace( Matchers.constant("a") );
+
+        Matcher<String> result = matcher.processCharacters( input );
+
+        assertEquals( null, result.getResult() );
+        assertTrue( result.isAwaitingInput() );
+
+        assertEquals(  0, result.getLineNumber() );
+        assertEquals(  0, result.getColumnNumber() );
+        assertEquals(  0, result.getCharacterOffset() );
+        assertEquals( "", result.getRemainingCharacters().toString() );
+    }
+
+    @Test
+    public void givenTwoGroupsOfWhitespace_expectWhitespaceToBeConsumedByMatcherToStillBeParsing() {
+        Characters      input1   = Characters.wrapString("   ");
+        Characters      input2   = Characters.wrapString("   ");
+        Matcher<String> matcher = Matchers.skipWhitespace( Matchers.constant("a") );
+
+        Matcher<String> result = matcher.processCharacters( input1 ).processCharacters( input2 );
+
+        assertEquals( null, result.getResult() );
+        assertTrue( result.isAwaitingInput() );
 
         assertEquals(  0, result.getLineNumber() );
         assertEquals(  0, result.getColumnNumber() );

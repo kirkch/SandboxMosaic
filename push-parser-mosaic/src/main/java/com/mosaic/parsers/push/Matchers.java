@@ -4,7 +4,10 @@ import com.mosaic.io.CharPosition;
 import com.mosaic.io.Characters;
 import com.mosaic.lang.Validate;
 
+import java.util.List;
 import java.util.regex.Pattern;
+
+import static com.mosaic.parsers.push.MatcherStatus.createHasResultStatus;
 
 /**
  * A collection of common matchers and matcher decorators.
@@ -32,6 +35,15 @@ public class Matchers {
         return new SkipWhitespaceMatcher(matcher);
     }
 
+    /**
+     * Match the same type repeatedly and store each in a list. Each element matched is demarcated by a seperator and the
+     * matching ends when the endOfList matcher gets a hit. The matches for seperatingMatcher and endOfListMatcher are
+     * thrown-away, only the results from repeatingMatcher are kept.
+     */
+    public static <T> Matcher<List<T>> list( Matcher<T> repeatingMatcher, Matcher<T> seperatingMatcher, Matcher<T> endOfListMatcher ) {
+        return null;
+    }
+
 
     //
     // list
@@ -41,7 +53,7 @@ public class Matchers {
 
 // private static final Matcher<String> csvColumn = skipWhitespace(regexp("^[,EOL]+"))
 
-    // private static final Matcher<List<String>> row  = list( csvColumn, comma, eol )
+    // private static final Matcher<List<String>> row  = list( csvColumn, comma, eolf )
     // private static final Matcher               rows = zeroOrMore( issueCallbackAndSkip(row,this,"rowParsed",List<String>.class) )
 }
 
@@ -52,39 +64,58 @@ class ConstantMatcher extends Matcher<String> {
     private final String targetString;
 
     public ConstantMatcher( String targetString ) {
-        this( targetString, null, null, null );
+        this( targetString, MatcherStatus.<String>createIsParsingStatus(), null, null );
 
         Validate.isGTZero( targetString.length(), "targetString.length()" );
     }
 
-    private ConstantMatcher( String targetString, String result, Characters remainingBytes, CharPosition startingPosition ) {
-        super( result, remainingBytes, startingPosition );
+    private ConstantMatcher( String targetString, MatcherStatus<String> status, Characters remainingBytes, CharPosition startingPosition ) {
+        super( status, remainingBytes, startingPosition );
 
         this.targetString = targetString;
     }
 
     @Override
     protected Matcher<String> _processCharacters( Characters in ) {
-        if ( in.startsWith(targetString) ) {
-            Characters remainingBytes = in.skipCharacters( targetString.length() );
+        return _processCharacters( in, true );
+    }
 
-            return new ConstantMatcher( targetString, targetString, remainingBytes, in.getPosition() );
+    @Override
+    public Matcher<String> processEndOfStream() {
+        Characters remainingCharacters = getRemainingCharacters();
+        if ( remainingCharacters == null ) {
+            return createFailedMatcher( null );
+        }
+        return _processCharacters( remainingCharacters, false );
+    }
+
+    private Matcher<String> _processCharacters( Characters in, boolean waitForMoreInputIfPartialMatch ) {
+        String targetStr              = this.targetString;
+        int    numCharactersToCompare = Math.min( targetStr.length(), in.length() );
+
+        for ( int i=0; i<numCharactersToCompare; i++ ) {
+            if ( targetStr.charAt(i) != in.charAt(i) ) {
+                return createFailedMatcher( in );
+            }
+        }
+
+        if ( in.startsWith(targetStr) ) {
+            Characters remainingBytes = in.skipCharacters( targetStr.length() );
+
+            return new ConstantMatcher( targetStr, MatcherStatus.createHasResultStatus(targetStr), remainingBytes, in.getPosition() );
+        } else if ( waitForMoreInputIfPartialMatch ) {
+            return new ConstantMatcher( targetStr, MatcherStatus.<String>createIsParsingStatus(), in, this.getStartingPosition() );
         } else {
-            Characters remainingBytes = this.appendCharacters(in);
-
-            return new ConstantMatcher( targetString, null, remainingBytes, this.getStartingPosition() );
+            return createFailedMatcher( in );
         }
     }
 
-    private Characters appendCharacters( Characters in ) {
-        Characters remaining = this.getRemainingCharacters();
-        if ( remaining == null ) {
-            return in;
-        } else {
-            return remaining.appendCharacters( in );
-        }
-    }
+    private Matcher<String> createFailedMatcher( Characters in ) {
+        CharPosition pos    = this.getStartingPosition();
+        MatcherStatus<String> status = MatcherStatus.createHasFailedStatus( pos, "expected '%s'", targetString );
 
+        return new ConstantMatcher( targetString, status, in, pos );
+    }
 }
 
 
@@ -94,40 +125,54 @@ class RegExpMatcher extends Matcher<String> {
     private final Pattern regexp;
 
     public RegExpMatcher( Pattern regexp ) {
-        this( regexp, null, null, null );
+        this( regexp, MatcherStatus.<String>createIsParsingStatus(), null, null );
     }
 
-    private RegExpMatcher( Pattern regexp, String result, Characters remainingBytes, CharPosition startingPosition ) {
-        super( result, remainingBytes, startingPosition );
+    private RegExpMatcher( Pattern regexp, MatcherStatus<String> status, Characters remainingBytes, CharPosition startingPosition ) {
+        super( status, remainingBytes, startingPosition );
 
         this.regexp = regexp;
     }
 
     @Override
     protected Matcher<String> _processCharacters( Characters in ) {
-        return _processCharacters(in,true);
+        if ( in.length() < 200 ) {
+            // hack: the regexp engine state cannot be saved between invocations, and thus we would mistake a partial match as a failure
+            //   the real solution would be a new regexp engine, so for now we buffer up 200 characters before progressing as a cheap work around
+            return new RegExpMatcher( regexp, MatcherStatus.<String>createIsParsingStatus(), in, getStartingPosition() );
+        }
+
+        return _processCharacters( in, true );
     }
 
     @Override
-    public Matcher<String> endOfStream() {
+    public Matcher<String> processEndOfStream() {
         return _processCharacters(getRemainingCharacters(),false);
     }
 
+    // abcde
+    // + * ?
+    // ()
+    // [a-z0-9]
+    // [^,]
+    // case sensitive
+
     private Matcher<String> _processCharacters( Characters in, boolean isGreedy ) {
-        java.util.regex.Matcher m = regexp.matcher( in );
+        java.util.regex.Matcher m   = regexp.matcher( in );
+        CharPosition            pos = getStartingPosition();
 
         if ( !m.lookingAt() ) {
-            return new RegExpMatcher( regexp, null, in, getStartingPosition() );
+            return new RegExpMatcher( regexp, MatcherStatus.<String>createHasFailedStatus(pos,"no match for regexp '%s'",regexp.pattern()), in, pos );
         }
 
         int parsedUptoExc = m.end();
         if ( isGreedy && parsedUptoExc == in.length() ) {
-            return new RegExpMatcher( regexp, null, in, getStartingPosition() ); // geedy match, wait for more input
+            return new RegExpMatcher( regexp, MatcherStatus.<String>createIsParsingStatus(), in, pos ); // geedy match, wait for more input
         }
 
         String matchedString = in.toString(0,parsedUptoExc);
 
-        return new RegExpMatcher( regexp, matchedString, in.skipCharacters(parsedUptoExc), getStartingPosition() );
+        return new RegExpMatcher( regexp, createHasResultStatus(matchedString), in.skipCharacters(parsedUptoExc), pos );
     }
 }
 
@@ -146,12 +191,12 @@ class SkipWhitespaceMatcher<T> extends Matcher<T> {
     private final Matcher<T> wrappedMatcher;
 
     public SkipWhitespaceMatcher( Matcher<T> wrappedMatcher ) {
-        this( wrappedMatcher, null, null, null );
+        this( wrappedMatcher, MatcherStatus.<T>createIsParsingStatus(), null, null );
 
         Validate.notNull( wrappedMatcher, "wrappedMatcher" );
     }
 
-    private SkipWhitespaceMatcher( Matcher<T> wrappedMatcher, T result, Characters remainingBytes, CharPosition startingPosition ) {
+    private SkipWhitespaceMatcher( Matcher<T> wrappedMatcher, MatcherStatus<T> result, Characters remainingBytes, CharPosition startingPosition ) {
         super( result, remainingBytes, startingPosition );
 
         this.wrappedMatcher = wrappedMatcher;
@@ -161,12 +206,16 @@ class SkipWhitespaceMatcher<T> extends Matcher<T> {
     protected Matcher<T> _processCharacters( Characters in ) {
         Characters modifiedInput = in.skipWhile( WHITESPACE_PREDICATE );
 
-        return wrappedMatcher._processCharacters( modifiedInput );
+        if ( modifiedInput.hasContents() && !Character.isWhitespace(modifiedInput.charAt(0)) ) {
+            return wrappedMatcher._processCharacters( modifiedInput );
+        }
+
+        return new SkipWhitespaceMatcher( wrappedMatcher, MatcherStatus.<T>createIsParsingStatus(), modifiedInput, getStartingPosition() );
     }
 
     @Override
-    public Matcher<T> endOfStream() {
-        return wrappedMatcher.endOfStream();
+    public Matcher<T> processEndOfStream() {
+        return wrappedMatcher.processEndOfStream();
     }
 
 }

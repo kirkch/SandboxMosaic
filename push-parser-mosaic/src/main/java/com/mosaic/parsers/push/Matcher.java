@@ -2,6 +2,7 @@ package com.mosaic.parsers.push;
 
 import com.mosaic.io.CharPosition;
 import com.mosaic.io.Characters;
+import com.mosaic.lang.Validate;
 
 /**
  * An immutable character matcher. Pass characters into the matcher and the matcher will process them and return a new
@@ -9,17 +10,19 @@ import com.mosaic.io.Characters;
  */
 public abstract class Matcher<T> {
 
-    private final T            value;
-    private final Characters   remainingBytes;
-    private final CharPosition startingPosition;
+    private final MatcherStatus<T> status;
+    private final Characters       remainingBytes;
+    private final CharPosition     startingPosition;
 
 
     protected Matcher() {
         this(null,null,null);
     }
 
-    protected Matcher( T value, Characters remainingBytes, CharPosition startingPosition ) {
-        this.value            = value;
+    protected Matcher( MatcherStatus<T> status, Characters remainingBytes, CharPosition startingPosition ) {
+        Validate.notNull( status, "status" );
+
+        this.status           = status;
         this.remainingBytes   = remainingBytes;
         this.startingPosition = startingPosition;
     }
@@ -36,7 +39,7 @@ public abstract class Matcher<T> {
             return this;
         }
 
-        assert this.value == null : "Result already generated, while is this matcher still receiving input?";
+        assert this.status.hasCompleted() : "Result already generated, this matcher should not be receiving any more input";
 
         Characters characters = this.getRemainingCharacters();
         characters = characters == null ? in : characters.appendCharacters( in );
@@ -50,15 +53,53 @@ public abstract class Matcher<T> {
      * No more characters will be received. Used when the Matcher is greedily matching as much as it can and need to
      * accept what it already has is its full match. By default this is a no-op, and returns itself.
      */
-    public Matcher<T> endOfStream() {
+    public Matcher<T> processEndOfStream() {
         return this;
+    }
+
+    /**
+     * Returns true if this matcher has finished parsing. Being complete includes both a successful match, and failing
+     * to match anything at all.
+     */
+    public boolean hasCompleted() {
+        return status.hasCompleted();
+    }
+
+    /**
+     * Returns true if this matcher is ready to receive more input and is thus not ready to return a conclusion yet.
+     */
+    public boolean isAwaitingInput() {
+        return status.isAwaitingInput();
+    }
+
+    /**
+     * Returns true if parsing has reached a conclusion and getResult will return a non-null value.
+     */
+    public boolean hasResult() {
+        return status.hasResult();
+    }
+
+    /**
+     * Returns true if parsing has reached the conclusion that no result will ever be returned and is thus an indication
+     * to jump back to a previous decision point and to true a different parse option.
+     */
+    public boolean hasFailedToMatch() {
+        return status.hasErrored();
+    }
+
+    /**
+     * A human readable description as to why the parsing cannot continue with this parser. Will return null if
+     * hasFailedToMatch returns false.
+     */
+    public String getFailedToMatchDescription() {
+        return status.getFailedToMatchDescription();
     }
 
     /**
      * Returns the 'parsed' match from this matcher. Which will be null until a full match is made.
      */
     public T getResult() {
-        return value;
+        return status.getResult();
     }
 
     /**

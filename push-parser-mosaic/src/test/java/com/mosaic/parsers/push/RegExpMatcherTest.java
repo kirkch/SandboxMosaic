@@ -47,7 +47,7 @@ public class RegExpMatcherTest {
         Characters      input   = Characters.wrapString("const ");
         Matcher<String> matcher = Matchers.regexp( "const" );
 
-        Matcher<String> result = matcher.processCharacters( input );
+        Matcher<String> result = matcher.processCharacters( input ).processEndOfStream(); //nb the processEndOfStream is needed as part of hack; see impl for details
 
         assertEquals( 0, result.getLineNumber() );
         assertEquals( 0, result.getColumnNumber() );
@@ -62,7 +62,7 @@ public class RegExpMatcherTest {
         Characters      input   = Characters.wrapString("0123abc");
         Matcher<String> matcher = Matchers.regexp( "[0-9]+" );
 
-        Matcher<String> result = matcher.processCharacters( input );
+        Matcher<String> result = matcher.processCharacters( input ).processEndOfStream();  //nb the processEndOfStream is needed as part of hack; see impl for details
 
         assertEquals( "0123", result.getResult() );
 
@@ -90,7 +90,7 @@ public class RegExpMatcherTest {
     @Test
     public void givenNumbersInTwoBatchesWithNoOtherCharacter_expectNoMatchAsRegExpIsGreedyAndNotReportedAMatchYet() {
         Characters      input1  = Characters.wrapString("012");
-        Characters      input2  = Characters.wrapString("345");
+        Characters      input2  = Characters.wrapString( "345" );
         Matcher<String> matcher = Matchers.regexp( "[0-9]+" );
 
         Matcher<String> result1 = matcher.processCharacters(input1);
@@ -113,9 +113,26 @@ public class RegExpMatcherTest {
         Characters      input2  = Characters.wrapString("345");
         Matcher<String> matcher = Matchers.regexp( "[0-9]+" );
 
-        Matcher<String> result = matcher.processCharacters(input1).processCharacters(input2).endOfStream();
+        Matcher<String> result = matcher.processCharacters(input1).processCharacters(input2).processEndOfStream();
 
         assertEquals( "012345", result.getResult() );
+
+        assertEquals( 0, result.getLineNumber() );
+        assertEquals( 0, result.getColumnNumber() );
+        assertEquals( 0, result.getCharacterOffset() );
+
+        assertEquals( 0, result.getRemainingCharacters().length() );
+    }
+
+    @Test
+    public void givenMatchInTwoParts_whereFirstPartIsDoesNotMatchByItself_expectSuccess() {
+        Characters      input1  = Characters.wrapString("ab");
+        Characters      input2  = Characters.wrapString("cd");
+        Matcher<String> matcher = Matchers.regexp( "abcd" );
+
+        Matcher<String> result = matcher.processCharacters(input1).processCharacters(input2).processEndOfStream();
+
+        assertEquals( "abcd", result.getResult() );
 
         assertEquals( 0, result.getLineNumber() );
         assertEquals( 0, result.getColumnNumber() );
