@@ -39,7 +39,7 @@ public abstract class Matcher<T> {
             return this;
         }
 
-        assert this.status.hasCompleted() : "Result already generated, this matcher should not be receiving any more input";
+        assert this.status.isAwaitingInput() : "Result already generated, this matcher should not be receiving any more input";
 
         Characters characters = this.getRemainingCharacters();
         characters = characters == null ? in : characters.appendCharacters( in );
