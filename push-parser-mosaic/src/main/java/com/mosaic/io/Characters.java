@@ -105,10 +105,11 @@ public abstract class Characters implements CharSequence {
     public CharSequence subSequence(int start, int end) {
         Validate.withinRange( 0, start, end, this.length(), "start", "end" );
 
-        int length = end - start;
-        char[] chars = new char[length];
+        int    length   = end - start;
+        char[] chars    = new char[length];
+        int    maxIndex = end-start;
 
-        for ( int i=0; i<end; i++ ) {
+        for ( int i=0; i<maxIndex; i++ ) {
             chars[i] = this.charAt( start+i );
         }
 

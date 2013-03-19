@@ -1,6 +1,7 @@
 package com.mosaic.io;
 
 import com.mosaic.collections.IntStack;
+import com.mosaic.lang.Validate;
 
 /**
  * Collects and stores Characters until processed. Supports multiple mark points within the stream.
@@ -20,6 +21,10 @@ public class CharacterStream implements CharSequence {
         this( Characters.wrapString("") );
     }
 
+    public CharacterStream( String initialContents ) {
+        this( Characters.wrapString(initialContents) );
+    }
+
     public CharacterStream( Characters initialCharacters ) {
         characters = initialCharacters;
     }
@@ -29,7 +34,7 @@ public class CharacterStream implements CharSequence {
     }
 
     public CharPosition getPosition() {
-        return characters.getPosition();
+        return characters.skipCharacters(offset).getPosition();
     }
 
     public void pushMark() {
@@ -43,12 +48,12 @@ public class CharacterStream implements CharSequence {
 
     @Override
     public int length() {
-        return this.characters.length();
+        return this.characters.length() - offset;
     }
 
     @Override
     public char charAt( int index ) {
-        return this.characters.charAt(index);
+        return this.characters.charAt(index + offset);
     }
 
     @Override
@@ -59,8 +64,10 @@ public class CharacterStream implements CharSequence {
 
 // Functions that 'consume' content.
 
-    public Characters skipCharacters( int numCharacters ) {
-        return null;
+    public void skipCharacters( int numCharacters ) {
+        Validate.isLTE( numCharacters, this.length(), "numCharacters" );
+
+        offset += numCharacters;
     }
 
 //    public boolean startsWith( String targetString )
