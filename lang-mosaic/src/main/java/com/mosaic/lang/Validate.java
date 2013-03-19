@@ -328,6 +328,13 @@ public class Validate {
         }
     }
 
+
+    public static void isTrueState( boolean flag, String msg, Object...msgArgs ) {
+        if ( !flag ) {
+            throwIllegalStateException( msg, msgArgs );
+        }
+    }
+
     private static void throwException( String msg, Object...values ) {
         String formattedMessage = String.format( msg, formatValues(values) );
 
@@ -434,4 +441,5 @@ public class Validate {
 
         isTrue( minValue < maxValue, "%s (%s) < %s (%s)", minValueName,minValue, maxValueName,maxValue );
     }
+
 }
