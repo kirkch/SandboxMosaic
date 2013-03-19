@@ -38,11 +38,19 @@ public class CharacterStream implements CharSequence {
     }
 
     public void pushMark() {
-
+        markPoints.push( offset );
     }
 
     public void popMark() {
+        offset = markPoints.pop();
 
+        if ( markPoints.isEmpty() && offset > 0 ) {
+            // NB: there is no way to return past the last mark, thus by skipping over these characters
+            // we give the implementation of Characters the opportunity to drop an objects that it no longer needs.
+            // Thus allowing us to walk BIG streams of objects without the entire stream being in memory at once.
+            characters = characters.skipCharacters( offset );
+            offset     = 0;
+        }
     }
 
 
@@ -61,8 +69,12 @@ public class CharacterStream implements CharSequence {
         return this.characters.subSequence( start, end );
     }
 
+    @Override
+    public String toString() {
+        return this.characters.skipCharacters(offset).toString();
+    }
 
-// Functions that 'consume' content.
+    // Functions that 'consume' content.
 
     public void skipCharacters( int numCharacters ) {
         Validate.isLTE( numCharacters, this.length(), "numCharacters" );

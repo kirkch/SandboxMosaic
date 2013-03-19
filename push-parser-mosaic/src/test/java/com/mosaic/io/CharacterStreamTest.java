@@ -1,6 +1,10 @@
 package com.mosaic.io;
 
+import com.mosaic.jtunit.TestTools;
 import org.junit.Test;
+
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -190,6 +194,134 @@ public class CharacterStreamTest {
         assertEquals( new CharPosition(0,2,2), stream.getPosition() );
     }
 
+    @Test
+    public void given3CharacterStream_pushMarkSkip2Characters_expectStreamToBeAsSkippingOf2Chars() {
+        CharacterStream stream = new CharacterStream("abc");
 
-    // todo mark/unmark  appendString
+        stream.pushMark();
+        stream.skipCharacters( 2 );
+
+        assertEquals( 1, stream.length() );
+        assertEquals( new CharPosition(0,2,2), stream.getPosition() );
+        assertEquals( "c", stream.toString() );
+    }
+
+    @Test
+    public void given3CharacterStream_pushMarkSkip2CharactersPopMark_expectStreamToBeUnchanged() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        stream.pushMark();
+        stream.skipCharacters( 2 );
+        stream.popMark();
+
+        assertEquals( 3, stream.length() );
+        assertEquals( new CharPosition(0,0,0), stream.getPosition() );
+        assertEquals( "abc", stream.toString() );
+    }
+
+    @Test
+    public void given3CharacterStream_popMark_expectError() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        try {
+            stream.popMark();
+            fail( "Expected IllegalStateException" );
+        } catch (IllegalStateException e) {
+            assertEquals( "cannot pop from an empty stack", e.getMessage() );
+        }
+    }
+
+    @Test
+    public void given3CharacterStream_skip1PushSkip1Pop_expectTobeReturnedToMarkedPoint() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        stream.skipCharacters(1);
+        stream.pushMark();
+        stream.skipCharacters(1);
+        stream.popMark();
+
+        assertEquals( 2, stream.length() );
+        assertEquals( new CharPosition(0,1,1), stream.getPosition() );
+        assertEquals( "bc", stream.toString() );
+    }
+
+    @Test
+    public void given3CharacterStream_PushSkip1PushSkip1Pop_expectTobeReturnedToFirstMarkedPoint() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        stream.pushMark();
+        stream.skipCharacters(1);
+        stream.pushMark();
+        stream.skipCharacters(1);
+        stream.popMark();
+
+        assertEquals( 2, stream.length() );
+        assertEquals( new CharPosition(0,1,1), stream.getPosition() );
+        assertEquals( "bc", stream.toString() );
+    }
+
+    @Test
+    public void given3CharacterStream_PushSkip1PushSkip1PopPop_expectTobeReturnedToFirstMarkedPoint() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        stream.pushMark();
+        stream.skipCharacters( 1 );
+        stream.pushMark();
+        stream.skipCharacters( 1 );
+        stream.popMark();
+        stream.popMark();
+
+        assertEquals( 3, stream.length() );
+        assertEquals( new CharPosition(0,0,0), stream.getPosition() );
+        assertEquals( "abc", stream.toString() );
+    }
+
+    @Test
+    public void given3CharacterStream_PushSkip1PushSkip1PopPopPop_expectError() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        stream.pushMark();
+        stream.skipCharacters( 1 );
+        stream.pushMark();
+        stream.skipCharacters( 1 );
+        stream.popMark();
+        stream.popMark();
+
+
+        try {
+            stream.popMark();
+            fail( "Expected IllegalStateException" );
+        } catch (IllegalStateException e) {
+            assertEquals( "cannot pop from an empty stack", e.getMessage() );
+        }
+    }
+
+    @Test
+    public void givenGivenCharacterStreamMadeFromTwoBlocksOfCharacters_skipFirstBlockPushMarkSkip2CharactersThenPop_expectFirstBlockToBeGCd() {
+        CharacterStream stream = new CharacterStream();
+
+        Characters block1 = Characters.wrapString("abc");
+        Characters block2 = Characters.wrapString("def");
+
+        Reference<Characters> block1Ref = new WeakReference( block1, null);
+
+
+        stream.appendCharacters( block1Ref.get() );
+        stream.skipCharacters( 3 );
+        stream.pushMark();
+        stream.appendCharacters( block2 );
+        stream.skipCharacters( 2 );
+        stream.popMark();
+
+        assertEquals( 3, stream.length() );
+        assertEquals( new CharPosition(0,3,3), stream.getPosition() );
+        assertEquals( "def", stream.toString() );
+
+        // release block1 so that only the ref within the stream prevents it from being GC'd
+        //noinspection UnusedAssignment
+        block1 = null;
+
+        TestTools.spinUntilReleased( block1Ref );
+    }
+
 }

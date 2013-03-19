@@ -66,4 +66,7 @@ public class IntStack {
         return stack[pos-peekOffset-1];
     }
 
+    public boolean isEmpty() {
+        return size() == 0;
+    }
 }
