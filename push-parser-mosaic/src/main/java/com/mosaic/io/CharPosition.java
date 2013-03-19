@@ -77,4 +77,22 @@ public class CharPosition {
     public CharPosition setCharacterOffset( long newStreamOffset ) {
         return new CharPosition( this.lineNumber, this.columnNumber, newStreamOffset );
     }
+
+    public String toString() {
+        return String.format("public CharPosition(lineNumber=%d, columnNumber=%d, charOffset=%d)",lineNumber,columnNumber, charOffset);
+    }
+
+    public int hashCode() {
+        return (int) charOffset;
+    }
+
+    public boolean equals( Object o ) {
+        if ( !(o instanceof CharPosition) ) {
+            return false;
+        }
+
+        CharPosition other = (CharPosition) o;
+        return this.lineNumber == other.lineNumber && this.columnNumber == other.columnNumber && this.charOffset == other.charOffset;
+    }
+
 }

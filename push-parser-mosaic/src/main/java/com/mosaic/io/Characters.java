@@ -103,7 +103,16 @@ public abstract class Characters implements CharSequence {
 
 
     public CharSequence subSequence(int start, int end) {
-        throw new UnsupportedOperationException( "" );
+        Validate.withinRange( 0, start, end, this.length(), "start", "end" );
+
+        int length = end - start;
+        char[] chars = new char[length];
+
+        for ( int i=0; i<end; i++ ) {
+            chars[i] = this.charAt( start+i );
+        }
+
+        return new String( chars );
     }
 
     /**
@@ -132,6 +141,9 @@ public abstract class Characters implements CharSequence {
         return containsAt( targetString, 0 );
     }
 
+    /**
+     * Returns true if targetString is at fromIndex.
+     */
     public boolean containsAt( String targetString, int fromIndex ) {
         Validate.isGTEZero( fromIndex, "fromIndex" );
 
