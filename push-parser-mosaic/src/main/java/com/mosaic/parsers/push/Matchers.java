@@ -36,12 +36,12 @@ public class Matchers {
     }
 
     /**
-     * Match the same type repeatedly and store each in a list. Each element matched is demarcated by a seperator and the
-     * matching ends when the endOfList matcher gets a hit. The matches for seperatingMatcher and endOfListMatcher are
-     * thrown-away, only the results from repeatingMatcher are kept.
+     * Match the same type repeatedly and store each match in a list. Each element matched is demarcated by a seperator and the
+     * matching ends when the endOfList matcher gets a hit or the end of the stream is reached. The matches for seperatingMatcher
+     * and endOfListMatcher are thrown-away, only the results from repeatingMatcher are kept.
      */
-    public static <T> Matcher<List<T>> list( Matcher<T> repeatingMatcher, Matcher<T> seperatingMatcher, Matcher<T> endOfListMatcher ) {
-        return null;
+    public static <T> Matcher<List<T>> list( Matcher<T> elementMatcher, Matcher seperatingMatcher, Matcher endOfListMatcher ) {
+        return new ListElementMatcher( elementMatcher, seperatingMatcher, endOfListMatcher );
     }
 
 
@@ -156,6 +156,14 @@ class RegExpMatcher extends Matcher<String> {
     // [a-z0-9]
     // [^,]
     // case sensitive
+    // EOL
+    // $childRegExpName
+
+    // [a-z,0-9,\\"->",\\,->,]*
+    // regexp("[^,EOL]*", CaseInsenitive & BackslashEscaped)
+    // "($escapedCSVValue)"|($unescapedCSVValue)
+
+
 
     private Matcher<String> _processCharacters( Characters in, boolean isGreedy ) {
         java.util.regex.Matcher m   = regexp.matcher( in );
@@ -170,7 +178,7 @@ class RegExpMatcher extends Matcher<String> {
             return new RegExpMatcher( regexp, MatcherStatus.<String>createIsParsingStatus(), in, pos ); // geedy match, wait for more input
         }
 
-        String matchedString = in.toString(0,parsedUptoExc);
+        String matchedString = in.toString( 0, parsedUptoExc );
 
         return new RegExpMatcher( regexp, createHasResultStatus(matchedString), in.skipCharacters(parsedUptoExc), pos );
     }

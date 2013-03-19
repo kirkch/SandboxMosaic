@@ -27,6 +27,9 @@ public abstract class Matcher<T> {
         this.startingPosition = startingPosition;
     }
 
+    protected MatcherStatus<T> getStatus() {
+        return status;
+    }
 
     /**
      * Process the supplied characters without mutating this instance of itself. Instead a new instance holding the new

@@ -5,7 +5,9 @@ package com.mosaic.io.csv;
  */
 public class CSVPushParser /* extends PushParser<CSVPushParser> */{
 
-    // private static final Matcher<String> csvColumn = skipWhitespace(regexp("^[,EOL]+"))
+
+
+    // private static final Matcher<String> csvColumn = skipWhitespace(new CSVColumnValueMatcher())
     // private static final Matcher<String> comma     = skipWhitespace(constant(","))
 
 
