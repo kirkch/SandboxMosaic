@@ -1,45 +1,49 @@
 package com.mosaic.parsers.push2.matchers;
 
-import com.mosaic.io.Characters;
+import com.mosaic.io.CharacterStream;
+import com.mosaic.parsers.push2.MatchResult;
+import com.mosaic.parsers.push2.Matcher;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  *
  */
 public class ConstantMatcherTest {
 
-//    @Test
-//    public void givenNullTargetString_expectException() {
-//        try {
-//            Matchers.constant( null );
-//            fail( "Expected NullPointerException" );
-//        } catch (NullPointerException e) {
-//
-//        }
-//    }
-//
-//    @Test
-//    public void givenEmptyTargetString_expectException() {
-//        try {
-//            Matchers.constant( "" );
-//            fail( "Expected IllegalArgumentException" );
-//        } catch (IllegalArgumentException e) {
-//            assertEquals( "'targetString.length()' (0) must be >= 1", e.getMessage() );
-//        }
-//    }
-//
-//    @Test
-//    public void givenEmptyBytes_expectSameInstanceOfMatcherBack() {
-//        Characters      input   = Characters.wrapString("");
-//        Matcher<String> matcher = Matchers.constant( "const" );
-//
-//        Matcher<String> result = matcher.processCharacters( input );
-//
-//        assertTrue( result == matcher );
-//    }
-//
+    @Test
+    public void givenNullTargetString_expectException() {
+        try {
+            new ConstantMatcher( null );
+            fail( "Expected NullPointerException" );
+        } catch (NullPointerException e) {
+
+        }
+    }
+
+    @Test
+    public void givenEmptyTargetString_expectException() {
+        try {
+            new ConstantMatcher( "" );
+            fail( "Expected IllegalArgumentException" );
+        } catch (IllegalArgumentException e) {
+            assertEquals( "'targetString.length()' (0) must be >= 1", e.getMessage() );
+        }
+    }
+
+    @Test
+    public void givenEmptyBytes_expectFailedMatch() {
+        CharacterStream stream  = new CharacterStream("");
+        Matcher<String> matcher = new ConstantMatcher( "const" ).withInputStream( stream );
+
+        MatchResult<String> result = matcher.processInput();
+
+        assertTrue( result.hasErrored() );
+    }
+
 //    @Test
 //    public void givenBytesThatMatchExactly_expectMatch() {
 //        Characters      input   = Characters.wrapString("const");

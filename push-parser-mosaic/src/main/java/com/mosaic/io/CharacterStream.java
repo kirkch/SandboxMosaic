@@ -82,6 +82,10 @@ public class CharacterStream implements CharSequence {
         offset += numCharacters;
     }
 
+    public boolean startsWith( String targetString ) {
+        return characters.containsAt( targetString, offset );
+    }
+
 //    public boolean startsWith( String targetString )
 
 //    /**

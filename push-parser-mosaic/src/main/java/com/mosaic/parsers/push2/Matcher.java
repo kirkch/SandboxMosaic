@@ -9,8 +9,8 @@ import com.mosaic.io.CharacterStream;
  */
 public abstract class Matcher<T> {
 
-    private Matcher parentMatcher;
-    private CharacterStream inputStream;
+    private   Matcher         parentMatcher;
+    protected CharacterStream inputStream;
 
 
     public Matcher() {}
@@ -33,4 +33,21 @@ public abstract class Matcher<T> {
 
     public abstract MatchResult<T> processInput();
 
+
+
+
+
+    protected MatchResult<T> createIsParsingStatus( Matcher<T> nextMatcher ) {
+        return MatchResult.createIsParsingStatus( this.parentMatcher );
+    }
+
+    protected MatchResult<T> createHasResultStatus( T result ) {
+        return MatchResult.createHasResultStatus( this.parentMatcher, result );
+    }
+
+    protected MatchResult<T> createHasFailedStatus( String description, String...args ) {
+        return MatchResult.createHasFailedStatus( this.parentMatcher, inputStream.getPosition(), description, args );
+    }
+
 }
+

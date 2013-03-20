@@ -6,8 +6,7 @@ import org.junit.Test;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -323,5 +322,36 @@ public class CharacterStreamTest {
 
         TestTools.spinUntilReleased( block1Ref );
     }
+
+    @Test
+    public void given3CharacterStream_startsWithFirstCharcter_expectTrue() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        assertTrue( stream.startsWith("a") );
+    }
+
+    @Test
+    public void given3CharacterStream_startsWithFirstTwoCharcters_expectTrue() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        assertTrue( stream.startsWith("ab") );
+    }
+
+    @Test
+    public void given3CharacterStream_startsWithLastChar_expectFalse() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        assertFalse( stream.startsWith( "c" ) );
+    }
+
+    @Test
+    public void given3CharacterStream_skipTwoCharsStartsWithLastChar_expectFalse() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        stream.skipCharacters( 2 );
+
+        assertTrue( stream.startsWith( "c" ) );
+    }
+
 
 }
