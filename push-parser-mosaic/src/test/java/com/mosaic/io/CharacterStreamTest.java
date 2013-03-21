@@ -89,6 +89,29 @@ public class CharacterStreamTest {
     }
 
     @Test
+    public void givenStreamWithCharacters_hasReceivedEOS_expectFalse() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        assertFalse( stream.hasReceivedEOS() );
+    }
+
+    @Test
+    public void givenEOS_append3Characters_expectError() {
+        CharacterStream stream = new CharacterStream("abc");
+        stream.appendEOS();
+
+        assertTrue( stream.hasReceivedEOS() );
+
+        try {
+            stream.appendCharacters( "abc" );
+
+            fail( "Expected IllegalStateException" );
+        } catch (IllegalStateException e) {
+            assertEquals( "cannot append to closed stream", e.getMessage() );
+        }
+    }
+
+    @Test
     public void givenEmptyStream_append3Characters_expectSubsequence1To2ToReturnString() {
         CharacterStream stream = new CharacterStream("abc");
 

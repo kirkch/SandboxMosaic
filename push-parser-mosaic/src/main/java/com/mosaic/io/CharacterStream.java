@@ -15,7 +15,7 @@ public class CharacterStream implements CharSequence {
     private Characters characters;
     private int        offset;
     private IntStack   markPoints = new IntStack(3);
-
+    private boolean    hasReceivedEOS;
 
     public CharacterStream() {
         this( Characters.wrapString("") );
@@ -29,8 +29,22 @@ public class CharacterStream implements CharSequence {
         characters = initialCharacters;
     }
 
+    public boolean hasReceivedEOS() {
+        return hasReceivedEOS;
+    }
+
+    public void appendCharacters( String newCharacters ) {
+        appendCharacters( Characters.wrapString(newCharacters) );
+    }
+
     public void appendCharacters( Characters newCharacters ) {
+        Validate.isTrueState( !hasReceivedEOS, "cannot append to closed stream" );
+
         this.characters = this.characters.appendCharacters(newCharacters);
+    }
+
+    public void appendEOS() {
+        hasReceivedEOS = true;
     }
 
     public CharPosition getPosition() {
