@@ -35,18 +35,12 @@ public abstract class Matcher<T> {
 
 
 
-
-
-    protected MatchResult<T> createIsParsingStatus( Matcher<T> nextMatcher ) {
-        return MatchResult.createIsParsingStatus( this.parentMatcher );
-    }
-
     protected MatchResult<T> createHasResultStatus( T result ) {
         return MatchResult.createHasResultStatus( this.parentMatcher, result );
     }
 
     protected MatchResult<T> createHasFailedStatus( String description, String...args ) {
-        return MatchResult.createHasFailedStatus( this.parentMatcher, inputStream.getPosition(), description, args );
+        return MatchResult.createHasFailedStatus( this.parentMatcher, description, args );
     }
 
 }

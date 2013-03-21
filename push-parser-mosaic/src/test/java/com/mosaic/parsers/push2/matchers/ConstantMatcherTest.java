@@ -1,13 +1,12 @@
 package com.mosaic.parsers.push2.matchers;
 
 import com.mosaic.io.CharacterStream;
+import com.mosaic.io.Characters;
 import com.mosaic.parsers.push2.MatchResult;
 import com.mosaic.parsers.push2.Matcher;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -44,111 +43,83 @@ public class ConstantMatcherTest {
         assertTrue( result.hasErrored() );
     }
 
-//    @Test
-//    public void givenBytesThatMatchExactly_expectMatch() {
-//        Characters      input   = Characters.wrapString("const");
-//        Matcher<String> matcher = Matchers.constant( "const" );
-//
-//        Matcher<String> result = matcher.processCharacters( input );
-//
-//        assertEquals( 0, result.getLineNumber() );
-//        assertEquals( 0, result.getColumnNumber() );
-//        assertEquals( 0, result.getCharacterOffset() );
-//        assertEquals( 0, result.getRemainingCharacters().length() );
-//
-//        assertEquals( "const", result.getResult() );
-//    }
-//
-//    @Test
-//    public void givenBytesThatMatchExactlyWithExcess_expectMatch() {
-//        Characters      input   = Characters.wrapString("const123");
-//        Matcher<String> matcher = Matchers.constant( "const" );
-//
-//        Matcher<String> result = matcher.processCharacters( input );
-//
-//        assertEquals( 0, result.getLineNumber() );
-//        assertEquals( 0, result.getColumnNumber() );
-//        assertEquals( 0, result.getCharacterOffset() );
-//        assertEquals( "123", result.getRemainingCharacters().toString() );
-//
-//        assertEquals( "const", result.getResult() );
-//    }
-//
-//    @Test
-//    public void givenBytesThatMatchTwiceWithExcess_expectMatch() {
-//        Characters      input   = Characters.wrapString("abcabc123");
-//        Matcher<String> matcher = Matchers.constant( "abc" );
-//
-//        Matcher<String> result1 = matcher.processCharacters( input );
-//
-//        assertEquals( 0, result1.getLineNumber() );
-//        assertEquals( 0, result1.getColumnNumber() );
-//        assertEquals( 0, result1.getCharacterOffset() );
-//        assertEquals( "abc123", result1.getRemainingCharacters().toString() );
-//
-//        assertEquals( "abc", result1.getResult() );
-//
-//        Matcher<String> result2 = matcher.processCharacters( result1.getRemainingCharacters() );
-//
-//        assertEquals( 0, result2.getLineNumber() );
-//        assertEquals( 3, result2.getColumnNumber() );
-//        assertEquals( 3, result2.getCharacterOffset() );
-//        assertEquals( "123", result2.getRemainingCharacters().toString() );
-//
-//        assertTrue( result2.hasCompleted() );
-//        assertTrue( result2.hasResult() );
-//        assertEquals( "abc", result2.getResult() );
-//    }
-//
-//    @Test
-//    public void givenBytesThatMatchOverTwoCalls_expectMatchOnSecond() {
-//        Characters      input1  = Characters.wrapString("ab");
-//        Characters      input2  = Characters.wrapString("c");
-//        Matcher<String> matcher = Matchers.constant( "abc" );
-//
-//        Matcher<String> result1 = matcher.processCharacters( input1 );
-//
-//        assertEquals( 0, result1.getLineNumber() );
-//        assertEquals( 0, result1.getColumnNumber() );
-//        assertEquals( 0, result1.getCharacterOffset() );
-//        assertEquals( "ab", result1.getRemainingCharacters().toString() );
-//        assertEquals( null, result1.getResult() );
-//        assertFalse( result1.hasCompleted() );
-//
-//        Matcher<String> result2 = result1.processCharacters( input2 );
-//
-//        assertEquals( "abc", result2.getResult() );
-//        assertEquals( 0, result2.getLineNumber() );
-//        assertEquals( 0, result2.getColumnNumber() );
-//        assertEquals( 0, result2.getCharacterOffset() );
-//        assertEquals( "", result2.getRemainingCharacters().toString() );
-//
-//        assertTrue( result2.hasCompleted() );
-//        assertEquals( 3, result2.getRemainingCharacters().getColumnNumber() );
-//    }
-//
-//    @Test
-//    public void givenBytesThatWillNotMatch_expectFailure() {
-//        Characters      input   = Characters.wrapString("d");
-//        Matcher<String> matcher = Matchers.constant( "abc" );
-//
-//        Matcher<String> result = matcher.processCharacters( input );
-//
-//        assertTrue( result.hasCompleted() );
-//        assertTrue( result.hasFailedToMatch() );
-//        assertEquals( "expected 'abc'", result.getFailedToMatchDescription() );
-//    }
-//
-//    @Test
-//    public void givenFirstPartOfMatch_thenEndStream_expectFailedToMatch() {
-//        Characters      input   = Characters.wrapString("ab");
-//        Matcher<String> matcher = Matchers.constant( "abc" );
-//
-//        Matcher<String> result = matcher.processCharacters( input ).processEndOfStream();
-//
-//        assertTrue( result.hasCompleted() );
-//        assertTrue( result.hasFailedToMatch() );
-//        assertEquals( "expected 'abc'", result.getFailedToMatchDescription() );
-//    }
+    @Test
+    public void givenBytesThatMatchExactly_expectMatch() {
+        CharacterStream stream  = new CharacterStream("const");
+        Matcher<String> matcher = new ConstantMatcher( "const" ).withInputStream( stream );
+
+        MatchResult<String> result = matcher.processInput();
+
+        assertEquals( "const", result.getResult() );
+    }
+
+    @Test
+    public void givenBytesThatMatchExactlyWithExcess_expectMatch() {
+        CharacterStream stream  = new CharacterStream("const123");
+        Matcher<String> matcher = new ConstantMatcher( "const" ).withInputStream( stream );
+
+        MatchResult<String> result = matcher.processInput();
+
+        assertEquals( "const", result.getResult() );
+        assertEquals( "123", stream.toString() );
+    }
+
+    @Test
+    public void givenBytesThatMatchTwiceWithExcess_expectMatch() {
+        CharacterStream stream  = new CharacterStream("abcabc123");
+        Matcher<String> matcher = new ConstantMatcher( "abc" ).withInputStream( stream );
+
+        MatchResult<String> result1 = matcher.processInput();
+
+        assertEquals( "abc", result1.getResult() );
+        assertEquals( "abc123", stream.toString() );
+
+
+        MatchResult<String> result2 = matcher.processInput();
+
+        assertTrue( result2.hasResult() );
+        assertEquals( "abc", result2.getResult() );
+
+        assertEquals( "123", stream.toString() );
+    }
+
+    @Test
+    public void givenBytesThatMatchOverTwoCalls_expectMatchOnSecond() {
+        Characters      input1  = Characters.wrapString( "ab" );
+        Characters      input2  = Characters.wrapString("c");
+
+        CharacterStream stream  = new CharacterStream();
+        Matcher<String> matcher = new ConstantMatcher( "abc" ).withInputStream( stream );
+
+        stream.appendCharacters( input1 );
+
+        MatchResult<String> result1 = matcher.processInput();
+
+        assertTrue( result1.hasErrored() );
+        assertEquals( null, result1.getResult() );
+        assertEquals( "expected 'abc'", result1.getFailedToMatchDescription() );
+        assertEquals( "ab", stream.toString() );
+
+
+        stream.appendCharacters( input2 );
+
+        MatchResult<String> result2 = matcher.processInput();
+
+        assertEquals( "abc", result2.getResult() );
+        assertEquals( "", stream.toString() );
+        assertTrue( result2.hasResult() );
+    }
+
+    @Test
+    public void givenBytesThatWillNotMatch_expectFailure() {
+        CharacterStream stream  = new CharacterStream("d");
+        Matcher<String> matcher = new ConstantMatcher( "abc" ).withInputStream( stream );
+
+        MatchResult<String> result = matcher.processInput();
+
+        assertTrue( result.hasErrored() );
+        assertEquals( "expected 'abc'", result.getFailedToMatchDescription() );
+        assertEquals( "d", stream.toString() );
+    }
 
 }

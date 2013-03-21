@@ -1,7 +1,5 @@
 package com.mosaic.parsers.push2;
 
-import com.mosaic.io.CharPosition;
-
 /**
  *
  */
@@ -15,7 +13,7 @@ public class MatchResult<T> {
         return s;
     }
 
-    public static <T> MatchResult<T> createHasFailedStatus( Matcher<T> nextMatcher, CharPosition pos, String description, String...args ) {
+    public static <T> MatchResult<T> createHasFailedStatus( Matcher<T> nextMatcher, String description, String...args ) {
         MatchResult<T> s = new MatchResult( nextMatcher );
 
         s.failedToMatchDescription = String.format(description, args);
