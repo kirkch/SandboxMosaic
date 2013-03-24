@@ -13,6 +13,10 @@ public class MatchResult<T> {
         return s;
     }
 
+    public static <T> MatchResult<T> createIncompleteMatch( Matcher<T> nextMatcher ) {
+        return new MatchResult( nextMatcher );
+    }
+
     public static <T> MatchResult<T> createHasFailedStatus( Matcher<T> nextMatcher, String description, String...args ) {
         MatchResult<T> s = new MatchResult( nextMatcher );
 
@@ -33,11 +37,25 @@ public class MatchResult<T> {
     private String     failedToMatchDescription;
 
 
+    /**
+     * Successful match.
+     */
     public boolean hasResult() {
         return result != null;
     }
 
-    public boolean hasErrored() {
+    /**
+     * Inconclusive. Match started but ran out of characters and is not at the end of the stream, so more characters
+     * may come in which will change the result.
+     */
+    public boolean isIncompleteMatch() {
+        return result == null && failedToMatchDescription == null;
+    }
+
+    /**
+     * Not the match that we are looking for.
+     */
+    public boolean hasFailedToMatch() {
         return failedToMatchDescription != null;
     }
 

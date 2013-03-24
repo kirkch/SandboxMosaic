@@ -18,10 +18,17 @@ public class ConstantMatcher extends Matcher<String> {
     }
 
     @Override
-    public MatchResult<String> processInput() {
+    protected MatchResult<String> _processInput() {
         int targetStringLength = targetString.length();
+        int streamLength       = inputStream.length();
 
-        if ( inputStream.startsWith(targetString) ) {
+        if ( streamLength < targetStringLength ) {
+            if ( targetString.startsWith(inputStream.toString()) && !inputStream.hasReceivedEOS() ) {
+                return createIncompleteMatch();
+            } else {
+                return createHasFailedStatus( "expected '%s'", targetString );
+            }
+        } else if ( inputStream.startsWith(targetString) ) {
             inputStream.skipCharacters( targetStringLength );
 
             return createHasResultStatus( targetString );

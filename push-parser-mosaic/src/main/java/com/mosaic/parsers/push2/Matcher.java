@@ -31,7 +31,20 @@ public abstract class Matcher<T> {
         return this;
     }
 
-    public abstract MatchResult<T> processInput();
+    public final MatchResult<T> processInput() {
+        inputStream.pushMark();
+
+        MatchResult<T> r = _processInput();
+        if ( r.hasResult() ) {
+            inputStream.popMark();
+        } else {
+            inputStream.returnToMark();
+        }
+
+        return r;
+    }
+
+    protected abstract MatchResult<T> _processInput();
 
 
 
@@ -41,6 +54,10 @@ public abstract class Matcher<T> {
 
     protected MatchResult<T> createHasFailedStatus( String description, String...args ) {
         return MatchResult.createHasFailedStatus( this.parentMatcher, description, args );
+    }
+
+    protected MatchResult<T> createIncompleteMatch() {
+        return MatchResult.createIncompleteMatch( this );
     }
 
 }

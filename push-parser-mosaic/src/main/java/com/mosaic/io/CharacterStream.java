@@ -33,18 +33,29 @@ public class CharacterStream implements CharSequence {
         return hasReceivedEOS;
     }
 
+    /**
+     * Is at the end of the input stream. Requires hasReceivedEOS to be true.
+     */
+    public boolean isAtEOS() {
+        return hasReceivedEOS && offset == characters.length();
+    }
+
     public void appendCharacters( String newCharacters ) {
         appendCharacters( Characters.wrapString(newCharacters) );
     }
 
-    public void appendCharacters( Characters newCharacters ) {
+    public CharacterStream appendCharacters( Characters newCharacters ) {
         Validate.isTrueState( !hasReceivedEOS, "cannot append to closed stream" );
 
         this.characters = this.characters.appendCharacters(newCharacters);
+
+        return this;
     }
 
-    public void appendEOS() {
+    public CharacterStream appendEOS() {
         hasReceivedEOS = true;
+
+        return this;
     }
 
     public CharPosition getPosition() {
@@ -56,6 +67,10 @@ public class CharacterStream implements CharSequence {
     }
 
     public void popMark() {
+        markPoints.pop();
+    }
+
+    public void returnToMark() {
         offset = markPoints.pop();
 
         if ( markPoints.isEmpty() && offset > 0 ) {

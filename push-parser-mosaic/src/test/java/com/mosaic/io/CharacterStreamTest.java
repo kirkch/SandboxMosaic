@@ -234,7 +234,7 @@ public class CharacterStreamTest {
 
         stream.pushMark();
         stream.skipCharacters( 2 );
-        stream.popMark();
+        stream.returnToMark();
 
         assertEquals( 3, stream.length() );
         assertEquals( new CharPosition(0,0,0), stream.getPosition() );
@@ -246,7 +246,7 @@ public class CharacterStreamTest {
         CharacterStream stream = new CharacterStream("abc");
 
         try {
-            stream.popMark();
+            stream.returnToMark();
             fail( "Expected IllegalStateException" );
         } catch (IllegalStateException e) {
             assertEquals( "cannot pop from an empty stack", e.getMessage() );
@@ -260,7 +260,7 @@ public class CharacterStreamTest {
         stream.skipCharacters(1);
         stream.pushMark();
         stream.skipCharacters(1);
-        stream.popMark();
+        stream.returnToMark();
 
         assertEquals( 2, stream.length() );
         assertEquals( new CharPosition(0,1,1), stream.getPosition() );
@@ -275,7 +275,7 @@ public class CharacterStreamTest {
         stream.skipCharacters(1);
         stream.pushMark();
         stream.skipCharacters(1);
-        stream.popMark();
+        stream.returnToMark();
 
         assertEquals( 2, stream.length() );
         assertEquals( new CharPosition(0,1,1), stream.getPosition() );
@@ -290,8 +290,8 @@ public class CharacterStreamTest {
         stream.skipCharacters( 1 );
         stream.pushMark();
         stream.skipCharacters( 1 );
-        stream.popMark();
-        stream.popMark();
+        stream.returnToMark();
+        stream.returnToMark();
 
         assertEquals( 3, stream.length() );
         assertEquals( new CharPosition(0,0,0), stream.getPosition() );
@@ -306,12 +306,12 @@ public class CharacterStreamTest {
         stream.skipCharacters( 1 );
         stream.pushMark();
         stream.skipCharacters( 1 );
-        stream.popMark();
-        stream.popMark();
+        stream.returnToMark();
+        stream.returnToMark();
 
 
         try {
-            stream.popMark();
+            stream.returnToMark();
             fail( "Expected IllegalStateException" );
         } catch (IllegalStateException e) {
             assertEquals( "cannot pop from an empty stack", e.getMessage() );
@@ -333,7 +333,7 @@ public class CharacterStreamTest {
         stream.pushMark();
         stream.appendCharacters( block2 );
         stream.skipCharacters( 2 );
-        stream.popMark();
+        stream.returnToMark();
 
         assertEquals( 3, stream.length() );
         assertEquals( new CharPosition(0,3,3), stream.getPosition() );

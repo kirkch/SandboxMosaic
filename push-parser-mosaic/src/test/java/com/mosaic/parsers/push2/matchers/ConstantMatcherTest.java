@@ -34,13 +34,13 @@ public class ConstantMatcherTest {
     }
 
     @Test
-    public void givenEmptyBytes_expectFailedMatch() {
+    public void givenEmptyBytes_expectIncompleteMatch() {
         CharacterStream stream  = new CharacterStream("");
         Matcher<String> matcher = new ConstantMatcher( "const" ).withInputStream( stream );
 
         MatchResult<String> result = matcher.processInput();
 
-        assertTrue( result.hasErrored() );
+        assertTrue( result.isIncompleteMatch() );
     }
 
     @Test
@@ -95,9 +95,9 @@ public class ConstantMatcherTest {
 
         MatchResult<String> result1 = matcher.processInput();
 
-        assertTrue( result1.hasErrored() );
+        assertTrue( result1.isIncompleteMatch() );
         assertEquals( null, result1.getResult() );
-        assertEquals( "expected 'abc'", result1.getFailedToMatchDescription() );
+        assertEquals( null, result1.getFailedToMatchDescription() );
         assertEquals( "ab", stream.toString() );
 
 
@@ -111,13 +111,30 @@ public class ConstantMatcherTest {
     }
 
     @Test
+    public void givenPartialMatchOnEndedStream_expectIncompleteMatch() {
+        Characters      input1  = Characters.wrapString( "ab" );
+
+        CharacterStream stream  = new CharacterStream();
+        Matcher<String> matcher = new ConstantMatcher( "abc" ).withInputStream( stream );
+
+        stream.appendCharacters( input1 ).appendEOS();
+
+        MatchResult<String> result1 = matcher.processInput();
+
+        assertTrue( result1.hasFailedToMatch() );
+        assertEquals( null, result1.getResult() );
+        assertEquals( "expected 'abc'", result1.getFailedToMatchDescription() );
+        assertEquals( "ab", stream.toString() );
+    }
+
+    @Test
     public void givenBytesThatWillNotMatch_expectFailure() {
         CharacterStream stream  = new CharacterStream("d");
         Matcher<String> matcher = new ConstantMatcher( "abc" ).withInputStream( stream );
 
         MatchResult<String> result = matcher.processInput();
 
-        assertTrue( result.hasErrored() );
+        assertTrue( result.hasFailedToMatch() );
         assertEquals( "expected 'abc'", result.getFailedToMatchDescription() );
         assertEquals( "d", stream.toString() );
     }
