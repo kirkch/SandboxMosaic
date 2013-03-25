@@ -79,5 +79,16 @@ public abstract class Matcher<T> {
         return MatchResult.createIncompleteMatch( this );
     }
 
+    protected MatchResult<T> createResultFrom( MatchResult<T> result ) {
+        if ( result.hasResult() ) {
+            return createHasResultStatus( result.getResult() );
+        } else if ( result.hasFailedToMatch() ) {
+            return createHasFailedStatus( result );
+        } else {
+            assert result.isIncompleteMatch();
+
+            return createIncompleteMatch();
+        }
+    }
 }
 

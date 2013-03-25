@@ -12,6 +12,10 @@ public class Matchers {
         return new ConstantMatcher( target );
     }
 
+    public static <T> Matcher<T> skipWhitespace( Matcher<T> wrappedMatcher ) {
+        return new SkipWhitespaceMatcher( wrappedMatcher );
+    }
+
     public static <T> Matcher<List<T>> listDemarcated( Matcher prefix, Matcher<T> element, Matcher seperator, Matcher postfix ) {
         return new ListMatcher( prefix, element, seperator, postfix );
     }
