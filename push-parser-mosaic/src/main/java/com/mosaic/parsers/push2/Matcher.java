@@ -2,6 +2,9 @@ package com.mosaic.parsers.push2;
 
 import com.mosaic.io.CharacterStream;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Matches a region of characters. Supports being composited into a graph of Matchers; think finite state machine. This
  * composition is designed to support parsing large bodies of text that arrive in batches without blocking the calling
@@ -12,6 +15,7 @@ public abstract class Matcher<T> {
     private   Matcher         parentMatcher;
     protected CharacterStream inputStream;
 
+    private List<Matcher> children = new ArrayList(1);
 
     public Matcher() {}
 
@@ -27,6 +31,10 @@ public abstract class Matcher<T> {
 
     public Matcher<T> withInputStream( CharacterStream in ) {
         inputStream = in;
+
+        for ( Matcher child : children ) {
+            child.withInputStream( in );
+        }
 
         return this;
     }
@@ -47,9 +55,20 @@ public abstract class Matcher<T> {
     protected abstract MatchResult<T> _processInput();
 
 
+    protected <X> Matcher<X> appendChild( Matcher<X> child ) {
+        children.add( child );
+
+        return child.withInputStream( inputStream ).withParent( this );
+    }
 
     protected MatchResult<T> createHasResultStatus( T result ) {
         return MatchResult.createHasResultStatus( this.parentMatcher, result );
+    }
+
+    protected MatchResult<T> createHasFailedStatus( MatchResult childResult ) {
+        assert childResult.getNextMatcher() == this;
+
+        return MatchResult.createHasFailedStatus( this.parentMatcher, childResult.getFailedToMatchDescription() );
     }
 
     protected MatchResult<T> createHasFailedStatus( String description, String...args ) {

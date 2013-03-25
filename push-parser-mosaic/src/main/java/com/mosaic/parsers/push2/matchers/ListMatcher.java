@@ -1,7 +1,6 @@
 package com.mosaic.parsers.push2.matchers;
 
 
-import com.mosaic.io.CharacterStream;
 import com.mosaic.lang.Validate;
 import com.mosaic.parsers.push2.MatchResult;
 import com.mosaic.parsers.push2.Matcher;
@@ -27,25 +26,22 @@ class ListMatcher<T> extends Matcher<List<T>> {
         Validate.notNull( seperatingMatcher, "seperatingMatcher" );
         Validate.notNull( postfixMatcher,    "postfixMatcher" );
 
-        this.prefixMatcher     = prefixMatcher;
-        this.elementMatcher    = elementMatcher;
-        this.seperatingMatcher = seperatingMatcher;
-        this.postfixMatcher    = postfixMatcher;
-    }
-
-    @Override
-    public Matcher<List<T>> withInputStream( CharacterStream in ) {
-        prefixMatcher.withInputStream( in );
-        elementMatcher.withInputStream( in );
-        seperatingMatcher.withInputStream( in );
-        postfixMatcher.withInputStream( in );
-
-        return super.withInputStream( in );
+        this.prefixMatcher     = appendChild( prefixMatcher     );
+        this.elementMatcher    = appendChild( elementMatcher    );
+        this.seperatingMatcher = appendChild( seperatingMatcher );
+        this.postfixMatcher    = appendChild( postfixMatcher    );
     }
 
     @Override
     protected MatchResult<List<T>> _processInput() {
         List<T> elementsParsed = new ArrayList(10);
+
+        MatchResult<List<T>> prefixResult = prefixMatcher.processInput();
+        if ( prefixResult.hasFailedToMatch() ) {
+            return createHasFailedStatus( prefixResult );
+        } else if ( prefixResult.isIncompleteMatch() ) {
+            return createIncompleteMatch();
+        }
 
         MatchResult<List<T>> elementResult = parseElement( elementsParsed );
         if ( !elementResult.hasResult() ) {
