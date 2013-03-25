@@ -70,4 +70,15 @@ public class MatchResult<T> {
     public Matcher<T> getNextMatcher() {
         return nextMatcher;
     }
+
+    @Override
+    public String toString() {
+        if ( hasResult() ) {
+            return String.format("MatchResult(Success,'%s')".format(result.toString()));
+        } else if ( isIncompleteMatch() ) {
+            return "MatchResult(Incomplete)";
+        } else {
+            return String.format("MatchResult(Error,'%s')".format(failedToMatchDescription));
+        }
+    }
 }
