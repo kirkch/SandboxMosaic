@@ -13,32 +13,32 @@ import java.util.List;
  *
  * State transitions:
  *
- * *elementMatcher -> seperatingMatcher)* -> endOfListMatcher
+ * prefixMatcher -> (*elementMatcher -> seperatingMatcher)* -> postfixMatcher
  */
-//abstract class ListMatcher<T> extends Matcher<T> {
-//
-//}
-
 class ListMatcher<T> extends Matcher<List<T>> {
+    private final Matcher    prefixMatcher;
     private final Matcher<T> elementMatcher;
     private final Matcher    seperatingMatcher;
-    private final Matcher    endOfListMatcher;
+    private final Matcher    postfixMatcher;
 
-    public ListMatcher( Matcher<T> elementMatcher, Matcher seperatingMatcher, Matcher endOfListMatcher ) {
+    public ListMatcher( Matcher prefixMatcher, Matcher<T> elementMatcher, Matcher seperatingMatcher, Matcher postfixMatcher ) {
+        Validate.notNull( prefixMatcher,     "prefixMatcher" );
         Validate.notNull( elementMatcher,    "elementMatcher" );
         Validate.notNull( seperatingMatcher, "seperatingMatcher" );
-        Validate.notNull( endOfListMatcher,  "endOfListMatcher" );
+        Validate.notNull( postfixMatcher,    "postfixMatcher" );
 
+        this.prefixMatcher     = prefixMatcher;
         this.elementMatcher    = elementMatcher;
         this.seperatingMatcher = seperatingMatcher;
-        this.endOfListMatcher  = endOfListMatcher;
+        this.postfixMatcher    = postfixMatcher;
     }
 
     @Override
     public Matcher<List<T>> withInputStream( CharacterStream in ) {
+        prefixMatcher.withInputStream( in );
         elementMatcher.withInputStream( in );
         seperatingMatcher.withInputStream( in );
-        endOfListMatcher.withInputStream( in );
+        postfixMatcher.withInputStream( in );
 
         return super.withInputStream( in );
     }
@@ -57,11 +57,11 @@ class ListMatcher<T> extends Matcher<List<T>> {
             if ( seperatingResult.isIncompleteMatch() ) {
                 return createIncompleteMatch();
             } else if ( seperatingResult.hasFailedToMatch() ) {
-                MatchResult endResult = endOfListMatcher.processInput();
+                MatchResult endResult = postfixMatcher.processInput();
                 if ( endResult.hasResult() ) {
                     return createHasResultStatus( elementsParsed );
                 } else if ( inputStream.isAtEOS() ) {
-                    return createHasFailedStatus("end of stream reached");
+                    return createHasFailedStatus( "end of stream reached" );
                 }
 
                 return createHasFailedStatus( seperatingResult.getFailedToMatchDescription() );
