@@ -1,9 +1,9 @@
-package com.mosaic.parsers.push2.matchers;
+package com.mosaic.parsers.push.matchers;
 
 import com.mosaic.io.CharPosition;
 import com.mosaic.io.CharacterStream;
-import com.mosaic.parsers.push2.MatchResult;
-import com.mosaic.parsers.push2.Matcher;
+import com.mosaic.parsers.push.MatchResult;
+import com.mosaic.parsers.push.Matcher;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -20,7 +20,7 @@ public class MatchersTest {
     @Test
     public void listDemarcated() {
         CharacterStream stream = new CharacterStream( "(e1,e1,e1)" ).appendEOS();
-        Matcher<List<String>> matcher = Matchers.listDemarcated( new ConstantMatcher("("), new ConstantMatcher("e1"), new ConstantMatcher(","), new ConstantMatcher(")") );
+        Matcher<List<String>> matcher = Matchers.listDemarcated( new ConstantMatcher( "(" ), new ConstantMatcher( "e1" ), new ConstantMatcher( "," ), new ConstantMatcher( ")" ) );
         matcher.withInputStream( stream );
 
         MatchResult<List<String>> result = matcher.processInput();

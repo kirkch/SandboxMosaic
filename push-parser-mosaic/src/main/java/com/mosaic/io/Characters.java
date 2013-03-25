@@ -1,7 +1,6 @@
 package com.mosaic.io;
 
 import com.mosaic.lang.Validate;
-import com.mosaic.parsers.push.CharPredicate;
 
 import java.nio.CharBuffer;
 import java.util.ArrayList;

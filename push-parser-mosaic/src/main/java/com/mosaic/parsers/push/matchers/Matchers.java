@@ -1,6 +1,6 @@
-package com.mosaic.parsers.push2.matchers;
+package com.mosaic.parsers.push.matchers;
 
-import com.mosaic.parsers.push2.Matcher;
+import com.mosaic.parsers.push.Matcher;
 
 import java.util.List;
 
@@ -26,3 +26,15 @@ public class Matchers {
         return new ListMatcher( alwaysMatchesMatcher, element, seperator, alwaysMatchesMatcher );
     }
 }
+
+
+//
+// list
+// zeroOrMore
+// issueCallback
+// discard
+
+// private static final Matcher<String> csvColumn = skipWhitespace(regexp("^[,EOL]+"))
+
+// private static final Matcher<List<String>> row  = list( csvColumn, comma, eolf )
+// private static final Matcher               rows = zeroOrMore( issueCallbackAndSkip(row,this,"rowParsed",List<String>.class) )

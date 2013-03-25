@@ -1,9 +1,9 @@
-package com.mosaic.parsers.push2.matchers;
+package com.mosaic.parsers.push.matchers;
 
 import com.mosaic.io.CharacterStream;
 import com.mosaic.io.Characters;
-import com.mosaic.parsers.push2.MatchResult;
-import com.mosaic.parsers.push2.Matcher;
+import com.mosaic.parsers.push.MatchResult;
+import com.mosaic.parsers.push.Matcher;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -86,7 +86,7 @@ public class ConstantMatcherTest {
     @Test
     public void givenBytesThatMatchOverTwoCalls_expectMatchOnSecond() {
         Characters      input1  = Characters.wrapString( "ab" );
-        Characters      input2  = Characters.wrapString("c");
+        Characters      input2  = Characters.wrapString( "c" );
 
         CharacterStream stream  = new CharacterStream();
         Matcher<String> matcher = new ConstantMatcher( "abc" ).withInputStream( stream );

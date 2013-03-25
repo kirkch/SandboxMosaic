@@ -1,7 +1,7 @@
-package com.mosaic.parsers.push2.matchers;
+package com.mosaic.parsers.push.matchers;
 
-import com.mosaic.parsers.push2.MatchResult;
-import com.mosaic.parsers.push2.Matcher;
+import com.mosaic.parsers.push.MatchResult;
+import com.mosaic.parsers.push.Matcher;
 
 /**
  * Always reports a match, does not consume any characters.

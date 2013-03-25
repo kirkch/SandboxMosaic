@@ -1,6 +1,5 @@
 package com.mosaic.io;
 
-import com.mosaic.parsers.push.CharPredicate;
 import org.junit.Test;
 
 import java.nio.CharBuffer;

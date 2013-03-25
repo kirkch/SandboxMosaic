@@ -1,9 +1,9 @@
-package com.mosaic.parsers.push2.matchers;
+package com.mosaic.parsers.push.matchers;
 
 import com.mosaic.io.CharPosition;
 import com.mosaic.io.CharacterStream;
-import com.mosaic.parsers.push2.MatchResult;
-import com.mosaic.parsers.push2.Matcher;
+import com.mosaic.parsers.push.MatchResult;
+import com.mosaic.parsers.push.Matcher;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -224,7 +224,7 @@ public class ListMatcherTest {
 
         assertTrue( result.hasResult() );
         assertEquals( Arrays.asList("e1","e1"), result.getResult() );
-        assertEquals( new CharPosition(0,7,7), stream.getPosition() );
+        assertEquals( new CharPosition( 0, 7, 7 ), stream.getPosition() );
     }
 
     @Test
@@ -259,7 +259,7 @@ public class ListMatcherTest {
 
         assertTrue( result.hasResult() );
         assertEquals( Arrays.asList("e1","e1","e1"), result.getResult() );
-        assertEquals( new CharPosition(0,10,10), stream.getPosition() );
+        assertEquals( new CharPosition( 0, 10, 10 ), stream.getPosition() );
     }
 
     private void assertFailedMatch( CharacterStream stream, MatchResult<List<String>> result, String expectedMessage ) {

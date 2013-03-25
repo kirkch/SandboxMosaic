@@ -1,4 +1,4 @@
-package com.mosaic.parsers.push;
+package com.mosaic.io;
 
 /**
  *
