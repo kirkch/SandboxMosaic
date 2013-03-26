@@ -41,21 +41,35 @@ public class CSVColumnValueMatcher extends Matcher<String> {
     }
 
     private MatchResult<String> processQuotedColumn( final int streamLength ) {
+        boolean escapedSymbolsDetected = false;
+
         for ( int i=1; i<streamLength; i++ ) {
             char c = inputStream.charAt( i );
 
             if ( c == '"' ) {
+                if ( i+1 < streamLength && inputStream.charAt(i+1) == '"' ) {
+                    i += 2;
+
+                    escapedSymbolsDetected = true;
+
+                    continue;
+                }
+
                 inputStream.skipCharacters( 1 );
 
                 String str = inputStream.consumeCharacters(i-1).toString(); // extracts up to but excluding the quote
                 inputStream.skipCharacters( 1 ); // the quote
+
+                if ( escapedSymbolsDetected ) {
+                    str = str.replaceAll( "\"\"", "\"" );
+                }
 
                 return createHasResultStatus( str );
             }
         }
 
         if ( inputStream.hasReceivedEOS() ) {
-            return createHasResultStatus( inputStream.consumeCharacters(streamLength).toString() );
+            return createHasFailedStatus( "escaped column missing closing quote" );
         }
 
         return createIncompleteMatch();

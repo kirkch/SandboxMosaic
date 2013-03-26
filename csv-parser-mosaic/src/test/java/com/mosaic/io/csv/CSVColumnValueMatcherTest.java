@@ -140,11 +140,46 @@ public class CSVColumnValueMatcherTest {
         assertEquals( "", stream.toString() );
     }
 
+    @Test
+    public void givenColumnWithEscapedCommaEOL_expectSingleColumnMatch() {
+        CharacterStream stream  = new CharacterStream( "\"foo, bar\"" );
+        Matcher<String> matcher = new CSVColumnValueMatcher().withInputStream( stream );
+
+        MatchResult<String> result = matcher.processInput();
+
+        assertTrue( result.hasResult() );
+        assertEquals( "foo, bar", result.getResult() );
+        assertEquals( "", stream.toString() );
+    }
+
+    @Test
+    public void givenColumnWithEscapedQuoteEOL_expectSingleColumnMatch() {
+        CharacterStream stream  = new CharacterStream( "\"foo\"\"bar\"" );
+        Matcher<String> matcher = new CSVColumnValueMatcher().withInputStream( stream );
+
+        MatchResult<String> result = matcher.processInput();
+
+        assertTrue( result.hasResult() );
+        assertEquals( "foo\"bar", result.getResult() );
+        assertEquals( "", stream.toString() );
+    }
+
+    @Test
+    public void givenColumnWithEscapedQuoteMissingClosingQuoteAndEOS_expectFailedMatch() {
+        CharacterStream stream  = new CharacterStream( "\"foo bar" ).appendEOS();
+        Matcher<String> matcher = new CSVColumnValueMatcher().withInputStream( stream );
+
+        MatchResult<String> result = matcher.processInput();
+
+        assertTrue( result.hasFailedToMatch() );
+        assertEquals( "escaped column missing closing quote", result.getFailedToMatchDescription() );
+    }
+
 
     //
-    // givenColumnWithEscapedCommaEOL_expectSingleColumnMatch
-    // givenColumnWithEscapedQuoteEOL_expectSingleColumnMatch
-    // givenColumnWithEscapedQuoteMissingClosingQuoteAndEOS_expectFailedMatch
+    //
+    //
+    //
 
 
 }
