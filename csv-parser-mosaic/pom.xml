@@ -24,7 +24,7 @@
     <dependencies>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>pull-parser-mosaic</artifactId>
+        <artifactId>push-parser-mosaic</artifactId>
         <version>${project.version}</version>
       </dependency>
     </dependencies>

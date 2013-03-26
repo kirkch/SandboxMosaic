@@ -3,6 +3,6 @@ package com.mosaic.lang.function;
 /**
  *
  */
-public abstract class Function1<R,T> {
-    public abstract R invoke( T arg );
+public interface Function1<R,A1> {
+    public R invoke( A1 arg );
 }

@@ -376,5 +376,73 @@ public class CharacterStreamTest {
         assertTrue( stream.startsWith( "c" ) );
     }
 
+    @Test
+    public void given3CharacterStream_consumeOneCharacter_expectA() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        assertEquals( "a", stream.consumeCharacters( 1 ) );
+        assertEquals( "bc", stream.toString() );
+    }
+
+    @Test
+    public void given3CharacterStream_consumeTwoCharacter_expectAB() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        assertEquals( "ab", stream.consumeCharacters( 2 ) );
+        assertEquals( "c", stream.toString() );
+    }
+
+    @Test
+    public void given3CharacterStream_consumeThreeCharacter_expectABC() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        assertEquals( "abc", stream.consumeCharacters( 3 ) );
+        assertEquals( "", stream.toString() );
+    }
+
+    @Test
+    public void given3CharacterStream_consumeFourharacter_expectError() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        try {
+            stream.consumeCharacters( 4 );
+            fail( "Expected IllegalArgumentException" );
+        } catch (IllegalArgumentException e) {
+            assertEquals( "'numCharacters' (4) must be <= 3", e.getMessage() );
+        }
+    }
+
+    @Test
+    public void given3CharacterStream_skipOneConsumeOneCharacter_expectB() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        stream.skipCharacters( 1 );
+        assertEquals( "b", stream.consumeCharacters(1) );
+        assertEquals( "c", stream.toString() );
+    }
+
+    @Test
+    public void given3CharacterStream_skipOneConsumeTwoCharacter_expectBC() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        stream.skipCharacters( 1 );
+        assertEquals( "bc", stream.consumeCharacters(2) );
+        assertEquals( "", stream.toString() );
+    }
+
+    @Test
+    public void given3CharacterStream_skipOneConsumeThreeharacter_expectError() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        stream.skipCharacters( 1 );
+
+        try {
+            stream.consumeCharacters( 3 );
+            fail( "Expected IllegalArgumentException" );
+        } catch (IllegalArgumentException e) {
+            assertEquals( "'numCharacters' (3) must be <= 2", e.getMessage() );
+        }
+    }
+
 
 }

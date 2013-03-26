@@ -37,13 +37,6 @@ public class JavaClass<T> implements Serializable, Immutable {
         return new JavaClass(o.getClass());
     }
 
-    @SuppressWarnings({"unchecked"})
-    public static <T> JavaClass<T> createJavaClassNoInterning(T o) {
-        if ( o == null ) return null;
-
-        return new JavaClass(o.getClass());
-    }
-
 
 
     @SuppressWarnings({"unchecked"})

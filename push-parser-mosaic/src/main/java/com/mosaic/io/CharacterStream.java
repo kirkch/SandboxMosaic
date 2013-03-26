@@ -115,6 +115,16 @@ public class CharacterStream implements CharSequence {
         return characters.containsAt( targetString, offset );
     }
 
+    public CharSequence consumeCharacters( int numCharacters ) {
+        Validate.isLTE( numCharacters, this.length(), "numCharacters" );
+
+        CharSequence v = subSequence( offset, offset+numCharacters );
+
+        offset += numCharacters;
+
+        return v;
+    }
+
 //    public boolean startsWith( String targetString )
 
 //    /**
