@@ -8,6 +8,7 @@ public class MatchResult<T> {
     public static <T> MatchResult<T> createHasResultStatus( Matcher<T> nextMatcher, T result ) {
         MatchResult<T> s = new MatchResult( nextMatcher );
 
+        s.hasResult = true;
         s.result = result;
 
         return s;
@@ -33,6 +34,7 @@ public class MatchResult<T> {
 
 
     private Matcher<T> nextMatcher;
+    private boolean    hasResult;
     private T          result;
     private String     failedToMatchDescription;
 
@@ -41,7 +43,7 @@ public class MatchResult<T> {
      * Successful match.
      */
     public boolean hasResult() {
-        return result != null;
+        return hasResult;
     }
 
     /**
