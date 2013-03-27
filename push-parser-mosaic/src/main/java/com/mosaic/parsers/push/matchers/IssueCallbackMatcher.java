@@ -37,4 +37,8 @@ public class IssueCallbackMatcher<T> extends Matcher<T> {
         return createResultFrom( result );
     }
 
+    public String toString() {
+        return String.format("issueCallback(%s)", wrappedMatcher);
+    }
+
 }

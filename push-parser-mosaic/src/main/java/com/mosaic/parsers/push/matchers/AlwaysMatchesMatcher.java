@@ -13,4 +13,8 @@ public class AlwaysMatchesMatcher extends Matcher<String> {
         return createHasResultStatus( "" );
     }
 
+    public String toString() {
+        return "alwaysMatches()";
+    }
+
 }

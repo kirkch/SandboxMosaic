@@ -37,4 +37,8 @@ public class ConstantMatcher extends Matcher<String> {
         }
     }
 
+    public String toString() {
+        return String.format("constant(%s)".format(targetString));
+    }
+
 }

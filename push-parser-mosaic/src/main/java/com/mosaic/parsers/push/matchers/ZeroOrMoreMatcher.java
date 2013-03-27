@@ -40,4 +40,8 @@ public class ZeroOrMoreMatcher<T> extends Matcher<List<T>> {
         }
     }
 
+    public String toString() {
+        return String.format("zeroOrMore(%s)", wrappedMatcher);
+    }
+
 }

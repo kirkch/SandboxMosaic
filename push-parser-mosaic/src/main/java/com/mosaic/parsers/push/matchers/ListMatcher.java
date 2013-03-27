@@ -86,4 +86,8 @@ class ListMatcher<T> extends Matcher<List<T>> {
         return createHasResultStatus( elementsParsed );
     }
 
+    public String toString() {
+        return String.format("list(%s,%s,%s,%s)", prefixMatcher,elementMatcher,seperatingMatcher,postfixMatcher);
+    }
+
 }

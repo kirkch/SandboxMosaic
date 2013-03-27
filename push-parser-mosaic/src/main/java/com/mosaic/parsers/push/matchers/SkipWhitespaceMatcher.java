@@ -38,4 +38,8 @@ public class SkipWhitespaceMatcher<T> extends Matcher<T> {
         return count;
     }
 
+    public String toString() {
+        return String.format("skipWhitespace(%s)", wrappedMatcher);
+    }
+
 }

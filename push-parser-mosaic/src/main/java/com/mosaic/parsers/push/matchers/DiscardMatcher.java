@@ -26,4 +26,9 @@ public class DiscardMatcher<T> extends Matcher<T> {
             return createResultFrom( result );
         }
     }
+
+    public String toString() {
+        return String.format("discard(%s)",wrappedMatcher);
+    }
+
 }

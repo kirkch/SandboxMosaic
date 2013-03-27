@@ -18,6 +18,10 @@ public class Matchers {
         return new SkipWhitespaceMatcher( wrappedMatcher );
     }
 
+//    public static Matcher eol() {
+//        return discard( or(constant("\n"),constant("\r\n")) );
+//    }
+
     public static <T> Matcher<T> discard( Matcher<T> wrappedMatcher ) {
         return new DiscardMatcher( wrappedMatcher );
     }
