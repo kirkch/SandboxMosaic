@@ -1,7 +1,9 @@
 package com.mosaic.io.csv;
 
 import com.mosaic.io.CharacterStream;
-import com.mosaic.lang.function.VoidFunction1;
+import com.mosaic.io.Characters;
+import com.mosaic.lang.Validate;
+import com.mosaic.lang.function.VoidFunction2;
 import com.mosaic.parsers.push.MatchResult;
 import com.mosaic.parsers.push.Matcher;
 
@@ -12,56 +14,56 @@ import static com.mosaic.parsers.push.matchers.Matchers.*;
 /**
  *
  */
-public class CSVPushParser /* extends PushParser<CSVPushParser> */{
+public class CSVPushParser {
 
-
-
-    private final Matcher<String> csvColumn = skipWhitespace(new CSVColumnValueMatcher()).withName("csvColumn");
-    private final Matcher<String> comma     = skipWhitespace(constant(","));
+    private final Matcher<String> csvColumn = skipSpaceOrTab(new CSVColumnValueMatcher()).withName("csvColumn");
+    private final Matcher<String> comma     = skipSpaceOrTab(constant(","));
 
 
     private final Matcher<List<String>> row  = listDemarcated( alwaysMatches(), csvColumn, comma, eol() ).withName("csvRow");
-    private final Matcher               rows = zeroOrMore( issueCallbackAndSkip(row, new VoidFunction1<List<String>>() {
+    private final Matcher               rows = zeroOrMore( issueCallbackWithLineNumberAndSkip( row, new VoidFunction2<Integer, List<String>>() {
         @Override
-        public void invoke( List<String> row ) {
-            System.out.println( "row = " + row );
+        public void invoke( Integer lineNumber, List<String> row ) {
+            parsedRowCount++;
+
+            if ( parsedRowCount == 1 ) {
+                delegate.headerRead( lineNumber, row );
+            } else {
+                delegate.headerRead( lineNumber, row );
+            }
         }
-    }) );
+    } ) );
 
 
-    public void appendCharacters( CharacterStream stream ) {
-        rows.withInputStream( stream );
+    private CharacterStream       inputStream;
+    private CSVPushParserDelegate delegate;
 
-        System.out.println( "row = " + rows.toString() );
-        MatchResult r = rows.processInput();
-        System.out.println( "r = " + r );
+    private int parsedRowCount;
+
+    public CSVPushParser( CSVPushParserDelegate delegate ) {
+        Validate.notNull( delegate, "delegate" );
+
+        this.delegate = delegate;
     }
 
+    public int appendCharacters( Characters newCharacters ) {
+        if ( inputStream == null ) {
+            inputStream = new CharacterStream();
 
-    // public CSVPushParser() {
-    //   super( rows );
-    // }
+            rows.withInputStream( inputStream );
 
-    // protected CSVPushParser( currentMatcher, characterBuffer ) {
-    //   super( currentMatcher, characterBuffer );
-    // }
+            delegate.parsingStarted();
+        }
 
+        int beforeRowCount = parsedRowCount;
 
+        inputStream.appendCharacters( newCharacters );
 
+        MatchResult r = rows.processInput();
 
-// implemented in parent
-//    public SELF processCharacters( Characters in ) {
-//        Matcher newMatcher = currentMatcher.processCharacters(in);
-//
-//        return myConstructor.newInstance(newMatcher);
-//    }
-//
-//    public int getLineNumber() {
-//        return currentMatcher.getLineNumber();
-//    }
-//
-//    public int getColumnNumber() {
-//        return currentMatcher.getColumnNumber();
-//    }
+        int afterRowCount = parsedRowCount;
+
+        return afterRowCount - beforeRowCount;
+    }
 
 }

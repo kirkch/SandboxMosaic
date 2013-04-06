@@ -12,7 +12,11 @@ public class CSVColumnValueMatcher extends Matcher<String> {
     protected MatchResult<String> _processInput() {
         int streamLength = inputStream.length();
         if ( streamLength == 0 ) {
-            return createIncompleteMatch();
+            if ( inputStream.isAtEOS() ) {
+                return createHasFailedStatus( "end of stream reached" );
+            } else {
+                return createIncompleteMatch();
+            }
         }
 
         if ( inputStream.charAt(0) == '"' ) {
@@ -31,7 +35,11 @@ public class CSVColumnValueMatcher extends Matcher<String> {
             char c = inputStream.charAt( i );
 
             if ( c == ',' || c == '\n' || c == '\r' ) {
-                String str = inputStream.consumeCharacters( i ).toString();
+                if ( i == 0 && c != ',' ) {
+                    return createHasResultStatus( null );
+                }
+
+                String str = inputStream.consumeCharacters(i).toString();
 
                 return createHasResultStatus( str );
             }

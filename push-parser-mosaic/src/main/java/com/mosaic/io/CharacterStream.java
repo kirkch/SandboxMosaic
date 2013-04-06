@@ -125,6 +125,11 @@ public class CharacterStream implements CharSequence {
     public CharSequence consumeCharacters( int numCharacters ) {
         Validate.isLTE( numCharacters, this.length(), "numCharacters" );
 
+        if ( numCharacters == 0 ) {
+            return "";
+        }
+
+
         CharSequence v = subSequence( offset, offset+numCharacters );
 
         offset += numCharacters;

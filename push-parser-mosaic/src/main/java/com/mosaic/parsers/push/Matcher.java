@@ -78,19 +78,17 @@ public abstract class Matcher<T> {
 
             if ( r.hasResult() ) {
                 resultPP = "MATCHED";
-                resultValuePP = r.getResult() == null ? "null" : r.getResult().toString();
+                resultValuePP = r.getResult() == null ? "null" : r.getResult().toString().replaceAll("\n", "\\\\n").replaceAll("\r","\\r");
 
                 DEBUG.setColumnWidths( 30, 9, 60);
                 DEBUG.logPP( namePP, resultPP, resultValuePP, this );
             } else {
                 resultPP = r.hasFailedToMatch() ? "TRIED" : "PARTIAL";
-                resultValuePP = this+" on '"+inputStream.toString()+(inputStream.hasReceivedEOS() ? "[EOS]" : "")+"'";
+                resultValuePP = this+" on '"+inputStream.toString().replaceAll("\n", "\\\\n").replaceAll("\r","\\r")+(inputStream.hasReceivedEOS() ? "[EOS]" : "")+"'";
 
                 DEBUG.setColumnWidths( 32, 7);
                 DEBUG.logPP( namePP, resultPP, resultValuePP );
             }
-
-
         }
 
         if ( r.hasResult() ) {

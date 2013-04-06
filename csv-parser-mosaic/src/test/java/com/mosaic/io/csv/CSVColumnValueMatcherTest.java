@@ -22,7 +22,7 @@ public class CSVColumnValueMatcherTest {
         assertTrue( result.isIncompleteMatch() );
     }
 
-//    @Test
+    @Test
     public void givenNoBytesEOS_expectFailedMatch() {
         CharacterStream stream  = new CharacterStream( "" ).appendEOS();
         Matcher<String> matcher = new CSVColumnValueMatcher().withInputStream( stream );
@@ -30,7 +30,7 @@ public class CSVColumnValueMatcherTest {
         MatchResult<String> result = matcher.processInput();
 
         assertTrue( result.hasFailedToMatch() );
-        assertEquals( "", result.getFailedToMatchDescription() );
+        assertEquals( "end of stream reached", result.getFailedToMatchDescription() );
     }
 
     @Test
@@ -88,6 +88,18 @@ public class CSVColumnValueMatcherTest {
 
         assertTrue( result.hasResult() );
         assertEquals( "foo", result.getResult() );
+        assertEquals( "\n", stream.toString() );
+    }
+
+    @Test
+    public void givenEOLByItself_expectNoMatch() {
+        CharacterStream stream  = new CharacterStream( "\n" );
+        Matcher<String> matcher = new CSVColumnValueMatcher().withInputStream( stream );
+
+        MatchResult<String> result = matcher.processInput();
+
+        assertTrue( result.hasResult() );
+        assertNull( result.getResult() );
         assertEquals( "\n", stream.toString() );
     }
 

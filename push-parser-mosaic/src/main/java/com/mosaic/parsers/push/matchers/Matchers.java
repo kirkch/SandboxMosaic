@@ -1,6 +1,7 @@
 package com.mosaic.parsers.push.matchers;
 
 import com.mosaic.lang.function.VoidFunction1;
+import com.mosaic.lang.function.VoidFunction2;
 import com.mosaic.parsers.push.Matcher;
 
 import java.util.List;
@@ -14,9 +15,17 @@ public class Matchers {
         return new ConstantMatcher( target );
     }
 
+    public static <T> Matcher<T> skipSpaceOrTab( Matcher<T> wrappedMatcher ) {
+        return new SkipSpaceOrTabMatcher( wrappedMatcher );
+//        return new DiscardMatcher( zeroOrMore(or(constant(" "),constant("\t"))) );
+    }
+
     public static <T> Matcher<T> skipWhitespace( Matcher<T> wrappedMatcher ) {
         return new SkipWhitespaceMatcher( wrappedMatcher );
     }
+
+    // sequenceMany(
+    // sequenceOne(
 
     public static Matcher eof() {
         return new EOFMatcher();
@@ -53,12 +62,20 @@ public class Matchers {
         return new ZeroOrMoreMatcher( wrappedMatcher );
     }
 
+    public static <T> Matcher<List<T>> oneOrMore( Matcher<T> wrappedMatcher ) {
+        return new OneOrMoreMatcher( wrappedMatcher );
+    }
+
     public static <T> Matcher<T> issueCallback( Matcher<T> wrappedMatcher, VoidFunction1<T> callback ) {
         return new IssueCallbackMatcher( wrappedMatcher, callback );
     }
 
     public static <T> Matcher<T> issueCallbackAndSkip( Matcher<T> wrappedMatcher, VoidFunction1<T> callback ) {
         return discard( new IssueCallbackMatcher(wrappedMatcher, callback) );
+    }
+
+    public static <T> Matcher<T> issueCallbackWithLineNumberAndSkip( Matcher<T> wrappedMatcher, VoidFunction2<Integer,T> callback ) {
+        return discard( new IssueCallbackWithLineNumberMatcher(wrappedMatcher, callback) );
     }
 
 }

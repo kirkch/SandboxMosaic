@@ -63,7 +63,7 @@ public class OrMatcherTest {
         MatchResult<String> result = matcher.processInput();
 
         assertTrue( result.hasFailedToMatch() );
-        assertEquals( "expected to match: a1", result.getFailedToMatchDescription() );
+        assertEquals( "expected to match: 'a1'", result.getFailedToMatchDescription() );
     }
 
     @Test

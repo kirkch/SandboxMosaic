@@ -262,6 +262,48 @@ public class ListMatcherTest {
         assertEquals( new CharPosition( 0, 10, 10 ), stream.getPosition() );
     }
 
+    @Test
+    public void givenSingleElementMatchWherePrefixAlwaysMatchesUsingNewLine() {
+        CharacterStream stream = new CharacterStream( "header1\n" );
+        Matcher<List<String>> matcher = new ListMatcher( new AlwaysMatchesMatcher(), new ConstantMatcher("header1"), new ConstantMatcher(","), new ConstantMatcher("\n") );
+        matcher.withInputStream( stream );
+
+        MatchResult<List<String>> result = matcher.processInput();
+
+        assertTrue( result.hasResult() );
+        assertEquals( Arrays.asList("header1"), result.getResult() );
+        assertEquals( new CharPosition( 1, 0, 8 ), stream.getPosition() );
+    }
+
+    @Test
+    public void givenSingleElementMatchWherePrefixAlwaysMatchesUsingEOLAndSeparatorSkipsWhitespace() {
+        CharacterStream stream = new CharacterStream( "header1\n" ).appendEOS();
+        Matcher<List<String>> matcher = new ListMatcher( new AlwaysMatchesMatcher(), new ConstantMatcher("header1"), new SkipWhitespaceMatcher(new ConstantMatcher(",")), Matchers.eol() );
+        matcher.withInputStream( stream );
+
+        MatchResult<List<String>> result = matcher.processInput();
+
+        assertTrue( result.hasResult() );
+        assertEquals( Arrays.asList("header1"), result.getResult() );
+        assertEquals( new CharPosition(1, 0, 8), stream.getPosition() );
+    }
+
+    @Test
+    public void givenSingleElementMatchWherePrefixAlwaysMatches() {
+        CharacterStream stream = new CharacterStream( "e1;" );
+        Matcher<List<String>> matcher = new ListMatcher( new AlwaysMatchesMatcher(), new ConstantMatcher("e1"), new ConstantMatcher(","), new ConstantMatcher(";") );
+        matcher.withInputStream( stream );
+
+        MatchResult<List<String>> result = matcher.processInput();
+
+        assertTrue( result.hasResult() );
+        assertEquals( Arrays.asList("e1"), result.getResult() );
+        assertEquals( new CharPosition(0, 3, 3), stream.getPosition() );
+    }
+
+    // PARTIAL list(prefix=_, element=ws(CSVColumn()), separator=ws(','), postfix=or('\n','\r\n',EOF)) on '\n'
+
+
     private void assertFailedMatch( CharacterStream stream, MatchResult<List<String>> result, String expectedMessage ) {
         assertTrue( result.hasFailedToMatch() );
         assertEquals( expectedMessage, result.getFailedToMatchDescription() );
