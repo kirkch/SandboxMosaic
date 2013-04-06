@@ -39,7 +39,7 @@ public abstract class Matcher<T> {
         return this;
     }
 
-    public final MatchResult<T> processInput() {
+    public MatchResult<T> processInput() {
         inputStream.pushMark();
 
         MatchResult<T> r = _processInput();

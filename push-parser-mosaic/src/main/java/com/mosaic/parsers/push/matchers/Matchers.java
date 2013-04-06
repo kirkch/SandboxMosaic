@@ -18,9 +18,24 @@ public class Matchers {
         return new SkipWhitespaceMatcher( wrappedMatcher );
     }
 
-//    public static Matcher eol() {
-//        return discard( or(constant("\n"),constant("\r\n")) );
-//    }
+    public static Matcher eof() {
+        return new EOFMatcher();
+    }
+    
+    public static Matcher eol() {
+        return discard( or(constant("\n"),constant("\r\n"),eof()) );
+    }
+
+    public static Matcher<String> alwaysMatches() {
+        return new AlwaysMatchesMatcher();
+    }
+
+    /**
+     * returns the match from the first matcher that reports a match. Fails if and only if all matchers fail.
+     */
+    public static <T> Matcher<T> or( Matcher<T>...candidateMatchers ) {
+        return new OrMatcher(candidateMatchers);
+    }
 
     public static <T> Matcher<T> discard( Matcher<T> wrappedMatcher ) {
         return new DiscardMatcher( wrappedMatcher );
@@ -31,9 +46,7 @@ public class Matchers {
     }
 
     public static <T> Matcher<List<T>> listUndemarcated( Matcher<T> element, Matcher seperator ) {
-        AlwaysMatchesMatcher alwaysMatchesMatcher = new AlwaysMatchesMatcher();
-
-        return new ListMatcher( alwaysMatchesMatcher, element, seperator, alwaysMatchesMatcher );
+        return new ListMatcher( alwaysMatches(), element, seperator, alwaysMatches() );
     }
 
     public static <T> Matcher<List<T>> zeroOrMore( Matcher<T> wrappedMatcher ) {

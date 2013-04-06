@@ -43,6 +43,63 @@ public class MatchersTest {
         assertEquals( new CharPosition(0,8,8), stream.getPosition() );
     }
 
+    @Test
+    public void eolRN() {
+        CharacterStream stream = new CharacterStream( "\r\n" ).appendEOS();
+        Matcher<List<String>> matcher = Matchers.eol();
+        matcher.withInputStream( stream );
+
+        MatchResult<List<String>> result = matcher.processInput();
+
+        assertTrue( result.hasResult() );
+        assertEquals( null, result.getResult() );
+        assertEquals( "", stream.toString() );
+        assertEquals( 0, stream.markCount() );
+    }
+
+    @Test
+    public void eolN() {
+        CharacterStream stream = new CharacterStream( "\n" ).appendEOS();
+        Matcher<List<String>> matcher = Matchers.eol();
+        matcher.withInputStream( stream );
+
+        MatchResult<List<String>> result = matcher.processInput();
+
+        assertTrue( result.hasResult() );
+        assertEquals( null, result.getResult() );
+        assertEquals( "", stream.toString() );
+        assertEquals( 0, stream.markCount() );
+    }
+
+    @Test
+    public void eolEOF() {
+        CharacterStream stream = new CharacterStream( "" ).appendEOS();
+
+        Matcher<List<String>> matcher = Matchers.eol();
+        matcher.withInputStream( stream );
+
+        MatchResult<List<String>> result = matcher.processInput();
+
+        assertTrue( result.hasResult() );
+        assertEquals( null, result.getResult() );
+        assertEquals( "", stream.toString() );
+        assertEquals( 0, stream.markCount() );
+    }
+
+    @Test
+    public void eolABC() {
+        CharacterStream stream = new CharacterStream( "abc" ).appendEOS();
+        Matcher<List<String>> matcher = Matchers.eol();
+        matcher.withInputStream( stream );
+
+        MatchResult<List<String>> result = matcher.processInput();
+
+        assertTrue( result.hasFailedToMatch() );
+        assertEquals( null, result.getResult() );
+        assertEquals( "abc", stream.toString() );
+        assertEquals( 0, stream.markCount() );
+    }
+
 //    @Test
 //    public void repeatedGreedy() {
 //        CharacterStream stream = new CharacterStream( "e1e1e1" ).appendEOS();

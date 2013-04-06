@@ -70,6 +70,13 @@ public class CharacterStream implements CharSequence {
         markPoints.pop();
     }
 
+    /**
+     * Returns how many marks are currently active on the stream.
+     */
+    public int markCount() {
+        return markPoints.size();
+    }
+
     public void returnToMark() {
         offset = markPoints.pop();
 

@@ -175,11 +175,4 @@ public class CSVColumnValueMatcherTest {
         assertEquals( "escaped column missing closing quote", result.getFailedToMatchDescription() );
     }
 
-
-    //
-    //
-    //
-    //
-
-
 }

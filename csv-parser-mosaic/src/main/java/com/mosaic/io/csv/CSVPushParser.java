@@ -1,9 +1,11 @@
 package com.mosaic.io.csv;
 
+import com.mosaic.lang.function.VoidFunction1;
 import com.mosaic.parsers.push.Matcher;
 
-import static com.mosaic.parsers.push.matchers.Matchers.constant;
-import static com.mosaic.parsers.push.matchers.Matchers.skipWhitespace;
+import java.util.List;
+
+import static com.mosaic.parsers.push.matchers.Matchers.*;
 
 /**
  *
@@ -16,8 +18,12 @@ public class CSVPushParser /* extends PushParser<CSVPushParser> */{
     private static final Matcher<String> comma     = skipWhitespace(constant(","));
 
 
-//    private static final Matcher<List<String>> row  = listDemarcated( csvColumn, comma, eol() );
-    // private static final Matcher               rows = zeroOrMore( issueCallbackAndSkip(row,this,"rowParsed",List<String>.class) )
+    private static final Matcher<List<String>> row  = listDemarcated( alwaysMatches(), csvColumn, comma, eol() );
+    private static final Matcher               rows = zeroOrMore( issueCallbackAndSkip(row, new VoidFunction1<List<String>>() {
+        @Override
+        public void invoke( List<String> row ) {
+        }
+    }) );
 
 
     // public CSVPushParser() {
