@@ -22,6 +22,10 @@ public class CSVColumnValueMatcher extends Matcher<String> {
         }
     }
 
+    public String toString() {
+        return "CSVColumn()";
+    }
+
     private MatchResult<String> processUnquotedColumn( final int streamLength ) {
         for ( int i=0; i<streamLength; i++ ) {
             char c = inputStream.charAt( i );

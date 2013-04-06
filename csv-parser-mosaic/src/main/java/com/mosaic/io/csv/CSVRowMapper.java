@@ -1,4 +1,4 @@
-package com.mosaic.io;
+package com.mosaic.io.csv;
 
 /**
  * Maps rows from a CSV file into an object.

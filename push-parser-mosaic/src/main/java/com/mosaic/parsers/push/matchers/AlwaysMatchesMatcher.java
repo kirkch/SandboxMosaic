@@ -14,7 +14,7 @@ public class AlwaysMatchesMatcher extends Matcher<String> {
     }
 
     public String toString() {
-        return "alwaysMatches()";
+        return "_";
     }
 
 }

@@ -21,9 +21,9 @@ public class Matchers {
     public static Matcher eof() {
         return new EOFMatcher();
     }
-    
+
     public static Matcher eol() {
-        return discard( or(constant("\n"),constant("\r\n"),eof()) );
+        return or(constant("\n"),constant("\r\n"),eof());
     }
 
     public static Matcher<String> alwaysMatches() {

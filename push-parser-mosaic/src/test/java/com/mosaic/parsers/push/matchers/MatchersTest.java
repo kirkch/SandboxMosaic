@@ -52,7 +52,7 @@ public class MatchersTest {
         MatchResult<List<String>> result = matcher.processInput();
 
         assertTrue( result.hasResult() );
-        assertEquals( null, result.getResult() );
+        assertEquals( "\r\n", result.getResult() );
         assertEquals( "", stream.toString() );
         assertEquals( 0, stream.markCount() );
     }
@@ -66,7 +66,7 @@ public class MatchersTest {
         MatchResult<List<String>> result = matcher.processInput();
 
         assertTrue( result.hasResult() );
-        assertEquals( null, result.getResult() );
+        assertEquals( "\n", result.getResult() );
         assertEquals( "", stream.toString() );
         assertEquals( 0, stream.markCount() );
     }

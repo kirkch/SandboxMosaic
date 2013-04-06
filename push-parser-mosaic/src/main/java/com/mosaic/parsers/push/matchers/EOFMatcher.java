@@ -8,7 +8,8 @@ import com.mosaic.parsers.push.Matcher;
  */
 public class EOFMatcher<T> extends Matcher<T> {
 
-    public MatchResult<T> processInput() {
+    @Override
+    protected MatchResult<T> _processInput() {
         if ( inputStream.isAtEOS() ) {
             return createHasResultStatus( null );
         } else if ( inputStream.length() == 0 ) {
@@ -16,11 +17,6 @@ public class EOFMatcher<T> extends Matcher<T> {
         } else {
             return createHasFailedStatus( "expected EOF" );
         }
-    }
-
-    @Override
-    protected MatchResult<T> _processInput() {
-        return null;
     }
 
     public String toString() {

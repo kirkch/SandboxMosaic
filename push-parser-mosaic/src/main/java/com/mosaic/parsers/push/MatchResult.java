@@ -76,7 +76,9 @@ public class MatchResult<T> {
     @Override
     public String toString() {
         if ( hasResult() ) {
-            return String.format("MatchResult(Success,'%s')".format(result.toString()));
+            String formattedResult = result == null ? "null" : result.toString();
+
+            return String.format("MatchResult(Success,'%s')".format(formattedResult));
         } else if ( isIncompleteMatch() ) {
             return "MatchResult(Incomplete)";
         } else {

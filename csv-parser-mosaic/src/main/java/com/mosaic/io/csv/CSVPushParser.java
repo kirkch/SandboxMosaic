@@ -1,6 +1,8 @@
 package com.mosaic.io.csv;
 
+import com.mosaic.io.CharacterStream;
 import com.mosaic.lang.function.VoidFunction1;
+import com.mosaic.parsers.push.MatchResult;
 import com.mosaic.parsers.push.Matcher;
 
 import java.util.List;
@@ -14,16 +16,26 @@ public class CSVPushParser /* extends PushParser<CSVPushParser> */{
 
 
 
-    private static final Matcher<String> csvColumn = skipWhitespace(new CSVColumnValueMatcher());
-    private static final Matcher<String> comma     = skipWhitespace(constant(","));
+    private final Matcher<String> csvColumn = skipWhitespace(new CSVColumnValueMatcher()).withName("csvColumn");
+    private final Matcher<String> comma     = skipWhitespace(constant(","));
 
 
-    private static final Matcher<List<String>> row  = listDemarcated( alwaysMatches(), csvColumn, comma, eol() );
-    private static final Matcher               rows = zeroOrMore( issueCallbackAndSkip(row, new VoidFunction1<List<String>>() {
+    private final Matcher<List<String>> row  = listDemarcated( alwaysMatches(), csvColumn, comma, eol() ).withName("csvRow");
+    private final Matcher               rows = zeroOrMore( issueCallbackAndSkip(row, new VoidFunction1<List<String>>() {
         @Override
         public void invoke( List<String> row ) {
+            System.out.println( "row = " + row );
         }
     }) );
+
+
+    public void appendCharacters( CharacterStream stream ) {
+        rows.withInputStream( stream );
+
+        System.out.println( "row = " + rows.toString() );
+        MatchResult r = rows.processInput();
+        System.out.println( "r = " + r );
+    }
 
 
     // public CSVPushParser() {

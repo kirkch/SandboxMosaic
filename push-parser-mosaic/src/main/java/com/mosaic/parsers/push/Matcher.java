@@ -1,6 +1,7 @@
 package com.mosaic.parsers.push;
 
 import com.mosaic.io.CharacterStream;
+import com.mosaic.lang.Debug;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,21 @@ import java.util.List;
  */
 public abstract class Matcher<T> {
 
+    private static final Debug DEBUG = new Debug();
+
+    /**
+     * When a tree of matchers is miss behaving then information on the match attempt can be printed to stdout by
+     * settting this debug flag to true. Best done from an isolated test case.
+     */
+    public static void setDebugEnabled( boolean flag ) {
+        DEBUG.setEnabled( flag );
+    }
+
+
+
     private   Matcher         parentMatcher;
+    private   String          matcherName;
+
     protected CharacterStream inputStream;
 
     private List<Matcher> children = new ArrayList(1);
@@ -39,10 +54,45 @@ public abstract class Matcher<T> {
         return this;
     }
 
+    /**
+     * Gives this matcher a descriptive name. Usually this would be the BNF token name (RHS) and it is used when printing out
+     * information about this matcher.
+     */
+    public Matcher<T> withName( String name ) {
+        this.matcherName = name;
+
+        return this;
+    }
+
     public MatchResult<T> processInput() {
         inputStream.pushMark();
 
+
+
         MatchResult<T> r = _processInput();
+
+        if ( DEBUG.isEnabled() ) {
+            String namePP = matcherName == null ? "" : matcherName;
+            String resultPP;
+            String resultValuePP;
+
+            if ( r.hasResult() ) {
+                resultPP = "MATCHED";
+                resultValuePP = r.getResult() == null ? "null" : r.getResult().toString();
+
+                DEBUG.setColumnWidths( 30, 9, 60);
+                DEBUG.logPP( namePP, resultPP, resultValuePP, this );
+            } else {
+                resultPP = r.hasFailedToMatch() ? "TRIED" : "PARTIAL";
+                resultValuePP = this+" on '"+inputStream.toString()+(inputStream.hasReceivedEOS() ? "[EOS]" : "")+"'";
+
+                DEBUG.setColumnWidths( 32, 7);
+                DEBUG.logPP( namePP, resultPP, resultValuePP );
+            }
+
+
+        }
+
         if ( r.hasResult() ) {
             inputStream.popMark();
         } else {

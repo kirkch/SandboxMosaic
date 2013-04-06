@@ -22,6 +22,17 @@ public class CSVColumnValueMatcherTest {
         assertTrue( result.isIncompleteMatch() );
     }
 
+//    @Test
+    public void givenNoBytesEOS_expectFailedMatch() {
+        CharacterStream stream  = new CharacterStream( "" ).appendEOS();
+        Matcher<String> matcher = new CSVColumnValueMatcher().withInputStream( stream );
+
+        MatchResult<String> result = matcher.processInput();
+
+        assertTrue( result.hasFailedToMatch() );
+        assertEquals( "", result.getFailedToMatchDescription() );
+    }
+
     @Test
     public void givenNameOnly_expectIncomplete() {
         CharacterStream stream  = new CharacterStream( "foo" );
