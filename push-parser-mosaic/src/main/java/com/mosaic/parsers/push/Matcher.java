@@ -109,6 +109,14 @@ public abstract class Matcher<T> {
         return child.withInputStream( inputStream ).withParent( this );
     }
 
+    protected <X> Matcher<X>[] appendChildren( Matcher<X>[] children ) {
+        for ( Matcher<X> m : children ) {
+            appendChild(m);
+        }
+
+        return children;
+    }
+
     protected MatchResult<T> createHasResultStatus( T result ) {
         return MatchResult.createHasResultStatus( this.parentMatcher, result );
     }

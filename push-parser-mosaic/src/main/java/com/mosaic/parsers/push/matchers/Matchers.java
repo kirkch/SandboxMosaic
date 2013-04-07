@@ -26,7 +26,7 @@ public class Matchers {
     public static <T> Matcher<T> optional( Matcher<T> wrappedMatcher ) {
         return new OptionalMatcher( wrappedMatcher );
     }
-    
+
     // sequenceMany(
     // sequenceOne(
 
