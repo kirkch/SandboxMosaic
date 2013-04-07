@@ -77,10 +77,32 @@ public class CSVPushParserTest {
         assertEquals( 1, rowCount );
     }
 
+    @Test
+    public void givenFewColumnsEOL_expectRowCallOnDelegate() {
+        CSVPushParser parser = new CSVPushParser( delegate );
+
+        int rowCount = parser.appendCharacters( Characters.wrapString("h1,h2,h3\n") );
+
+
+        assertEquals( Arrays.asList( new String[] {"parsingStarted", "headerRead(0,[h1,h2,h3])"} ), delegate.audit );
+        assertEquals( 1, rowCount );
+    }
+
+    @Test
+    public void givenFewColumnsWithWhitespaceEOL_expectRowCallOnDelegate() {
+        CSVPushParser parser = new CSVPushParser( delegate );
+
+        int rowCount = parser.appendCharacters( Characters.wrapString("  h1 ,  h2   , \th3   \n") );
+
+
+        assertEquals( Arrays.asList( new String[] {"parsingStarted", "headerRead(0,[h1,h2,h3])"} ), delegate.audit );
+        assertEquals( 1, rowCount );
+    }
+
     //
     //
     //
-    // givenFewColumnsEOL_expectRowCallOnDelegate
+    //
     // givenFewColumnsEOL_expect1MatchCountReturnedFromParserCall
     // givenFewColumnsOverTwoCallsWithEOLInSecondCall_expectRowMatch
     // givenFewColumnsEOLTwice_expectTwoRowCallOnDelegate

@@ -17,13 +17,16 @@ public class Matchers {
 
     public static <T> Matcher<T> skipSpaceOrTab( Matcher<T> wrappedMatcher ) {
         return new SkipSpaceOrTabMatcher( wrappedMatcher );
-//        return new DiscardMatcher( zeroOrMore(or(constant(" "),constant("\t"))) );
     }
 
     public static <T> Matcher<T> skipWhitespace( Matcher<T> wrappedMatcher ) {
         return new SkipWhitespaceMatcher( wrappedMatcher );
     }
 
+    public static <T> Matcher<T> optional( Matcher<T> wrappedMatcher ) {
+        return new OptionalMatcher( wrappedMatcher );
+    }
+    
     // sequenceMany(
     // sequenceOne(
 
