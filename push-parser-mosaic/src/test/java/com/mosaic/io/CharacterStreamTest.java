@@ -444,5 +444,48 @@ public class CharacterStreamTest {
         }
     }
 
+    @Test
+    public void given3CharacterStream_pushMarkSkip2CharactersMarkAsNonRollbackablePopMark_expectException() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        stream.pushMark();
+        stream.skipCharacters( 2 );
+        stream.markNonRollbackablePoint( "source", "reason" );
+
+        try {
+            stream.returnToMark();
+            fail( "Expected IllegalStateException" );
+        } catch (IllegalStateException e) {
+            assertEquals( "unable to rollback due to 'source': reason", e.getMessage() );
+        }
+    }
+
+    @Test
+    public void given3CharacterStream_pushMarkMarkAsNonRollbackableSkip2CharactersPopMark_expectRollbackToSucceed() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        stream.pushMark();
+        stream.markNonRollbackablePoint( "source", "reason" );
+        stream.skipCharacters( 2 );
+        stream.returnToMark();
+
+        assertEquals( 3, stream.length() );
+        assertEquals( new CharPosition(0,0,0), stream.getPosition() );
+        assertEquals( "abc", stream.toString() );
+    }
+
+    @Test
+    public void given3CharacterStream_markAsNonRollbackableThenPushMarkSkip2CharactersPopMark_expectRollbackToSucceed() {
+        CharacterStream stream = new CharacterStream("abc");
+
+        stream.markNonRollbackablePoint( "source", "reason" );
+        stream.pushMark();
+        stream.skipCharacters( 2 );
+        stream.returnToMark();
+
+        assertEquals( 3, stream.length() );
+        assertEquals( new CharPosition(0,0,0), stream.getPosition() );
+        assertEquals( "abc", stream.toString() );
+    }
 
 }

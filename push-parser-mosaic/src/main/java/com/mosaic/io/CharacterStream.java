@@ -17,6 +17,11 @@ public class CharacterStream implements CharSequence {
     private IntStack   markPoints = new IntStack(3);
     private boolean    hasReceivedEOS;
 
+    private int        commitMark;
+    private String     commitSource;
+    private String     commitReason;
+
+
     public CharacterStream() {
         this( Characters.wrapString("") );
     }
@@ -71,6 +76,18 @@ public class CharacterStream implements CharSequence {
     }
 
     /**
+     * Makes it illegal to rollback past the current point in the character stream. Should be used sparingly.
+     *
+     * @param source who performed this devious act
+     * @param reason why they thought it so important that they did so
+     */
+    public void markNonRollbackablePoint( String source, String reason ) {
+        commitMark   = offset;
+        commitSource = source;
+        commitReason = reason;
+    }
+
+    /**
      * Returns how many marks are currently active on the stream.
      */
     public int markCount() {
@@ -78,7 +95,12 @@ public class CharacterStream implements CharSequence {
     }
 
     public void returnToMark() {
-        offset = markPoints.pop();
+        int targetOffset = markPoints.pop();
+        if ( targetOffset < commitMark ) {
+            throw new IllegalStateException( "unable to rollback due to '"+ commitSource + "': " + commitReason );
+        }
+
+        offset = targetOffset;
 
         if ( markPoints.isEmpty() && offset > 0 ) {
             // NB: there is no way to return past the last mark, thus by skipping over these characters

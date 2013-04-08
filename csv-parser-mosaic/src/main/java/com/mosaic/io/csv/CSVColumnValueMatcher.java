@@ -41,12 +41,12 @@ public class CSVColumnValueMatcher extends Matcher<String> {
 
                 String str = inputStream.consumeCharacters(i).toString();
 
-                return createHasResultStatus( str );
+                return createHasResultStatus( str.trim() );
             }
         }
 
         if ( inputStream.hasReceivedEOS() ) {
-            return createHasResultStatus( inputStream.consumeCharacters(streamLength).toString() );
+            return createHasResultStatus( inputStream.consumeCharacters(streamLength).toString().trim() );
         }
 
         return createIncompleteMatch();

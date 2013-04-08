@@ -1,7 +1,5 @@
 package com.mosaic.parsers.push.matchers;
 
-import com.mosaic.lang.function.VoidFunction1;
-import com.mosaic.lang.function.VoidFunction2;
 import com.mosaic.parsers.push.Matcher;
 
 import java.util.List;
@@ -69,16 +67,33 @@ public class Matchers {
         return new OneOrMoreMatcher( wrappedMatcher );
     }
 
-    public static <T> Matcher<T> issueCallback( Matcher<T> wrappedMatcher, VoidFunction1<T> callback ) {
-        return new IssueCallbackMatcher( wrappedMatcher, callback );
-    }
+// todo delete these three?
+//    public static <T> Matcher<T> issueCallback( Matcher<T> wrappedMatcher, VoidFunction1<T> callback ) {
+//        return new IssueCallbackMatcher( wrappedMatcher, callback );
+//    }
+//
+//    public static <T> Matcher<T> issueCallbackAndSkip( Matcher<T> wrappedMatcher, VoidFunction1<T> callback ) {
+//        return discard( new IssueCallbackMatcher(wrappedMatcher, callback) );
+//    }
+//
+//    public static <T> Matcher<T> issueCallbackWithLineNumberAndSkip( Matcher<T> wrappedMatcher, VoidFunction2<Integer,T> callback ) {
+//        return discard( new IssueCallbackWithLineNumberMatcher(wrappedMatcher, callback) );
+//    }
 
-    public static <T> Matcher<T> issueCallbackAndSkip( Matcher<T> wrappedMatcher, VoidFunction1<T> callback ) {
-        return discard( new IssueCallbackMatcher(wrappedMatcher, callback) );
-    }
 
-    public static <T> Matcher<T> issueCallbackWithLineNumberAndSkip( Matcher<T> wrappedMatcher, VoidFunction2<Integer,T> callback ) {
-        return discard( new IssueCallbackWithLineNumberMatcher(wrappedMatcher, callback) );
-    }
+//    private final Matcher rows = zeroOrMoreWithCallbacks( row, new ZeroOrMoreCallback<List<String>>() {
+//        public void startOfBlockReceived() {
+//          delegate.parsingStarted();
+//        }
+//
+//        public void valueReceived( Integer lineNumber, List<String> row ) {
+//            rowReceived( lineNumber, row );
+//        }
+//
+//        public void endOfBlockReceived() {
+//          parsingEnded();
+//        }
+//    } );
+
 
 }

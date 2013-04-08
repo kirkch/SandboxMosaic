@@ -92,6 +92,30 @@ public class CSVColumnValueMatcherTest {
     }
 
     @Test
+    public void givenNameFollowedBySpacesThenEOL_expectMatchWithEOLLeftBehind() {
+        CharacterStream stream  = new CharacterStream( "foo   \n" );
+        Matcher<String> matcher = new CSVColumnValueMatcher().withInputStream( stream );
+
+        MatchResult<String> result = matcher.processInput();
+
+        assertTrue( result.hasResult() );
+        assertEquals( "foo", result.getResult() );
+        assertEquals( "\n", stream.toString() );
+    }
+
+    @Test
+    public void givenNameFollowedBySpacesThenEOS_expectMatchWithEOLLeftBehind() {
+        CharacterStream stream  = new CharacterStream( "foo   " ).appendEOS();
+        Matcher<String> matcher = new CSVColumnValueMatcher().withInputStream( stream );
+
+        MatchResult<String> result = matcher.processInput();
+
+        assertTrue( result.hasResult() );
+        assertEquals( "foo", result.getResult() );
+        assertEquals( "", stream.toString() );
+    }
+
+    @Test
     public void givenEOLByItself_expectNoMatch() {
         CharacterStream stream  = new CharacterStream( "\n" );
         Matcher<String> matcher = new CSVColumnValueMatcher().withInputStream( stream );
@@ -161,6 +185,18 @@ public class CSVColumnValueMatcherTest {
         assertTrue( result.hasResult() );
         assertEquals( "abc", result.getResult() );
         assertEquals( "", stream.toString() );
+    }
+
+    @Test
+    public void givenQuotedColumnWithSpacesAtEnd_expectMatchWithQuotesRemoved() {
+        CharacterStream stream  = new CharacterStream( "\"abc\"   " );
+        Matcher<String> matcher = new CSVColumnValueMatcher().withInputStream( stream );
+
+        MatchResult<String> result = matcher.processInput();
+
+        assertTrue( result.hasResult() );
+        assertEquals( "abc", result.getResult() );
+        assertEquals( "   ", stream.toString() );
     }
 
     @Test
