@@ -3,9 +3,9 @@ package com.mosaic.io.csv;
 import com.mosaic.io.CharacterStream;
 import com.mosaic.io.Characters;
 import com.mosaic.lang.Validate;
-import com.mosaic.lang.function.VoidFunction2;
 import com.mosaic.parsers.push.MatchResult;
 import com.mosaic.parsers.push.Matcher;
+import com.mosaic.parsers.push.matchers.ZeroOrMoreCallback;
 
 import java.util.List;
 
@@ -21,26 +21,26 @@ public class CSVPushParser {
     private final Matcher<List<String>> row       = listDemarcated( alwaysMatches(), csvColumn, comma, eol() ).withName("csvRow");
 
 
-//    private final Matcher rows = zeroOrMoreWithCallbacks( row, new ZeroOrMoreCallback<List<String>>() {
-//        public void startOfBlockReceived() {
-//          delegate.parsingStarted();
-//        }
-//
-//        public void valueReceived( Integer lineNumber, List<String> row ) {
-//            rowReceived( lineNumber, row );
-//        }
-//
-//        public void endOfBlockReceived() {
-//          parsingEnded();
-//        }
-//    } );
+    private final Matcher rows = zeroOrMoreWithCallbacks( row, new ZeroOrMoreCallback<List<String>>() {
+        public void startOfBlockReceived( int lineNumber ) {
+          delegate.parsingStarted();
+        }
 
-    private final Matcher               rows = zeroOrMore( issueCallbackWithLineNumberAndSkip( row, new VoidFunction2<Integer, List<String>>() {
-        @Override
-        public void invoke( Integer lineNumber, List<String> row ) {
+        public void valueReceived( int lineNumber, List<String> row ) {
             rowReceived( lineNumber, row );
         }
-    } ) );
+
+        public void endOfBlockReceived( int lineNumber ) {
+          delegate.parsingEnded();
+        }
+    } );
+
+//    private final Matcher               rows = issueCallbackWithLineNumberAndSkip( row, new VoidFunction2<Integer, List<String>>() {
+//        @Override
+//        public void invoke( Integer lineNumber, List<String> row ) {
+//            rowReceived( lineNumber, row );
+//        }
+//    } ) );
 
 
 
@@ -74,8 +74,6 @@ public class CSVPushParser {
             inputStream = new CharacterStream();
 
             rows.withInputStream( inputStream );
-
-            delegate.parsingStarted();
         }
     }
 
@@ -85,10 +83,6 @@ public class CSVPushParser {
         MatchResult r = rows.processInput();
 
         int afterRowCount = parsedRowCount;
-
-        if ( inputStream.isAtEOS() ) {
-            delegate.parsingEnded();
-        }
 
         return afterRowCount - beforeRowCount;
     }

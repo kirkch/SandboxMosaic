@@ -76,7 +76,9 @@ public class CharacterStream implements CharSequence {
     }
 
     /**
-     * Makes it illegal to rollback past the current point in the character stream. Should be used sparingly.
+     * Makes it illegal to rollback past the current point in the character stream. Should be used sparingly. As a result
+     * calls to 'rollback' will only be used to consume characters on the stream and to release their memory and will not
+     * actually perform the act of rolling back.
      *
      * @param source who performed this devious act
      * @param reason why they thought it so important that they did so
@@ -96,21 +98,24 @@ public class CharacterStream implements CharSequence {
 
     public void returnToMark() {
         int targetOffset = markPoints.pop();
-        if ( targetOffset < commitMark ) {
-            throw new IllegalStateException( "unable to rollback due to '"+ commitSource + "': " + commitReason );
-        }
 
-        offset = targetOffset;
+        if ( targetOffset >= commitMark ) { // NB only rollback if the rollback point is after the commitMark
+            offset = targetOffset;
+        }
 
         if ( markPoints.isEmpty() && offset > 0 ) {
             // NB: there is no way to return past the last mark, thus by skipping over these characters
-            // we give the implementation of Characters the opportunity to drop an objects that it no longer needs.
+            // we give the implementation of Characters the opportunity to drop any objects that it no longer needs.
             // Thus allowing us to walk BIG streams of objects without the entire stream being in memory at once.
             characters = characters.skipCharacters( offset );
             offset     = 0;
+            commitMark = 0;
         }
     }
 
+    public int getLineNumber() {
+        return getPosition().getLineNumber();
+    }
 
     @Override
     public int length() {

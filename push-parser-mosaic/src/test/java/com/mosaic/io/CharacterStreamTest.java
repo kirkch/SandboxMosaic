@@ -445,19 +445,17 @@ public class CharacterStreamTest {
     }
 
     @Test
-    public void given3CharacterStream_pushMarkSkip2CharactersMarkAsNonRollbackablePopMark_expectException() {
+    public void given3CharacterStream_pushMarkSkip2CharactersMarkAsNonRollbackablePopMark_expectRollbackToBeIgnored() {
         CharacterStream stream = new CharacterStream("abc");
 
         stream.pushMark();
         stream.skipCharacters( 2 );
         stream.markNonRollbackablePoint( "source", "reason" );
 
-        try {
-            stream.returnToMark();
-            fail( "Expected IllegalStateException" );
-        } catch (IllegalStateException e) {
-            assertEquals( "unable to rollback due to 'source': reason", e.getMessage() );
-        }
+        int currentLength = stream.length();
+        stream.returnToMark();
+
+        assertEquals( currentLength, stream.length() );
     }
 
     @Test

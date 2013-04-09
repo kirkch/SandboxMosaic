@@ -67,6 +67,10 @@ public class Matchers {
         return new OneOrMoreMatcher( wrappedMatcher );
     }
 
+    public static <T> Matcher<Void> zeroOrMoreWithCallbacks( Matcher<T> wrappedMatcher, ZeroOrMoreCallback<T> callback ) {
+        return new ZeroOrMoreWithIncrementalCallbackMatcher( wrappedMatcher, callback );
+    }
+
 // todo delete these three?
 //    public static <T> Matcher<T> issueCallback( Matcher<T> wrappedMatcher, VoidFunction1<T> callback ) {
 //        return new IssueCallbackMatcher( wrappedMatcher, callback );

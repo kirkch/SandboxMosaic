@@ -28,11 +28,17 @@ public abstract class Matcher<T> {
     private   Matcher         parentMatcher;
     private   String          matcherName;
 
+    private   boolean         supportsRollback = true;
+
     protected CharacterStream inputStream;
 
     private List<Matcher> children = new ArrayList(1);
 
     public Matcher() {}
+
+    public Matcher( boolean supportsRollback ) {
+        this.supportsRollback = supportsRollback;
+    }
 
     public Matcher( Matcher parent ) {
         withParent( parent );
@@ -40,6 +46,8 @@ public abstract class Matcher<T> {
 
     public Matcher<T> withParent( Matcher parentMatcher ) {
         this.parentMatcher = parentMatcher;
+
+        parentMatcher.withSupportsRollback( this.supportsRollback );
 
         return this;
     }
@@ -64,8 +72,29 @@ public abstract class Matcher<T> {
         return this;
     }
 
+    public Matcher<T> withSupportsRollback( boolean supportsRollback ) {
+        this.supportsRollback = supportsRollback;
+
+        return this;
+    }
+
+    public String getMatcherName() {
+        return matcherName;
+    }
+
+    /**
+     * Provides a short descriptive name for this matcher. Returns the matcher name if set, else the name of the class.
+     */
+    public String getDescriptiveName() {
+        return getMatcherName() == null ? this.getClass().getSimpleName() : getMatcherName();
+    }
+
     public MatchResult<T> processInput() {
-        inputStream.pushMark();
+        int initialDepth = inputStream.markCount();
+
+        if ( supportsRollback ) {
+            inputStream.pushMark();
+        }
 
 
 
@@ -91,11 +120,15 @@ public abstract class Matcher<T> {
             }
         }
 
-        if ( r.hasResult() ) {
-            inputStream.popMark();
-        } else {
-            inputStream.returnToMark();
+        if ( supportsRollback ) {
+            if ( r.hasResult() ) {
+                inputStream.popMark();
+            } else {
+                inputStream.returnToMark();
+            }
         }
+
+        assert initialDepth == inputStream.markCount();
 
         return r;
     }
