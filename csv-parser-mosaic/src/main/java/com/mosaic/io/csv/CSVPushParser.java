@@ -3,7 +3,6 @@ package com.mosaic.io.csv;
 import com.mosaic.io.CharacterStream;
 import com.mosaic.io.Characters;
 import com.mosaic.lang.Validate;
-import com.mosaic.parsers.push.MatchResult;
 import com.mosaic.parsers.push.Matcher;
 import com.mosaic.parsers.push.matchers.ZeroOrMoreCallback;
 
@@ -16,9 +15,9 @@ import static com.mosaic.parsers.push.matchers.Matchers.*;
  */
 public class CSVPushParser {
 
-    private final Matcher<String>       csvColumn = skipSpaceOrTab( new CSVColumnValueMatcher() ).withName("csvColumn");
-    private final Matcher<String>       comma     = skipSpaceOrTab( constant( "," ) );
-    private final Matcher<List<String>> row       = listDemarcated( alwaysMatches(), csvColumn, comma, eol() ).withName("csvRow");
+    private final Matcher<String>       csvColumn       = skipSpaceOrTab( new CSVColumnValueMatcher() ).withName("csvColumn");
+    private final Matcher<String>       columnSeparator = skipSpaceOrTab( constant( "," ) ).withName("columnSeparator");
+    private final Matcher<List<String>> row             = listDemarcated( alwaysMatches(), csvColumn, columnSeparator, eol() ).withName("csvRow");
 
 
     private final Matcher rows = zeroOrMoreWithCallbacks( row, new ZeroOrMoreCallback<List<String>>() {
@@ -34,13 +33,6 @@ public class CSVPushParser {
           delegate.parsingEnded();
         }
     } );
-
-//    private final Matcher               rows = issueCallbackWithLineNumberAndSkip( row, new VoidFunction2<Integer, List<String>>() {
-//        @Override
-//        public void invoke( Integer lineNumber, List<String> row ) {
-//            rowReceived( lineNumber, row );
-//        }
-//    } ) );
 
 
 
@@ -80,7 +72,7 @@ public class CSVPushParser {
     private int processStream() {
         int beforeRowCount = parsedRowCount;
 
-        MatchResult r = rows.processInput();
+        rows.processInput();
 
         int afterRowCount = parsedRowCount;
 
