@@ -24,6 +24,38 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+
+    <distributionManagement>
+        <repository>
+            <id>softwaremosaic-nexus</id>
+            <name>Releases</name>
+            <url>http://nexus.private.softwaremosaic.co.uk:8002/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>softwaremosaic-nexus</id>
+            <name>Snapshots</name>
+            <url>http://nexus.private.softwaremosaic.co.uk:8002/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+
+    <repositories>
+            <repository>
+                <id>softwaremosaic-nexus-public</id>
+                <name>internal repo</name>
+                <url>http://nexus.private.softwaremosaic.co.uk:8002/nexus/content/groups/public</url>
+                <snapshots>
+                    <enabled>true</enabled>
+                </snapshots>
+            </repository>
+
+        <repository>
+            <id>snapshots</id>
+            <url>https://repository.apache.org/content/repositories/snapshots</url>
+        </repository>
+    </repositories>
+
+
     <build>
         <!-- sourceEncoding>UTF-8</sourceEncoding -->  <!-- NB support for this is scheduled for Maven 3.1' replaces property project.build.sourceEncoding above   CK -->
 
@@ -54,27 +86,6 @@
         </plugins>
     </build>
 
-    <repositories>
-        <!--<repository>-->
-            <!--<id>guice-maven</id>-->
-            <!--<name>guice maven</name>-->
-            <!--<url>http://guiceyfruit.googlecode.com/svn/repo/releases</url>-->
-        <!--</repository>-->
-
-        <repository>
-            <id>snapshots</id>
-            <url>https://repository.apache.org/content/repositories/snapshots</url>
-        </repository>
-
-        <!--<repository>-->
-            <!--<id>maven2-repository.dev.java.net</id>-->
-            <!--<name>Java.net Repository for Maven</name>-->
-            <!--<url>http://download.java.net/maven/2/</url>-->
-            <!--<layout>default</layout>-->
-        <!--</repository>-->
-
-
-    </repositories>
 
 
     <dependencies>

@@ -7,17 +7,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Matches a region of characters. Supports being composited into a graph of Matchers; think finite state machine. This
- * composition is designed to support parsing large bodies of text that arrive in batches without blocking the calling
- * thread. This non-blocking behaviour is the primary reason for using this matcher
+ * Matches a region of characters. Supports being composited into a graph of
+ * Matchers; think finite state machine. This composition is designed to support
+ * parsing large bodies of text that arrive in batches without blocking the
+ * calling thread. This non-blocking behaviour is the primary reason for using
+ * this matcher
  */
+@SuppressWarnings("unchecked")
 public abstract class Matcher<T> {
 
     private static final Debug DEBUG = new Debug();
 
     /**
-     * When a tree of matchers is miss behaving then information on the match attempt can be printed to stdout by
-     * settting this debug flag to true. Best done from an isolated test case.
+     * When a tree of matchers is miss behaving then information on the match
+     * attempt can be printed to stdout by settting this debug flag to true.
+     * Best done from an isolated test case.
      */
     public static void setDebugEnabled( boolean flag ) {
         DEBUG.setEnabled( flag );
@@ -63,8 +67,9 @@ public abstract class Matcher<T> {
     }
 
     /**
-     * Gives this matcher a descriptive name. Usually this would be the BNF token name (RHS) and it is used when printing out
-     * information about this matcher.
+     * Gives this matcher a descriptive name. Usually this would be the BNF
+     * token name (RHS) and it is used when printing out information about
+     * this matcher.
      */
     public Matcher<T> withName( String name ) {
         this.matcherName = name;
@@ -83,7 +88,8 @@ public abstract class Matcher<T> {
     }
 
     /**
-     * Provides a short descriptive name for this matcher. Returns the matcher name if set, else the name of the class.
+     * Provides a short descriptive name for this matcher. Returns the matcher
+     * name if set, else the name of the class.
      */
     public String getDescriptiveName() {
         return getMatcherName() == null ? this.getClass().getSimpleName() : getMatcherName();
