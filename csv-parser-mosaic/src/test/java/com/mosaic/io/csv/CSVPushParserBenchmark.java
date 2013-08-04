@@ -9,7 +9,7 @@ import java.util.List;
 /**
  *
  */
-@Ignore
+//@Ignore
 public class CSVPushParserBenchmark {
 
     CSVPushParserDelegateNoOp delegate = new CSVPushParserDelegateNoOp();

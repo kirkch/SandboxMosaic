@@ -20,6 +20,26 @@ public class CSVPushParser {
     private final Matcher<List<String>> row             = listDemarcated( alwaysMatches(), csvColumn, columnSeparator, eol() ).withName("csvRow");
 
 
+    // csvColumn       = new CSVColumnValueMatcher()
+    // columnSeparator = constant(",")
+    // comment         = new CommentMatcher("#")
+
+    // csvRow          = or(comment, repeat(csvColumn, columnSeparator).withCallback("rowReceived") )
+
+
+
+
+    // artifactName = javaName().withName("artifactName")
+    // colon        = constant(":")
+    // artifactType = javaName().withName("artifactType")
+    // moduleName   = javaName().withName("moduleName")
+    // moduleNames  = repeat(moduleName,",").withName("moduleNames")
+    //
+
+    // artifactRow = and( artifactName, colon, artifactType, openBracket, moduleNames, closeBracket ).withCallback(artifactCallback)
+    // artifactRow = and( artifactName, ":", artifactType, "(", moduleNames, ")" ).withCallback(artifactCallback)
+
+
     private final Matcher rows = zeroOrMoreWithCallbacks( row, new ZeroOrMoreCallback<List<String>>() {
         public void startOfBlockReceived( int lineNumber ) {
           delegate.parsingStarted();

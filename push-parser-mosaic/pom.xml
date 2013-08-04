@@ -24,12 +24,17 @@
     <dependencies>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>lang-mosaic</artifactId>
+        <artifactId>lang-sandbox</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>collections-mosaic</artifactId>
+        <artifactId>collections-sandbox</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>io-sandbox</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

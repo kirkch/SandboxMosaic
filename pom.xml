@@ -13,11 +13,14 @@
     <packaging>pom</packaging>
 
 	<modules>
-        <module>lang-mosaic</module>
-        <module>collections-mosaic</module>
+        <module>lang-sandbox</module>
+        <module>collections-sandbox</module>
+        <module>io-sandbox</module>
+
+
 		<module>pull-parser-mosaic</module>
         <module>csv-parser-mosaic</module>
-        <module>push-mosaic</module><module>push-parser-mosaic</module>
+        <module>push-parser-mosaic</module>
 	</modules>
 
     <properties>
@@ -89,32 +92,11 @@
 
 
     <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.commons</groupId>-->
-            <!--<artifactId>commons-lang3</artifactId>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>commons-io</groupId>-->
-            <!--<artifactId>commons-io</artifactId>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.slf4j</groupId>-->
-            <!--<artifactId>slf4j-api</artifactId>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>com.googlecode.openpojo</groupId>-->
-            <!--<artifactId>openpojo</artifactId>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>org.mockito</groupId>
@@ -125,23 +107,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!--<dependency>-->
-                <!--<groupId>org.apache.velocity</groupId>-->
-                <!--<artifactId>velocity</artifactId>-->
-                <!--<version>1.7-beta1</version>-->
-            <!--</dependency>-->
-
-            <!--<dependency>-->
-                <!--<groupId>org.apache.velocity</groupId>-->
-                <!--<artifactId>velocity-tools</artifactId>-->
-                <!--<version>2.0</version>-->
-            <!--</dependency>-->
-
-            <!--<dependency>-->
-                <!--<groupId>com.sun.jersey</groupId>-->
-                <!--<artifactId>jersey-server</artifactId>-->
-                <!--<version>1.5</version>-->
-            <!--</dependency>-->
 
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -156,11 +121,6 @@
                 <version>2.0.1</version>
             </dependency>
 
-            <!--<dependency>-->
-                <!--<groupId>commons-logging</groupId>-->
-                <!--<artifactId>commons-logging</artifactId>-->
-                <!--<version>1.1.1</version>-->
-            <!--</dependency>-->
 
             <dependency>
                 <groupId>commons-beanutils</groupId>
@@ -175,47 +135,6 @@
                 <scope>test</scope>
             </dependency>
 
-            <!--<dependency>-->
-                <!--<groupId>com.googlecode.openpojo</groupId>-->
-                <!--<artifactId>openpojo</artifactId>-->
-                <!--<version>0.3.3</version>-->
-            <!--</dependency>-->
-
-            <!--<dependency>-->
-                <!--<groupId>org.slf4j</groupId>-->
-                <!--<artifactId>slf4j-api</artifactId>-->
-                <!--<version>1.6.1</version>-->
-            <!--</dependency>-->
-
-            <!--<dependency>-->
-                <!--<groupId>org.guiceyfruit</groupId>-->
-                <!--<artifactId>guiceyfruit</artifactId>-->
-                <!--<version>2.0</version>-->
-            <!--</dependency>-->
-
-            <!--<dependency>-->
-                <!--<groupId>org.guiceyfruit</groupId>-->
-                <!--<artifactId>guiceyfruit-core</artifactId>-->
-                <!--<version>2.0</version>-->
-            <!--</dependency>-->
-
-            <!--<dependency>-->
-                <!--<groupId>org.guiceyfruit</groupId>-->
-                <!--<artifactId>guice-servlet</artifactId>-->
-                <!--<version>2.0</version>-->
-            <!--</dependency>-->
-
-            <!--<dependency>-->
-                <!--<groupId>com.sun.jersey.contribs</groupId>-->
-                <!--<artifactId>jersey-guice</artifactId>-->
-                <!--<version>1.5</version>-->
-            <!--</dependency>-->
-
-            <!--<dependency>-->
-                <!--<groupId>com.sun.jersey</groupId>-->
-                <!--<artifactId>jersey-json</artifactId>-->
-                <!--<version>1.5</version>-->
-            <!--</dependency>-->
 
             <dependency>
                 <groupId>cglib</groupId>
@@ -223,17 +142,11 @@
                 <version>2.2</version>
             </dependency>
 
-            <!--<dependency>-->
-                <!--<groupId>com.google.guava</groupId>-->
-                <!--<artifactId>guava</artifactId>-->
-                <!--<version>r08</version>-->
-            <!--</dependency>-->
-
-            <!--<dependency>-->
-                <!--<groupId>org.mongodb</groupId>-->
-                <!--<artifactId>mongo-java-driver</artifactId>-->
-                <!--<version>2.4</version>-->
-            <!--</dependency>-->
+            <dependency>
+                <groupId>com.mosaic</groupId>
+                <artifactId>junit-hammer</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.mockito</groupId>
