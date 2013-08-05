@@ -2,15 +2,10 @@ package com.mosaic.parsers.csv;
 
 import com.mosaic.hammer.junit.Benchmark;
 import com.mosaic.hammer.junit.Hammer;
-import com.mosaic.io.ByteBufferUtils;
 import com.mosaic.parsers.MatchResult;
 import org.junit.runner.RunWith;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.CharBuffer;
-
-import static com.mosaic.io.ByteBufferUtils.UTF8;
 
 /**
  *
@@ -25,10 +20,37 @@ public class CSVColumnValueMatcherBenchmark {
             "\"AGGREKO\",\"AGK.L\",\"London\",1787.0001,1,755,1786.00,463,1800.00,1783.00,1800.00,1787.9999,\"6:44am\",\"4/4/2013\",4.754B,1720.89,-,179757,N/A,899662,0.00,1.039,\"N/A\",\"-\"\n";
 
     private CharBuffer buf = CharBuffer.wrap(csv);
-//    private ByteBuffer buf;
+
     private MatchResult matchResult = new MatchResult();
 
+/*  timings
+1931.64ns
+1766.30ns
+1714.89ns
+1844.22ns
+1719.75ns
+1717.72ns
+1714.68ns
+1686.57ns
+1696.11ns
+1690.91ns
 
+
+2059.31ns
+1684.91ns
+1789.62ns
+1602.66ns
+1575.13ns
+1634.34ns
+
+
+1876.45ns
+1677.68ns
+1514.33ns
+1493.53ns
+1493.53ns
+1501.70ns
+ */
 
     @Benchmark( durationResultMultiplier=0.25 )
     public void benchmark() {
@@ -40,9 +62,7 @@ public class CSVColumnValueMatcherBenchmark {
     }
 
     private int doMatch() {
-        int r = matcher.match(buf, matchResult, false);
-//        System.out.println("r = " + r);
-        return r;
+        return matcher.match(buf, matchResult, false);
     }
 
 }

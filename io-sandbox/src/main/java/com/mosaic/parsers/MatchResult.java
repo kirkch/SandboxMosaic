@@ -14,4 +14,7 @@ public class MatchResult {
      */
     public Object parsedValue;
 
+    public void reportError(int trimmedLHS, String s) {
+
+    }
 }

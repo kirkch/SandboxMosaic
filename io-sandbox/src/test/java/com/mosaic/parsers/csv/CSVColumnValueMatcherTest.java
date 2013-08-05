@@ -28,9 +28,9 @@ public class CSVColumnValueMatcherTest {
 
         CharBuffer buf = CharBuffer.wrap("");
 
-        int numBytesEncoded = matcher.match(buf, matchResultContainer, false);
+        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
 
-        assertEquals(Matcher.INCOMPLETE, numBytesEncoded);
+        assertEquals(Matcher.INCOMPLETE, numCharsMatched);
         assertNull( matchResultContainer.parsedValue );
         assertEquals(0, buf.position());
     }
@@ -41,9 +41,9 @@ public class CSVColumnValueMatcherTest {
 
         CharBuffer buf = CharBuffer.wrap("");
 
-        int numBytesEncoded = matcher.match(buf, matchResultContainer, true);
+        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
 
-        assertEquals(0, numBytesEncoded);
+        assertEquals(0, numCharsMatched);
         assertEquals("", matchResultContainer.parsedValue.toString());
         assertEquals(0, buf.position());
     }
@@ -54,9 +54,9 @@ public class CSVColumnValueMatcherTest {
 
         CharBuffer buf = CharBuffer.wrap("asset type");
 
-        int numBytesEncoded = matcher.match(buf, matchResultContainer, false);
+        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
 
-        assertEquals(Matcher.INCOMPLETE, numBytesEncoded);
+        assertEquals(Matcher.INCOMPLETE, numCharsMatched);
         assertNull(matchResultContainer.parsedValue);
         assertEquals(0, buf.position());
     }
@@ -67,9 +67,9 @@ public class CSVColumnValueMatcherTest {
 
         CharBuffer buf = CharBuffer.wrap("asset type,");
 
-        int numBytesEncoded = matcher.match(buf, matchResultContainer, false);
+        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
 
-        assertEquals(10, numBytesEncoded);
+        assertEquals(10, numCharsMatched);
         assertEquals("asset type", matchResultContainer.parsedValue.toString());
         assertEquals(10, buf.position());
     }
@@ -80,9 +80,9 @@ public class CSVColumnValueMatcherTest {
 
         CharBuffer buf = CharBuffer.wrap("asset type   ,");
 
-        int numBytesEncoded = matcher.match(buf, matchResultContainer, false);
+        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
 
-        assertEquals(13, numBytesEncoded);
+        assertEquals(13, numCharsMatched);
         assertEquals( "asset type", matchResultContainer.parsedValue.toString() );
         assertEquals(13, buf.position());
     }
@@ -93,9 +93,9 @@ public class CSVColumnValueMatcherTest {
 
         CharBuffer buf = CharBuffer.wrap("asset type   ");
 
-        int numBytesEncoded = matcher.match(buf, matchResultContainer, true);
+        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
 
-        assertEquals(13, numBytesEncoded);
+        assertEquals(13, numCharsMatched);
         assertEquals( "asset type", matchResultContainer.parsedValue.toString() );
         assertEquals(13, buf.position());
     }
@@ -106,9 +106,9 @@ public class CSVColumnValueMatcherTest {
 
         CharBuffer buf = CharBuffer.wrap("asset type\n");
 
-        int numBytesEncoded = matcher.match(buf, matchResultContainer, false);
+        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
 
-        assertEquals(10, numBytesEncoded);
+        assertEquals(10, numCharsMatched);
         assertEquals( "asset type", matchResultContainer.parsedValue.toString() );
         assertEquals(10, buf.position());
     }
@@ -119,9 +119,9 @@ public class CSVColumnValueMatcherTest {
 
         CharBuffer buf = CharBuffer.wrap("asset type   \n");
 
-        int numBytesEncoded = matcher.match(buf, matchResultContainer, false);
+        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
 
-        assertEquals(13, numBytesEncoded);
+        assertEquals(13, numCharsMatched);
         assertEquals( "asset type", matchResultContainer.parsedValue.toString() );
         assertEquals(13, buf.position());
     }
@@ -132,9 +132,9 @@ public class CSVColumnValueMatcherTest {
 
         CharBuffer buf = CharBuffer.wrap(" asset type   \n");
 
-        int numBytesEncoded = matcher.match(buf, matchResultContainer, false);
+        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
 
-        assertEquals(14, numBytesEncoded);
+        assertEquals(14, numCharsMatched);
         assertEquals( "asset type", matchResultContainer.parsedValue.toString() );
         assertEquals(14, buf.position());
     }
@@ -145,9 +145,9 @@ public class CSVColumnValueMatcherTest {
 
         CharBuffer buf = CharBuffer.wrap("  asset type   \n");
 
-        int numBytesEncoded = matcher.match(buf, matchResultContainer, true);
+        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
 
-        assertEquals(15, numBytesEncoded);
+        assertEquals(15, numCharsMatched);
         assertEquals( "asset type", matchResultContainer.parsedValue.toString() );
         assertEquals(15, buf.position());
     }
@@ -158,9 +158,9 @@ public class CSVColumnValueMatcherTest {
 
         CharBuffer buf = CharBuffer.wrap("\n");
 
-        int numBytesEncoded = matcher.match(buf, matchResultContainer, false);
+        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
 
-        assertEquals(0, numBytesEncoded);
+        assertEquals(0, numCharsMatched);
         assertEquals( "", matchResultContainer.parsedValue.toString() );
         assertEquals(0, buf.position());
     }
@@ -171,9 +171,9 @@ public class CSVColumnValueMatcherTest {
 
         CharBuffer buf = CharBuffer.wrap("asset type\r\n");
 
-        int numBytesEncoded = matcher.match(buf, matchResultContainer, false);
+        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
 
-        assertEquals(10, numBytesEncoded);
+        assertEquals(10, numCharsMatched);
         assertEquals( "asset type", matchResultContainer.parsedValue.toString() );
         assertEquals(10, buf.position());
     }
@@ -184,9 +184,9 @@ public class CSVColumnValueMatcherTest {
 
         CharBuffer buf = CharBuffer.wrap("foo,bar");
 
-        int numBytesEncoded = matcher.match(buf, matchResultContainer, false);
+        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
 
-        assertEquals(3, numBytesEncoded);
+        assertEquals(3, numCharsMatched);
         assertEquals( "foo", matchResultContainer.parsedValue.toString() );
         assertEquals(3, buf.position());
     }
@@ -197,9 +197,9 @@ public class CSVColumnValueMatcherTest {
 
         CharBuffer buf = CharBuffer.wrap("foo,bar");
 
-        int numBytesEncoded = matcher.match(buf, matchResultContainer, true);
+        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
 
-        assertEquals(3, numBytesEncoded);
+        assertEquals(3, numCharsMatched);
         assertEquals( "foo", matchResultContainer.parsedValue.toString() );
         assertEquals(3, buf.position());
     }
@@ -211,9 +211,9 @@ public class CSVColumnValueMatcherTest {
         CharBuffer buf = CharBuffer.wrap("foo,bar");
         buf.position(3);
 
-        int numBytesEncoded = matcher.match(buf, matchResultContainer, true);
+        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
 
-        assertEquals(0, numBytesEncoded);
+        assertEquals(0, numCharsMatched);
         assertEquals( "", matchResultContainer.parsedValue.toString() );
         assertEquals(3, buf.position());
     }
@@ -225,22 +225,22 @@ public class CSVColumnValueMatcherTest {
         CharBuffer buf = CharBuffer.wrap("foo,bar");
         buf.position(4);
 
-        int numBytesEncoded = matcher.match(buf, matchResultContainer, true);
+        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
 
-        assertEquals(3, numBytesEncoded);
+        assertEquals(3, numCharsMatched);
         assertEquals( "bar", matchResultContainer.parsedValue.toString() );
         assertEquals(7, buf.position());
     }
 
-//    @Test
+    @Test
     public void givenQuotedColumnEOL_expectMatchWithQuotesRemoved() {
         Matcher matcher = new CSVColumnValueMatcher(',');
 
         CharBuffer buf = CharBuffer.wrap("\"abc\"");
 
-        int numBytesEncoded = matcher.match(buf, matchResultContainer, true);
+        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
 
-        assertEquals(5, numBytesEncoded);
+        assertEquals(5, numCharsMatched);
         assertEquals( "abc", matchResultContainer.parsedValue.toString() );
         assertEquals(5, buf.position());
     }
