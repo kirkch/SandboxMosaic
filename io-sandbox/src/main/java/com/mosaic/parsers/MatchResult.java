@@ -14,7 +14,27 @@ public class MatchResult {
      */
     public Object parsedValue;
 
-    public void reportError(int trimmedLHS, String s) {
+    /**
+     * Extra information regarding the failed match.
+     */
+    public String errorMessage;
 
+    /**
+     * Offset from buf.position() for where the matcher had gotten up to when
+     * the error was detected.
+     */
+    public int matchIndexOnError;
+
+
+    public void reportError( int offset, String msg ) {
+        this.errorMessage      = msg;
+        this.matchIndexOnError = offset;
     }
+
+    public void clear() {
+        parsedValue       = null;
+        errorMessage      = null;
+        matchIndexOnError = 0;
+    }
+
 }

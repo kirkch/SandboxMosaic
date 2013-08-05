@@ -32,7 +32,7 @@ public class CSVColumnValueMatcher extends BaseMatcher {
             char nextChar = buf.get(trimmedLHS);
 
             if ( nextChar == '\"' ) {
-                return matchQuotedValue(buf, result, limit, consumedLHS, trimmedLHS);
+                return matchQuotedValue(buf, result, isEOS, limit, consumedLHS, trimmedLHS);
             }
         }
 
@@ -56,17 +56,21 @@ public class CSVColumnValueMatcher extends BaseMatcher {
         return numCharsMatched;
     }
 
-    private int matchQuotedValue( CharBuffer buf, MatchResult result, int limit, int consumedLHS, int quoteLHS ) {
+    private int matchQuotedValue( CharBuffer buf, MatchResult result, boolean isEOS, int limit, int consumedLHS, int quoteLHS ) {
         int endQuote = matchUpToQuote( buf, quoteLHS+1, limit );
         if ( endQuote < 0 ) {
-            result.reportError( quoteLHS, "expected csv column value to be closed by a quote" );
-            return NO_MATCH;
+            if ( isEOS ) {
+                result.reportError( quoteLHS, "expected csv column value to be closed by a quote" );
+                return NO_MATCH;
+            }
+
+            return INCOMPLETE;
         }
 
         result.parsedValue = buf.subSequence(quoteLHS+1-consumedLHS, endQuote-consumedLHS).toString();
         buf.position( endQuote+1 );
 
-        int numCharsMatched = endQuote + 1 - consumedLHS;
+        int numCharsMatched = endQuote+1 - consumedLHS;
         return numCharsMatched;
     }
 
