@@ -15,6 +15,7 @@ public class CharBufferUtils {
      */
     public static boolean isOneOf( int pos, CharBuffer buf, char[] candidateCharacters ) {
         char c = buf.get(pos);
+
         for ( int i=0; i<candidateCharacters.length; i++ ) {
             if ( candidateCharacters[i] == c ) {
                 return true;
@@ -52,7 +53,13 @@ public class CharBufferUtils {
      * @return the index of the first non-whitespace char
      */
     public static int skipWhitespace( CharBuffer buf, int startInc, int limitExc ) {
-        for ( int i=startInc; i<limitExc; i++ ) {
+        // NB replacing i<limitEx with i-limitExc<0 (which is equivalent)
+        // shaved 50ns per line of csv parsing; I would expect the compilers to
+        // make this optimisation.. but as of jdk1.7.0_21 on mac osx, it does not.
+        // -- and yet in other similar situations it makes things worse! I need
+        //    to grab the assembler at some point and see what is happening.
+
+        for ( int i=startInc; i-limitExc<0; i++ ) {
             if ( !CharBufferUtils.isWhitespaceAt(i, buf) ) {
                 return i;
             }

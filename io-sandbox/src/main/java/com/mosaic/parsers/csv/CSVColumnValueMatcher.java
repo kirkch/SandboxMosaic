@@ -17,8 +17,10 @@ import static com.mosaic.io.CharBufferUtils.trimRight;
 public class CSVColumnValueMatcher extends BaseMatcher {
 
     private char[] columnSeparators;
+    private char separator;
 
     public CSVColumnValueMatcher( char separator ) {
+        this.separator = separator;
         this.columnSeparators = new char[] {separator,'\n','\r'};      
     }
 
@@ -40,7 +42,7 @@ public class CSVColumnValueMatcher extends BaseMatcher {
     }
 
     private int matchUnquotedValue( CharBuffer buf, MatchResult result, boolean isEOS, int limit, int consumedLHS, int trimmedLHS ) {
-        int consumedRHS = matchUptoOneOfOrEOS(buf, columnSeparators, trimmedLHS, limit, isEOS);
+        int consumedRHS = matchUpToSeparator(buf, trimmedLHS, limit, isEOS);
 
         if ( consumedRHS < 0 ) {
             return INCOMPLETE;
@@ -54,6 +56,22 @@ public class CSVColumnValueMatcher extends BaseMatcher {
         buf.position( consumedRHS );
 
         return numCharsMatched;
+    }
+
+    /**
+     * NB performs the same job as CBU.matchUptoOneOfOrEOS(buf, columnSeparators, trimmedLHS, limit, isEOS);
+     * except less generically.. however it shaved 30% off of the processing time thus we have this version here.
+     */
+    private int matchUpToSeparator(CharBuffer buf, int fromInc, int toExc, boolean isEOS) {
+        for ( int i=fromInc; i<toExc; i++ ) {
+            char c = buf.get(i);
+
+            if ( c == separator || c == '\r' || c == '\n' ) {
+                return i;
+            }
+        }
+
+        return isEOS ? toExc : -1;
     }
 
     @SuppressWarnings("UnnecessaryLocalVariable")

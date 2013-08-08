@@ -39,6 +39,14 @@ public class CSVColumnValueMatcherBenchmark {
 1538.32ns
 1536.56ns
 
+
+1433.07ns
+1095.11ns
+1090.88ns
+1089.39ns
+1093.81ns
+1092.52ns
+
  */
 
     @Benchmark( durationResultMultiplier=0.25 )
