@@ -212,8 +212,16 @@ public class CSVColumnValueMatcherTest {
         assertEquals(5, buf.position());
     }
 
+    @Test
+    public void givenQuotedColumnEOLPrefixedWithWhitespace_expectMatchWithQuotesRemoved() {
+        CharBuffer buf = CharBuffer.wrap("   \"abc\"");
 
-//todo skip white space prefix
+        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
+
+        assertEquals(8, numCharsMatched);
+        assertEquals( "abc", matchResultContainer.parsedValue.toString() );
+        assertEquals(8, buf.position());
+    }
 
     @Test
     public void givenQuotedColumnWithSpacesAtEnd_expectMatchWithQuotesRemoved() {
@@ -295,9 +303,9 @@ public class CSVColumnValueMatcherTest {
         assertEquals(19, buf.position());
     }
 
-//    @Test  todo
+    @Test
     public void givenColumnWithEscapedQuoteEOL_expectSingleColumnMatch() {
-        CharBuffer buf = CharBuffer.wrap("\"foo\\\"bar\"");
+        CharBuffer buf = CharBuffer.wrap("\"foo\"\"bar\"");
 
         int numCharsMatched = matcher.match(buf, matchResultContainer, false);
 

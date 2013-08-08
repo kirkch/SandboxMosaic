@@ -78,4 +78,30 @@ public class CharBufferUtils {
         return toExc;
     }
 
+
+    public static int matchUpToChar( CharBuffer buf, int fromInc, int limit, char target ) {
+        for ( int i=fromInc; i<limit; i++ ) {
+            char c = buf.get(i);
+            if ( c == target ) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public static int matchUptoOneOfOrEOS(CharBuffer buf, char[] candidateCharacters, int from, int limit, boolean isEOS) {
+        for ( int i=from; i<limit; i++ ) {
+            if ( CharBufferUtils.isOneOf(i, buf, candidateCharacters) ) {
+                return i;
+            }
+        }
+
+        if ( isEOS ) {
+            return limit;
+        }
+
+        return -1;
+    }
+
 }
