@@ -5,8 +5,8 @@ import com.mosaic.parsers.BaseMatcher;
 import com.mosaic.parsers.MatchResult;
 
 import java.nio.CharBuffer;
+import java.util.regex.Pattern;
 
-import static com.mosaic.io.CharBufferUtils.matchUptoOneOfOrEOS;
 import static com.mosaic.io.CharBufferUtils.skipWhitespace;
 import static com.mosaic.io.CharBufferUtils.trimRight;
 
@@ -16,12 +16,10 @@ import static com.mosaic.io.CharBufferUtils.trimRight;
  */
 public class CSVColumnValueMatcher extends BaseMatcher {
 
-    private char[] columnSeparators;
     private char separator;
 
     public CSVColumnValueMatcher( char separator ) {
         this.separator = separator;
-        this.columnSeparators = new char[] {separator,'\n','\r'};      
     }
 
     public int match( CharBuffer buf, MatchResult result, boolean isEOS ) {
@@ -92,11 +90,14 @@ public class CSVColumnValueMatcher extends BaseMatcher {
         return numCharsMatched;
     }
 
+    private static Pattern ESCAPED_QUOTE_REGEXP = Pattern.compile("\"\"");
+
     private String consumeUpToClosingQuoteAndAdjustBuffer(CharBuffer buf, int fromInc, int limit) {
         boolean escapedQuoteDetected = false;
 
         for ( int i=fromInc; i<limit; i++ ) {
             char c = buf.get(i);
+
             if ( c == '\"' ) {
                 if ( i+1 < limit && buf.get(i+1) == '\"') {
                     i = i+2;
@@ -104,7 +105,7 @@ public class CSVColumnValueMatcher extends BaseMatcher {
                 } else {
                     String v = buf.subSequence( fromInc-buf.position(), i-buf.position() ).toString();
                     if ( escapedQuoteDetected ) {
-                        v = v.replaceAll("\"\"", "\"");
+                        v = ESCAPED_QUOTE_REGEXP.matcher(v).replaceAll("\"");
                     }
 
                     buf.position(i+1);
