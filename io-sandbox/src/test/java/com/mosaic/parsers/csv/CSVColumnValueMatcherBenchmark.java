@@ -21,7 +21,6 @@ public class CSVColumnValueMatcherBenchmark {
 
     private CharBuffer buf = CharBuffer.wrap(csv);
 
-    private MatchResult matchResult = new MatchResult();
 
 /*  timings
 1421.61ns
@@ -43,13 +42,13 @@ public class CSVColumnValueMatcherBenchmark {
     public void benchmark() {
         buf.position(0);
 
-        while ( doMatch().wasSuccessfulMatch() ) {
-            buf.position(buf.position()+1);
+        while ( doMatch().isSuccessfulMatch() ) {
+            buf.position(buf.position() + 1);
         }
     }
 
     private MatchResult doMatch() {
-        return matcher.match(buf, matchResult, false);
+        return matcher.match(buf, false);
     }
 
 }

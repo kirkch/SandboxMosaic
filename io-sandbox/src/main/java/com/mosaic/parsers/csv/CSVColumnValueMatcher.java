@@ -22,7 +22,7 @@ public class CSVColumnValueMatcher extends BaseMatcher {
         this.separator = separator;
     }
 
-    public MatchResult match( CharBuffer buf, MatchResult result, boolean isEOS ) {
+    public MatchResult match( CharBuffer buf, boolean isEOS ) {
         int limit       = buf.limit();
         int consumedLHS = buf.position();
 
@@ -32,18 +32,18 @@ public class CSVColumnValueMatcher extends BaseMatcher {
             char nextChar = buf.get(trimmedLHS);
 
             if ( nextChar == '\"' ) {
-                return matchQuotedValue(buf, result, isEOS, limit, consumedLHS, trimmedLHS);
+                return matchQuotedValue(buf, isEOS, limit, consumedLHS, trimmedLHS);
             }
         }
 
-        return matchUnquotedValue(buf, result, isEOS, limit, consumedLHS, trimmedLHS);
+        return matchUnquotedValue(buf, isEOS, limit, consumedLHS, trimmedLHS);
     }
 
-    private MatchResult matchUnquotedValue( CharBuffer buf, MatchResult result, boolean isEOS, int limit, int consumedLHS, int trimmedLHS ) {
+    private MatchResult matchUnquotedValue( CharBuffer buf, boolean isEOS, int limit, int consumedLHS, int trimmedLHS ) {
         int consumedRHS = matchUpToSeparator( buf, trimmedLHS, limit, isEOS );
 
         if ( consumedRHS < 0 ) {
-            return result.setIncompleteMatchState();
+            return MatchResult.incompleteMatch();
         }
 
         int trimmedRHS      = trimRight(buf, trimmedLHS, consumedRHS);
@@ -53,7 +53,7 @@ public class CSVColumnValueMatcher extends BaseMatcher {
 
         buf.position( consumedRHS );
 
-        return result.setHasMatchedState( numCharsMatched, parsedValue );
+        return MatchResult.matched(numCharsMatched, parsedValue);
     }
 
     /**
@@ -73,18 +73,18 @@ public class CSVColumnValueMatcher extends BaseMatcher {
     }
 
     @SuppressWarnings("UnnecessaryLocalVariable")
-    private MatchResult matchQuotedValue( CharBuffer buf, MatchResult result, boolean isEOS, int limit, int consumedLHS, int quoteLHS ) {
+    private MatchResult matchQuotedValue( CharBuffer buf, boolean isEOS, int limit, int consumedLHS, int quoteLHS ) {
         String quotedText = consumeUpToClosingQuoteAndAdjustBuffer(buf, quoteLHS + 1, limit);
         if ( quotedText == null ) {
             if ( isEOS ) {
-                return result.setHasErroredState(quoteLHS, "expected csv column value to be closed by a quote");
+                return MatchResult.errored(quoteLHS, "expected csv column value to be closed by a quote");
             }
 
-            return result.setIncompleteMatchState();
+            return MatchResult.incompleteMatch();
         }
 
         int numCharsMatched = buf.position() - consumedLHS;
-        return result.setHasMatchedState(numCharsMatched, quotedText);
+        return MatchResult.matched(numCharsMatched, quotedText);
     }
 
     private static Pattern ESCAPED_QUOTE_REGEXP = Pattern.compile("\"\"");

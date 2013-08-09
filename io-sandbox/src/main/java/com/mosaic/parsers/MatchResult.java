@@ -5,6 +5,20 @@ package com.mosaic.parsers;
  */
 public class MatchResult {
 
+    public static MatchResult errored(int charBufferPosition, String errorMessage) {
+        return new MatchResult(charBufferPosition,errorMessage);
+    }
+
+    public static MatchResult incompleteMatch() {
+        return new MatchResult();
+    }
+
+    public static MatchResult matched(int numCharsMatched, Object parsedValue) {
+        return new MatchResult(numCharsMatched,parsedValue);
+    }
+
+
+
     private static int STATUS_NO_MATCH         = 0;
     private static int STATUS_INCOMPLETE_MATCH = 1;
     private static int STATUS_MATCHED          = 2;
@@ -41,47 +55,41 @@ public class MatchResult {
     private int matchIndexOnError;
 
 
-    public MatchResult setHasErroredState(int charBufferPosition, String errorMessage) {
+
+
+
+    private MatchResult(int charBufferPosition, String errorMessage) {
         this.status            = STATUS_ERROR;
         this.errorMessage      = errorMessage;
         this.matchIndexOnError = charBufferPosition;
-
-        return this;
     }
     
-    public MatchResult setIncompleteMatchState() {
+
+    private MatchResult() {
         this.status = STATUS_INCOMPLETE_MATCH;
-        
-        return this;
     }
 
-    public MatchResult setHasMatchedState( int numCharsMatched, Object parsedValue ) {
+    private MatchResult(int numCharsMatched, Object parsedValue) {
         this.status                = STATUS_MATCHED;
         this.numCharactersConsumed = numCharsMatched;
         this.parsedValue           = parsedValue;
-        
-        return this;
     }
 
 
-    public void clear() {
-        parsedValue       = null;
-        errorMessage      = null;
-    }
 
-    public boolean wasSuccessfulMatch() {
+    public boolean isSuccessfulMatch() {
         return status == STATUS_MATCHED;
     }
 
-    public boolean wasNoMatch() {
+    public boolean isNoMatch() {
         return status == STATUS_NO_MATCH;
     }
 
-    public boolean wasIncompleteMatch() {
+    public boolean isIncompleteMatch() {
         return status == STATUS_INCOMPLETE_MATCH;
     }
 
-    public boolean wasError() {
+    public boolean isError() {
         return status == STATUS_ERROR;
     }
 
@@ -101,4 +109,5 @@ public class MatchResult {
     public int getNumCharactersConsumed() {
         return numCharactersConsumed;
     }
+
 }

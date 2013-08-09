@@ -16,10 +16,9 @@ public interface Matcher {
      * due to lack of characters and >= 0 when the match was successful.
      *
      * @param buf the input buffer, characters are consumed
-     * @param result reduces object allocations by reusing
      * @return number of characters consumed
      */
-    public MatchResult match( CharBuffer buf, MatchResult result, boolean isEOS );
+    public MatchResult match( CharBuffer buf, boolean isEOS );
 
 
     /**

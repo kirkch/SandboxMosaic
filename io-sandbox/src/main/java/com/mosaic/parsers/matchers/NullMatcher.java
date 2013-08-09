@@ -12,11 +12,13 @@ import java.nio.CharBuffer;
 public class NullMatcher implements Matcher {
     public static final Matcher INSTANCE = new NullMatcher();
 
+
+    private static MatchResult NULL_MATCH = MatchResult.matched(0, null);
+
     private NullMatcher() {}
 
-
-    public MatchResult match(CharBuffer buf, MatchResult result, boolean isEOS) {
-        return result;
+    public MatchResult match(CharBuffer buf, boolean isEOS) {
+        return NULL_MATCH;
     }
 
     public Matcher withName(String name) {

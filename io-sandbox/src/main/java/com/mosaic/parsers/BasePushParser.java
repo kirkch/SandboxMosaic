@@ -55,22 +55,20 @@ public abstract class BasePushParser implements PushParser {
     }
 
     public long push( CharBuffer buf ) {
-        MatchResult result         = new MatchResult();
-
         ParseFrame  currentFrame   = stack.peek();                  // if no frame, let error occur
         Matcher     currentMatcher = currentFrame.currentMatcher;
 
-//        int numCharactersConsumed = currentMatcher.match( buf, result, hasReachedEndOfFile );
+        MatchResult result = currentMatcher.match( buf, hasReachedEndOfFile );
 //        result.numCharactersConsumed = numCharactersConsumed;
 
-        if ( result.wasSuccessfulMatch() ) {
+        if ( result.isSuccessfulMatch() ) {
 
-        } else if ( result.wasNoMatch() ) {
+        } else if ( result.isNoMatch() ) {
 
-        } else if ( result.wasIncompleteMatch() ) {
+        } else if ( result.isIncompleteMatch() ) {
 
         } else {
-            assert result.wasError();
+            assert result.isError();
 
         }
 
