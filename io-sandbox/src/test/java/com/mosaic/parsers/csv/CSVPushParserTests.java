@@ -20,15 +20,15 @@ public class CSVPushParserTests {
 
     @Test
     public void pushSOF_expectOpenCloseCallsOnCallback() {
-        parser.pushSOF();
+        parser.pushStartOfFile();
 
         assertEquals( Arrays.asList("start"), delegate.audit );
     }
 
     @Test
     public void pushSOFEOF_expectOpenCloseCallsOnCallback() {
-        parser.pushSOF();
-        parser.pushEOF();
+        parser.pushStartOfFile();
+        parser.pushEndOfFile();
 
         assertEquals( Arrays.asList("start", "end"), delegate.audit );
     }
@@ -43,7 +43,7 @@ public class CSVPushParserTests {
 //    @Test TODO
     public void pushOneSingleLetterValueEOF_expectSingleHeaderSingleColumn() {
         parser.push( "a" );
-        parser.pushEOF();
+        parser.pushEndOfFile();
 
         assertEquals( Arrays.asList("headers(1,[a])", "end"), delegate.audit );
     }

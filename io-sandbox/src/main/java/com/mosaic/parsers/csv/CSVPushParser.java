@@ -2,7 +2,8 @@ package com.mosaic.parsers.csv;
 
 import com.mosaic.parsers.BasePushParser;
 
-import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+
 
 /**
  *
@@ -11,7 +12,7 @@ public class CSVPushParser extends BasePushParser {
     private CSVParserCallback delegate;
 
 
-    // csvColumn       = new CSVColumnValueMatcher().withName("csvColumn")
+    // csvColumn       = new CSVColumnValueMatcher(',').withName("csvColumn")
     // columnSeparator = constant(",")
     // comment         = new CommentMatcher("#")
 
@@ -21,22 +22,25 @@ public class CSVPushParser extends BasePushParser {
     // skip = or(whitespace, comment)
 
 
-    public CSVPushParser( String charset, CSVParserCallback delegate ) {
-        super(charset);
+    public CSVPushParser( CSVParserCallback delegate ) {
+        super( null );
 
         this.delegate = delegate;
     }
 
 
-    public void pushSOF() {
+    public void pushStartOfFile() {
         delegate.start();
     }
 
-    public void pushEOF() {
+    public void pushEndOfFile() {
         delegate.end();
     }
 
-    public void push( ByteBuffer buf ) {
+    public long push( CharBuffer buf ) {
+        return 0;
     }
+
+
 
 }

@@ -6,6 +6,13 @@ package com.mosaic.parsers;
 public class MatchResult {
 
     /**
+     * The number of characters consumed by the Matcher.  No need to set this directly
+     * as BasePushParser will set it for you (using the value returned from the Matcher).
+     */
+    public int numCharactersConsumed;
+
+
+    /**
      * Null means that the matched values are to be skipped over.  Usualy the
      * matched value will be a string wrapping the input byte buffer (and thus
      * have a limited life span as the buffer will probably get reused).  However
@@ -37,4 +44,20 @@ public class MatchResult {
         matchIndexOnError = 0;
     }
 
+
+    public boolean wasSuccessfulMatch() {
+        return numCharactersConsumed >= 0;
+    }
+
+    public boolean wasNoMatch() {
+        return numCharactersConsumed == Matcher.NO_MATCH;
+    }
+
+    public boolean wasPartialMatch() {
+        return numCharactersConsumed == Matcher.INCOMPLETE;
+    }
+
+    public boolean wasError() {
+        return errorMessage != null;
+    }
 }

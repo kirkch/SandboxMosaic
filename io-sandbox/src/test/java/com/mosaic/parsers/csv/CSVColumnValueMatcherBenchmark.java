@@ -24,29 +24,12 @@ public class CSVColumnValueMatcherBenchmark {
     private MatchResult matchResult = new MatchResult();
 
 /*  timings
-1893.55ns
-1556.90ns
-1562.10ns
-1578.43ns
-1565.48ns
-1586.12ns
-
-
-1867.31ns
-1604.79ns
-1540.34ns
-1536.62ns
-1538.32ns
-1536.56ns
-
-
-1433.07ns
-1095.11ns
-1090.88ns
-1089.39ns
-1093.81ns
-1092.52ns
-
+1421.61ns
+1157.66ns
+1061.96ns
+1067.24ns
+1060.62ns
+1085.38ns
  */
 
     @Benchmark( durationResultMultiplier=0.25 )
