@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 public class CSVPushParserTests {
 
     private CSVParserCallbackFake delegate = new CSVParserCallbackFake();
-    private PushParser            parser   = new CSVPushParser( "UTF-8", delegate );
+    private PushParser            parser   = new CSVPushParser( delegate );
 
 
     @Test
