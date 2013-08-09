@@ -19,7 +19,7 @@ public interface Matcher {
      * @param result reduces object allocations by reusing
      * @return number of characters consumed
      */
-    public int match( CharBuffer buf, MatchResult result, boolean isEOS );
+    public MatchResult match( CharBuffer buf, MatchResult result, boolean isEOS );
 
 
     /**

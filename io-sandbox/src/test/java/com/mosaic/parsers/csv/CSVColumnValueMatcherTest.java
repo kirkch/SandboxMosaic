@@ -19,18 +19,19 @@ import static org.junit.Assert.*;
 @RunWith(Hammer.class)
 public class CSVColumnValueMatcherTest {
 
-    private Matcher     matcher              = new CSVColumnValueMatcher(',');
-    private MatchResult matchResultContainer = new MatchResult();
+    private Matcher     matcher = new CSVColumnValueMatcher(',');
+    private MatchResult result  = new MatchResult();
 
 
     @Test
     public void givenNoBytes_expectInprogress() {
         CharBuffer buf = CharBuffer.wrap("");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(Matcher.INCOMPLETE, numCharsMatched);
-        assertNull( matchResultContainer.parsedValue );
+        assertEquals(0, result.getNumCharactersConsumed());
+        assertTrue(result.wasIncompleteMatch());
+        assertNull( result.getParsedValue() );
         assertEquals(0, buf.position());
     }
 
@@ -38,10 +39,10 @@ public class CSVColumnValueMatcherTest {
     public void givenNoBytesEOS_expectFailedMatch() {
         CharBuffer buf = CharBuffer.wrap("");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
+        matcher.match(buf, result, true);
 
-        assertEquals(0, numCharsMatched);
-        assertEquals("", matchResultContainer.parsedValue.toString());
+        assertEquals(0, result.getNumCharactersConsumed());
+        assertEquals("", result.getParsedValue().toString());
         assertEquals(0, buf.position());
     }
 
@@ -49,10 +50,11 @@ public class CSVColumnValueMatcherTest {
     public void givenNameOnly_expectIncomplete() {
         CharBuffer buf = CharBuffer.wrap("asset type");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(Matcher.INCOMPLETE, numCharsMatched);
-        assertNull(matchResultContainer.parsedValue);
+        assertEquals(0, result.getNumCharactersConsumed());
+        assertTrue(result.wasIncompleteMatch());
+        assertNull(result.getParsedValue());
         assertEquals(0, buf.position());
     }
 
@@ -60,10 +62,10 @@ public class CSVColumnValueMatcherTest {
     public void givenNameFollowedByComma_expectMatchUptoComma() {
         CharBuffer buf = CharBuffer.wrap("asset type,");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(10, numCharsMatched);
-        assertEquals("asset type", matchResultContainer.parsedValue.toString());
+        assertEquals(10, result.getNumCharactersConsumed());
+        assertEquals("asset type", result.getParsedValue().toString());
         assertEquals(10, buf.position());
     }
 
@@ -71,10 +73,10 @@ public class CSVColumnValueMatcherTest {
     public void givenNameFollowedByWhitespaceAndComma_expectMatchUptoComma() {
         CharBuffer buf = CharBuffer.wrap("asset type   ,");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(13, numCharsMatched);
-        assertEquals( "asset type", matchResultContainer.parsedValue.toString() );
+        assertEquals(13, result.getNumCharactersConsumed());
+        assertEquals("asset type", result.getParsedValue().toString());
         assertEquals(13, buf.position());
     }
 
@@ -82,10 +84,10 @@ public class CSVColumnValueMatcherTest {
     public void givenNameFollowedByEOS_expectMatch() {
         CharBuffer buf = CharBuffer.wrap("asset type   ");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
+        matcher.match(buf, result, true);
 
-        assertEquals(13, numCharsMatched);
-        assertEquals( "asset type", matchResultContainer.parsedValue.toString() );
+        assertEquals(13, result.getNumCharactersConsumed());
+        assertEquals("asset type", result.getParsedValue().toString());
         assertEquals(13, buf.position());
     }
 
@@ -93,10 +95,10 @@ public class CSVColumnValueMatcherTest {
     public void givenNameFollowedByEOL_expectMatch() {
         CharBuffer buf = CharBuffer.wrap("asset type\n");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(10, numCharsMatched);
-        assertEquals( "asset type", matchResultContainer.parsedValue.toString() );
+        assertEquals(10, result.getNumCharactersConsumed());
+        assertEquals("asset type", result.getParsedValue().toString());
         assertEquals(10, buf.position());
     }
 
@@ -104,10 +106,10 @@ public class CSVColumnValueMatcherTest {
     public void givenNameFollowedBySpacesThenEOL_expectMatchWithEOLLeftBehind() {
         CharBuffer buf = CharBuffer.wrap("asset type   \n");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(13, numCharsMatched);
-        assertEquals( "asset type", matchResultContainer.parsedValue.toString() );
+        assertEquals(13, result.getNumCharactersConsumed());
+        assertEquals("asset type", result.getParsedValue().toString());
         assertEquals(13, buf.position());
     }
 
@@ -115,10 +117,10 @@ public class CSVColumnValueMatcherTest {
     public void givenNamePrefixedBySpacesThenEOL_expectMatchWithEOLLeftBehind() {
         CharBuffer buf = CharBuffer.wrap(" asset type   \n");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(14, numCharsMatched);
-        assertEquals( "asset type", matchResultContainer.parsedValue.toString() );
+        assertEquals(14, result.getNumCharactersConsumed());
+        assertEquals("asset type", result.getParsedValue().toString());
         assertEquals(14, buf.position());
     }
 
@@ -126,10 +128,10 @@ public class CSVColumnValueMatcherTest {
     public void givenNameFollowedBySpacesThenEOS_expectMatchWithEOLLeftBehind() {
         CharBuffer buf = CharBuffer.wrap("  asset type   \n");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
+        matcher.match(buf, result, true);
 
-        assertEquals(15, numCharsMatched);
-        assertEquals( "asset type", matchResultContainer.parsedValue.toString() );
+        assertEquals(15, result.getNumCharactersConsumed());
+        assertEquals("asset type", result.getParsedValue().toString());
         assertEquals(15, buf.position());
     }
 
@@ -137,10 +139,10 @@ public class CSVColumnValueMatcherTest {
     public void givenEOLByItself_expectBlankMatch() {
         CharBuffer buf = CharBuffer.wrap("\n");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(0, numCharsMatched);
-        assertEquals( "", matchResultContainer.parsedValue.toString() );
+        assertEquals(0, result.getNumCharactersConsumed());
+        assertEquals("", result.getParsedValue().toString());
         assertEquals(0, buf.position());
     }
 
@@ -148,10 +150,10 @@ public class CSVColumnValueMatcherTest {
     public void givenNameContainingCReturnFollowedByLineFeed_expectMatch() {
         CharBuffer buf = CharBuffer.wrap("asset type\r\n");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(10, numCharsMatched);
-        assertEquals( "asset type", matchResultContainer.parsedValue.toString() );
+        assertEquals(10, result.getNumCharactersConsumed());
+        assertEquals("asset type", result.getParsedValue().toString());
         assertEquals(10, buf.position());
     }
 
@@ -159,10 +161,10 @@ public class CSVColumnValueMatcherTest {
     public void givenTwoColumnsFollowedByEOL_expectMatch() {
         CharBuffer buf = CharBuffer.wrap("foo,bar");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(3, numCharsMatched);
-        assertEquals( "foo", matchResultContainer.parsedValue.toString() );
+        assertEquals(3, result.getNumCharactersConsumed());
+        assertEquals("foo", result.getParsedValue().toString());
         assertEquals(3, buf.position());
     }
 
@@ -170,10 +172,10 @@ public class CSVColumnValueMatcherTest {
     public void givenTwoColumnsFollowedByEOS_expectMatch() {
         CharBuffer buf = CharBuffer.wrap("foo,bar");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
+        matcher.match(buf, result, true);
 
-        assertEquals(3, numCharsMatched);
-        assertEquals( "foo", matchResultContainer.parsedValue.toString() );
+        assertEquals(3, result.getNumCharactersConsumed());
+        assertEquals("foo", result.getParsedValue().toString());
         assertEquals(3, buf.position());
     }
 
@@ -182,10 +184,10 @@ public class CSVColumnValueMatcherTest {
         CharBuffer buf = CharBuffer.wrap("foo,bar");
         buf.position(3);
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
+        matcher.match(buf, result, true);
 
-        assertEquals(0, numCharsMatched);
-        assertEquals( "", matchResultContainer.parsedValue.toString() );
+        assertEquals(0, result.getNumCharactersConsumed());
+        assertEquals("", result.getParsedValue().toString());
         assertEquals(3, buf.position());
     }
 
@@ -194,10 +196,10 @@ public class CSVColumnValueMatcherTest {
         CharBuffer buf = CharBuffer.wrap("foo,bar");
         buf.position(4);
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
+        matcher.match(buf, result, true);
 
-        assertEquals(3, numCharsMatched);
-        assertEquals( "bar", matchResultContainer.parsedValue.toString() );
+        assertEquals(3, result.getNumCharactersConsumed());
+        assertEquals("bar", result.getParsedValue().toString());
         assertEquals(7, buf.position());
     }
 
@@ -205,10 +207,10 @@ public class CSVColumnValueMatcherTest {
     public void givenQuotedColumnEOL_expectMatchWithQuotesRemoved() {
         CharBuffer buf = CharBuffer.wrap("\"abc\"");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
+        matcher.match(buf, result, true);
 
-        assertEquals(5, numCharsMatched);
-        assertEquals( "abc", matchResultContainer.parsedValue.toString() );
+        assertEquals(5, result.getNumCharactersConsumed());
+        assertEquals("abc", result.getParsedValue().toString());
         assertEquals(5, buf.position());
     }
 
@@ -216,10 +218,10 @@ public class CSVColumnValueMatcherTest {
     public void givenQuotedColumnEOLPrefixedWithWhitespace_expectMatchWithQuotesRemoved() {
         CharBuffer buf = CharBuffer.wrap("   \"abc\"");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
+        matcher.match(buf, result, true);
 
-        assertEquals(8, numCharsMatched);
-        assertEquals( "abc", matchResultContainer.parsedValue.toString() );
+        assertEquals(8, result.getNumCharactersConsumed());
+        assertEquals("abc", result.getParsedValue().toString());
         assertEquals(8, buf.position());
     }
 
@@ -227,10 +229,10 @@ public class CSVColumnValueMatcherTest {
     public void givenQuotedColumnWithSpacesAtEnd_expectMatchWithQuotesRemoved() {
         CharBuffer buf = CharBuffer.wrap("\"abc\"   ");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(5, numCharsMatched);
-        assertEquals( "abc", matchResultContainer.parsedValue.toString() );
+        assertEquals(5, result.getNumCharactersConsumed());
+        assertEquals("abc", result.getParsedValue().toString());
         assertEquals(5, buf.position());
     }
 
@@ -238,10 +240,10 @@ public class CSVColumnValueMatcherTest {
     public void givenColumnWithEscapedCommaEOL_expectSingleColumnMatch() {
         CharBuffer buf = CharBuffer.wrap("\"foo, bar\"");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(10, numCharsMatched);
-        assertEquals( "foo, bar", matchResultContainer.parsedValue.toString() );
+        assertEquals(10, result.getNumCharactersConsumed());
+        assertEquals("foo, bar", result.getParsedValue().toString());
         assertEquals(10, buf.position());
     }
 
@@ -249,10 +251,10 @@ public class CSVColumnValueMatcherTest {
     public void givenTwoEscapedColumns_matchFirstColumn() {
         CharBuffer buf = CharBuffer.wrap("\"foo\",\"bar\"");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(5, numCharsMatched);
-        assertEquals( "foo", matchResultContainer.parsedValue.toString() );
+        assertEquals(5, result.getNumCharactersConsumed());
+        assertEquals("foo", result.getParsedValue().toString());
         assertEquals(5, buf.position());
     }
 
@@ -261,10 +263,10 @@ public class CSVColumnValueMatcherTest {
         CharBuffer buf = CharBuffer.wrap("\"foo\",\"bar\"");
         buf.position(6);
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(5, numCharsMatched);
-        assertEquals( "bar", matchResultContainer.parsedValue.toString() );
+        assertEquals(5, result.getNumCharactersConsumed());
+        assertEquals("bar", result.getParsedValue().toString());
         assertEquals(11, buf.position());
     }
 
@@ -273,10 +275,10 @@ public class CSVColumnValueMatcherTest {
         CharBuffer buf = CharBuffer.wrap("\"foo\",\"bar\"");
         buf.position(6);
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
+        matcher.match(buf, result, true);
 
-        assertEquals(5, numCharsMatched);
-        assertEquals( "bar", matchResultContainer.parsedValue.toString() );
+        assertEquals(5, result.getNumCharactersConsumed());
+        assertEquals("bar", result.getParsedValue().toString());
         assertEquals(11, buf.position());
     }
 
@@ -284,10 +286,10 @@ public class CSVColumnValueMatcherTest {
     public void givenTwoEscapedColumnsWithWhitespace_matchFirstColumn() {
         CharBuffer buf = CharBuffer.wrap("  \" foo \" , \" bar \" ");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(9, numCharsMatched);
-        assertEquals( " foo ", matchResultContainer.parsedValue.toString() );
+        assertEquals(9, result.getNumCharactersConsumed());
+        assertEquals(" foo ", result.getParsedValue().toString());
         assertEquals(9, buf.position());
     }
 
@@ -296,10 +298,10 @@ public class CSVColumnValueMatcherTest {
         CharBuffer buf = CharBuffer.wrap("  \" foo \" , \" bar \" ");
         buf.position(11);
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(8, numCharsMatched);
-        assertEquals( " bar ", matchResultContainer.parsedValue.toString() );
+        assertEquals(8, result.getNumCharactersConsumed());
+        assertEquals(" bar ", result.getParsedValue().toString());
         assertEquals(19, buf.position());
     }
 
@@ -307,10 +309,10 @@ public class CSVColumnValueMatcherTest {
     public void givenColumnWithEscapedQuoteEOL_expectSingleColumnMatch() {
         CharBuffer buf = CharBuffer.wrap("\"foo\"\"bar\"");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(10, numCharsMatched);
-        assertEquals( "foo\"bar", matchResultContainer.parsedValue.toString() );
+        assertEquals(10, result.getNumCharactersConsumed());
+        assertEquals("foo\"bar", result.getParsedValue().toString());
         assertEquals(10, buf.position());
     }
 
@@ -318,52 +320,56 @@ public class CSVColumnValueMatcherTest {
     public void givenColumnWithQuoteMissingClosingQuoteAndEOS_expectFailedMatch() {
         CharBuffer buf = CharBuffer.wrap("\"foo, bar");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
+        matcher.match(buf, result, true);
 
-        assertEquals(Matcher.NO_MATCH, numCharsMatched);
-        assertNull( matchResultContainer.parsedValue );
+        assertEquals(0, result.getNumCharactersConsumed());
+        assertTrue(result.wasError());
+        assertNull( result.getParsedValue() );
         assertEquals(0, buf.position());
-        assertEquals( "expected csv column value to be closed by a quote", matchResultContainer.errorMessage );
-        assertEquals(0, matchResultContainer.matchIndexOnError);
+        assertEquals( "expected csv column value to be closed by a quote", result.getErrorMessage() );
+        assertEquals(0, result.getMatchIndexOnError());
     }
 
     @Test
     public void givenColumnValueStartingWithWhitespaceAndMissingClosingQuoteAndEOS_expectFailedMatch() {
         CharBuffer buf = CharBuffer.wrap("  \"foo, bar");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, true);
+        matcher.match(buf, result, true);
 
-        assertEquals(Matcher.NO_MATCH, numCharsMatched);
-        assertNull( matchResultContainer.parsedValue );
+        assertEquals(0, result.getNumCharactersConsumed());
+        assertTrue(result.wasError());
+        assertNull( result.getParsedValue() );
         assertEquals(0, buf.position());
-        assertEquals( "expected csv column value to be closed by a quote", matchResultContainer.errorMessage );
-        assertEquals(2, matchResultContainer.matchIndexOnError);
+        assertEquals( "expected csv column value to be closed by a quote", result.getErrorMessage() );
+        assertEquals(2, result.getMatchIndexOnError());
     }
 
     @Test
     public void givenColumnWithQuoteMissingClosingQuoteButNotEOS_expectIncompleteMatch() {
         CharBuffer buf = CharBuffer.wrap("\"foo, bar");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(Matcher.INCOMPLETE, numCharsMatched);
-        assertNull( matchResultContainer.parsedValue );
+        assertEquals(0, result.getNumCharactersConsumed());
+        assertTrue(result.wasIncompleteMatch());
+        assertNull( result.getParsedValue() );
         assertEquals(0, buf.position());
-        assertNull( matchResultContainer.errorMessage );
-        assertEquals(0, matchResultContainer.matchIndexOnError);
+        assertNull(result.getErrorMessage());
+        assertEquals(0, result.getMatchIndexOnError());
     }
 
     @Test
     public void givenColumnValueStartingWithWhitespaceAndMissingClosingQuoteButNotEOS_expectIncompleteMatch() {
         CharBuffer buf = CharBuffer.wrap("  \"foo, bar");
 
-        int numCharsMatched = matcher.match(buf, matchResultContainer, false);
+        matcher.match(buf, result, false);
 
-        assertEquals(Matcher.INCOMPLETE, numCharsMatched);
-        assertNull( matchResultContainer.parsedValue );
+        assertEquals(0, result.getNumCharactersConsumed());
+        assertTrue(result.wasIncompleteMatch());
+        assertNull( result.getParsedValue() );
         assertEquals(0, buf.position());
-        assertNull( matchResultContainer.errorMessage );
-        assertEquals(0, matchResultContainer.matchIndexOnError);
+        assertNull(result.getErrorMessage());
+        assertEquals(0, result.getMatchIndexOnError());
     }
 
 

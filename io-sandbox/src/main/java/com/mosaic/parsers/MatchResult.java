@@ -5,11 +5,19 @@ package com.mosaic.parsers;
  */
 public class MatchResult {
 
+    private static int STATUS_NO_MATCH         = 0;
+    private static int STATUS_INCOMPLETE_MATCH = 1;
+    private static int STATUS_MATCHED          = 2;
+    private static int STATUS_ERROR            = 3;
+
+
+    private int status;
+
     /**
      * The number of characters consumed by the Matcher.  No need to set this directly
      * as BasePushParser will set it for you (using the value returned from the Matcher).
      */
-    public int numCharactersConsumed;
+    private int numCharactersConsumed;
 
 
     /**
@@ -19,45 +27,78 @@ public class MatchResult {
      * some matchers will aggregate together multiple strings, as well as convert
      * them.  Thus lists, integers, dates, and data beans will not be uncommon.
      */
-    public Object parsedValue;
+    private Object parsedValue;
 
     /**
      * Extra information regarding the failed match.
      */
-    public String errorMessage;
+    private String errorMessage;
 
     /**
      * Offset from buf.position() for where the matcher had gotten up to when
      * the error was detected.
      */
-    public int matchIndexOnError;
+    private int matchIndexOnError;
 
 
-    public void reportError( int offset, String msg ) {
-        this.errorMessage      = msg;
-        this.matchIndexOnError = offset;
+    public MatchResult setHasErroredState(int charBufferPosition, String errorMessage) {
+        this.status            = STATUS_ERROR;
+        this.errorMessage      = errorMessage;
+        this.matchIndexOnError = charBufferPosition;
+
+        return this;
     }
+    
+    public MatchResult setIncompleteMatchState() {
+        this.status = STATUS_INCOMPLETE_MATCH;
+        
+        return this;
+    }
+
+    public MatchResult setHasMatchedState( int numCharsMatched, Object parsedValue ) {
+        this.status                = STATUS_MATCHED;
+        this.numCharactersConsumed = numCharsMatched;
+        this.parsedValue           = parsedValue;
+        
+        return this;
+    }
+
 
     public void clear() {
         parsedValue       = null;
         errorMessage      = null;
-        matchIndexOnError = 0;
     }
 
-
     public boolean wasSuccessfulMatch() {
-        return numCharactersConsumed >= 0;
+        return status == STATUS_MATCHED;
     }
 
     public boolean wasNoMatch() {
-        return numCharactersConsumed == Matcher.NO_MATCH;
+        return status == STATUS_NO_MATCH;
     }
 
-    public boolean wasPartialMatch() {
-        return numCharactersConsumed == Matcher.INCOMPLETE;
+    public boolean wasIncompleteMatch() {
+        return status == STATUS_INCOMPLETE_MATCH;
     }
 
     public boolean wasError() {
-        return errorMessage != null;
+        return status == STATUS_ERROR;
+    }
+
+
+    public int getMatchIndexOnError() {
+        return matchIndexOnError;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public Object getParsedValue() {
+        return parsedValue;
+    }
+
+    public int getNumCharactersConsumed() {
+        return numCharactersConsumed;
     }
 }

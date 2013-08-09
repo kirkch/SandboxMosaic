@@ -1,11 +1,9 @@
 package com.mosaic.parsers;
 
-import com.mosaic.io.IOUtils;
 import com.mosaic.parsers.matchers.NullMatcher;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.Stack;
 
@@ -62,14 +60,14 @@ public abstract class BasePushParser implements PushParser {
         ParseFrame  currentFrame   = stack.peek();                  // if no frame, let error occur
         Matcher     currentMatcher = currentFrame.currentMatcher;
 
-        int numCharactersConsumed = currentMatcher.match( buf, result, hasReachedEndOfFile );
-        result.numCharactersConsumed = numCharactersConsumed;
+//        int numCharactersConsumed = currentMatcher.match( buf, result, hasReachedEndOfFile );
+//        result.numCharactersConsumed = numCharactersConsumed;
 
         if ( result.wasSuccessfulMatch() ) {
 
         } else if ( result.wasNoMatch() ) {
 
-        } else if ( result.wasPartialMatch() ) {
+        } else if ( result.wasIncompleteMatch() ) {
 
         } else {
             assert result.wasError();

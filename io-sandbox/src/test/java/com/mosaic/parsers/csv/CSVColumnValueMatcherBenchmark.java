@@ -30,18 +30,25 @@ public class CSVColumnValueMatcherBenchmark {
 1067.24ns
 1060.62ns
 1085.38ns
+
+1449.67ns
+1105.68ns
+1151.19ns
+1147.22ns
+1085.67ns
+1091.28ns
  */
 
     @Benchmark( durationResultMultiplier=0.25 )
     public void benchmark() {
         buf.position(0);
 
-        while ( doMatch() >= 0 ) {
+        while ( doMatch().wasSuccessfulMatch() ) {
             buf.position(buf.position()+1);
         }
     }
 
-    private int doMatch() {
+    private MatchResult doMatch() {
         return matcher.match(buf, matchResult, false);
     }
 

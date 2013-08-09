@@ -15,8 +15,8 @@ public class NullMatcher implements Matcher {
     private NullMatcher() {}
 
 
-    public int match(CharBuffer buf, MatchResult result, boolean isEOS) {
-        return 0;
+    public MatchResult match(CharBuffer buf, MatchResult result, boolean isEOS) {
+        return result;
     }
 
     public Matcher withName(String name) {
