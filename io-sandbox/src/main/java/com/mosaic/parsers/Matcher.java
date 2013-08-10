@@ -21,6 +21,9 @@ public interface Matcher {
     public MatchResult match( CharBuffer buf, boolean isEOS );
 
 
+    public MatchResult match( String str, boolean isEOS );
+
+
     /**
      * Name of the value that this matcher matches.  Named matchers provide
      * better error and debug reports.  If a matcher is named then it is also

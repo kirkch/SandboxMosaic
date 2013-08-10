@@ -72,7 +72,7 @@ public abstract class BasePushParser implements PushParser {
 
         }
 
-        return 0;
+        return result.getNumCharactersConsumed();
     }
 
 

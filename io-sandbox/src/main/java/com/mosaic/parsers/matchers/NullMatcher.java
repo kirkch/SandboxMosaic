@@ -21,6 +21,11 @@ public class NullMatcher implements Matcher {
         return NULL_MATCH;
     }
 
+    @Override
+    public MatchResult match(String str, boolean isEOS) {
+        return null;
+    }
+
     public Matcher withName(String name) {
         throw new UnsupportedOperationException("immutable");
     }

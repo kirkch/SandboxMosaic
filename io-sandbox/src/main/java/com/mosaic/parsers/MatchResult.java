@@ -1,5 +1,7 @@
 package com.mosaic.parsers;
 
+import com.mosaic.lang.function.Function1;
+
 /**
  *
  */
@@ -10,11 +12,25 @@ public class MatchResult {
     }
 
     public static MatchResult incompleteMatch() {
-        return new MatchResult();
+        return new MatchResult(STATUS_INCOMPLETE_MATCH);
+    }
+
+    public static MatchResult noMatch() {
+        return new MatchResult(STATUS_NO_MATCH);
     }
 
     public static MatchResult matched(int numCharsMatched, Object parsedValue) {
         return new MatchResult(numCharsMatched,parsedValue);
+    }
+
+    /**
+     * Instructs the Push Parser that this matcher wants to hand off control to
+     * a child matcher.  Once the child is complete the specified continuation
+     * (aka callback) will be invoked which gives the original matcher a chance
+     * to get the results and continue.
+     */
+    public static MatchResult submatcher( Matcher child, Function1<MatchResult,MatchResult> continuation ) {
+        return new MatchResult(child,continuation);
     }
 
 
@@ -23,6 +39,7 @@ public class MatchResult {
     private static int STATUS_INCOMPLETE_MATCH = 1;
     private static int STATUS_MATCHED          = 2;
     private static int STATUS_ERROR            = 3;
+    private static int STATUS_SUBMATCHER       = 4;
 
 
     private int status;
@@ -55,6 +72,9 @@ public class MatchResult {
     private int matchIndexOnError;
 
 
+    private Matcher child;
+    private Function1<MatchResult, MatchResult> continuation;
+
 
 
 
@@ -65,8 +85,8 @@ public class MatchResult {
     }
     
 
-    private MatchResult() {
-        this.status = STATUS_INCOMPLETE_MATCH;
+    private MatchResult( int status ) {
+        this.status = status;
     }
 
     private MatchResult(int numCharsMatched, Object parsedValue) {
@@ -75,6 +95,11 @@ public class MatchResult {
         this.parsedValue           = parsedValue;
     }
 
+    private MatchResult( Matcher child, Function1<MatchResult,MatchResult> continuation ) {
+        this.status       = STATUS_SUBMATCHER;
+        this.child        = child;
+        this.continuation = continuation;
+    }
 
 
     public boolean isSuccessfulMatch() {
@@ -108,6 +133,14 @@ public class MatchResult {
 
     public int getNumCharactersConsumed() {
         return numCharactersConsumed;
+    }
+
+    public Matcher getChild() {
+        return child;
+    }
+
+    public Function1<MatchResult, MatchResult> getContinuation() {
+        return continuation;
     }
 
 }

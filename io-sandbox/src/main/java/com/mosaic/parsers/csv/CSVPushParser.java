@@ -16,7 +16,7 @@ public class CSVPushParser extends BasePushParser {
     // columnSeparator = constant(",")
     // comment         = new CommentMatcher("#")
 
-    // csvRow          = list(csvColumn, columnSeparator).withCallback("rowReceived")
+    // csvRow          = listWithSeparator(csvColumn, columnSeparator).withCallback("rowReceived")
 
 
     // skip = or(whitespace, comment)
