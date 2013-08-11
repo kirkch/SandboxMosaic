@@ -61,7 +61,7 @@ public abstract class BasePushParser implements PushParser {
         MatchResult result = currentMatcher.match( buf, hasReachedEndOfFile );
 //        result.numCharactersConsumed = numCharactersConsumed;
 
-        if ( result.isSuccessfulMatch() ) {
+        if ( result.isMatch() ) {
 
         } else if ( result.isNoMatch() ) {
 

@@ -51,7 +51,7 @@ public class ConstantMatcherTest {
 
         MatchResult result = matcher.match("const", false);
 
-        assertTrue( result.isSuccessfulMatch() );
+        assertTrue( result.isMatch() );
         assertEquals("const", result.getParsedValue());
     }
 
@@ -61,8 +61,8 @@ public class ConstantMatcherTest {
 
         MatchResult result = matcher.match("const", true);
 
-        assertTrue( result.isSuccessfulMatch() );
-        assertEquals( "const", result.getParsedValue());
+        assertTrue( result.isMatch() );
+        assertEquals("const", result.getParsedValue());
     }
 
     @Test
@@ -73,7 +73,7 @@ public class ConstantMatcherTest {
 
         matcher.match(buf, false);
 
-        assertEquals( 5, buf.position() );
+        assertEquals(5, buf.position());
     }
 
     @Test
@@ -84,7 +84,7 @@ public class ConstantMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertTrue( result.isSuccessfulMatch() );
+        assertTrue( result.isMatch() );
         assertEquals( "const", result.getParsedValue());
         assertEquals( 5, buf.position() );
     }
@@ -97,7 +97,7 @@ public class ConstantMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertTrue( result.isSuccessfulMatch() );
+        assertTrue( result.isMatch() );
         assertEquals( "abc", result.getParsedValue());
         assertEquals( 3, buf.position() );
     }
@@ -136,7 +136,7 @@ public class ConstantMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertTrue(result.isSuccessfulMatch());
+        assertTrue(result.isMatch());
         assertEquals("bc", result.getParsedValue());
         assertEquals( 3, buf.position() );
     }
@@ -149,7 +149,7 @@ public class ConstantMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertTrue(result.isSuccessfulMatch());
+        assertTrue(result.isMatch());
         assertEquals("=", result.getParsedValue());
         assertEquals( 12, buf.position() );
     }
@@ -164,7 +164,7 @@ public class ConstantMatcherTest {
 
         assertTrue(result.isNoMatch());
         assertEquals(null, result.getParsedValue());
-        assertEquals( 0, buf.position() );
+        assertEquals(0, buf.position());
     }
 
 }

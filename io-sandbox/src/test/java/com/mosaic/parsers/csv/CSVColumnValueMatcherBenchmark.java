@@ -42,7 +42,7 @@ public class CSVColumnValueMatcherBenchmark {
     public void benchmark() {
         buf.position(0);
 
-        while ( doMatch().isSuccessfulMatch() ) {
+        while ( doMatch().isMatch() ) {
             buf.position(buf.position() + 1);
         }
     }

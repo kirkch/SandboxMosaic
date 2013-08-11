@@ -29,7 +29,7 @@ public class WhitespaceMatcherTest {
     public void giveEmptyStringEOS_expectMatchedZeroCharacters() {
         MatchResult result = spaceMatcher.match("", true);
 
-        assertTrue( result.isSuccessfulMatch() );
+        assertTrue( result.isMatch() );
         assertNull( result.getParsedValue() );
         assertEquals( 0, result.getNumCharactersConsumed() );
     }
@@ -47,7 +47,7 @@ public class WhitespaceMatcherTest {
     public void givenBlankStringEOS_expectMatchZeroCharacters() {
         MatchResult result = spaceMatcher.match("  \t ", true);
 
-        assertTrue( result.isSuccessfulMatch() );
+        assertTrue( result.isMatch() );
         assertNull( result.getParsedValue() );
         assertEquals( 4, result.getNumCharactersConsumed() );
     }
@@ -56,7 +56,7 @@ public class WhitespaceMatcherTest {
     public void givenNoneBlankString_expectZeroCharactersMatched() {
         MatchResult result = spaceMatcher.match("Hello", true);
 
-        assertTrue( result.isSuccessfulMatch() );
+        assertTrue( result.isMatch() );
         assertNull( result.getParsedValue() );
         assertEquals( 0, result.getNumCharactersConsumed() );
     }
@@ -65,7 +65,7 @@ public class WhitespaceMatcherTest {
     public void givenWordBlankWord_matchFromBeginning_expectZeroCharactersMatched() {
         MatchResult result = spaceMatcher.match("Hello  \t  World", true);
 
-        assertTrue( result.isSuccessfulMatch() );
+        assertTrue( result.isMatch() );
         assertNull( result.getParsedValue() );
         assertEquals( 0, result.getNumCharactersConsumed() );
     }
@@ -77,9 +77,9 @@ public class WhitespaceMatcherTest {
 
         MatchResult result = spaceMatcher.match(buf, true);
 
-        assertTrue( result.isSuccessfulMatch() );
-        assertNull( result.getParsedValue() );
-        assertEquals(  3, result.getNumCharactersConsumed() );
+        assertTrue( result.isMatch() );
+        assertNull(result.getParsedValue());
+        assertEquals(3, result.getNumCharactersConsumed());
         assertEquals( 10, buf.position() );
     }
 
@@ -91,8 +91,8 @@ public class WhitespaceMatcherTest {
         MatchResult result = spaceMatcher.match(buf, false);
 
         assertTrue( result.isIncompleteMatch() );
-        assertNull( result.getParsedValue() );
-        assertEquals(  0, result.getNumCharactersConsumed() );
+        assertNull(result.getParsedValue());
+        assertEquals(0, result.getNumCharactersConsumed());
         assertEquals( 15, buf.position() );
     }
 
@@ -103,9 +103,9 @@ public class WhitespaceMatcherTest {
 
         MatchResult result = spaceMatcher.match(buf, true);
 
-        assertTrue( result.isSuccessfulMatch() );
-        assertNull( result.getParsedValue() );
-        assertEquals(  0, result.getNumCharactersConsumed() );
+        assertTrue( result.isMatch() );
+        assertNull(result.getParsedValue());
+        assertEquals(0, result.getNumCharactersConsumed());
         assertEquals( 15, buf.position() );
     }
 

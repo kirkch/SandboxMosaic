@@ -102,7 +102,7 @@ public class MatchResult {
     }
 
 
-    public boolean isSuccessfulMatch() {
+    public boolean isMatch() {
         return status == STATUS_MATCHED;
     }
 
@@ -116,6 +116,10 @@ public class MatchResult {
 
     public boolean isError() {
         return status == STATUS_ERROR;
+    }
+
+    public boolean isSubmatcher() {
+        return status == STATUS_SUBMATCHER;
     }
 
 
@@ -135,7 +139,7 @@ public class MatchResult {
         return numCharactersConsumed;
     }
 
-    public Matcher getChild() {
+    public Matcher getNextMatcher() {
         return child;
     }
 

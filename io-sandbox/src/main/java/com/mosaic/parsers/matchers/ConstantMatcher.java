@@ -48,6 +48,12 @@ public class ConstantMatcher {
                 return MatchResult.noMatch();
             }
         }
+
+        public String toString() {
+            String name = super.getName();
+
+            return name == null ? Character.toString(targetChar) : name;
+        }
     }
 
     private static class MultiCharacterMatcher extends BaseMatcher {
@@ -77,6 +83,12 @@ public class ConstantMatcher {
 
                 return successfulMatch;
             }
+        }
+
+        public String toString() {
+            String name = super.getName();
+
+            return name == null ? successfulMatch.getParsedValue().toString() : name;
         }
 
     }
