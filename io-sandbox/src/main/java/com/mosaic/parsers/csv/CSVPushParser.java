@@ -1,46 +1,71 @@
 package com.mosaic.parsers.csv;
 
 import com.mosaic.parsers.BasePushParser;
+import com.mosaic.parsers.Matcher;
+import com.mosaic.parsers.matchers.WhitespaceMatcher;
 
 import java.nio.CharBuffer;
+import java.util.List;
+
+import static com.mosaic.parsers.matchers.ConsumeUpToMatcher.consumeUpToNewLineMatcher;
+import static com.mosaic.parsers.matchers.SeparatedListMatcher.commaSeparatedValues;
 
 
 /**
  *
  */
 public class CSVPushParser extends BasePushParser {
-    private CSVParserCallback delegate;
+    private CSVParserCallback csvParserCallback;
 
 
-    // csvColumn       = new CSVColumnValueMatcher(',').withName("csvColumn")
-    // columnSeparator = constant(",")
+    private Matcher csvColumn = new CSVColumnValueMatcher(',').withName("csvColumn");
+    private Matcher csvRow    = commaSeparatedValues(csvColumn).withCallback("rowReceived");
+
+    private int rowCount;
+
     // comment         = new CommentMatcher("#")
-
-    // csvRow          = listWithSeparator(csvColumn, columnSeparator).withCallback("rowReceived")
-
 
     // skip = or(whitespace, comment)
 
 
-    public CSVPushParser( CSVParserCallback delegate ) {
-        super( null );
+    public CSVPushParser( CSVParserCallback csvParserCallback ) {
+        setInitialMatcher( csvRow );
+        setSkipMatcher( WhitespaceMatcher.tabOrSpaceMatcher() );
+        setErrorRecoverMatcher( consumeUpToNewLineMatcher() );
 
-        this.delegate = delegate;
+        this.csvParserCallback = csvParserCallback;
     }
 
 
-    public void pushStartOfFile() {
-        delegate.start();
+
+//    public long push( CharBuffer buf, boolean isEOS ) {
+//        return 0;
+//    }
+
+
+    @Override
+    protected void parserStartedEvent() {
+        super.parserStartedEvent();
+
+        csvParserCallback.start();
     }
 
-    public void pushEndOfFile() {
-        delegate.end();
+    @Override
+    protected void parserFinishedEvent() {
+        super.parserFinishedEvent();
+
+        csvParserCallback.end();
     }
 
-    public long push( CharBuffer buf ) {
-        return 0;
+    @SuppressWarnings("UnusedDeclaration") // callback method; uses reflection
+    private void rowReceived( List<String> row ) {
+        rowCount++;
+
+        if ( rowCount == 1 ) {
+            csvParserCallback.headers(rowCount, row);
+        } else {
+            csvParserCallback.row(rowCount, row);
+        }
     }
-
-
 
 }

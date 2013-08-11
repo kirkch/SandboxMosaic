@@ -29,17 +29,17 @@ public class MatchResult {
      * (aka callback) will be invoked which gives the original matcher a chance
      * to get the results and continue.
      */
-    public static MatchResult submatcher( Matcher child, Function1<MatchResult,MatchResult> continuation ) {
+    public static MatchResult continuation(Matcher child, Function1<MatchResult, MatchResult> continuation) {
         return new MatchResult(child,continuation);
     }
 
 
 
-    private static int STATUS_NO_MATCH         = 0;
-    private static int STATUS_INCOMPLETE_MATCH = 1;
-    private static int STATUS_MATCHED          = 2;
-    private static int STATUS_ERROR            = 3;
-    private static int STATUS_SUBMATCHER       = 4;
+    private static final int STATUS_NO_MATCH         = 0;
+    private static final int STATUS_INCOMPLETE_MATCH = 1;
+    private static final int STATUS_MATCHED          = 2;
+    private static final int STATUS_ERROR            = 3;
+    private static final int STATUS_CONTINUATION = 4;
 
 
     private int status;
@@ -96,7 +96,7 @@ public class MatchResult {
     }
 
     private MatchResult( Matcher child, Function1<MatchResult,MatchResult> continuation ) {
-        this.status       = STATUS_SUBMATCHER;
+        this.status       = STATUS_CONTINUATION;
         this.child        = child;
         this.continuation = continuation;
     }
@@ -118,8 +118,8 @@ public class MatchResult {
         return status == STATUS_ERROR;
     }
 
-    public boolean isSubmatcher() {
-        return status == STATUS_SUBMATCHER;
+    public boolean isContinuation() {
+        return status == STATUS_CONTINUATION;
     }
 
 
@@ -145,6 +145,24 @@ public class MatchResult {
 
     public Function1<MatchResult, MatchResult> getContinuation() {
         return continuation;
+    }
+
+
+    public String toString() {
+        switch (status) {
+            case STATUS_NO_MATCH:
+                return "noMatch";
+            case STATUS_INCOMPLETE_MATCH:
+                return "incompleteMatch";
+            case STATUS_MATCHED:
+                return "match("+numCharactersConsumed+","+parsedValue+")";
+            case STATUS_ERROR :
+                return "error("+matchIndexOnError+","+errorMessage+")";
+            case STATUS_CONTINUATION:
+                return "continuation("+child+","+continuation+")";
+            default:
+                throw new UnsupportedOperationException("unknown status code: " + status);
+        }
     }
 
 }

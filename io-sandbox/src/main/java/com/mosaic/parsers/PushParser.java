@@ -13,14 +13,9 @@ import java.nio.CharBuffer;
 public interface PushParser {
 
     /**
-     * Notifies the parser that a new file is about to start. Start Of File.
+     * Reset to the parsers initial state ready to begin parsing a new file.
      */
-    public void pushStartOfFile();
-
-    /**
-     * Notifies the parser that the file has come to an end. End Of File.
-     */
-    public void pushEndOfFile();
+    public void reset();
 
     /**
      * Reads the characters from the buffer. The data that has been parsed
@@ -28,7 +23,7 @@ public interface PushParser {
      *
      * @return number of characters consumed from the buffer
      */
-    public long push( CharBuffer buf );
+    public long push( CharBuffer buf, boolean isEOS );
 
     /**
      * Reads in as many characters from reader as it can match. Returns how
@@ -43,6 +38,6 @@ public interface PushParser {
      *
      * @return number of characters consumed
      */
-    public long push( String in );
+    public long push( String in, boolean isEOS );
 
 }

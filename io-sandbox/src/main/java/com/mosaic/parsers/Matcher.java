@@ -1,9 +1,12 @@
 package com.mosaic.parsers;
 
+import java.lang.reflect.Method;
 import java.nio.CharBuffer;
 
 /**
  * Matches characters supplied in a ByteBuffer.
+ *
+ * Matcher's are stateful, and thus should not be shared.
  */
 public interface Matcher {
 
@@ -42,6 +45,16 @@ public interface Matcher {
 
     public String getName();
 
-    public String getCallback();
+    public String getCallbackMethodName();
+
+
+    /**
+     * Given the target instance for the callback, return the Method on the
+     * targetInstance that should be invoked.
+     *
+     * This method is a little dirty being here; however it makes caching the
+     * result simple.  A good performance benefit.
+     */
+    public Method resolveCallbackMethod( Object targetInstance );
 
 }

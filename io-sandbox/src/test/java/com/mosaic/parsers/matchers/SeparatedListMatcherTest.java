@@ -26,7 +26,7 @@ public class SeparatedListMatcherTest {
 
         MatchResult result = matcher.match(input, false);
 
-        assertTrue( result.isSubmatcher() );
+        assertTrue( result.isContinuation() );
         assertSame(result.getNextMatcher(), valueMatcher);
         assertNotNull(result.getContinuation());
         assertEquals( 0, input.position() );
@@ -36,7 +36,7 @@ public class SeparatedListMatcherTest {
     public void givenEmptyStringContinuation_invokeWithInprogress_expectInprogress() {
         CharBuffer input = CharBuffer.wrap("");
 
-        MatchResult result = matcher.match(input, false).getContinuation().invoke( MatchResult.incompleteMatch() );
+        MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.incompleteMatch());
 
 
         assertTrue( result.isIncompleteMatch() );
@@ -49,7 +49,7 @@ public class SeparatedListMatcherTest {
     public void givenEmptyStringContinuation_invokeWithError_expectError() {
         CharBuffer input = CharBuffer.wrap("");
 
-        MatchResult result = matcher.match(input, false).getContinuation().invoke( MatchResult.errored(0,"foobar") );
+        MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.errored(0, "foobar"));
 
 
         assertTrue( result.isError() );
@@ -63,7 +63,7 @@ public class SeparatedListMatcherTest {
     public void givenFirstValueContinuation_invokeWithNoMatch_expectEmptyListResult() {
         CharBuffer input = CharBuffer.wrap("hello world");
 
-        MatchResult result = matcher.match(input, false).getContinuation().invoke( MatchResult.noMatch() );
+        MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.noMatch());
 
 
         assertTrue( result.isMatch() );
@@ -78,10 +78,10 @@ public class SeparatedListMatcherTest {
     public void givenFirstValueContinuation_invokeWithSuccess_expectContinuationWithSeparatorMatcher() {
         CharBuffer input = CharBuffer.wrap("hello world");
 
-        MatchResult result = matcher.match(input, false).getContinuation().invoke( MatchResult.matched(2,"foobar") );
+        MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.matched(2, "foobar"));
 
 
-        assertTrue( result.isSubmatcher() );
+        assertTrue( result.isContinuation() );
         assertSame(separatorMatcher, result.getNextMatcher());
         assertNotNull(result.getContinuation());
         assertNull(result.getErrorMessage());
@@ -93,7 +93,7 @@ public class SeparatedListMatcherTest {
     public void givenFirstSeparatorContinuation_invokeWithNoMatch_expectSingleValueListMatch() {
         CharBuffer input = CharBuffer.wrap("a,b,c");
 
-        MatchResult result = matcher.match(input, false).getContinuation().invoke( MatchResult.matched(1,"a") )
+        MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.matched(1, "a"))
                 .getContinuation().invoke( MatchResult.noMatch() );
 
 
@@ -110,7 +110,7 @@ public class SeparatedListMatcherTest {
     public void givenFirstSeparatorContinuation_invokeWithIncompleteMatch_expectIncompleteMatch() {
         CharBuffer input = CharBuffer.wrap("a,b,c");
 
-        MatchResult result = matcher.match(input, false).getContinuation().invoke( MatchResult.matched(2,"a") )
+        MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.matched(2, "a"))
                 .getContinuation().invoke( MatchResult.incompleteMatch() );
 
 
@@ -127,8 +127,8 @@ public class SeparatedListMatcherTest {
     public void givenFirstSeparatorContinuation_invokeWithError_expectError() {
         CharBuffer input = CharBuffer.wrap("a,b,c");
 
-        MatchResult result = matcher.match(input, false).getContinuation().invoke( MatchResult.matched(2,"a") )
-                .getContinuation().invoke( MatchResult.errored(1,"splat") );
+        MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.matched(2, "a"))
+                .getContinuation().invoke( MatchResult.errored(1, "splat") );
 
 
         assertTrue( result.isError() );
@@ -144,11 +144,11 @@ public class SeparatedListMatcherTest {
     public void givenFirstSeparatorContinuation_invokeWithMatch_expectContinuation() {
         CharBuffer input = CharBuffer.wrap("a,b,c");
 
-        MatchResult result = matcher.match(input, false).getContinuation().invoke( MatchResult.matched(2,"a") )
-                .getContinuation().invoke( MatchResult.matched(1,",") );
+        MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.matched(2, "a"))
+                .getContinuation().invoke( MatchResult.matched(1, ",") );
 
 
-        assertTrue( result.isSubmatcher() );
+        assertTrue( result.isContinuation() );
         assertNull(result.getParsedValue());
         assertSame(valueMatcher, result.getNextMatcher());
         assertNotNull(result.getContinuation());
@@ -161,7 +161,7 @@ public class SeparatedListMatcherTest {
     public void givenSecondValueContinuation_invokeWithNoMatch_expectError() {
         CharBuffer input = CharBuffer.wrap("a,b,c");
 
-        MatchResult result = matcher.match(input, false).getContinuation().invoke( MatchResult.matched(2,"a") )
+        MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.matched(2, "a"))
                 .getContinuation().invoke( MatchResult.matched(1,",") )
                 .getContinuation().invoke( MatchResult.noMatch() );
 
@@ -179,7 +179,7 @@ public class SeparatedListMatcherTest {
     public void givenSecondValueContinuation_invokeWithIncompleteMatch_expectIncompleteMatch() {
         CharBuffer input = CharBuffer.wrap("a,b,c");
 
-        MatchResult result = matcher.match(input, false).getContinuation().invoke( MatchResult.matched(2,"a") )
+        MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.matched(2, "a"))
                 .getContinuation().invoke( MatchResult.matched(1,",") )
                 .getContinuation().invoke( MatchResult.incompleteMatch() );
 
@@ -197,9 +197,9 @@ public class SeparatedListMatcherTest {
     public void givenSecondValueContinuation_invokeWithError_expectError() {
         CharBuffer input = CharBuffer.wrap("a,b,c");
 
-        MatchResult result = matcher.match(input, false).getContinuation().invoke( MatchResult.matched(2,"a") )
+        MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.matched(2, "a"))
                 .getContinuation().invoke( MatchResult.matched(1,",") )
-                .getContinuation().invoke( MatchResult.errored(2,"splat") );
+                .getContinuation().invoke( MatchResult.errored(2, "splat") );
 
 
         assertTrue( result.isError() );
@@ -215,12 +215,12 @@ public class SeparatedListMatcherTest {
     public void givenSecondValueContinuation_invokeWithMatch_expectContinuation() {
         CharBuffer input = CharBuffer.wrap("a,b,c");
 
-        MatchResult result = matcher.match(input, false).getContinuation().invoke( MatchResult.matched(2,"a") )
+        MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.matched(2, "a"))
                 .getContinuation().invoke( MatchResult.matched(1,",") )
-                .getContinuation().invoke( MatchResult.matched(1,"b") );
+                .getContinuation().invoke( MatchResult.matched(1, "b") );
 
 
-        assertTrue( result.isSubmatcher() );
+        assertTrue( result.isContinuation() );
         assertNull(result.getParsedValue());
         assertSame(separatorMatcher, result.getNextMatcher());
         assertNotNull(result.getContinuation());
@@ -233,14 +233,14 @@ public class SeparatedListMatcherTest {
     public void givenTwoSeparatorContinuation_invokeWithNoMatch_expectTwoValueListMatch() {
         CharBuffer input = CharBuffer.wrap("a,b,c");
 
-        MatchResult result = matcher.match(input, false).getContinuation().invoke( MatchResult.matched(2,"a") )
+        MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.matched(2, "a"))
                 .getContinuation().invoke( MatchResult.matched(1,",") )
                 .getContinuation().invoke( MatchResult.matched(1,"b") )
                 .getContinuation().invoke( MatchResult.noMatch() );
 
 
         assertTrue( result.isMatch() );
-        assertEquals(Arrays.asList("a","b"), result.getParsedValue());
+        assertEquals(Arrays.asList("a", "b"), result.getParsedValue());
         assertNull(result.getNextMatcher());
         assertNull(result.getContinuation());
         assertNull(result.getErrorMessage());
@@ -252,7 +252,7 @@ public class SeparatedListMatcherTest {
     public void givenTwoSeparatorContinuation_invokeWithIncompleteMatch_expectIncompleteMatch() {
         CharBuffer input = CharBuffer.wrap("a,b,c");
 
-        MatchResult result = matcher.match(input, false).getContinuation().invoke( MatchResult.matched(2,"a") )
+        MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.matched(2, "a"))
                 .getContinuation().invoke( MatchResult.matched(1,",") )
                 .getContinuation().invoke( MatchResult.matched(1,"b") )
                 .getContinuation().invoke( MatchResult.incompleteMatch() );
@@ -271,17 +271,17 @@ public class SeparatedListMatcherTest {
     public void givenTwoSeparatorContinuation_invokeWithError_expectError() {
         CharBuffer input = CharBuffer.wrap("a,b,c");
 
-        MatchResult result = matcher.match(input, false).getContinuation().invoke( MatchResult.matched(2,"a") )
+        MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.matched(2, "a"))
                 .getContinuation().invoke( MatchResult.matched(1,",") )
                 .getContinuation().invoke( MatchResult.matched(1,"b") )
-                .getContinuation().invoke( MatchResult.errored(0,"splat") );
+                .getContinuation().invoke( MatchResult.errored(0, "splat") );
 
 
         assertTrue( result.isError() );
         assertNull(result.getParsedValue());
         assertNull(result.getNextMatcher());
         assertNull(result.getContinuation());
-        assertEquals("splat",result.getErrorMessage());
+        assertEquals("splat", result.getErrorMessage());
         assertEquals(0, result.getMatchIndexOnError());
         assertEquals(0, result.getNumCharactersConsumed());
     }
@@ -290,13 +290,13 @@ public class SeparatedListMatcherTest {
     public void givenTwoSeparatorContinuation_invokeWithMatch_expectContinuation() {
         CharBuffer input = CharBuffer.wrap("a,b,c");
 
-        MatchResult result = matcher.match(input, false).getContinuation().invoke( MatchResult.matched(2,"a") )
+        MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.matched(2, "a"))
                 .getContinuation().invoke( MatchResult.matched(1,",") )
                 .getContinuation().invoke( MatchResult.matched(1,"b") )
-                .getContinuation().invoke( MatchResult.matched(1,",") );
+                .getContinuation().invoke( MatchResult.matched(1, ",") );
 
 
-        assertTrue( result.isSubmatcher() );
+        assertTrue( result.isContinuation() );
         assertNull(result.getParsedValue());
         assertSame(valueMatcher, result.getNextMatcher());
         assertNotNull(result.getContinuation());

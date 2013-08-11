@@ -19,34 +19,52 @@ public class CSVPushParserTests {
 
 
     @Test
-    public void pushSOF_expectOpenCloseCallsOnCallback() {
-        parser.pushStartOfFile();
+    public void givenNoEvents_expectAuditToBeEmpty() {
+        assertEquals( Arrays.asList(), delegate.audit );
+    }
+
+    @Test
+    public void pushOneSingleLetterValue_expectStartEventOnly() {
+        parser.push( "a", false );
 
         assertEquals( Arrays.asList("start"), delegate.audit );
     }
 
     @Test
-    public void pushSOFEOF_expectOpenCloseCallsOnCallback() {
-        parser.pushStartOfFile();
-        parser.pushEndOfFile();
+    public void pushOneSingleLetterValueEOF_expectSingleHeaderSingleColumn() {
+        parser.push( "a", true );
 
-        assertEquals( Arrays.asList("start", "end"), delegate.audit );
+        assertEquals( Arrays.asList("start","headers(1,[a])", "end"), delegate.audit );
     }
 
     @Test
-    public void pushOneSingleLetterValue_expectNoResponse() {
-        parser.push( "a" );
+    public void pushTwoColumnsEOF_expectTwoHeadersColumn() {
+        long numCharactersConsumed = parser.push( "a,b", true );
 
-        assertEquals( 0, delegate.audit.size() );
+        assertEquals( Arrays.asList("start","headers(1,[a, b])", "end"), delegate.audit );
+        assertEquals( 3, numCharactersConsumed );
     }
 
-//    @Test TODO
-    public void pushOneSingleLetterValueEOF_expectSingleHeaderSingleColumn() {
-        parser.push( "a" );
-        parser.pushEndOfFile();
+    @Test
+    public void pushTwoColumnsEOFWithWhiteSpace_expectTwoHeadersColumnAndNoWhitespace() {
+        long numCharactersConsumed = parser.push( "  \t  a  \t  ,  \t  b  \t  ", true );
 
-        assertEquals( Arrays.asList("headers(1,[a])", "end"), delegate.audit );
+        assertEquals( Arrays.asList("start","headers(1,[a, b])", "end"), delegate.audit );
+        assertEquals( 23, numCharactersConsumed );
     }
+
+    @Test
+    public void pushTwoColumnsEOFWithWhiteSpaceOverTwoCalls_expectTwoHeadersColumnAndNoWhitespace() {
+        long numCharactersConsumed1 = parser.push( "a  ", false );
+        long numCharactersConsumed2 = parser.push( "a  ,b  ", true );
+
+        assertEquals( Arrays.asList("start","headers(1,[a, b])", "end"), delegate.audit );
+        assertEquals( 0, numCharactersConsumed1 );
+        assertEquals( 7, numCharactersConsumed2 );
+    }
+
+    // todo multi line tests
+    // todo reader tests
 
 }
 

@@ -1,5 +1,8 @@
 package com.mosaic.parsers;
 
+import com.mosaic.lang.reflect.ReflectionUtils;
+
+import java.lang.reflect.Method;
 import java.nio.CharBuffer;
 
 /**
@@ -8,7 +11,9 @@ import java.nio.CharBuffer;
 public abstract class BaseMatcher implements Matcher {
 
     private String name;
-    private String callback;
+    private String callbackMethodName;
+
+    private transient Method lazilyCachedCallbackMethod;
 
     public Matcher withName( String name ) {
         this.name = name;
@@ -17,7 +22,7 @@ public abstract class BaseMatcher implements Matcher {
     }
 
     public Matcher withCallback( String callbackMethodName ) {
-        this.callback = callbackMethodName;
+        this.callbackMethodName = callbackMethodName;
 
         return this;
     }
@@ -27,12 +32,23 @@ public abstract class BaseMatcher implements Matcher {
         return name;
     }
 
-    public String getCallback() {
-        return callback;
+    public String getCallbackMethodName() {
+        return callbackMethodName;
     }
 
     public MatchResult match( String str, boolean isEOS ) {
         return match(CharBuffer.wrap(str), isEOS);
+    }
+
+
+    public Method resolveCallbackMethod( Object targetInstance ) {
+        if ( lazilyCachedCallbackMethod == null && callbackMethodName != null ) {
+            lazilyCachedCallbackMethod = ReflectionUtils.findFirstInstanceMethodByName(targetInstance.getClass(), callbackMethodName);
+
+            lazilyCachedCallbackMethod.setAccessible(true);
+        }
+
+        return lazilyCachedCallbackMethod;
     }
 
 }

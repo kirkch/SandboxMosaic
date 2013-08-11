@@ -34,7 +34,7 @@ public class SeparatedListMatcher extends BaseMatcher {
     }
 
     public MatchResult match(CharBuffer buf, boolean isEOS) {
-        return MatchResult.submatcher( valueMatcher, firstAndThusOptionalValueContinuation);
+        return MatchResult.continuation(valueMatcher, firstAndThusOptionalValueContinuation);
     }
 
 
@@ -49,7 +49,11 @@ public class SeparatedListMatcher extends BaseMatcher {
 
             resultsList.add( childsResult.getParsedValue() );
 
-            return MatchResult.submatcher(separatorMatcher, separatorContinuation);
+            return MatchResult.continuation(separatorMatcher, separatorContinuation);
+        }
+
+        public String toString() {
+            return "firstAndThusOptionalValueContinuation";
         }
     };
 
@@ -63,7 +67,11 @@ public class SeparatedListMatcher extends BaseMatcher {
 
             resultsList.add( childsResult.getParsedValue() );
 
-            return MatchResult.submatcher(separatorMatcher, separatorContinuation);
+            return MatchResult.continuation(separatorMatcher, separatorContinuation);
+        }
+
+        public String toString() {
+            return "mandatoryValueContinuation";
         }
     };
 
@@ -72,10 +80,14 @@ public class SeparatedListMatcher extends BaseMatcher {
             if ( childsResult.isNoMatch() ) {
                 return createMatchedResult();
             } else if ( childsResult.isMatch() ) {
-                return MatchResult.submatcher(valueMatcher, mandatoryValueContinuation);
+                return MatchResult.continuation(valueMatcher, mandatoryValueContinuation);
             }
 
             return childsResult;
+        }
+
+        public String toString() {
+            return "separatorContinuation";
         }
     };
 

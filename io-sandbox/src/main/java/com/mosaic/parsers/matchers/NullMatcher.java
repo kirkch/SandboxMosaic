@@ -4,6 +4,7 @@ package com.mosaic.parsers.matchers;
 import com.mosaic.parsers.MatchResult;
 import com.mosaic.parsers.Matcher;
 
+import java.lang.reflect.Method;
 import java.nio.CharBuffer;
 
 /**
@@ -38,7 +39,12 @@ public class NullMatcher implements Matcher {
         return null;
     }
 
-    public String getCallback() {
+    public String getCallbackMethodName() {
+        return null;
+    }
+
+    @Override
+    public Method resolveCallbackMethod(Object targetInstance) {
         return null;
     }
 

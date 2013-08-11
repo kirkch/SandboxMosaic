@@ -1,9 +1,11 @@
 package com.mosaic.parsers;
 
-import com.mosaic.parsers.matchers.NullMatcher;
+import com.mosaic.lang.function.Function1;
+import com.mosaic.lang.reflect.ReflectionUtils;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.reflect.Method;
 import java.nio.CharBuffer;
 import java.util.Stack;
 
@@ -12,36 +14,49 @@ import java.util.Stack;
  */
 public abstract class BasePushParser implements PushParser {
 
+    private static boolean DEBUG = false;
+
+    private static void debug( String event, Object data ) {
+        if ( DEBUG ) {
+            System.out.println( event + " = " + data );
+        }
+    }
+
+
     private Matcher initialMatcher;
-    private boolean hasReachedEndOfFile;
+    private Matcher skipMatcher;
+    private Matcher errorRecoveryMatcher;
+
 
     private Stack<ParseFrame> stack = new Stack<ParseFrame>();
 
 
-    protected BasePushParser( Matcher initialMatcher ) {
-        this( initialMatcher, NullMatcher.INSTANCE, NullMatcher.INSTANCE );
+    protected void setInitialMatcher( Matcher matcher ) {
+        initialMatcher = matcher;
     }
 
-    /**
-     * @param initialMatcher the starting matcher
-     * @param skipMatcher    a matcher to use (and throw away results of) between every other matcher call
-     * @param onErrorMatcher matcher to use upon receiving an error; the parse will still fail but gives
-     *                       the parser a chance to parse more to see if more errors appear
-     */
-    protected BasePushParser( Matcher initialMatcher, Matcher skipMatcher, Matcher onErrorMatcher ) {
-        this.initialMatcher = initialMatcher;
+    protected void setSkipMatcher(Matcher matcher) {
+        skipMatcher = matcher;
     }
 
-    public void pushStartOfFile() {
-
+    protected void setErrorRecoverMatcher(Matcher matcher) {
+        errorRecoveryMatcher = matcher;
     }
 
-    public void pushEndOfFile() {
-        hasReachedEndOfFile = true;
+
+    protected void parserStartedEvent() {}
+    protected void parserFinishedEvent() {}
+
+
+    public void reset() {
+        stack.clear();
+
+        stack.push( new ParseFrame(initialMatcher) );
     }
 
-    public long push( String in ) {
-        return push( CharBuffer.wrap(in) );
+
+    public long push( String in, boolean isEOS ) {
+        return push( CharBuffer.wrap(in), isEOS );
     }
 
     public long push( Reader in ) throws IOException {
@@ -54,25 +69,67 @@ public abstract class BasePushParser implements PushParser {
         return 0;
     }
 
-    public long push( CharBuffer buf ) {
-        ParseFrame  currentFrame   = stack.peek();                  // if no frame, let error occur
-        Matcher     currentMatcher = currentFrame.currentMatcher;
+    public long push( CharBuffer buf, boolean isEOS ) {
+        if ( stack.isEmpty() ) {
+            reset();
 
-        MatchResult result = currentMatcher.match( buf, hasReachedEndOfFile );
-//        result.numCharactersConsumed = numCharactersConsumed;
-
-        if ( result.isMatch() ) {
-
-        } else if ( result.isNoMatch() ) {
-
-        } else if ( result.isIncompleteMatch() ) {
-
-        } else {
-            assert result.isError();
-
+            parserStartedEvent();
         }
 
-        return result.getNumCharactersConsumed();
+        int startingPosition = buf.position();
+
+        boolean keepGoing = true;
+        while ( keepGoing ) {
+            ParseFrame  currentFrame   = stack.peek();
+            Matcher     currentMatcher = currentFrame.matcher;
+
+            skipMatcher.match(buf,isEOS);
+
+            MatchResult result = currentMatcher.match( buf, isEOS );
+
+            keepGoing = processResult(currentFrame, result);
+        }
+
+        return buf.position() - startingPosition;
+    }
+
+    private boolean processResult( ParseFrame currentFrame, MatchResult result ) {
+        debug("result", result);
+
+        if ( result.isContinuation() ) {
+            ParseFrame newFrame = new ParseFrame(result.getNextMatcher(), result.getContinuation());
+
+            stack.push(newFrame);
+        } else if ( result.isIncompleteMatch() ) {
+            return false;
+        } else {
+            if ( result.isMatch() ) {
+                Method callbackMethod = currentFrame.matcher.resolveCallbackMethod(this);
+
+                if ( callbackMethod != null ) {
+                    ReflectionUtils.invoke(this, callbackMethod, result.getParsedValue());
+
+                    debug( "callback", currentFrame.matcher.getCallbackMethodName() );
+                }
+            }
+
+
+            if ( currentFrame.continuation != null ) {
+                MatchResult continuationResult = currentFrame.continuation.invoke( result );
+
+                stack.pop();
+
+                return processResult( stack.peek(), continuationResult );
+            } else {
+                debug( "jobdone", null );
+
+                parserFinishedEvent();
+
+                return false;
+            }
+        }
+
+        return true;
     }
 
 
@@ -83,21 +140,18 @@ public abstract class BasePushParser implements PushParser {
 
 
     private static class ParseFrame {
-        public Matcher currentMatcher;
+        public Matcher matcher;
 
-        public MatcherContinuation continuation;
-    }
+        public Function1<MatchResult,MatchResult> continuation;
 
+        public ParseFrame(Matcher m) {
+            matcher = m;
+        }
 
-    /**
-     * When a matcher hands off to a 'sub matcher', the matcher provides
-     * a 'continuation'.  A result handler for the sub matcher that selects
-     * the next matcher to take over after this sub matcher completes.
-     *
-     * todo what if the continuation is null, or returns null...
-     */
-    public static interface MatcherContinuation {
-        public Matcher givenResultSelectNextMatcher( MatchResult result );
+        public ParseFrame(Matcher m, Function1<MatchResult,MatchResult> c) {
+            matcher = m;
+            continuation   = c;
+        }
     }
 
 }
