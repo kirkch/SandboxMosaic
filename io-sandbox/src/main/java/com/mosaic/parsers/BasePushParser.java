@@ -21,7 +21,8 @@ public abstract class BasePushParser implements PushParser {
             System.out.println( event + " = " + data );
         }
     }
-
+// todo line/col numbering
+// todo error reporting
 
     private Matcher initialMatcher;
     private Matcher skipMatcher;

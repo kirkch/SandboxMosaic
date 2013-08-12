@@ -15,11 +15,6 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public class SeparatedListMatcher extends BaseMatcher {
 
-    public static Matcher commaSeparatedValues( Matcher valueMatcher ) {
-        return new SeparatedListMatcher(valueMatcher, ConstantMatcher.create(",") );
-    }
-
-
     private Matcher valueMatcher;
     private Matcher separatorMatcher;
 

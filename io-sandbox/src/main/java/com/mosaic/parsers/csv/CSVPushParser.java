@@ -4,11 +4,10 @@ import com.mosaic.parsers.BasePushParser;
 import com.mosaic.parsers.Matcher;
 import com.mosaic.parsers.matchers.WhitespaceMatcher;
 
-import java.nio.CharBuffer;
 import java.util.List;
 
-import static com.mosaic.parsers.matchers.ConsumeUpToMatcher.consumeUpToNewLineMatcher;
-import static com.mosaic.parsers.matchers.SeparatedListMatcher.commaSeparatedValues;
+import static com.mosaic.parsers.matchers.ConsumeUpToMatcher.consumeUpToNewLineMatcher; // todo
+import static com.mosaic.parsers.matchers.Matchers.*;
 
 
 /**

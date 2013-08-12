@@ -11,6 +11,10 @@ import java.nio.CharBuffer;
  *
  */
 public class ConstantMatcher {
+    public static Matcher create( char target ) {
+        return new SingleCharacterMatcher(Character.toString(target));
+    }
+
     public static Matcher create( String targetString ) {
         Validate.isGTZero(targetString.length(), "targetString.length()");
 
