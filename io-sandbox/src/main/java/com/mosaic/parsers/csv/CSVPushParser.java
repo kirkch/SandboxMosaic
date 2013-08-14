@@ -19,6 +19,7 @@ public class CSVPushParser extends BasePushParser {
 
     private Matcher csvColumn = new CSVColumnValueMatcher(',').withName("csvColumn");
     private Matcher csvRow    = commaSeparatedValues(csvColumn).withCallback("rowReceived");
+    private Matcher csvRows   = repeatOnceOrMore(csvRow);
 
     private int rowCount;
 
@@ -28,18 +29,13 @@ public class CSVPushParser extends BasePushParser {
 
 
     public CSVPushParser( CSVParserCallback csvParserCallback ) {
-        setInitialMatcher( csvRow );
+        setInitialMatcher( csvRows );
         setSkipMatcher( WhitespaceMatcher.tabOrSpaceMatcher() );
         setErrorRecoverMatcher( consumeUpToNewLineMatcher() );
 
         this.csvParserCallback = csvParserCallback;
     }
 
-
-
-//    public long push( CharBuffer buf, boolean isEOS ) {
-//        return 0;
-//    }
 
 
     @Override

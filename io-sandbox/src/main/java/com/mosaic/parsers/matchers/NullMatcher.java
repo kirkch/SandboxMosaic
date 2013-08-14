@@ -48,4 +48,13 @@ public class NullMatcher implements Matcher {
         return null;
     }
 
+    @Override
+    public int getBufferIndexFromPreviousCall() {
+        return 0;
+    }
+
+    @Override
+    public void setBufferIndexFromPreviousCall(int pos) {
+    }
+
 }

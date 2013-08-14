@@ -7,13 +7,11 @@ import org.junit.Test;
 import java.nio.CharBuffer;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static com.mosaic.parsers.matchers.MatcherAsserts.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 // todo andMatcher
-// todo repeatMatcher
-// todo benchmark both
+// todo benchmark repeatMatcher and andMatcher
 // todo compare with SeparatedListMatcher
 
 /**
@@ -46,11 +44,11 @@ public class RepeatMatcherTest {
     }
 
     @Test
-    public void givenFirstContinuation_giveNoMatch_expectMatchResultWithEmptyList() {
+    public void givenFirstContinuation_giveNoMatch_expectNoMatch() {
         MatchResult result = matcher.match(input, false)
                 .getContinuation().invoke(MatchResult.noMatch());
 
-        assertMatch(result, Arrays.asList());
+        assertNoMatch(result);
         assertEquals( 0, input.position() );
     }
 
@@ -88,7 +86,7 @@ public class RepeatMatcherTest {
                 .getContinuation().invoke(MatchResult.matched(3, "abc"))
                 .getContinuation().invoke(MatchResult.noMatch());
 
-        assertMatch(result, Arrays.asList("abc"));
+        assertMatch(result, 0, Arrays.asList("abc"));
         assertEquals( 0, input.position() );
     }
 
@@ -98,7 +96,7 @@ public class RepeatMatcherTest {
                 .getContinuation().invoke(MatchResult.matched(3, "abc"))
                 .getContinuation().invoke(MatchResult.errored(2, "splat"));
 
-        assertMatch(result, Arrays.asList("abc"));
+        assertMatch(result, 0, Arrays.asList("abc"));
         assertEquals( 0, input.position() );
     }
 
@@ -130,7 +128,7 @@ public class RepeatMatcherTest {
                 .getContinuation().invoke(MatchResult.matched(2, "de"))
                 .getContinuation().invoke(MatchResult.noMatch());
 
-        assertMatch(result, Arrays.asList("abc", "de"));
+        assertMatch(result, 0, Arrays.asList("abc", "de"));
         assertEquals( 0, input.position() );
     }
 
@@ -141,7 +139,7 @@ public class RepeatMatcherTest {
                 .getContinuation().invoke(MatchResult.matched(2, "de"))
                 .getContinuation().invoke(MatchResult.errored(1, "splat"));
 
-        assertMatch(result, Arrays.asList("abc", "de"));
+        assertMatch(result, 0, Arrays.asList("abc", "de"));
         assertEquals( 0, input.position() );
     }
 
@@ -157,49 +155,6 @@ public class RepeatMatcherTest {
     }
 
 
-    //
-    //
-    //
-    //
-
-
-
-
-    private void assertIncompleteMatch(MatchResult result) {
-        assertTrue( "expected 'incomplete', was '"+result+"'", result.isIncompleteMatch() );
-        assertNull(result.getNextMatcher());
-        assertNull( result.getParsedValue() );
-        assertNull(result.getContinuation());
-        assertEquals( 0, result.getMatchIndexOnError() );
-        assertNull( result.getErrorMessage() );
-    }
-
-    private void assertContinuation( MatchResult result, Matcher expectedNextMatcher ) {
-        assertTrue( "expected 'continuation', was '"+result+"'", result.isContinuation() );
-        assertSame(expectedNextMatcher, result.getNextMatcher());
-        assertNull( result.getParsedValue() );
-        assertNotNull(result.getContinuation());
-        assertEquals( 0, result.getMatchIndexOnError() );
-        assertNull( result.getErrorMessage() );
-    }
-
-    private void assertMatch( MatchResult result, Object expectedParsedValue ) {
-        assertTrue( "expected 'match', was '"+result+"'", result.isMatch() );
-        assertNull(result.getNextMatcher());
-        assertEquals(expectedParsedValue, result.getParsedValue());
-        assertNull(result.getContinuation());
-        assertEquals( 0, result.getMatchIndexOnError() );
-        assertNull( result.getErrorMessage() );
-    }
-
-    private void assertError( MatchResult result, int expectedOffset, String expectedErrorMessage ) {
-        assertTrue( "expected 'error', was '"+result+"'", result.isError() );
-        assertNull(result.getNextMatcher());
-        assertNull(result.getParsedValue());
-        assertNull(result.getContinuation());
-        assertEquals( expectedOffset, result.getMatchIndexOnError() );
-        assertEquals( expectedErrorMessage, result.getErrorMessage() );
-    }
 
 //    @Test
 //    public void givenEmptyStringContinuation_invokeWithInprogress_expectInprogress() {

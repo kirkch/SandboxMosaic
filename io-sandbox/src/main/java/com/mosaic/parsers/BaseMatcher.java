@@ -14,6 +14,7 @@ public abstract class BaseMatcher implements Matcher {
     private String callbackMethodName;
 
     private transient Method lazilyCachedCallbackMethod;
+    private transient int    bufferIndexFromPreviousCall = -1;
 
     public Matcher withName( String name ) {
         this.name = name;
@@ -49,6 +50,14 @@ public abstract class BaseMatcher implements Matcher {
         }
 
         return lazilyCachedCallbackMethod;
+    }
+
+    public int getBufferIndexFromPreviousCall() {
+        return bufferIndexFromPreviousCall;
+    }
+
+    public void setBufferIndexFromPreviousCall( int pos ) {
+        this.bufferIndexFromPreviousCall = pos;
     }
 
 }

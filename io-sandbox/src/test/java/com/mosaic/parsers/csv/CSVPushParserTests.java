@@ -63,6 +63,17 @@ public class CSVPushParserTests {
         assertEquals( 7, numCharactersConsumed2 );
     }
 
+    @Test
+    public void pushThreeRows_expectHeaderAndTwoRows() {
+        long count1 = parser.push( "h1,h2\n", false );
+        long count2 = parser.push( "r1a,r1b\n", false );
+        long count3 = parser.push( "r2a,r2b\n", true );
+
+        assertEquals( Arrays.asList("start","headers(1,[h1, h2])", "row(2,[r1a, r1b])", "row(3,[r2a, r2b])", "end"), delegate.audit );
+//        assertEquals( 0, numCharactersConsumed1 );
+//        assertEquals( 7, numCharactersConsumed2 );
+    }
+
     // todo multi line tests
     // todo reader tests
 

@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
-
+import static com.mosaic.parsers.matchers.MatcherAsserts.*;
 
 
 /**
@@ -28,21 +28,16 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertEquals(0, result.getNumCharactersConsumed());
-        assertTrue(result.isIncompleteMatch());
-        assertNull( result.getParsedValue() );
-        assertEquals(0, buf.position());
+        assertIncompleteMatch(result);
     }
 
     @Test
-    public void givenNoBytesEOS_expectFailedMatch() {
+    public void givenNoBytesEOS_expectNoMatch() {
         CharBuffer buf = CharBuffer.wrap("");
 
         MatchResult result = matcher.match(buf, true);
 
-        assertEquals(0, result.getNumCharactersConsumed());
-        assertEquals("", result.getParsedValue().toString());
-        assertEquals(0, buf.position());
+        assertNoMatch(result);
     }
 
     @Test
@@ -51,10 +46,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertEquals(0, result.getNumCharactersConsumed());
-        assertTrue(result.isIncompleteMatch());
-        assertNull(result.getParsedValue());
-        assertEquals(0, buf.position());
+        assertIncompleteMatch(result);
     }
 
     @Test
@@ -63,8 +55,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertEquals(10, result.getNumCharactersConsumed());
-        assertEquals("asset type", result.getParsedValue().toString());
+        assertMatch(result, 10, "asset type");
         assertEquals(10, buf.position());
     }
 
@@ -74,9 +65,18 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertEquals(13, result.getNumCharactersConsumed());
-        assertEquals("asset type", result.getParsedValue().toString());
+        assertMatch(result, 13, "asset type");
         assertEquals(13, buf.position());
+    }
+
+    @Test
+    public void f() {
+        CharBuffer buf = CharBuffer.wrap("h1,h2\n");
+
+        MatchResult result = matcher.match(buf, false);
+
+        assertMatch(result, 2, "h1");
+        assertEquals(2, buf.position());
     }
 
     @Test
@@ -85,8 +85,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, true);
 
-        assertEquals(13, result.getNumCharactersConsumed());
-        assertEquals("asset type", result.getParsedValue().toString());
+        assertMatch(result, 13, "asset type");
         assertEquals(13, buf.position());
     }
 
@@ -96,8 +95,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertEquals(10, result.getNumCharactersConsumed());
-        assertEquals("asset type", result.getParsedValue().toString());
+        assertMatch(result, 10, "asset type");
         assertEquals(10, buf.position());
     }
 
@@ -107,8 +105,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertEquals(13, result.getNumCharactersConsumed());
-        assertEquals("asset type", result.getParsedValue().toString());
+        assertMatch(result, 13, "asset type");
         assertEquals(13, buf.position());
     }
 
@@ -118,8 +115,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertEquals(14, result.getNumCharactersConsumed());
-        assertEquals("asset type", result.getParsedValue().toString());
+        assertMatch(result, 14, "asset type");
         assertEquals(14, buf.position());
     }
 
@@ -129,8 +125,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, true);
 
-        assertEquals(15, result.getNumCharactersConsumed());
-        assertEquals("asset type", result.getParsedValue().toString());
+        assertMatch(result, 15, "asset type");
         assertEquals(15, buf.position());
     }
 
@@ -139,9 +134,8 @@ public class CSVColumnValueMatcherTest {
         CharBuffer buf = CharBuffer.wrap("\n");
 
         MatchResult result = matcher.match(buf, false);
-
-        assertEquals(0, result.getNumCharactersConsumed());
-        assertEquals("", result.getParsedValue().toString());
+// todo review -- this is the one that causes repeatmatcher to loop
+        assertMatch(result, 0, "");
         assertEquals(0, buf.position());
     }
 
@@ -151,8 +145,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertEquals(10, result.getNumCharactersConsumed());
-        assertEquals("asset type", result.getParsedValue().toString());
+        assertMatch(result, 10, "asset type");
         assertEquals(10, buf.position());
     }
 
@@ -162,8 +155,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertEquals(3, result.getNumCharactersConsumed());
-        assertEquals("foo", result.getParsedValue().toString());
+        assertMatch(result, 3, "foo");
         assertEquals(3, buf.position());
     }
 
@@ -173,8 +165,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, true);
 
-        assertEquals(3, result.getNumCharactersConsumed());
-        assertEquals("foo", result.getParsedValue().toString());
+        assertMatch(result, 3, "foo");
         assertEquals(3, buf.position());
     }
 
@@ -185,8 +176,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, true);
 
-        assertEquals(0, result.getNumCharactersConsumed());
-        assertEquals("", result.getParsedValue().toString());
+        assertMatch(result, 0, "");
         assertEquals(3, buf.position());
     }
 
@@ -197,8 +187,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, true);
 
-        assertEquals(3, result.getNumCharactersConsumed());
-        assertEquals("bar", result.getParsedValue().toString());
+        assertMatch(result, 3, "bar");
         assertEquals(7, buf.position());
     }
 
@@ -208,8 +197,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, true);
 
-        assertEquals(5, result.getNumCharactersConsumed());
-        assertEquals("abc", result.getParsedValue().toString());
+        assertMatch(result, 5, "abc");
         assertEquals(5, buf.position());
     }
 
@@ -219,8 +207,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, true);
 
-        assertEquals(8, result.getNumCharactersConsumed());
-        assertEquals("abc", result.getParsedValue().toString());
+        assertMatch(result, 8, "abc");
         assertEquals(8, buf.position());
     }
 
@@ -230,8 +217,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertEquals(5, result.getNumCharactersConsumed());
-        assertEquals("abc", result.getParsedValue().toString());
+        assertMatch(result, 5, "abc");
         assertEquals(5, buf.position());
     }
 
@@ -241,8 +227,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertEquals(10, result.getNumCharactersConsumed());
-        assertEquals("foo, bar", result.getParsedValue().toString());
+        assertMatch(result, 10, "foo, bar");
         assertEquals(10, buf.position());
     }
 
@@ -252,8 +237,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertEquals(5, result.getNumCharactersConsumed());
-        assertEquals("foo", result.getParsedValue().toString());
+        assertMatch(result, 5, "foo");
         assertEquals(5, buf.position());
     }
 
@@ -264,8 +248,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertEquals(5, result.getNumCharactersConsumed());
-        assertEquals("bar", result.getParsedValue().toString());
+        assertMatch(result, 5, "bar");
         assertEquals(11, buf.position());
     }
 
@@ -276,8 +259,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, true);
 
-        assertEquals(5, result.getNumCharactersConsumed());
-        assertEquals("bar", result.getParsedValue().toString());
+        assertMatch(result, 5, "bar");
         assertEquals(11, buf.position());
     }
 
@@ -287,8 +269,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertEquals(9, result.getNumCharactersConsumed());
-        assertEquals(" foo ", result.getParsedValue().toString());
+        assertMatch(result, 9, " foo ");
         assertEquals(9, buf.position());
     }
 
@@ -299,8 +280,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertEquals(8, result.getNumCharactersConsumed());
-        assertEquals(" bar ", result.getParsedValue().toString());
+        assertMatch(result, 8, " bar ");
         assertEquals(19, buf.position());
     }
 
@@ -310,8 +290,7 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertEquals(10, result.getNumCharactersConsumed());
-        assertEquals("foo\"bar", result.getParsedValue().toString());
+        assertMatch(result, 10, "foo\"bar");
         assertEquals(10, buf.position());
     }
 
@@ -321,12 +300,8 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, true);
 
-        assertEquals(0, result.getNumCharactersConsumed());
-        assertTrue(result.isError());
-        assertNull( result.getParsedValue() );
+        assertError(result, 0, "expected csv column value to be closed by a quote");
         assertEquals(0, buf.position());
-        assertEquals( "expected csv column value to be closed by a quote", result.getErrorMessage() );
-        assertEquals(0, result.getMatchIndexOnError());
     }
 
     @Test
@@ -335,12 +310,8 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, true);
 
-        assertEquals(0, result.getNumCharactersConsumed());
-        assertTrue(result.isError());
-        assertNull( result.getParsedValue() );
+        assertError(result, 2, "expected csv column value to be closed by a quote");
         assertEquals(0, buf.position());
-        assertEquals( "expected csv column value to be closed by a quote", result.getErrorMessage() );
-        assertEquals(2, result.getMatchIndexOnError());
     }
 
     @Test
@@ -349,12 +320,8 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertEquals(0, result.getNumCharactersConsumed());
-        assertTrue(result.isIncompleteMatch());
-        assertNull( result.getParsedValue() );
+        assertIncompleteMatch(result);
         assertEquals(0, buf.position());
-        assertNull(result.getErrorMessage());
-        assertEquals(0, result.getMatchIndexOnError());
     }
 
     @Test
@@ -363,15 +330,9 @@ public class CSVColumnValueMatcherTest {
 
         MatchResult result = matcher.match(buf, false);
 
-        assertEquals(0, result.getNumCharactersConsumed());
-        assertTrue(result.isIncompleteMatch());
-        assertNull( result.getParsedValue() );
+        assertIncompleteMatch(result);
         assertEquals(0, buf.position());
-        assertNull(result.getErrorMessage());
-        assertEquals(0, result.getMatchIndexOnError());
     }
-
-
 
 }
 

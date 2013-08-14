@@ -57,4 +57,12 @@ public interface Matcher {
      */
     public Method resolveCallbackMethod( Object targetInstance );
 
+
+    /**
+     * The position of the input buffer from the last time that this matcher
+     * was used.  Used to detect (and avoid) the infinite loops in the
+     * matcher graph.
+     */
+    public int getBufferIndexFromPreviousCall();
+    public void setBufferIndexFromPreviousCall( int pos );
 }

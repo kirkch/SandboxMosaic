@@ -38,7 +38,9 @@ public class SeparatedListMatcher extends BaseMatcher {
         public MatchResult invoke( MatchResult childsResult ) {
             if ( childsResult.isNoMatch() ) {
                 return createMatchedResult();
-            } else if ( !childsResult.isMatch() ) {
+            } else
+
+            if ( !childsResult.isMatch() ) {
                 return childsResult;
             }
 
@@ -87,6 +89,10 @@ public class SeparatedListMatcher extends BaseMatcher {
     };
 
     private MatchResult createMatchedResult() {
+        if ( resultsList.isEmpty() ) {
+            return MatchResult.noMatch();
+        }
+
         ArrayList clonedResult = new ArrayList(resultsList);
         resultsList.clear();
 

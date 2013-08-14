@@ -27,8 +27,6 @@ public class SetUtilsTest {
         // check is mutable
         doubleSet.add(42);
         assertEquals( 3, doubleSet.size() );
-
-        // todo port asserters into a reusable library and use here
     }
 
     @Test

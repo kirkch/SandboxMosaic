@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.nio.CharBuffer;
 import java.util.Arrays;
 
+import static com.mosaic.parsers.matchers.MatcherAsserts.*;
 import static org.junit.Assert.*;
 
 /**
@@ -26,9 +27,7 @@ public class SeparatedListMatcherTest {
 
         MatchResult result = matcher.match(input, false);
 
-        assertTrue( result.isContinuation() );
-        assertSame(result.getNextMatcher(), valueMatcher);
-        assertNotNull(result.getContinuation());
+        assertContinuation(result, valueMatcher);
         assertEquals( 0, input.position() );
     }
 
@@ -38,10 +37,7 @@ public class SeparatedListMatcherTest {
 
         MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.incompleteMatch());
 
-
-        assertTrue( result.isIncompleteMatch() );
-        assertNull(result.getNextMatcher());
-        assertNull(result.getContinuation());
+        assertIncompleteMatch(result);
         assertEquals( 0, input.position() );
     }
 
@@ -52,26 +48,18 @@ public class SeparatedListMatcherTest {
         MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.errored(0, "foobar"));
 
 
-        assertTrue( result.isError() );
-        assertNull(result.getNextMatcher());
-        assertNull(result.getContinuation());
-        assertEquals("foobar", result.getErrorMessage());
-        assertEquals(0, result.getMatchIndexOnError());
+        assertError(result, 0, "foobar");
+        assertEquals(0, input.position());
     }
 
     @Test
-    public void givenFirstValueContinuation_invokeWithNoMatch_expectEmptyListResult() {
+    public void givenFirstValueContinuation_invokeWithNoMatch_expectNoMatch() {
         CharBuffer input = CharBuffer.wrap("hello world");
 
         MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.noMatch());
 
-
-        assertTrue( result.isMatch() );
-        assertEquals(Arrays.asList(), result.getParsedValue());
-        assertNull(result.getNextMatcher());
-        assertNull(result.getContinuation());
-        assertNull(result.getErrorMessage());
-        assertEquals(0, result.getMatchIndexOnError());
+        assertNoMatch(result);
+        assertEquals(0, input.position());
     }
 
     @Test
@@ -80,13 +68,8 @@ public class SeparatedListMatcherTest {
 
         MatchResult result = matcher.match(input, false).getContinuation().invoke(MatchResult.matched(2, "foobar"));
 
-
-        assertTrue( result.isContinuation() );
-        assertSame(separatorMatcher, result.getNextMatcher());
-        assertNotNull(result.getContinuation());
-        assertNull(result.getErrorMessage());
-        assertEquals(0, result.getMatchIndexOnError());
-        assertEquals(0, result.getNumCharactersConsumed());
+        assertContinuation(result, separatorMatcher);
+        assertEquals(0, input.position());
     }
 
     @Test
@@ -97,13 +80,8 @@ public class SeparatedListMatcherTest {
                 .getContinuation().invoke( MatchResult.noMatch() );
 
 
-        assertTrue( result.isMatch() );
-        assertEquals(Arrays.asList("a"), result.getParsedValue());
-        assertNull(result.getNextMatcher());
-        assertNull(result.getContinuation());
-        assertNull(result.getErrorMessage());
-        assertEquals(0, result.getMatchIndexOnError());
-        assertEquals(0, result.getNumCharactersConsumed());
+        assertMatch(result, 0, Arrays.asList("a"));
+        assertEquals(0, input.position());
     }
 
     @Test
@@ -114,13 +92,8 @@ public class SeparatedListMatcherTest {
                 .getContinuation().invoke( MatchResult.incompleteMatch() );
 
 
-        assertTrue( result.isIncompleteMatch() );
-        assertNull(result.getParsedValue());
-        assertNull(result.getNextMatcher());
-        assertNull(result.getContinuation());
-        assertNull(result.getErrorMessage());
-        assertEquals(0, result.getMatchIndexOnError());
-        assertEquals(0, result.getNumCharactersConsumed());
+        assertIncompleteMatch(result);
+        assertEquals(0, input.position());
     }
 
     @Test
@@ -131,13 +104,8 @@ public class SeparatedListMatcherTest {
                 .getContinuation().invoke( MatchResult.errored(1, "splat") );
 
 
-        assertTrue( result.isError() );
-        assertNull(result.getParsedValue());
-        assertNull(result.getNextMatcher());
-        assertNull(result.getContinuation());
-        assertEquals("splat", result.getErrorMessage());
-        assertEquals(1, result.getMatchIndexOnError());
-        assertEquals(0, result.getNumCharactersConsumed());
+        assertError(result,1,"splat");
+        assertEquals(0, input.position());
     }
 
     @Test
@@ -148,13 +116,8 @@ public class SeparatedListMatcherTest {
                 .getContinuation().invoke( MatchResult.matched(1, ",") );
 
 
-        assertTrue( result.isContinuation() );
-        assertNull(result.getParsedValue());
-        assertSame(valueMatcher, result.getNextMatcher());
-        assertNotNull(result.getContinuation());
-        assertNull(result.getErrorMessage());
-        assertEquals(0, result.getMatchIndexOnError());
-        assertEquals(0, result.getNumCharactersConsumed());
+        assertContinuation(result, valueMatcher);
+        assertEquals(0, input.position());
     }
 
     @Test
@@ -166,15 +129,10 @@ public class SeparatedListMatcherTest {
                 .getContinuation().invoke( MatchResult.noMatch() );
 
 
-        assertTrue( result.isError() );
-        assertNull(result.getParsedValue());
-        assertNull(result.getNextMatcher());
-        assertNull(result.getContinuation());
-        assertEquals("expected value after ','", result.getErrorMessage());
-        assertEquals(0, result.getMatchIndexOnError());
-        assertEquals(0, result.getNumCharactersConsumed());
+        assertError(result,0,"expected value after ','");
+        assertEquals(0, input.position());
     }
-
+// todo finish porting these tests if this matcher is worth keeping (need to benchmark against alternative)
     @Test
     public void givenSecondValueContinuation_invokeWithIncompleteMatch_expectIncompleteMatch() {
         CharBuffer input = CharBuffer.wrap("a,b,c");

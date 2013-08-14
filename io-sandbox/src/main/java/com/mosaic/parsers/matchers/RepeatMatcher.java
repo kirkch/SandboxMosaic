@@ -46,9 +46,10 @@ public class RepeatMatcher extends BaseMatcher {
 
     private Function1<MatchResult,MatchResult> firstValueContinuation = new Function1<MatchResult, MatchResult>() {
         public MatchResult invoke( MatchResult childsResult ) {
-            if ( childsResult.isNoMatch() ) {
-                return createMatchedResult();
-            } else if ( !childsResult.isMatch() ) {
+//            if ( childsResult.isNoMatch() ) {
+//                return createMatchedResult();
+//            } else
+            if ( !childsResult.isMatch() ) {
                 return childsResult;
             }
 

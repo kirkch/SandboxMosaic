@@ -14,7 +14,7 @@ import java.util.Stack;
  */
 public abstract class BasePushParser implements PushParser {
 
-    private static boolean DEBUG = false;
+    private static boolean DEBUG = true;
 
     private static void debug( String event, Object data ) {
         if ( DEBUG ) {
@@ -86,16 +86,39 @@ public abstract class BasePushParser implements PushParser {
 
             skipMatcher.match(buf,isEOS);
 
-            MatchResult result = currentMatcher.match( buf, isEOS );
+            MatchResult result = performMatch(buf, isEOS, currentMatcher);
 
-            keepGoing = processResult(currentFrame, result);
+            keepGoing = processResult(currentFrame, result, buf, isEOS);
         }
 
         return buf.position() - startingPosition;
     }
 
-    private boolean processResult( ParseFrame currentFrame, MatchResult result ) {
+    private MatchResult performMatch(CharBuffer buf, boolean isEOS, Matcher currentMatcher) {
+        int bufPositionBeforeInvocation = buf.position();
+
+        MatchResult result = currentMatcher.match( buf, isEOS );
+
+        int bufPositionAfterInvocation = buf.position();
+        currentMatcher.setBufferIndexFromPreviousCall(bufPositionAfterInvocation);
+
+        if ( DEBUG ) {
+            int consumed = bufPositionAfterInvocation - bufPositionBeforeInvocation;
+            assert consumed == result.getNumCharactersConsumed() : "buf position check failed: reported " + result.getNumCharactersConsumed() + " actual " + consumed + " ("+currentMatcher+"->"+result+")";
+        }
+
+        return result;
+    }
+
+
+    private boolean processResult( ParseFrame currentFrame, MatchResult result, CharBuffer buf, boolean isEOS ) {
+        debug("matcher", currentFrame.matcher);
         debug("result", result);
+
+        if ( result.isMatch() && result.getNumCharactersConsumed() == 0 && buf.position() == currentFrame.matcher.getBufferIndexFromPreviousCall() ) {
+            result = MatchResult.noMatch();
+            debug("switched_result", result);
+        }
 
         if ( result.isContinuation() ) {
             ParseFrame newFrame = new ParseFrame(result.getNextMatcher(), result.getContinuation());
@@ -114,17 +137,18 @@ public abstract class BasePushParser implements PushParser {
                 }
             }
 
-
             if ( currentFrame.continuation != null ) {
                 MatchResult continuationResult = currentFrame.continuation.invoke( result );
 
                 stack.pop();
 
-                return processResult( stack.peek(), continuationResult );
+                return processResult( stack.peek(), continuationResult, buf, isEOS);
             } else {
-                debug( "jobdone", null );
+                if ( isEOS ) {
+                    debug( "jobdone", null );
 
-                parserFinishedEvent();
+                    parserFinishedEvent();
+                }
 
                 return false;
             }
@@ -141,8 +165,7 @@ public abstract class BasePushParser implements PushParser {
 
 
     private static class ParseFrame {
-        public Matcher matcher;
-
+        public Matcher                            matcher;
         public Function1<MatchResult,MatchResult> continuation;
 
         public ParseFrame(Matcher m) {

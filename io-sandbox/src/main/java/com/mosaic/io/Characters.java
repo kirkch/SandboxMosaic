@@ -331,7 +331,7 @@ class CharactersMultiBucketWrapper extends Characters {
             return this;
         }
 
-        List<Characters> newCharacters = new ArrayList(this.buckets.size()+1);  // todo replace with an immutable variant
+        List<Characters> newCharacters = new ArrayList(this.buckets.size()+1);
         newCharacters.addAll( this.buckets );
         newCharacters.add(other.setStreamOffset(this.getStreamOffset()+this.length()));
 

@@ -302,7 +302,7 @@ class BytesMultiBucketWrapper extends Bytes {
             return this;
         }
 
-        List<Bytes> newBytes = new ArrayList(this.buckets.size()+1);  // todo replace with an immutable variant
+        List<Bytes> newBytes = new ArrayList(this.buckets.size()+1);
         newBytes.addAll(this.buckets);
         newBytes.add(other.setStreamOffset(this.streamOffset+this.length()));
 
@@ -338,8 +338,7 @@ class BytesMultiBucketWrapper extends Bytes {
     }
 
     public Bytes subset( int fromInc, int toExc ) {
-
-throw new UnsupportedOperationException( "todo" );
+        throw new UnsupportedOperationException( "todo" );
 //        return this; // todo
     }
 

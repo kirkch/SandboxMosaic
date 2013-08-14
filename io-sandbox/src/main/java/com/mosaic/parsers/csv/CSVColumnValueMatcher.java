@@ -40,6 +40,10 @@ public class CSVColumnValueMatcher extends BaseMatcher {
     }
 
     private MatchResult matchUnquotedValue( CharBuffer buf, boolean isEOS, int limit, int consumedLHS, int trimmedLHS ) {
+        if ( buf.remaining() == 0 && isEOS ) {
+            return MatchResult.noMatch();
+        }
+
         int consumedRHS = matchUpToSeparator( buf, trimmedLHS, limit, isEOS );
 
         if ( consumedRHS < 0 ) {
