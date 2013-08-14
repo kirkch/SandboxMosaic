@@ -40,5 +40,13 @@ public class Matchers {
         return ConstantMatcher.create(target);
     }
 
+    public static Matcher tabOrSpaceMatcher() {
+        return WhitespaceMatcher.tabOrSpaceMatcher();
+    }
+
+    public static Matcher whitespaceMatcher() {
+        return WhitespaceMatcher.whitespaceMatcher();
+    }
+
 
 }

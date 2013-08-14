@@ -6,12 +6,9 @@ import java.nio.CharBuffer;
 /**
  * Matches characters supplied in a ByteBuffer.
  *
- * Matcher's are stateful, and thus should not be shared.
+ * Matcher's are stateful, and thus must not be shared.
  */
 public interface Matcher {
-
-    public static int NO_MATCH   = -2;
-    public static int INCOMPLETE = -1;
 
     /**
      * Consume as many characters as necessary to match a specified criteria.

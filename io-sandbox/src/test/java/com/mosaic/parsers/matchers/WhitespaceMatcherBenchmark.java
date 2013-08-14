@@ -13,9 +13,10 @@ import java.nio.CharBuffer;
 @RunWith(Hammer.class)
 public class WhitespaceMatcherBenchmark {
 
-    private Matcher spaceMatcher = WhitespaceMatcher.tabOrSpaceMatcher();
+    private Matcher spaceMatcher   = WhitespaceMatcher.tabOrSpaceMatcher();
+    private Matcher newLineMatcher = WhitespaceMatcher.whitespaceMatcher();
 
-    private CharBuffer buf1 = CharBuffer.wrap("    \t \t  ");
+    private CharBuffer buf1 = CharBuffer.wrap("    \t \t \n\r   ");
     private CharBuffer buf2 = CharBuffer.wrap("Hello");
 
 /*
@@ -28,13 +29,32 @@ public class WhitespaceMatcherBenchmark {
 */
 
     @Benchmark( durationResultMultiplier = 1.0/2 )
-    public void benchmark( int count ) {
+    public void tabOrSpaceMatcherBenchmark( int count ) {
         for ( int i=0; i<count; i++ ) {
             buf1.position(0);
             buf2.position(0);
 
             spaceMatcher.match(buf1,true);
             spaceMatcher.match(buf2,true);
+        }
+    }
+
+/*
+79.19ns
+16.46ns
+15.13ns
+18.04ns
+14.48ns
+14.46ns
+*/
+    @Benchmark( durationResultMultiplier = 1.0/2 )
+    public void newLineMatcherBenchmark( int count ) {
+        for ( int i=0; i<count; i++ ) {
+            buf1.position(0);
+            buf2.position(0);
+
+            newLineMatcher.match(buf1,true);
+            newLineMatcher.match(buf2,true);
         }
     }
 

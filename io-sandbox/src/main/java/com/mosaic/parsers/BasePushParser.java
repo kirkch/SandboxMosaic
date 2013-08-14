@@ -14,7 +14,7 @@ import java.util.Stack;
  */
 public abstract class BasePushParser implements PushParser {
 
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = false;
 
     private static void debug( String event, Object data ) {
         if ( DEBUG ) {

@@ -6,68 +6,58 @@ import org.junit.Test;
 
 import java.nio.CharBuffer;
 
-import static org.junit.Assert.*;
+import static com.mosaic.parsers.matchers.MatcherAsserts.assertIncompleteMatch;
+import static com.mosaic.parsers.matchers.MatcherAsserts.assertMatch;
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  */
-public class WhitespaceMatcherTest {
+public class WhitespaceAllMatcherTests {
 
-    private Matcher spaceMatcher = WhitespaceMatcher.tabOrSpaceMatcher();
+    private Matcher spaceMatcher = WhitespaceMatcher.whitespaceMatcher();
 
 
     @Test
     public void giveEmptyString_expectPartialMatch() {
         MatchResult result = spaceMatcher.match("", false);
 
-        assertTrue( result.isIncompleteMatch() );
-        assertNull( result.getParsedValue() );
-        assertEquals( 0, result.getNumCharactersConsumed() );
+        assertIncompleteMatch(result);
     }
 
     @Test
     public void giveEmptyStringEOS_expectMatchedZeroCharacters() {
         MatchResult result = spaceMatcher.match("", true);
 
-        assertTrue( result.isMatch() );
-        assertNull( result.getParsedValue() );
-        assertEquals( 0, result.getNumCharactersConsumed() );
+        assertMatch(result, 0, null);
     }
 
     @Test
     public void givenBlankString_expectPartialMatch() {
         MatchResult result = spaceMatcher.match("  \t ", false);
 
-        assertTrue( result.isIncompleteMatch() );
-        assertNull( result.getParsedValue() );
-        assertEquals( 0, result.getNumCharactersConsumed() );
+        assertIncompleteMatch(result);
     }
 
     @Test
     public void givenBlankStringEOS_expectMatchZeroCharacters() {
         MatchResult result = spaceMatcher.match("  \t ", true);
 
-        assertTrue( result.isMatch() );
-        assertNull( result.getParsedValue() );
-        assertEquals( 4, result.getNumCharactersConsumed() );
+        assertMatch(result, 4, null);
     }
 
     @Test
     public void givenNoneBlankString_expectZeroCharactersMatched() {
         MatchResult result = spaceMatcher.match("Hello", true);
 
-        assertTrue( result.isMatch() );
-        assertNull( result.getParsedValue() );
-        assertEquals( 0, result.getNumCharactersConsumed() );
+        assertMatch(result, 0, null);
     }
 
     @Test
     public void givenWordBlankWord_matchFromBeginning_expectZeroCharactersMatched() {
         MatchResult result = spaceMatcher.match("Hello  \t  World", true);
 
-        assertTrue( result.isMatch() );
-        assertNull( result.getParsedValue() );
-        assertEquals( 0, result.getNumCharactersConsumed() );
+        assertMatch(result, 0, null);
     }
 
     @Test
@@ -77,9 +67,7 @@ public class WhitespaceMatcherTest {
 
         MatchResult result = spaceMatcher.match(buf, true);
 
-        assertTrue( result.isMatch() );
-        assertNull(result.getParsedValue());
-        assertEquals(3, result.getNumCharactersConsumed());
+        assertMatch(result, 3, null);
         assertEquals( 10, buf.position() );
     }
 
@@ -90,9 +78,7 @@ public class WhitespaceMatcherTest {
 
         MatchResult result = spaceMatcher.match(buf, false);
 
-        assertTrue( result.isIncompleteMatch() );
-        assertNull(result.getParsedValue());
-        assertEquals(0, result.getNumCharactersConsumed());
+        assertIncompleteMatch(result);
         assertEquals( 15, buf.position() );
     }
 
@@ -103,10 +89,19 @@ public class WhitespaceMatcherTest {
 
         MatchResult result = spaceMatcher.match(buf, true);
 
-        assertTrue( result.isMatch() );
-        assertNull(result.getParsedValue());
-        assertEquals(0, result.getNumCharactersConsumed());
+        assertMatch(result, 0, null);
         assertEquals( 15, buf.position() );
+    }
+
+    @Test
+    public void givenWordBlankWordWithNewLines_matchFromMidpointOfBlank_expectCharactersMatched() {
+        CharBuffer buf = CharBuffer.wrap("Hello  \t\n\r  World");
+        buf.position(7);
+
+        MatchResult result = spaceMatcher.match(buf, true);
+
+        assertMatch(result, 5, null);
+        assertEquals( 12, buf.position() );
     }
 
 }
