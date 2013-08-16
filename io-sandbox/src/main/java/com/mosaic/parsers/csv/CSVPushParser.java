@@ -19,7 +19,7 @@ public class CSVPushParser extends BasePushParser {
 
     private Matcher csvColumn  = new CSVColumnValueMatcher(',');
     private Matcher csvColumns = commaSeparatedValues(csvColumn).withCallback("rowReceived");
-    private Matcher csvRow     = csvColumns; // and(csvColumns,whitespaceMatcher())
+    private Matcher csvRow     = csvColumns; // and(csvColumns,whitespaceMatcher().skip())
     private Matcher csvRows    = repeatOnceOrMore(csvRow);
 
     private int rowCount;

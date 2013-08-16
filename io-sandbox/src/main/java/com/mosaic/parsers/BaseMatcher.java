@@ -10,8 +10,9 @@ import java.nio.CharBuffer;
  */
 public abstract class BaseMatcher implements Matcher {
 
-    private String name;
-    private String callbackMethodName;
+    private String  name;
+    private String  callbackMethodName;
+    private boolean requestParentToKeepParsedValue = true;
 
     private transient Method lazilyCachedCallbackMethod;
     private transient int    bufferIndexFromPreviousCall = -1;
@@ -58,6 +59,23 @@ public abstract class BaseMatcher implements Matcher {
 
     public void setBufferIndexFromPreviousCall( int pos ) {
         this.bufferIndexFromPreviousCall = pos;
+    }
+
+
+    public boolean shouldParentKeepParsedValueOnMatch() {
+        return requestParentToKeepParsedValue;
+    }
+
+    public Matcher keep() {
+        this.requestParentToKeepParsedValue = true;
+
+        return this;
+    }
+
+    public Matcher skip() {
+        this.requestParentToKeepParsedValue = false;
+
+        return this;
     }
 
 }

@@ -19,8 +19,18 @@ public class MatchResult {
         return new MatchResult(STATUS_NO_MATCH);
     }
 
+    /**
+     * A successful match where the parsed value has been kept.
+     */
     public static MatchResult matched(int numCharsMatched, Object parsedValue) {
-        return new MatchResult(numCharsMatched,parsedValue);
+        return new MatchResult(numCharsMatched,parsedValue,true);
+    }
+
+    /**
+     * A successful match where the parsed value has been skipped.
+     */
+    public static MatchResult matched(int numCharsMatched) {
+        return new MatchResult(numCharsMatched,null,false);
     }
 
     /**
@@ -61,6 +71,12 @@ public class MatchResult {
     private Object parsedValue;
 
     /**
+     * Has the parsedValue been included, and is to be kept.  Used to signal that a
+     * null or non-null parsedValue has value to the parent matcher.
+     */
+    private boolean hasParsedValue;
+
+    /**
      * Extra information regarding the failed match.
      */
     private String errorMessage;
@@ -89,10 +105,15 @@ public class MatchResult {
         this.status = status;
     }
 
-    private MatchResult(int numCharsMatched, Object parsedValue) {
+    /**
+     * hasParsedValue is required because a parsedValue of null may be valid as the result
+     * from a matcher that is not to be ignored.
+     */
+    private MatchResult(int numCharsMatched, Object parsedValue, boolean hasParsedValue) {
         this.status                = STATUS_MATCHED;
         this.numCharactersConsumed = numCharsMatched;
         this.parsedValue           = parsedValue;
+        this.hasParsedValue        = hasParsedValue;
     }
 
     private MatchResult( Matcher child, Function1<MatchResult,MatchResult> continuation ) {
@@ -123,6 +144,9 @@ public class MatchResult {
     }
 
 
+
+
+
     public int getMatchIndexOnError() {
         return matchIndexOnError;
     }
@@ -133,6 +157,10 @@ public class MatchResult {
 
     public Object getParsedValue() {
         return parsedValue;
+    }
+
+    public boolean hasParsedValue() {
+        return hasParsedValue;
     }
 
     public int getNumCharactersConsumed() {

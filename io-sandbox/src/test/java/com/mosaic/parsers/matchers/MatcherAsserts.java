@@ -19,6 +19,7 @@ public class MatcherAsserts {
         assertNull(result.getContinuation());
         assertEquals( 0, result.getMatchIndexOnError() );
         assertNull( result.getErrorMessage() );
+        assertFalse( result.hasParsedValue() );
     }
 
     public static void assertIncompleteMatch(MatchResult result) {
@@ -28,6 +29,7 @@ public class MatcherAsserts {
         assertNull(result.getContinuation());
         assertEquals( 0, result.getMatchIndexOnError() );
         assertNull( result.getErrorMessage() );
+        assertFalse( result.hasParsedValue() );
     }
 
     public static void assertContinuation( MatchResult result, Matcher expectedNextMatcher ) {
@@ -37,6 +39,7 @@ public class MatcherAsserts {
         assertNotNull(result.getContinuation());
         assertEquals( 0, result.getMatchIndexOnError() );
         assertNull( result.getErrorMessage() );
+        assertFalse( result.hasParsedValue() );
     }
 
     public static void assertMatch( MatchResult result, int expectedNumCharactersConsumed, Object expectedParsedValue ) {
@@ -47,6 +50,18 @@ public class MatcherAsserts {
         assertEquals( 0, result.getMatchIndexOnError() );
         assertNull( result.getErrorMessage() );
         assertEquals( expectedNumCharactersConsumed, result.getNumCharactersConsumed() );
+        assertTrue( result.hasParsedValue() );
+    }
+
+    public static void assertMatchWithSkippableContents( MatchResult result, int expectedNumCharactersConsumed ) {
+        assertTrue( "expected 'match', was '"+result+"'", result.isMatch() );
+        assertNull(result.getNextMatcher());
+        assertNull(result.getParsedValue());
+        assertNull(result.getContinuation());
+        assertEquals( 0, result.getMatchIndexOnError() );
+        assertNull( result.getErrorMessage() );
+        assertEquals( expectedNumCharactersConsumed, result.getNumCharactersConsumed() );
+        assertFalse( result.hasParsedValue() );
     }
 
     public static void assertError( MatchResult result, int expectedOffset, String expectedErrorMessage ) {
@@ -56,6 +71,7 @@ public class MatcherAsserts {
         assertNull(result.getContinuation());
         assertEquals( expectedOffset, result.getMatchIndexOnError() );
         assertEquals( expectedErrorMessage, result.getErrorMessage() );
+        assertFalse( result.hasParsedValue() );
     }
     
 }

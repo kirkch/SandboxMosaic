@@ -26,9 +26,7 @@ public interface Matcher {
 
     /**
      * Name of the value that this matcher matches.  Named matchers provide
-     * better error and debug reports.  If a matcher is named then it is also
-     * a hint to the push parser to hold onto the result of this matcher rather
-     * than to skip it.
+     * better error and debug reports.
      */
     public Matcher withName( String name );
 
@@ -62,4 +60,24 @@ public interface Matcher {
      */
     public int getBufferIndexFromPreviousCall();
     public void setBufferIndexFromPreviousCall( int pos );
+
+
+    /**
+     * Is this matcher requesting its parent matcher to carry over and use its
+     * result? False would signify that any parsed value from this matcher may
+     * be dropped.  The default value is keep; the parsed value will be kept
+     * by the parent.
+     */
+    public boolean shouldParentKeepParsedValueOnMatch();
+
+    /**
+     * Sets shouldParentKeepParsedValueOnMatch to true.
+     */
+    public Matcher keep();
+
+    /**
+     * Sets shouldParentKeepParsedValueOnMatch to false.
+     */
+    public Matcher skip();
+
 }
