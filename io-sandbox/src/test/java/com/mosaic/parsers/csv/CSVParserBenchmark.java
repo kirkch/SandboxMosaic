@@ -24,12 +24,12 @@ public class CSVParserBenchmark {
 
 
 /*
-14860.83ns
-10614.15ns
-10765.58ns
-10526.23ns
-10684.30ns
-10544.40ns
+12712.80ns
+8140.03ns
+9464.38ns
+4902.50ns
+4344.58ns
+4304.85ns
 */
 
     @Benchmark( value=10000, durationResultMultiplier=0.25 )

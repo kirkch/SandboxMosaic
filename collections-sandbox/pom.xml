@@ -27,5 +27,11 @@
             <artifactId>lang-sandbox</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.mosaic</groupId>
+            <artifactId>junit-hammer</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

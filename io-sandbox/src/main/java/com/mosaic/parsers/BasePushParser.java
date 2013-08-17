@@ -1,5 +1,6 @@
 package com.mosaic.parsers;
 
+import com.mosaic.collections.FastStack;
 import com.mosaic.lang.function.Function1;
 import com.mosaic.lang.reflect.ReflectionUtils;
 
@@ -7,7 +8,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Method;
 import java.nio.CharBuffer;
-import java.util.Stack;
 
 /**
  *
@@ -29,7 +29,7 @@ public abstract class BasePushParser implements PushParser {
     private Matcher errorRecoveryMatcher;
 
 
-    private Stack<ParseFrame> stack = new Stack<ParseFrame>();
+    private FastStack stack = new FastStack();
 
 
     protected void setInitialMatcher( Matcher matcher ) {
@@ -77,7 +77,7 @@ public abstract class BasePushParser implements PushParser {
 
         boolean keepGoing = true;
         while ( keepGoing ) {
-            ParseFrame  currentFrame   = stack.peek();
+            ParseFrame  currentFrame   = (ParseFrame) stack.peek();
             Matcher     currentMatcher = currentFrame.matcher;
 
             skipMatcher.match(buf,isEOS);
@@ -142,7 +142,7 @@ public abstract class BasePushParser implements PushParser {
 
                 stack.pop();
 
-                return processResult( stack.peek(), continuationResult, buf, isEOS);
+                return processResult( (ParseFrame) stack.peek(), continuationResult, buf, isEOS);
             } else {
                 if ( isEOS ) {
                     debug( "jobdone", null );
