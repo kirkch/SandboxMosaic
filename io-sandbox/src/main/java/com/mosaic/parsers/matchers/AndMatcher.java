@@ -6,14 +6,19 @@ import com.mosaic.parsers.MatchResult;
 import com.mosaic.parsers.Matcher;
 
 import java.nio.CharBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  */
+@SuppressWarnings("unchecked")
 public class AndMatcher extends BaseMatcher {
 
     private Matcher[] children;
     private int nextChildIndex;
+
+    private List matchedValues = new ArrayList();
 
     public AndMatcher( Matcher... children ) {
         if ( children == null || children.length == 0 ) {
@@ -26,17 +31,27 @@ public class AndMatcher extends BaseMatcher {
     public MatchResult match( CharBuffer buf, boolean isEOS ) {
         nextChildIndex = 1;
 
+        matchedValues.clear();
+
         return MatchResult.continuation( children[0], childContinuation );
     }
 
 
     private Function1<MatchResult,MatchResult> childContinuation = new Function1<MatchResult,MatchResult>() {
         public MatchResult invoke( MatchResult result ) {
-            if ( result.isMatch() && nextChildIndex < children.length ) {
-                Matcher nextMatcher = children[nextChildIndex];
-                nextChildIndex += 1;
+            if ( result.isMatch() ) {
+                if ( result.hasParsedValue() ) {
+                    matchedValues.add( result.getParsedValue() );
+                }
 
-                return MatchResult.continuation(nextMatcher, childContinuation);
+                if ( nextChildIndex < children.length ) {
+                    Matcher nextMatcher = children[nextChildIndex];
+                    nextChildIndex += 1;
+
+                    return MatchResult.continuation(nextMatcher, childContinuation);
+                }
+
+                return MatchResult.matched(0, new ArrayList(matchedValues) );
             }
 
             return result;
