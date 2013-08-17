@@ -8,6 +8,16 @@ import com.mosaic.parsers.Matcher;
 public class Matchers {
 
     /**
+     * Must match each of the supplied child matchers. At which point each of the
+     * childrens parsed values will be returned in a list.  If the child is marked
+     * as skippable then its parsed value will be skipped but the matcher itself
+     * must still match.
+     */
+    public static Matcher and( Matcher...childMatchers ) {
+        return new AndMatcher(childMatchers);
+    }
+
+    /**
      * Repeats valueMatcher until it no longer matches anything.  Collects all
      * results into a list.
      */

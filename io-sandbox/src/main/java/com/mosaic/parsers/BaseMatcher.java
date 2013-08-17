@@ -78,4 +78,9 @@ public abstract class BaseMatcher implements Matcher {
         return this;
     }
 
+
+    public String toString() {
+        return this.callbackMethodName == null ? this.getClass().getSimpleName() : this.callbackMethodName;
+    }
+
 }

@@ -32,12 +32,4 @@ public interface PushParser {
      */
     public long push( Reader in ) throws IOException;
 
-    /**
-     * Push the entire body of text to be parsed in one go.  Mostly a convenience
-     * method.
-     *
-     * @return number of characters consumed
-     */
-    public long push( String in, boolean isEOS );
-
 }

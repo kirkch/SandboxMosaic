@@ -144,6 +144,9 @@ public class MatchResult {
     }
 
 
+    public MatchResult skipParsedValue() {
+        return hasParsedValue ? matched(numCharactersConsumed) : this;
+    }
 
 
 

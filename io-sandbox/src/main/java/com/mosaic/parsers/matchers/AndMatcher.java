@@ -10,7 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Must match each of the supplied child matchers. At which point each of the
+ * childrens parsed values will be returned in a list.  If the child is marked
+ * as skippable then its parsed value will be skipped but the matcher itself
+ * must still match.
  */
 @SuppressWarnings("unchecked")
 public class AndMatcher extends BaseMatcher {

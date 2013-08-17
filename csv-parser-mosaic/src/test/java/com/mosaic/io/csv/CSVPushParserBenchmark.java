@@ -9,7 +9,7 @@ import java.util.List;
 /**
  *
  */
-//@Ignore
+@Ignore
 public class CSVPushParserBenchmark {
 
     CSVPushParserDelegateNoOp delegate = new CSVPushParserDelegateNoOp();
@@ -70,7 +70,7 @@ Characters csv3 = Characters.wrapString("name, symbol, stock exchange, ask, ask 
         long durationNanos = System.nanoTime() - startNanos;
         long perRowNanos   = durationNanos/delegate.count;
 
-        System.out.println( "per row " + perRowNanos + "ns" );
+        System.out.println( "per row " + perRowNanos + "ns "+delegate.count );
 //        System.out.println("delegate.columnCount = " + delegate.count);
 
         return delegate.count;

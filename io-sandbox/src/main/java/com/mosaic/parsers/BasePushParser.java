@@ -56,10 +56,6 @@ public abstract class BasePushParser implements PushParser {
     }
 
 
-    public long push( String in, boolean isEOS ) {
-        return push( CharBuffer.wrap(in), isEOS );
-    }
-
     public long push( Reader in ) throws IOException {
         CharBuffer buf = CharBuffer.allocate(1024*4);
 
@@ -138,6 +134,10 @@ public abstract class BasePushParser implements PushParser {
             }
 
             if ( currentFrame.continuation != null ) {
+                if ( !currentFrame.matcher.shouldParentKeepParsedValueOnMatch() ) {
+                    result = result.skipParsedValue();
+                }
+
                 MatchResult continuationResult = currentFrame.continuation.invoke( result );
 
                 stack.pop();
