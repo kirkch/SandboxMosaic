@@ -192,4 +192,12 @@ public class DTMTest {
 
         assertEquals( 11, dtm.withTimeZone( TZ.UTC).getHour() );
     }
+
+    @Test
+    public void testCreateWithMillis() {
+        DTM dtm = new DTM(100000);
+
+        assertEquals( 100000, dtm.getMillisSinceEpoch() );
+    }
+
 }

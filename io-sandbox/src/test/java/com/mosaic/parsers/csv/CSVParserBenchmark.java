@@ -1,7 +1,7 @@
 package com.mosaic.parsers.csv;
 
-import com.mosaic.hammer.junit.Benchmark;
-import com.mosaic.hammer.junit.Hammer;
+import com.mosaic.junitpro.Benchmark;
+import com.mosaic.junitpro.JUnitPro;
 import com.mosaic.parsers.PushParser;
 import org.junit.runner.RunWith;
 
@@ -11,7 +11,7 @@ import java.util.List;
 /**
  *
  */
-@RunWith(Hammer.class)
+@RunWith(JUnitPro.class)
 public class CSVParserBenchmark {
 
     private CSVParserCallbackFake delegate = new CSVParserCallbackFake();

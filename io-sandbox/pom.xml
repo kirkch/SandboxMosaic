@@ -35,7 +35,7 @@
 
         <dependency>
             <groupId>com.mosaic</groupId>
-            <artifactId>junit-hammer</artifactId>
+            <artifactId>junitpro</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

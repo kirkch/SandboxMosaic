@@ -30,7 +30,7 @@ public class FastStack {
     public Object pop() {
         Object o = array[--position];
 
-        array[position] = null;
+        array[position] = null;    // NB costs apx .6ns
 
         return o;
     }

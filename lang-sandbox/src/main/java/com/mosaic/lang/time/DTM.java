@@ -157,6 +157,10 @@ public class DTM extends Orderable<DTM> {
         return calendar.get( Calendar.MILLISECOND );
     }
 
+    public long getMillisSinceEpoch() {
+        return calendar.getTimeInMillis();
+    }
+
     public DTM plusDays( int numDays ) {
         Calendar c = (Calendar) calendar.clone();
 

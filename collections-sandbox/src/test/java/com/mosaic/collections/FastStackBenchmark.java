@@ -1,7 +1,7 @@
 package com.mosaic.collections;
 
-import com.mosaic.hammer.junit.Benchmark;
-import com.mosaic.hammer.junit.Hammer;
+import com.mosaic.junitpro.Benchmark;
+import com.mosaic.junitpro.JUnitPro;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
@@ -12,12 +12,12 @@ import java.util.Stack;
  *
  */
 @SuppressWarnings("unchecked")
-@RunWith(Hammer.class)
+@RunWith(JUnitPro.class)
 public class FastStackBenchmark {
 
-    private Stack     jdkStack = new Stack();
-    private FastStack fastStack = new FastStack(1);
-    private FastStack fastStack200 = new FastStack(200);
+    private Stack     jdkStack      = new Stack();
+    private FastStack fastStack     = new FastStack(1);
+    private FastStack fastStack200  = new FastStack(200);
     private List      jdkArraysList = new ArrayList(200);
 
 

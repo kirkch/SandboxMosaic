@@ -3,7 +3,7 @@ package com.mosaic.parsers.csv;
 
 import java.nio.CharBuffer;
 
-import com.mosaic.hammer.junit.Hammer;
+import com.mosaic.junitpro.JUnitPro;
 import com.mosaic.parsers.MatchResult;
 import com.mosaic.parsers.Matcher;
 import org.junit.Test;
@@ -16,7 +16,7 @@ import static com.mosaic.parsers.matchers.MatcherAsserts.*;
 /**
  *
  */
-@RunWith(Hammer.class)
+@RunWith(JUnitPro.class)
 public class CSVColumnValueMatcherTest {
 
     private Matcher matcher = new CSVColumnValueMatcher(',');
