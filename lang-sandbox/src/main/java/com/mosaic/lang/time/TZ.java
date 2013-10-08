@@ -9,6 +9,7 @@ import java.util.TimeZone;
  *
  */
 public class TZ implements Serializable, Immutable {
+
     private static final long serialVersionUID = 1289461083540L;
 
     public static final TZ UTC    = getTimeZone("UTC");
@@ -55,4 +56,5 @@ public class TZ implements Serializable, Immutable {
     public int hashCode() {
         return tz.hashCode();
     }
+
 }
