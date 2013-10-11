@@ -1,5 +1,6 @@
 package com.mosaic.collections;
 
+import com.mosaic.lang.Nullable;
 import com.mosaic.lang.function.Function1;
 
 import java.util.Objects;
@@ -23,13 +24,13 @@ public abstract class ConsList<T> {
 
     public abstract boolean isEmpty();
 
+    public abstract <B> ConsList<T> map( Function1<B,T> mappingFunction );
+    public abstract <B> Nullable<B> collectFirst( Function1<Nullable<B>,T> mappingFunction );
+
 
     public ConsList<T> cons( T v ) {
         return new ElementNode( v, this );
     }
-
-
-    public abstract <B> ConsList<T> map( Function1<B,T> mappingFunction );
 
 
     protected abstract boolean shallowEquals( ConsList<T> other );
@@ -50,6 +51,10 @@ public abstract class ConsList<T> {
 
         public <B> ConsList<T> map( Function1<B,T> mappingFunction ) {
             return this;
+        }
+
+        public <B> Nullable<B> collectFirst( Function1<Nullable<B>,T> mappingFunction ) {
+            return Nullable.NULL;
         }
 
         public String toString() {
@@ -98,6 +103,16 @@ public abstract class ConsList<T> {
 
         public <B> ConsList<T> map( Function1<B,T> mappingFunction ) {
             return new ElementNode( mappingFunction.invoke(head), tail.map(mappingFunction) );
+        }
+
+        public <B> Nullable<B> collectFirst( Function1<Nullable<B>,T> mappingFunction ) {
+            Nullable<B> mappedValueNbl = mappingFunction.invoke(head);
+
+            if ( mappedValueNbl.isNotNull() ) {
+                return mappedValueNbl;
+            }
+
+            return tail.collectFirst( mappingFunction );
         }
 
         public String toString() {
