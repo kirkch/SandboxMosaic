@@ -7,7 +7,8 @@ import java.util.Objects;
 
 /**
  * A classic cons-list as made popular by functional programming.  Essentially
- * an immutable linked list supporting head, tail and cons operations.<p/>
+ * an immutable linked list made up of a head value and another cons-list called
+ * the tail. <p/>
  *
  * NB uses recursive implementations that will overflow the stack if the
  * list is beyond a certain length.  For now avoid using in cases where
@@ -24,10 +25,30 @@ public abstract class ConsList<T> {
 
     public abstract boolean isEmpty();
 
+    /**
+     * Create a new list that contains the mapped version of each value in this list.
+     */
     public abstract <B> ConsList<T> map( Function1<B,T> mappingFunction );
-    public abstract <B> Nullable<B> collectFirst( Function1<Nullable<B>,T> mappingFunction );
 
+    /**
+     * Returns the first value in this list that satisfies the specified predicateFunction.
+     * If predicateFunction returns false for every value, then this function will
+     * return NULL.
+     */
+    public abstract Nullable<T> fetchFirstMatch( Function1<Boolean,T> predicateFunction );
 
+    /**
+     * Returns a single mapped value from this list.  The value returned will
+     * be the first non-null result returned from the mappingFunction.  Values
+     * from this list will be passed to the mappingFunction one at a time starting
+     * from the head.
+     */
+    public abstract <B> Nullable<B> mapSingleValue( Function1<Nullable<B>,T> mappingFunction );
+
+    /**
+     * Creates a new list with the supplied value as its head and this list
+     * as its tail.
+     */
     public ConsList<T> cons( T v ) {
         return new ElementNode( v, this );
     }
@@ -53,7 +74,11 @@ public abstract class ConsList<T> {
             return this;
         }
 
-        public <B> Nullable<B> collectFirst( Function1<Nullable<B>,T> mappingFunction ) {
+        public <B> Nullable<B> mapSingleValue( Function1<Nullable<B>,T> mappingFunction ) {
+            return Nullable.NULL;
+        }
+
+        public Nullable<T> fetchFirstMatch( Function1<Boolean,T> predicateFunction ) {
             return Nullable.NULL;
         }
 
@@ -105,14 +130,24 @@ public abstract class ConsList<T> {
             return new ElementNode( mappingFunction.invoke(head), tail.map(mappingFunction) );
         }
 
-        public <B> Nullable<B> collectFirst( Function1<Nullable<B>,T> mappingFunction ) {
+        public <B> Nullable<B> mapSingleValue( Function1<Nullable<B>,T> mappingFunction ) {
             Nullable<B> mappedValueNbl = mappingFunction.invoke(head);
 
             if ( mappedValueNbl.isNotNull() ) {
                 return mappedValueNbl;
             }
 
-            return tail.collectFirst( mappingFunction );
+            return tail.mapSingleValue( mappingFunction );
+        }
+
+        public Nullable<T> fetchFirstMatch( Function1<Boolean,T> predicateFunction ) {
+            boolean predicate = predicateFunction.invoke(head);
+
+            if ( predicate ) {
+                return Nullable.createNullable(head);
+            }
+
+            return tail.fetchFirstMatch( predicateFunction );
         }
 
         public String toString() {

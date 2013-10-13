@@ -84,13 +84,90 @@ public class ConsListTest {
     }
 
 
-// COLLECT FIRST
+// FETCH FIRST MATCH
 
     @Test
-    public void givenNil_callCollectFirst_expectMappingFunctionToNotBeCalledAndNullToBeReturned() {
+    public void givenNil_callFetchFirstMatch_expectMappingFunctionToNotBeCalledAndNullToBeReturned() {
         final AtomicBoolean wasMappingFunctionInvoked = new AtomicBoolean(false);
 
-        Nullable<Integer> result = ConsList.Nil.collectFirst( new Function1<Nullable<Integer>,String>() {
+        Nullable<Integer> result = ConsList.Nil.fetchFirstMatch( new Function1<Boolean,String>() {
+            public Boolean invoke(String arg) {
+                wasMappingFunctionInvoked.set(true);
+
+                return false;
+            }
+        });
+
+        assertTrue( result.isNull() );
+        assertFalse( wasMappingFunctionInvoked.get() );
+    }
+
+    @Test
+    public void givenNonEmptyList_callFetchFirstMatchAndMappingFunctionToNotMatch_expectMappingFunctionToBeCalledAndNullToBeReturned() {
+        final AtomicInteger mappingFunctionCallCount = new AtomicInteger(0);
+
+        ConsList list = ConsList.Nil.cons("123").cons("12");
+
+        Nullable<Integer> result = list.fetchFirstMatch(new Function1<Boolean,String>() {
+            public Boolean invoke(String arg) {
+                mappingFunctionCallCount.incrementAndGet();
+
+                return false;
+            }
+        });
+
+        assertTrue( result.isNull() );
+        assertEquals(2, mappingFunctionCallCount.get());
+    }
+
+    @Test
+    public void givenNonEmptyList_callfetchFirstMatchAndMappingFunctionToMatchSecond_expectMappingFunctionToBeCalledAndMappedValueReturned() {
+        final AtomicInteger mappingFunctionCallCount = new AtomicInteger(0);
+
+        ConsList list = ConsList.Nil.cons("123").cons("12");
+
+        Nullable<String> result = list.fetchFirstMatch(new Function1<Boolean, String>() {
+            public Boolean invoke(String arg) {
+                mappingFunctionCallCount.incrementAndGet();
+
+                if ( arg.length() == 3 ) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+
+        assertEquals( "123", result.getValue() );
+        assertEquals( 2, mappingFunctionCallCount.get() );
+    }
+
+    @Test
+    public void givenNonEmptyList_callfetchFirstMatchAndMappingFunctionToMatchFIRST_expectMappingFunctionToBeCalledAndMappedValueReturned() {
+        final AtomicInteger mappingFunctionCallCount = new AtomicInteger(0);
+
+        ConsList list = ConsList.Nil.cons("123").cons("12");
+
+        Nullable<String> result = list.fetchFirstMatch(new Function1<Boolean, String>() {
+            public Boolean invoke(String arg) {
+                mappingFunctionCallCount.incrementAndGet();
+
+                return true;
+            }
+        });
+
+        assertEquals( "12", result.getValue() );
+        assertEquals( 1, mappingFunctionCallCount.get() );
+    }
+
+
+// MAP SINGLE VALUE
+
+    @Test
+    public void givenNil_callMapSingleValue_expectMappingFunctionToNotBeCalledAndNullToBeReturned() {
+        final AtomicBoolean wasMappingFunctionInvoked = new AtomicBoolean(false);
+
+        Nullable<Integer> result = ConsList.Nil.mapSingleValue( new Function1<Nullable<Integer>,String>() {
             public Nullable<Integer> invoke(String arg) {
                 wasMappingFunctionInvoked.set(true);
 
@@ -103,12 +180,12 @@ public class ConsListTest {
     }
 
     @Test
-    public void givenNonEmptyList_callCollectFirstAndMappingFunctionToNotMatch_expectMappingFunctionToBeCalledAndNullToBeReturned() {
+    public void givenNonEmptyList_callMapSingleValueAndMappingFunctionToNotMatch_expectMappingFunctionToBeCalledAndNullToBeReturned() {
         final AtomicInteger mappingFunctionCallCount = new AtomicInteger(0);
 
         ConsList list = ConsList.Nil.cons("123").cons("12");
 
-        Nullable<Integer> result = list.collectFirst(new Function1<Nullable<Integer>, String>() {
+        Nullable<Integer> result = list.mapSingleValue(new Function1<Nullable<Integer>, String>() {
             public Nullable<Integer> invoke(String arg) {
                 mappingFunctionCallCount.incrementAndGet();
 
@@ -121,12 +198,12 @@ public class ConsListTest {
     }
 
     @Test
-    public void givenNonEmptyList_callCollectFirstAndMappingFunctionToMatchSecond_expectMappingFunctionToBeCalledAndMappedValueReturned() {
+    public void givenNonEmptyList_callmapSingleValueAndMappingFunctionToMatchSecond_expectMappingFunctionToBeCalledAndMappedValueReturned() {
         final AtomicInteger mappingFunctionCallCount = new AtomicInteger(0);
 
         ConsList list = ConsList.Nil.cons("123").cons("12");
 
-        Nullable<Integer> result = list.collectFirst(new Function1<Nullable<Integer>, String>() {
+        Nullable<Integer> result = list.mapSingleValue(new Function1<Nullable<Integer>, String>() {
             public Nullable<Integer> invoke(String arg) {
                 mappingFunctionCallCount.incrementAndGet();
 
@@ -143,12 +220,12 @@ public class ConsListTest {
     }
 
     @Test
-    public void givenNonEmptyList_callCollectFirstAndMappingFunctionToMatchFIRST_expectMappingFunctionToBeCalledAndMappedValueReturned() {
+    public void givenNonEmptyList_callmapSingleValueAndMappingFunctionToMatchFIRST_expectMappingFunctionToBeCalledAndMappedValueReturned() {
         final AtomicInteger mappingFunctionCallCount = new AtomicInteger(0);
 
         ConsList list = ConsList.Nil.cons("123").cons("12");
 
-        Nullable<Integer> result = list.collectFirst(new Function1<Nullable<Integer>, String>() {
+        Nullable<Integer> result = list.mapSingleValue(new Function1<Nullable<Integer>, String>() {
             public Nullable<Integer> invoke(String arg) {
                 mappingFunctionCallCount.incrementAndGet();
 
@@ -163,7 +240,7 @@ public class ConsListTest {
         assertEquals( 2, result.getValue().intValue() );
         assertEquals( 1, mappingFunctionCallCount.get() );
     }
-    
+
 
 
     private <T> void assertConsListEquals( ConsList<T> list, T...expectedValues ) {
