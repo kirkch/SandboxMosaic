@@ -56,6 +56,9 @@ public abstract class ConsList<T> {
 
     protected abstract boolean shallowEquals( ConsList<T> other );
 
+
+    public abstract String toString();
+
     private static class NilNode<T> extends ConsList<T> {
 
         public T head() {

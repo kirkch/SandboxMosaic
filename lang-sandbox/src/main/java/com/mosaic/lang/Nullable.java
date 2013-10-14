@@ -189,7 +189,7 @@ final class Null<T> extends Nullable<T> {
     }
 
     public String toString() {
-        return "null";
+        return "Null";
     }
 
 }
