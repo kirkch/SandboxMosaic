@@ -26,7 +26,7 @@ public class ArrayUtils {
     /**
      * Creates a new array containing the result of calling mapFunction on each element of the original array.
      */
-    public static <A,B> B[] map( A[] array, Function1<B,A> mapFunction ) {
+    public static <A,B> B[] map( A[] array, Function1<A,B> mapFunction ) {
         int      arrayLength = array.length;
         Object[] newArray    = new Object[arrayLength];
 

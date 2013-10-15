@@ -130,8 +130,8 @@ public abstract class Nullable<T> {
     public abstract boolean isNotNull();
 
 
-    public abstract <B> Nullable<B> mapValue(Function1<B,T> mappingFunction);
-    public abstract <B> Nullable<B> flatMapValue(Function1<Nullable<B>,T> mappingFunction);
+    public abstract <B> Nullable<B> mapValue(Function1<T,B> mappingFunction);
+    public abstract <B> Nullable<B> flatMapValue(Function1<T,Nullable<B>> mappingFunction);
 
     public abstract Nullable<T> replaceNull(Function0<Nullable<T>> mappingFunction);
 
@@ -165,11 +165,11 @@ final class Null<T> extends Nullable<T> {
         throw new NullPointerException();
     }
 
-    public <B> Nullable<B> mapValue(Function1<B,T> mappingFunction) {
+    public <B> Nullable<B> mapValue(Function1<T,B> mappingFunction) {
         return (Nullable<B>) this;
     }
 
-    public <B> Nullable<B> flatMapValue( Function1<Nullable<B>,T> mappingFunction ) {
+    public <B> Nullable<B> flatMapValue( Function1<T,Nullable<B>> mappingFunction ) {
         return (Nullable<B>) this;
     }
 
@@ -225,13 +225,13 @@ final class NotNull<T> extends Nullable<T> {
         return true;
     }
 
-    public <B> Nullable<B> mapValue(Function1<B,T> mappingFunction) {
+    public <B> Nullable<B> mapValue(Function1<T,B> mappingFunction) {
         B mappedResult = mappingFunction.invoke(this.value);
 
         return Nullable.createNullable(mappedResult);
     }
 
-    public <B> Nullable<B> flatMapValue( Function1<Nullable<B>,T> mappingFunction ) {
+    public <B> Nullable<B> flatMapValue( Function1<T,Nullable<B>> mappingFunction ) {
         Nullable<B> mappedResult = mappingFunction.invoke(this.value);
 
         return mappedResult == null ? NULL : mappedResult;

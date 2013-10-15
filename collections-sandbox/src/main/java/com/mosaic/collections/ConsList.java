@@ -3,7 +3,6 @@ package com.mosaic.collections;
 import com.mosaic.lang.Nullable;
 import com.mosaic.lang.function.Function1;
 
-import java.lang.reflect.TypeVariable;
 import java.util.Objects;
 
 /**
@@ -33,14 +32,14 @@ public abstract class ConsList<T> {
     /**
      * Create a new list that contains the mapped version of each value in this list.
      */
-    public abstract <B> ConsList<T> map( Function1<B,T> mappingFunction );
+    public abstract <B> ConsList<T> map( Function1<T,B> mappingFunction );
 
     /**
      * Returns the first value in this list that satisfies the specified predicateFunction.
      * If predicateFunction returns false for every value, then this function will
      * return NULL.
      */
-    public abstract Nullable<T> fetchFirstMatch( Function1<Boolean,T> predicateFunction );
+    public abstract Nullable<T> fetchFirstMatch( Function1<T,Boolean> predicateFunction );
 
     /**
      * Returns a single mapped value from this list.  The value returned will
@@ -48,7 +47,7 @@ public abstract class ConsList<T> {
      * from this list will be passed to the mappingFunction one at a time starting
      * from the head.
      */
-    public abstract <B> Nullable<B> mapSingleValue( Function1<Nullable<B>,T> mappingFunction );
+    public abstract <B> Nullable<B> mapSingleValue( Function1<T,Nullable<B>> mappingFunction );
 
     /**
      * Creates a new list with the supplied value as its head and this list
@@ -95,15 +94,15 @@ public abstract class ConsList<T> {
             return true;
         }
 
-        public <B> ConsList<T> map( Function1<B,T> mappingFunction ) {
+        public <B> ConsList<T> map( Function1<T,B> mappingFunction ) {
             return this;
         }
 
-        public <B> Nullable<B> mapSingleValue( Function1<Nullable<B>,T> mappingFunction ) {
+        public <B> Nullable<B> mapSingleValue( Function1<T,Nullable<B>> mappingFunction ) {
             return Nullable.NULL;
         }
 
-        public Nullable<T> fetchFirstMatch( Function1<Boolean,T> predicateFunction ) {
+        public Nullable<T> fetchFirstMatch( Function1<T,Boolean> predicateFunction ) {
             return Nullable.NULL;
         }
 
@@ -151,11 +150,11 @@ public abstract class ConsList<T> {
             return false;
         }
 
-        public <B> ConsList<T> map( Function1<B,T> mappingFunction ) {
+        public <B> ConsList<T> map( Function1<T,B> mappingFunction ) {
             return new ElementNode( mappingFunction.invoke(head), tail.map(mappingFunction) );
         }
 
-        public <B> Nullable<B> mapSingleValue( Function1<Nullable<B>,T> mappingFunction ) {
+        public <B> Nullable<B> mapSingleValue( Function1<T,Nullable<B>> mappingFunction ) {
             Nullable<B> mappedValueNbl = mappingFunction.invoke(head);
 
             if ( mappedValueNbl.isNotNull() ) {
@@ -165,7 +164,7 @@ public abstract class ConsList<T> {
             return tail.mapSingleValue( mappingFunction );
         }
 
-        public Nullable<T> fetchFirstMatch( Function1<Boolean,T> predicateFunction ) {
+        public Nullable<T> fetchFirstMatch( Function1<T,Boolean> predicateFunction ) {
             boolean predicate = predicateFunction.invoke(head);
 
             if ( predicate ) {

@@ -2,7 +2,6 @@ package com.mosaic.collections;
 
 import com.mosaic.lang.Nullable;
 import com.mosaic.lang.function.Function1;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -90,7 +89,7 @@ public class ConsListTest {
     public void givenNil_callFetchFirstMatch_expectMappingFunctionToNotBeCalledAndNullToBeReturned() {
         final AtomicBoolean wasMappingFunctionInvoked = new AtomicBoolean(false);
 
-        Nullable<Integer> result = ConsList.Nil.fetchFirstMatch( new Function1<Boolean,String>() {
+        Nullable<Integer> result = ConsList.Nil.fetchFirstMatch( new Function1<String,Boolean>() {
             public Boolean invoke(String arg) {
                 wasMappingFunctionInvoked.set(true);
 
@@ -108,7 +107,7 @@ public class ConsListTest {
 
         ConsList list = ConsList.Nil.cons("123").cons("12");
 
-        Nullable<Integer> result = list.fetchFirstMatch(new Function1<Boolean,String>() {
+        Nullable<Integer> result = list.fetchFirstMatch(new Function1<String,Boolean>() {
             public Boolean invoke(String arg) {
                 mappingFunctionCallCount.incrementAndGet();
 
@@ -126,15 +125,11 @@ public class ConsListTest {
 
         ConsList list = ConsList.Nil.cons("123").cons("12");
 
-        Nullable<String> result = list.fetchFirstMatch(new Function1<Boolean, String>() {
+        Nullable<String> result = list.fetchFirstMatch(new Function1<String,Boolean>() {
             public Boolean invoke(String arg) {
                 mappingFunctionCallCount.incrementAndGet();
 
-                if ( arg.length() == 3 ) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return arg.length() == 3;
             }
         });
 
@@ -148,7 +143,7 @@ public class ConsListTest {
 
         ConsList list = ConsList.Nil.cons("123").cons("12");
 
-        Nullable<String> result = list.fetchFirstMatch(new Function1<Boolean, String>() {
+        Nullable<String> result = list.fetchFirstMatch(new Function1<String,Boolean>() {
             public Boolean invoke(String arg) {
                 mappingFunctionCallCount.incrementAndGet();
 
@@ -167,7 +162,7 @@ public class ConsListTest {
     public void givenNil_callMapSingleValue_expectMappingFunctionToNotBeCalledAndNullToBeReturned() {
         final AtomicBoolean wasMappingFunctionInvoked = new AtomicBoolean(false);
 
-        Nullable<Integer> result = ConsList.Nil.mapSingleValue( new Function1<Nullable<Integer>,String>() {
+        Nullable<Integer> result = ConsList.Nil.mapSingleValue( new Function1<String,Nullable<Integer>>() {
             public Nullable<Integer> invoke(String arg) {
                 wasMappingFunctionInvoked.set(true);
 
@@ -185,7 +180,7 @@ public class ConsListTest {
 
         ConsList list = ConsList.Nil.cons("123").cons("12");
 
-        Nullable<Integer> result = list.mapSingleValue(new Function1<Nullable<Integer>, String>() {
+        Nullable<Integer> result = list.mapSingleValue(new Function1<String,Nullable<Integer>>() {
             public Nullable<Integer> invoke(String arg) {
                 mappingFunctionCallCount.incrementAndGet();
 
@@ -203,7 +198,7 @@ public class ConsListTest {
 
         ConsList list = ConsList.Nil.cons("123").cons("12");
 
-        Nullable<Integer> result = list.mapSingleValue(new Function1<Nullable<Integer>, String>() {
+        Nullable<Integer> result = list.mapSingleValue(new Function1<String,Nullable<Integer>>() {
             public Nullable<Integer> invoke(String arg) {
                 mappingFunctionCallCount.incrementAndGet();
 
@@ -225,7 +220,7 @@ public class ConsListTest {
 
         ConsList list = ConsList.Nil.cons("123").cons("12");
 
-        Nullable<Integer> result = list.mapSingleValue(new Function1<Nullable<Integer>, String>() {
+        Nullable<Integer> result = list.mapSingleValue(new Function1<String,Nullable<Integer>>() {
             public Nullable<Integer> invoke(String arg) {
                 mappingFunctionCallCount.incrementAndGet();
 

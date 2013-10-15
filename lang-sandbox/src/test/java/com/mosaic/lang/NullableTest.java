@@ -64,7 +64,7 @@ public class NullableTest {
         Nullable<String> v = Nullable.createNullable(null);
         final AtomicLong counter = new AtomicLong(0);
 
-        Nullable<Integer> result = v.mapValue(new Function1<Integer,String>() {
+        Nullable<Integer> result = v.mapValue(new Function1<String,Integer>() {
             public Integer invoke(String arg) {
                 counter.incrementAndGet();
 
@@ -81,7 +81,7 @@ public class NullableTest {
         Nullable<String> v = Nullable.createNullable(null);
         final AtomicLong counter = new AtomicLong(0);
 
-        Nullable<Integer> result = v.flatMapValue(new Function1<Nullable<Integer>,String>() {
+        Nullable<Integer> result = v.flatMapValue(new Function1<String,Nullable<Integer>>() {
             public Nullable<Integer> invoke(String arg) {
                 counter.incrementAndGet();
 
@@ -182,7 +182,7 @@ public class NullableTest {
     public void givenValue_callMapValue_expectMappedValueResult() {
         Nullable<String> v = Nullable.createNullable("welcome");
 
-        Nullable<Integer> result = v.mapValue(new Function1<Integer,String>() {
+        Nullable<Integer> result = v.mapValue(new Function1<String,Integer>() {
             public Integer invoke(String arg) {
                 return arg.length();
             }
@@ -195,7 +195,7 @@ public class NullableTest {
     public void givenValue_callMapValueAndHaveMappingFunctionReturnNull_expectNullResult() {
         Nullable<String> v = Nullable.createNullable("welcome");
 
-        Nullable<Integer> result = v.mapValue(new Function1<Integer,String>() {
+        Nullable<Integer> result = v.mapValue(new Function1<String,Integer>() {
             public Integer invoke(String arg) {
                 return null;
             }
@@ -209,7 +209,7 @@ public class NullableTest {
         Nullable<String> v = Nullable.createNullable("welcome");
 
         try {
-            v.mapValue(new Function1<Integer,String>() {
+            v.mapValue(new Function1<String,Integer>() {
                 public Integer invoke(String arg) {
                     throw new IllegalStateException("bang, lots of smoke");
                 }
@@ -225,7 +225,7 @@ public class NullableTest {
     public void givenValue_callFlatMapValueAndHaveMappingFunctionReturnNull_expectNullResult() {
         Nullable<String> v = Nullable.createNullable("welcome");
 
-        Nullable<Integer> result = v.flatMapValue(new Function1<Nullable<Integer>,String>() {
+        Nullable<Integer> result = v.flatMapValue(new Function1<String,Nullable<Integer>>() {
             public Nullable<Integer> invoke(String arg) {
                 return null;
             }
@@ -238,7 +238,7 @@ public class NullableTest {
     public void givenValue_callFlatMapValueAndHaveMappingFunctionReturnNullNullable_expectNullResult() {
         Nullable<String> v = Nullable.createNullable("welcome");
 
-        Nullable<Integer> result = v.flatMapValue(new Function1<Nullable<Integer>,String>() {
+        Nullable<Integer> result = v.flatMapValue(new Function1<String,Nullable<Integer>>() {
             public Nullable<Integer> invoke(String arg) {
                 return Nullable.NULL;
             }
@@ -252,7 +252,7 @@ public class NullableTest {
         Nullable<String> v = Nullable.createNullable("welcome");
 
         try {
-            v.flatMapValue(new Function1<Nullable<Integer>,String>() {
+            v.flatMapValue(new Function1<String,Nullable<Integer>>() {
                 public Nullable<Integer> invoke(String arg) {
                     throw new IllegalStateException("bang, lots of smoke");
                 }
@@ -268,7 +268,7 @@ public class NullableTest {
     public void givenValue_callFlatMapValueAndHaveMappingFunctionReturnValue_expectValue() {
         Nullable<String> v = Nullable.createNullable("welcome");
 
-        Nullable<Integer> result = v.flatMapValue(new Function1<Nullable<Integer>,String>() {
+        Nullable<Integer> result = v.flatMapValue(new Function1<String,Nullable<Integer>>() {
             public Nullable<Integer> invoke(String arg) {
                 return Nullable.createNullable(arg.length());
             }
