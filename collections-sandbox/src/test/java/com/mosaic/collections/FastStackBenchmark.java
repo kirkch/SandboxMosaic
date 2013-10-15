@@ -18,6 +18,7 @@ public class FastStackBenchmark {
     private Stack     jdkStack      = new Stack();
     private FastStack fastStack     = new FastStack(1);
     private FastStack fastStack200  = new FastStack(200);
+    private FastStack<String> fastStackString200 = new FastStack(String.class, 200);
     private List      jdkArraysList = new ArrayList(200);
 
 
@@ -113,6 +114,31 @@ public class FastStackBenchmark {
             count += fastStack200.pop().toString().length();
             count += fastStack200.pop().toString().length();
             count += fastStack200.pop().toString().length();
+        }
+
+        return count;
+    }
+
+/*
+31.83ns
+2.11ns
+3.62ns
+2.02ns
+1.12ns
+1.12ns
+     */
+
+    @Benchmark(durationResultMultiplier = 1.0/3)
+    public long fastStackString200Benchmark( int iterationCount ) {
+        long count=0;
+
+        for ( int i=0; i<iterationCount; i++ ) {
+            fastStackString200.push("a");
+            fastStackString200.push("b");
+            fastStackString200.push("c");
+            count += fastStackString200.pop().length();
+            count += fastStackString200.pop().length();
+            count += fastStackString200.pop().length();
         }
 
         return count;

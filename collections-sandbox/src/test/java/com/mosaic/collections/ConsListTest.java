@@ -23,7 +23,7 @@ public class ConsListTest {
         try {
             ConsList.Nil.head();
 
-            Assert.fail("expected UnsupportedOperationException");
+            fail("expected UnsupportedOperationException");
         } catch (UnsupportedOperationException e) {
             assertEquals("Nil does not have a head value", e.getMessage());
         }
@@ -34,7 +34,7 @@ public class ConsListTest {
         try {
             ConsList.Nil.tail();
 
-            Assert.fail("expected UnsupportedOperationException");
+            fail("expected UnsupportedOperationException");
         } catch (UnsupportedOperationException e) {
             assertEquals("Nil does not have a tail value", e.getMessage());
         }
@@ -98,8 +98,8 @@ public class ConsListTest {
             }
         });
 
-        assertTrue( result.isNull() );
-        assertFalse( wasMappingFunctionInvoked.get() );
+        assertTrue(result.isNull());
+        assertFalse(wasMappingFunctionInvoked.get());
     }
 
     @Test
@@ -116,7 +116,7 @@ public class ConsListTest {
             }
         });
 
-        assertTrue( result.isNull() );
+        assertTrue(result.isNull());
         assertEquals(2, mappingFunctionCallCount.get());
     }
 
@@ -138,8 +138,8 @@ public class ConsListTest {
             }
         });
 
-        assertEquals( "123", result.getValue() );
-        assertEquals( 2, mappingFunctionCallCount.get() );
+        assertEquals("123", result.getValue());
+        assertEquals(2, mappingFunctionCallCount.get());
     }
 
     @Test
@@ -156,8 +156,8 @@ public class ConsListTest {
             }
         });
 
-        assertEquals( "12", result.getValue() );
-        assertEquals( 1, mappingFunctionCallCount.get() );
+        assertEquals("12", result.getValue());
+        assertEquals(1, mappingFunctionCallCount.get());
     }
 
 
@@ -175,8 +175,8 @@ public class ConsListTest {
             }
         });
 
-        assertTrue( result.isNull() );
-        assertFalse( wasMappingFunctionInvoked.get() );
+        assertTrue(result.isNull());
+        assertFalse(wasMappingFunctionInvoked.get());
     }
 
     @Test
@@ -193,7 +193,7 @@ public class ConsListTest {
             }
         });
 
-        assertTrue( result.isNull() );
+        assertTrue(result.isNull());
         assertEquals(2, mappingFunctionCallCount.get());
     }
 
@@ -215,8 +215,8 @@ public class ConsListTest {
             }
         });
 
-        assertEquals( 3, result.getValue().intValue() );
-        assertEquals( 2, mappingFunctionCallCount.get() );
+        assertEquals(3, result.getValue().intValue());
+        assertEquals(2, mappingFunctionCallCount.get());
     }
 
     @Test
@@ -237,10 +237,22 @@ public class ConsListTest {
             }
         });
 
-        assertEquals( 2, result.getValue().intValue() );
-        assertEquals( 1, mappingFunctionCallCount.get() );
+        assertEquals(2, result.getValue().intValue());
+        assertEquals(1, mappingFunctionCallCount.get());
     }
 
+    @Test
+    public void reverseNil() {
+        assertEquals( ConsList.Nil, ConsList.Nil );
+    }
+
+    @Test
+    public void reverse3Elements() {
+        ConsList<Integer> list         = ConsList.Nil.cons(1).cons(2).cons(3);
+        ConsList<Integer> reversedList = list.reverse();
+
+        assertEquals( ConsList.Nil.cons(3).cons(2).cons(1), reversedList );
+    }
 
 
     private <T> void assertConsListEquals( ConsList<T> list, T...expectedValues ) {
@@ -250,7 +262,7 @@ public class ConsListTest {
             T expectedHead = expectedValues[i];
 
             if ( listSoFar.isEmpty() ) {
-                fail( "Encountered Nil after matching " + i + " values.  Expected " + Arrays.asList(expectedValues) + " but was " + list );
+                fail("Encountered Nil after matching " + i + " values.  Expected " + Arrays.asList(expectedValues) + " but was " + list);
             }
 
             assertEquals("Encountered mismatch at index " + i + " values.  Expected " + Arrays.asList(expectedValues) + " but was " + list, expectedHead, listSoFar.head());
@@ -258,7 +270,7 @@ public class ConsListTest {
             listSoFar = listSoFar.tail();
         }
 
-        assertTrue( listSoFar.isEmpty() );
+        assertTrue(listSoFar.isEmpty());
     }
 
 }

@@ -3,6 +3,7 @@ package com.mosaic.collections;
 import com.mosaic.lang.Nullable;
 import com.mosaic.lang.function.Function1;
 
+import java.lang.reflect.TypeVariable;
 import java.util.Objects;
 
 /**
@@ -24,6 +25,10 @@ public abstract class ConsList<T> {
     public abstract ConsList<T> tail();
 
     public abstract boolean isEmpty();
+
+    public boolean hasContents() {
+        return !isEmpty();
+    }
 
     /**
      * Create a new list that contains the mapped version of each value in this list.
@@ -52,6 +57,23 @@ public abstract class ConsList<T> {
     public ConsList<T> cons( T v ) {
         return new ElementNode( v, this );
     }
+
+    /**
+     * Returns a new list that is has the same contents as this list but in the
+     * opposite order.
+     */
+    public ConsList<T> reverse() {
+        ConsList listToReverse = this;
+        ConsList reversedList  = Nil;
+
+        while ( listToReverse.hasContents() ) {
+            reversedList = reversedList.cons( listToReverse.head() );
+            listToReverse = listToReverse.tail();
+        }
+
+        return reversedList;
+    }
+
 
 
     protected abstract boolean shallowEquals( ConsList<T> other );

@@ -1,25 +1,31 @@
 package com.mosaic.collections;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 
 /**
  * An optimised FILO stack.  Approximately 50x faster than java.util.Stack and
  * 5x faster than java.util.ArrayList.
  */
-public class FastStack {
+@SuppressWarnings("unchecked")
+public class FastStack<T> {
 
-    private Object[] array;
-    private int      position = 0;
+    private T[] array;
+    private int position = 0;
 
     public FastStack() {
         this(10);
     }
 
     public FastStack( int initialSize ) {
-        this.array = new Object[initialSize];
+        this( (Class<T>) Object.class, initialSize );
     }
 
-    public void push( Object o ) {
+    public FastStack( Class<T> type, int initialSize ) {
+        this.array = (T[]) Array.newInstance(type, initialSize);
+    }
+
+    public void push( T o ) {
         if ( position >= array.length ) {
             this.array = Arrays.copyOf(array, array.length*2);
         }
@@ -27,15 +33,15 @@ public class FastStack {
         array[position++] = o;
     }
 
-    public Object pop() {
-        Object o = array[--position];
+    public T pop() {
+        T o = array[--position];
 
         array[position] = null;    // NB costs apx .6ns
 
         return o;
     }
 
-    public Object peek() {
+    public T peek() {
         return array[position-1];
     }
 
@@ -49,6 +55,10 @@ public class FastStack {
 
     public boolean isEmpty() {
         return position == 0;
+    }
+
+    public boolean hasContents() {
+        return !isEmpty();
     }
 
     public int size() {
