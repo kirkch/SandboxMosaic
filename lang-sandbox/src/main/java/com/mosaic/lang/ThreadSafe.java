@@ -12,4 +12,5 @@ import static java.lang.annotation.ElementType.TYPE;
 @Target(TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ThreadSafe {
+    public String value() default "";
 }
