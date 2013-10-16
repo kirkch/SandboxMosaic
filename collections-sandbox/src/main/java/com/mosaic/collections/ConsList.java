@@ -1,7 +1,7 @@
 package com.mosaic.collections;
 
-import com.mosaic.lang.Nullable;
-import com.mosaic.lang.function.Function1;
+import com.mosaic.lang.functional.Nullable;
+import com.mosaic.lang.functional.Function1;
 
 import java.util.Objects;
 

@@ -1,8 +1,8 @@
-package com.mosaic.lang;
+package com.mosaic.lang.functional;
 
 
-import com.mosaic.lang.function.Function1;
-import com.mosaic.lang.function.VoidFunction1;
+import com.mosaic.lang.Failure;
+import com.mosaic.lang.ThreadSafe;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;

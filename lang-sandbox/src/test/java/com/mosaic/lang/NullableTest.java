@@ -1,8 +1,9 @@
 package com.mosaic.lang;
 
 
-import com.mosaic.lang.function.Function0;
-import com.mosaic.lang.function.Function1;
+import com.mosaic.lang.functional.Function0;
+import com.mosaic.lang.functional.Function1;
+import com.mosaic.lang.functional.Nullable;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicLong;

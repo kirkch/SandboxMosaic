@@ -1,6 +1,6 @@
 package com.mosaic.parsers.pull;
 
-import com.mosaic.lang.Result;
+import com.mosaic.lang.ResultDeprecated;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -9,7 +9,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 /**
  *
  */
-public class Match<T> extends Result<T,String>{
+public class Match<T> extends ResultDeprecated<T,String> {
 
     public static <T> Match<T> match( TextPosition pos, T parsedValue ) {
         return new Match( false, pos, parsedValue );

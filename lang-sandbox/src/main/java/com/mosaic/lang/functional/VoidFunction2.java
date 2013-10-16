@@ -1,4 +1,4 @@
-package com.mosaic.lang.function;
+package com.mosaic.lang.functional;
 
 /**
  *

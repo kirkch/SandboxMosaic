@@ -1,8 +1,8 @@
-package com.mosaic.lang;
+package com.mosaic.lang.functional;
 
 
-import com.mosaic.lang.function.Function0;
-import com.mosaic.lang.function.Function1;
+import com.mosaic.lang.functional.Function0;
+import com.mosaic.lang.functional.Function1;
 
 /**
  * Nullable represents a value that may legally be marked as having no value.  A typical

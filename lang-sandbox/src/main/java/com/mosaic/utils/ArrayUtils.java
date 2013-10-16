@@ -1,7 +1,7 @@
 package com.mosaic.utils;
 
 import com.mosaic.lang.Factory;
-import com.mosaic.lang.function.Function1;
+import com.mosaic.lang.functional.Function1;
 
 import java.lang.reflect.Array;
 

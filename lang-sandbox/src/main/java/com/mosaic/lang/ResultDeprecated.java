@@ -3,16 +3,17 @@ package com.mosaic.lang;
 /**
  *
  */
-public class Result<S,F> {
+@Deprecated
+public class ResultDeprecated<S,F> {
 
-    public static final Result NONE = new Result( false, null );
+    public static final ResultDeprecated NONE = new ResultDeprecated( false, null );
 
-    public static <S,F> Result<S,F> success( S v ) {
-        return new Result( false, v );
+    public static <S,F> ResultDeprecated<S,F> success( S v ) {
+        return new ResultDeprecated( false, v );
     }
 
-    public static <S,F> Result<S,F> error( F v ) {
-        return new Result( true, v );
+    public static <S,F> ResultDeprecated<S,F> error( F v ) {
+        return new ResultDeprecated( true, v );
     }
 
 
@@ -21,7 +22,7 @@ public class Result<S,F> {
     private final F       errorValue;
 
 
-    protected Result( boolean isError, Object value ) {
+    protected ResultDeprecated(boolean isError, Object value) {
         this.isError = isError;
 
         if ( isError ) {

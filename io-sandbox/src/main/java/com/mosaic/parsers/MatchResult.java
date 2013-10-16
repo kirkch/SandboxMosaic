@@ -1,6 +1,6 @@
 package com.mosaic.parsers;
 
-import com.mosaic.lang.function.Function1;
+import com.mosaic.lang.functional.Function1;
 
 /**
  *

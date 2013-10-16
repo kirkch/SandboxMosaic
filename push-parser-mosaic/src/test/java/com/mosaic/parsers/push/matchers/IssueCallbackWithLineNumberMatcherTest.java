@@ -1,7 +1,7 @@
 package com.mosaic.parsers.push.matchers;
 
 import com.mosaic.io.CharacterStream;
-import com.mosaic.lang.function.VoidFunction2;
+import com.mosaic.lang.functional.VoidFunction2;
 import com.mosaic.parsers.push.MatchResult;
 import com.mosaic.parsers.push.Matcher;
 import org.junit.Test;

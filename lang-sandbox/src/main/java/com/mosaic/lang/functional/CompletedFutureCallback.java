@@ -1,4 +1,6 @@
-package com.mosaic.lang;
+package com.mosaic.lang.functional;
+
+import com.mosaic.lang.Failure;
 
 /**
  *

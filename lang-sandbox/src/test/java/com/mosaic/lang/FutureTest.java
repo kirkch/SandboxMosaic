@@ -1,8 +1,10 @@
 package com.mosaic.lang;
 
 
-import com.mosaic.lang.function.Function1;
-import com.mosaic.lang.function.VoidFunction1;
+import com.mosaic.lang.functional.CompletedFutureCallback;
+import com.mosaic.lang.functional.Function1;
+import com.mosaic.lang.functional.Future;
+import com.mosaic.lang.functional.VoidFunction1;
 import org.junit.Test;
 
 import java.util.Arrays;

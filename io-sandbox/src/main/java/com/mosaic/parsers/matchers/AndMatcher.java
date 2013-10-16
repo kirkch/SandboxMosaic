@@ -1,6 +1,6 @@
 package com.mosaic.parsers.matchers;
 
-import com.mosaic.lang.function.Function1;
+import com.mosaic.lang.functional.Function1;
 import com.mosaic.parsers.BaseMatcher;
 import com.mosaic.parsers.MatchResult;
 import com.mosaic.parsers.Matcher;

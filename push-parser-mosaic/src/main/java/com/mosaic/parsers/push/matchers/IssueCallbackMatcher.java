@@ -1,7 +1,7 @@
 package com.mosaic.parsers.push.matchers;
 
 import com.mosaic.lang.Validate;
-import com.mosaic.lang.function.VoidFunction1;
+import com.mosaic.lang.functional.VoidFunction1;
 import com.mosaic.parsers.push.MatchResult;
 import com.mosaic.parsers.push.Matcher;
 
