@@ -84,7 +84,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class Future<T> implements Try<T> {
 
     private final AtomicReference<InternalState<T>> stateReference = new AtomicReference<InternalState<T>>();
-    private final List<CompletedCallback<T>>  callbacks      = new ArrayList<CompletedCallback<T>>();  // NB synchronize on list before reading from or writing to it
+    private final List<CompletedCallback<T>>        callbacks      = new ArrayList<CompletedCallback<T>>();  // NB synchronize on list before reading from or writing to it
 
 
     /**
