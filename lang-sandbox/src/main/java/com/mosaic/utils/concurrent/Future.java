@@ -1,8 +1,12 @@
-package com.mosaic.lang.functional;
+package com.mosaic.utils.concurrent;
 
 
 import com.mosaic.lang.Failure;
 import com.mosaic.lang.ThreadSafe;
+import com.mosaic.lang.functional.CompletedCallback;
+import com.mosaic.lang.functional.Function1;
+import com.mosaic.lang.functional.Try;
+import com.mosaic.lang.functional.VoidFunction1;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -51,7 +55,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *             public Integer invoke( String v ) {
  *                  return v.length();
  *             }
- *         }).onComplete(new CompletedFutureCallback<String>() {
+ *         }).onComplete(new CompletedCallback<String>() {
  *             public void completedWithResult(String result) {
  *                 // do work
  *             }
@@ -77,10 +81,10 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @SuppressWarnings({"unchecked", "Convert2Diamond"})
 @ThreadSafe( "state stored in an immutable class and shared via an atomic reference " )
-public class Future<T> {
+public class Future<T> implements Try<T> {
 
     private final AtomicReference<InternalState<T>> stateReference = new AtomicReference<InternalState<T>>();
-    private final List<CompletedFutureCallback<T>>  callbacks      = new ArrayList<CompletedFutureCallback<T>>();  // NB synchronize on list before reading from or writing to it
+    private final List<CompletedCallback<T>>  callbacks      = new ArrayList<CompletedCallback<T>>();  // NB synchronize on list before reading from or writing to it
 
 
     /**
@@ -154,7 +158,7 @@ public class Future<T> {
         for ( Future<T> f : futures ) {
             final int resultsArrayIndex = i;  // NB thread safe copy of i remembered by callback
 
-            f.onComplete( new CompletedFutureCallback<T>() {
+            f.onComplete( new CompletedCallback<T>() {
                 public void completedWithResult( T result ) {
                     results.set(resultsArrayIndex, result);
 
@@ -216,7 +220,7 @@ public class Future<T> {
 
             Future<B> childFuture = futureGenerator.invoke(value);
 
-            childFuture.onComplete( new CompletedFutureCallback<B>() {
+            childFuture.onComplete( new CompletedCallback<B>() {
                 public void completedWithResult( B result ) {
                     results.set(resultsArrayIndex, result);
 
@@ -405,7 +409,7 @@ public class Future<T> {
             case PROMISE:
                 final Future<B> mappedFuture = new Future<B>();
 
-                this.onComplete( new CompletedFutureCallback<T>() {
+                this.onComplete( new CompletedCallback<T>() {
                     public void completedWithResult( T result ) {
                         handleMapResult( mappedFuture, result, mappingFunction );
                     }
@@ -444,14 +448,14 @@ public class Future<T> {
      * the nesting of Futures in the type signature and return Future&lt;Account>; which is easier
      * to work with.
      */
-    public <B> Future<B> flatMapResult( final Function1<T,Future<B>> mappingFunction ) {
+    public <B> Future<B> flatMapResult( final Function1<T,Try<B>> mappingFunction ) {
         InternalState<T> state = stateReference.get();
 
         switch (state.stateEnum) {
             case PROMISE:
                 final Future<B> mappedFuture = new Future<B>();
 
-                this.onComplete( new CompletedFutureCallback<T>() {
+                this.onComplete( new CompletedCallback<T>() {
                     public void completedWithResult( T result ) {
                         handleFlatMapResult(mappedFuture, result, mappingFunction);
                     }
@@ -495,7 +499,7 @@ public class Future<T> {
             case PROMISE:
                 final Future<T> mappedFuture = new Future<T>();
 
-                this.onComplete( new CompletedFutureCallback<T>() {
+                this.onComplete( new CompletedCallback<T>() {
                     public void completedWithResult( T result ) {
                         mappedFuture.completeWithResult(result);
                     }
@@ -533,14 +537,14 @@ public class Future<T> {
      * In such a case, flatRecover could be used to start another job to create
      * the file asynchronously and then try writing to the file again.
      */
-    public Future<T> flatRecover( final Function1<Failure,Future<T>> recoveryFunction ) {
+    public Future<T> flatRecover( final Function1<Failure,Try<T>> recoveryFunction ) {
         InternalState<T> state = stateReference.get();
 
         switch (state.stateEnum) {
             case PROMISE:
                 final Future<T> mappedFuture = new Future<T>();
 
-                this.onComplete( new CompletedFutureCallback<T>() {
+                this.onComplete( new CompletedCallback<T>() {
                     public void completedWithResult( T result ) {
                         mappedFuture.completeWithResult(result);
                     }
@@ -585,7 +589,7 @@ public class Future<T> {
             case PROMISE:
                 final Future<T> mappedFuture = new Future<T>();
 
-                this.onComplete( new CompletedFutureCallback<T>() {
+                this.onComplete( new CompletedCallback<T>() {
                     public void completedWithResult( T result ) {
                         mappedFuture.completeWithResult( result );
                     }
@@ -623,14 +627,14 @@ public class Future<T> {
      * reported in an integration layer could be looked up in a database for
      * a more descriptive definition of the failure than 'error code 1822213'.
      */
-    public Future<T> flatMapFailure( final Function1<Failure,Future<Failure>> mappingFunction ) {
+    public Future<T> flatMapFailure( final Function1<Failure,Try<Failure>> mappingFunction ) {
         InternalState<T> state = stateReference.get();
 
         switch (state.stateEnum) {
             case PROMISE:
                 final Future<T> mappedFuture = new Future<T>();
 
-                this.onComplete( new CompletedFutureCallback<T>() {
+                this.onComplete( new CompletedCallback<T>() {
                     public void completedWithResult( T result ) {
                         mappedFuture.completeWithResult( result );
                     }
@@ -659,7 +663,7 @@ public class Future<T> {
      * thread before onResult returns.
      */
     public void onResult( final VoidFunction1<T> callback ) {
-        this.onComplete( new CompletedFutureCallback<T>() {
+        this.onComplete( new CompletedCallback<T>() {
             public void completedWithResult(T result) {
                 callback.invoke( result );
             }
@@ -677,7 +681,7 @@ public class Future<T> {
      * thread before onResult returns.
      */
     public void onFailure( final VoidFunction1<Failure> callback ) {
-        this.onComplete( new CompletedFutureCallback<T>() {
+        this.onComplete( new CompletedCallback<T>() {
             public void completedWithResult(T result) {}
 
             public void completedWithFailure(Failure f) {
@@ -695,7 +699,7 @@ public class Future<T> {
      * already completed then the callback will be invoked immediately from this
      * thread before onResult returns.
      */
-    public void onComplete( CompletedFutureCallback<T> callback ) {
+    public void onComplete( CompletedCallback<T> callback ) {
         synchronized (callbacks) {
             InternalState<T> currentState = stateReference.get();
 
@@ -727,11 +731,11 @@ public class Future<T> {
         return promise;
     }
 
-    private <B> Future<B> handleFlatMapResult( final Future<B> promise, T preMappedResult, Function1<T,Future<B>> mappingFunction ) {
+    private <B> Future<B> handleFlatMapResult( final Future<B> promise, T preMappedResult, Function1<T,Try<B>> mappingFunction ) {
         try {
-            Future<B> childFuture = mappingFunction.invoke(preMappedResult);
+            Try<B> childFuture = mappingFunction.invoke(preMappedResult);
 
-            childFuture.onComplete(new CompletedFutureCallback<B>() {
+            childFuture.onComplete(new CompletedCallback<B>() {
                 @Override
                 public void completedWithResult(B result) {
                     promise.completeWithResult(result);
@@ -759,11 +763,11 @@ public class Future<T> {
         return promise;
     }
 
-    private Future<T> handleFlatRecovery( final Future<T> promise, final Failure failureToRecoverFrom, Function1<Failure,Future<T>> recoveryFunction ) {
+    private Future<T> handleFlatRecovery( final Future<T> promise, final Failure failureToRecoverFrom, Function1<Failure,Try<T>> recoveryFunction ) {
         try {
-            Future<T> recoveredFuture = recoveryFunction.invoke(failureToRecoverFrom);
+            Try<T> recoveredFuture = recoveryFunction.invoke(failureToRecoverFrom);
 
-            recoveredFuture.onComplete( new CompletedFutureCallback<T>() {
+            recoveredFuture.onComplete( new CompletedCallback<T>() {
                 public void completedWithResult(T recoveredResult) {
                     promise.completeWithResult(recoveredResult);
                 }
@@ -792,11 +796,11 @@ public class Future<T> {
         return promise;
     }
 
-    private Future<T> handleFlatMapFailure( final Future<T> promise, final Failure originalFailure, Function1<Failure,Future<Failure>> mappingFunction ) {
+    private Future<T> handleFlatMapFailure( final Future<T> promise, final Failure originalFailure, Function1<Failure,Try<Failure>> mappingFunction ) {
         try {
-            Future<Failure> mappedFailureFuture = mappingFunction.invoke(originalFailure);
+            Try<Failure> mappedFailureFuture = mappingFunction.invoke(originalFailure);
 
-            mappedFailureFuture.onComplete( new CompletedFutureCallback<Failure>() {
+            mappedFailureFuture.onComplete( new CompletedCallback<Failure>() {
                 @Override
                 public void completedWithResult( Failure mappedFailure ) {
                     Failure chainedFailure  = new Failure(originalFailure, mappedFailure);
@@ -839,7 +843,7 @@ public class Future<T> {
 
     private void sendCompletedWithResultNotifications( T result ) {
         synchronized (callbacks) {
-            for ( CompletedFutureCallback<T> callback : callbacks ) {
+            for ( CompletedCallback<T> callback : callbacks ) {
                 callback.completedWithResult(result);
             }
 
@@ -849,7 +853,7 @@ public class Future<T> {
 
     private void sendCompletedWithFailureNotifications( Failure f ) {
         synchronized (callbacks) {
-            for ( CompletedFutureCallback<T> callback : callbacks ) {
+            for ( CompletedCallback<T> callback : callbacks ) {
                 callback.completedWithFailure(f);
             }
 

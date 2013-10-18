@@ -4,7 +4,10 @@ import com.mosaic.lang.Failure;
 
 
 /**
- * Represents either a successful result or a failure.
+ * Represents either a successful result or a failure.  The result of a try
+ * may or may not be available immediately, in other words the work may be
+ * carrying on asynchronously in the background and the result will become
+ * available later.  Otherwise known as a Promise, or a Future.
  */
 public interface Try<T> {
 
@@ -27,14 +30,14 @@ public interface Try<T> {
      * when the try contains a failure or a null result. Thus confirming the state of the
      * future before calling this method will avoid ambiguity of what null means.
      */
-    public T getResult();
+    public T getResultNoBlock();
 
 
     /**
      * Returns the description of why the job failed.  This method will return null
      * when the job has not failed.
      */
-    public Failure getFailure();
+    public Failure getFailureNoBlock();
 
     /**
      * Creates a new Try that will contain the mapped result of this try.  If this
@@ -87,5 +90,18 @@ public interface Try<T> {
      * will be invoked and its result will be returned unmodified.
      */
     public Try<T> flatMapFailure( final Function1<Failure,Try<Failure>> mappingFunction );
+
+
+
+    /**
+     * Registers a callback to be called when this future is completed either
+     * by a result or a failure.<p/>
+     *
+     * If registered before this future is completed, then the callback will be
+     * called from the same thread that completed the future.  If the future is
+     * already completed then the callback will be invoked immediately from this
+     * thread before onResult returns.
+     */
+    public void onComplete( CompletedCallback<T> callback );
 
 }

@@ -1,9 +1,10 @@
-package com.mosaic.lang;
+package com.mosaic.utils.concurrent;
 
 
-import com.mosaic.lang.functional.CompletedFutureCallback;
+import com.mosaic.lang.Failure;
+import com.mosaic.lang.functional.CompletedCallback;
 import com.mosaic.lang.functional.Function1;
-import com.mosaic.lang.functional.Future;
+import com.mosaic.lang.functional.Try;
 import com.mosaic.lang.functional.VoidFunction1;
 import org.junit.Test;
 
@@ -476,8 +477,8 @@ public class FutureTest {
     public void givenPromise_flatMapResultThenCompleteFirstFutureWithFailure_expectSecondFutureToCompleteWithFailure() {
         Future<String> promise = new Future<String>();
 
-        Future<Integer> f2 = promise.flatMapResult( new Function1<String, Future<Integer>>() {
-            public Future<Integer> invoke( String v ) {
+        Future<Integer> f2 = promise.flatMapResult( new Function1<String, Try<Integer>>() {
+            public Try<Integer> invoke( String v ) {
                 return Future.successful(v.length());
             }
         });
@@ -493,7 +494,7 @@ public class FutureTest {
     public void givenPromise_flatMapResultThenCompleteFirstFutureWithCompletedResult_expectSecondFutureToCompleteWithMappedResult() {
         Future<String> promise = new Future<String>();
 
-        Future<Integer> f2 = promise.flatMapResult( new Function1<String, Future<Integer>>() {
+        Future<Integer> f2 = promise.flatMapResult( new Function1<String, Try<Integer>>() {
             public Future<Integer> invoke( String v ) {
                 return Future.successful(v.length());
             }
@@ -510,7 +511,7 @@ public class FutureTest {
     public void givenPromise_flatMapResultThenCompleteFirstFutureWithPromise_expectSecondFutureToBeIncompletePromise() {
         Future<String> promise = new Future<String>();
 
-        Future<Integer> f2 = promise.flatMapResult( new Function1<String, Future<Integer>>() {
+        Future<Integer> f2 = promise.flatMapResult( new Function1<String, Try<Integer>>() {
             public Future<Integer> invoke( String v ) {
                 return Future.promise();
             }
@@ -528,7 +529,7 @@ public class FutureTest {
         Future<String>  promise      = new Future<String>();
         final Future<Integer> childPromise = Future.promise();
 
-        Future<Integer> f2 = promise.flatMapResult( new Function1<String, Future<Integer>>() {
+        Future<Integer> f2 = promise.flatMapResult( new Function1<String, Try<Integer>>() {
             public Future<Integer> invoke( String v ) {
                 return childPromise;
             }
@@ -546,7 +547,7 @@ public class FutureTest {
     public void givenPromise_flatMapResultThenCompleteFirstFutureWithResultAndHaveMappingFunctionThrowAnException_expectFinalFutureToHoldFailure() {
         Future<String> promise = new Future<String>();
 
-        Future<Integer> f2 = promise.flatMapResult( new Function1<String, Future<Integer>>() {
+        Future<Integer> f2 = promise.flatMapResult( new Function1<String, Try<Integer>>() {
             public Future<Integer> invoke( String v ) {
                 throw new IllegalStateException( "bang" );
             }
@@ -566,7 +567,7 @@ public class FutureTest {
     public void givenCompletedFutureWithResult_flatMapResult_expectResultToBeTheResultFromTheMappingFunction() {
         Future<String> f1 = Future.successful("hello");
 
-        Future<Integer> f2 = f1.flatMapResult( new Function1<String, Future<Integer>>() {
+        Future<Integer> f2 = f1.flatMapResult( new Function1<String, Try<Integer>>() {
             public Future<Integer> invoke( String v ) {
                 return Future.successful(v.length());
             }
@@ -581,7 +582,7 @@ public class FutureTest {
     public void givenCompletedFutureWithResult_flatMapResultAndHaveTheMappingFunctionThrowAnException_expectResultToBeAFailureHoldingTheExceptionFromTheMappingFunction() {
         Future<String> f1 = Future.successful("hello");
 
-        Future<Integer> f2 = f1.flatMapResult( new Function1<String, Future<Integer>>() {
+        Future<Integer> f2 = f1.flatMapResult( new Function1<String, Try<Integer>>() {
             public Future<Integer> invoke( String v ) {
                 throw new IllegalArgumentException("what are you trying to do to me");
             }
@@ -596,7 +597,7 @@ public class FutureTest {
     public void givenCompletedFutureWithFailure_flatMapResult_expectResultToBeFailureFromFirstFutureAsTheMappingFunctionWillNotBeCalled() {
         Future<String> f1 = Future.failed(new Failure(this.getClass(), "splat"));
 
-        Future<Integer> f2 = f1.flatMapResult( new Function1<String, Future<Integer>>() {
+        Future<Integer> f2 = f1.flatMapResult( new Function1<String, Try<Integer>>() {
             public Future<Integer> invoke( String v ) {
                 return Future.successful(v.length());
             }
@@ -614,7 +615,7 @@ public class FutureTest {
     public void givenPromise_flatMapFailureThenCompleteFirstFutureWithFailure_expectSecondFutureToCompleteWithMappedFailure() {
         Future<String> promise = new Future<String>();
 
-        Future<String> f2 = promise.flatMapFailure( new Function1<Failure, Future<Failure>>() {
+        Future<String> f2 = promise.flatMapFailure( new Function1<Failure, Try<Failure>>() {
             public Future<Failure> invoke( Failure f ) {
                 return Future.successful(new Failure(f, new Failure(FutureTest.this.getClass(), "mapped")));
             }
@@ -631,7 +632,7 @@ public class FutureTest {
     public void givenPromise_flatMapFailureThenCompleteFirstFutureWithFailureMapperReturnsResultAsFailure_expectSecondFutureToCompleteWithMappedFailure() {
         Future<String> promise = new Future<String>();
 
-        Future<String> f2 = promise.flatMapFailure( new Function1<Failure, Future<Failure>>() {
+        Future<String> f2 = promise.flatMapFailure( new Function1<Failure, Try<Failure>>() {
             public Future<Failure> invoke( Failure f ) {
                 return Future.failed( new Failure(f, new Failure(FutureTest.this.getClass(), "mapped")) );
             }
@@ -648,7 +649,7 @@ public class FutureTest {
     public void givenPromise_flatMapFailureThenCompleteFirstFutureWithCompletedResult_expectSecondFutureToCompleteWithSameResult() {
         Future<String> f1 = new Future<String>();
 
-        Future<String> f2 = f1.flatMapFailure( new Function1<Failure, Future<Failure>>() {
+        Future<String> f2 = f1.flatMapFailure( new Function1<Failure, Try<Failure>>() {
             public Future<Failure> invoke( Failure f ) {
                 return Future.failed(new Failure(f, new Failure(FutureTest.this.getClass(), "mapped")));
             }
@@ -665,7 +666,7 @@ public class FutureTest {
     public void givenPromise_flatMapFailureThenCompleteFirstFutureWithPromise_expectSecondFutureToBeIncompletePromise() {
         Future<String> f1 = new Future<String>();
 
-        Future<String> f2 = f1.flatMapFailure( new Function1<Failure, Future<Failure>>() {
+        Future<String> f2 = f1.flatMapFailure( new Function1<Failure, Try<Failure>>() {
             public Future<Failure> invoke( Failure f ) {
                 return Future.promise();
             }
@@ -683,7 +684,7 @@ public class FutureTest {
         Future<String>  f1           = new Future<String>();
         final Future<Failure> childPromise = Future.promise();
 
-        Future<String> f2 = f1.flatMapFailure( new Function1<Failure, Future<Failure>>() {
+        Future<String> f2 = f1.flatMapFailure( new Function1<Failure, Try<Failure>>() {
             public Future<Failure> invoke( Failure f ) {
                 return childPromise;
             }
@@ -701,7 +702,7 @@ public class FutureTest {
     public void givenPromise_flatMapFailureThenCompleteFirstFutureWithFailureAndHaveMappingFunctionThrowAnException_expectFinalFutureToHoldFailure() {
         Future<String> f1 = new Future<String>();
 
-        Future<String> f2 = f1.flatMapFailure(new Function1<Failure, Future<Failure>>() {
+        Future<String> f2 = f1.flatMapFailure(new Function1<Failure, Try<Failure>>() {
             public Future<Failure> invoke(Failure f) {
                 throw new RuntimeException("whoops");
             }
@@ -721,7 +722,7 @@ public class FutureTest {
     public void givenCompletedFutureWithResult_flatMapFailure_expectResultToBeUntouched() {
         Future<String> f1 = Future.successful("up and at 'em");
 
-        Future<String> f2 = f1.flatMapFailure( new Function1<Failure, Future<Failure>>() {
+        Future<String> f2 = f1.flatMapFailure( new Function1<Failure, Try<Failure>>() {
             public Future<Failure> invoke( Failure f ) {
                 return Future.failed( new Failure(f, new Failure(FutureTest.this.getClass(), "mapped")) );
             }
@@ -736,7 +737,7 @@ public class FutureTest {
     public void givenCompletedFutureWithFailure_flatMapFailure_expectResultToBeMappedFailure() {
         Future<String> f1 = Future.failed(new Failure(this.getClass(), "bomb"));
 
-        Future<String> f2 = f1.flatMapFailure( new Function1<Failure, Future<Failure>>() {
+        Future<String> f2 = f1.flatMapFailure( new Function1<Failure, Try<Failure>>() {
             public Future<Failure> invoke( Failure f ) {
                 return Future.failed( new Failure(f, new Failure(FutureTest.this.getClass(), "mapped")) );
             }
@@ -751,7 +752,7 @@ public class FutureTest {
     public void givenCompletedFutureWithFailure_flatMapFailureAndHaveTheMappingFunctionThrowAnException_expectResultToBeAFailureHoldingTheExceptionFromTheMappingFunction() {
         Future<String> f1 = Future.failed(new Failure(this.getClass(), "bomb"));
 
-        Future<String> f2 = f1.flatMapFailure( new Function1<Failure, Future<Failure>>() {
+        Future<String> f2 = f1.flatMapFailure( new Function1<Failure, Try<Failure>>() {
             public Future<Failure> invoke( Failure f ) {
                 throw new RuntimeException("whoops");
             }
@@ -770,7 +771,7 @@ public class FutureTest {
     public void givenPromise_flatRecoverThenCompleteFirstFutureWithFailure_expectSecondFutureToCompleteWithResultFromRecoveryFunction() {
         Future<String> f1 = Future.promise();
 
-        Future<String> f2 = f1.flatRecover(new Function1<Failure, Future<String>>() {
+        Future<String> f2 = f1.flatRecover(new Function1<Failure, Try<String>>() {
             public Future<String> invoke(Failure f) {
                 return Future.successful("recovered");
             }
@@ -786,7 +787,7 @@ public class FutureTest {
     public void givenPromise_flatRecoverThenCompleteFirstFutureWithCompletedResult_expectSecondFutureToCompleteWithSameResult() {
         Future<String> f1 = Future.promise();
 
-        Future<String> f2 = f1.flatRecover(new Function1<Failure, Future<String>>() {
+        Future<String> f2 = f1.flatRecover(new Function1<Failure, Try<String>>() {
             public Future<String> invoke(Failure f) {
                 return Future.successful("recovered");
             }
@@ -802,7 +803,7 @@ public class FutureTest {
     public void givenPromise_flatRecoverThenCompleteFirstFutureWithPromise_expectSecondFutureToBeIncompletePromise() {
         Future<String> f1 = Future.promise();
 
-        Future<String> f2 = f1.flatRecover(new Function1<Failure, Future<String>>() {
+        Future<String> f2 = f1.flatRecover(new Function1<Failure, Try<String>>() {
             public Future<String> invoke(Failure f) {
                 return Future.promise();
             }
@@ -818,7 +819,7 @@ public class FutureTest {
         Future<String> f1 = Future.promise();
         final Future<String> recoveryPromise = Future.promise();
 
-        Future<String> f2 = f1.flatRecover(new Function1<Failure, Future<String>>() {
+        Future<String> f2 = f1.flatRecover(new Function1<Failure, Try<String>>() {
             public Future<String> invoke(Failure f) {
                 return recoveryPromise;
             }
@@ -834,7 +835,7 @@ public class FutureTest {
     public void givenPromise_flatRecoverThenCompleteFirstFutureWithFailureAndHaveRecoveryFunctionThrowAnException_expectFinalFutureToHoldFailure() {
         Future<String> f1 = Future.promise();
 
-        Future<String> f2 = f1.flatRecover(new Function1<Failure, Future<String>>() {
+        Future<String> f2 = f1.flatRecover(new Function1<Failure, Try<String>>() {
             public Future<String> invoke(Failure f) {
                 throw new IllegalArgumentException("bang");
             }
@@ -852,7 +853,7 @@ public class FutureTest {
     public void givenCompletedFutureWithResult_flatRecover_expectResultToBeUntouched() {
         Future<String> f1 = Future.successful( "hello" );
 
-        Future<String> f2 = f1.flatRecover(new Function1<Failure, Future<String>>() {
+        Future<String> f2 = f1.flatRecover(new Function1<Failure, Try<String>>() {
             public Future<String> invoke(Failure f) {
                 return Future.successful("recovered");
             }
@@ -866,7 +867,7 @@ public class FutureTest {
     public void givenCompletedFutureWithFailure_flatRecover_expectResultToBeRecovered() {
         Future<String> f1 = Future.failed(new Failure(this.getClass(), "squawk"));
 
-        Future<String> f2 = f1.flatRecover(new Function1<Failure, Future<String>>() {
+        Future<String> f2 = f1.flatRecover(new Function1<Failure, Try<String>>() {
             public Future<String> invoke(Failure f) {
                 return Future.successful("recovered");
             }
@@ -880,7 +881,7 @@ public class FutureTest {
     public void givenCompletedFutureWithFailure_flatRecoverAndHaveTheMappingFunctionThrowAnException_expectResultToBeAFailureHoldingTheExceptionFromTheMappingFunction() {
         Future<String> f1 = Future.failed(new Failure(this.getClass(), "squawk"));
 
-        Future<String> f2 = f1.flatRecover(new Function1<Failure, Future<String>>() {
+        Future<String> f2 = f1.flatRecover(new Function1<Failure, Try<String>>() {
             public Future<String> invoke(Failure f) {
                 throw new IllegalStateException("whoops");
             }
@@ -1169,7 +1170,7 @@ public class FutureTest {
         Future<String> f1    = Future.successful("meadow");
         final AtomicInteger  count = new AtomicInteger(0);
 
-        f1.onComplete(new CompletedFutureCallback<String>() {
+        f1.onComplete(new CompletedCallback<String>() {
             public void completedWithResult(String result) {
                 count.incrementAndGet();
             }
@@ -1188,7 +1189,7 @@ public class FutureTest {
         Future<String> f1    = Future.failed( new Failure(this.getClass(),"splat") );
         final AtomicInteger  count = new AtomicInteger(0);
 
-        f1.onComplete(new CompletedFutureCallback<String>() {
+        f1.onComplete(new CompletedCallback<String>() {
             public void completedWithResult(String result) {
                 count.incrementAndGet();
             }
@@ -1210,7 +1211,7 @@ public class FutureTest {
         Future<String> f1    = Future.promise();
         final AtomicInteger  count = new AtomicInteger(0);
 
-        f1.onComplete(new CompletedFutureCallback<String>() {
+        f1.onComplete(new CompletedCallback<String>() {
             public void completedWithResult(String result) {
                 count.incrementAndGet();
             }
@@ -1231,7 +1232,7 @@ public class FutureTest {
         Future<String> f1    = Future.promise();
         final AtomicInteger  count = new AtomicInteger(0);
 
-        f1.onComplete(new CompletedFutureCallback<String>() {
+        f1.onComplete(new CompletedCallback<String>() {
             public void completedWithResult(String result) {
                 count.incrementAndGet();
             }
@@ -1252,7 +1253,7 @@ public class FutureTest {
         Future<String> f1    = Future.promise();
         final AtomicInteger  count = new AtomicInteger(0);
 
-        f1.onComplete(new CompletedFutureCallback<String>() {
+        f1.onComplete(new CompletedCallback<String>() {
             public void completedWithResult(String result) {
                 count.incrementAndGet();
             }
@@ -1262,7 +1263,7 @@ public class FutureTest {
             }
         });
 
-        f1.onComplete(new CompletedFutureCallback<String>() {
+        f1.onComplete(new CompletedCallback<String>() {
             public void completedWithResult(String result) {
                 count.incrementAndGet();
             }

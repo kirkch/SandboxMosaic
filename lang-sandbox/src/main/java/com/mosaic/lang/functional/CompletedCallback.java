@@ -5,7 +5,7 @@ import com.mosaic.lang.Failure;
 /**
  *
  */
-public interface CompletedFutureCallback<T> {
+public interface CompletedCallback<T> {
 
     public void completedWithResult( T result );
 
