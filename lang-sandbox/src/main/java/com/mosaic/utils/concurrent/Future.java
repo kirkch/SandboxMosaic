@@ -10,7 +10,6 @@ import com.mosaic.lang.functional.VoidFunction1;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
@@ -83,8 +82,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @ThreadSafe( "state stored in an immutable class and shared via an atomic reference " )
 public class Future<T> implements Try<T> {
 
-    private final AtomicReference<InternalState<T>> stateReference = new AtomicReference<InternalState<T>>();
-    private final List<CompletedCallback<T>>        callbacks      = new ArrayList<CompletedCallback<T>>();  // NB synchronize on list before reading from or writing to it
+    private final Atomic<InternalState<T>>   stateReference;
+    private final List<CompletedCallback<T>> callbacks      = new ArrayList<CompletedCallback<T>>();  // NB synchronize on list before reading from or writing to it
 
 
     /**
@@ -263,7 +262,9 @@ public class Future<T> implements Try<T> {
         // thus we should be on the look out for null pointer exceptions from
         // this class.
 
-        stateReference.lazySet( InternalState.<T>promise() );
+//        stateReference.lazySet( InternalState.<T>promise() );  todo benchmark this idea
+
+        stateReference = new Atomic( InternalState.<T>promise() );
     }
 
     /**
@@ -820,25 +821,18 @@ public class Future<T> implements Try<T> {
         return promise;
     }
 
-    private boolean completeWith( InternalState<T> newState ) {
-        InternalState<T> currentState = stateReference.get();
-        if ( currentState.isComplete() ) {
-            return false;
-        }
-
-        while ( true ) {
-            boolean wasSet = stateReference.compareAndSet(currentState, newState);  // NB change will be visible to other calls by the time that this method returns
-
-            if ( wasSet ) {
-                return true;
-            } else {
-                currentState = stateReference.get();
-
-                if ( currentState.isComplete() ) { // beaten to the post
-                    return false;
+    private boolean completeWith( final InternalState<T> newState ) {
+        InternalState<T> updatedState = stateReference.update( new Function1<InternalState<T>,InternalState<T>>() {
+            public InternalState<T> invoke( InternalState<T> currentState ) {
+                if ( currentState.isComplete() ) {
+                    return currentState;
                 }
+
+                return newState;
             }
-        }
+        });
+
+        return updatedState == newState; // didStateChange?
     }
 
     private void sendCompletedWithResultNotifications( T result ) {

@@ -24,6 +24,10 @@ public class Atomic<T> {
         return ref.get();
     }
 
+    public void lazySet( T value ) {
+        ref.lazySet( value );
+    }
+
     public T update( Function1<T,T> updateOp ) {
         boolean wasSuccessful;
         T       originalValue;
@@ -31,7 +35,11 @@ public class Atomic<T> {
 
         do {
             originalValue = get();
-            updatedValue    = updateOp.invoke(originalValue);
+            updatedValue  = updateOp.invoke(originalValue);
+
+            if ( originalValue == updatedValue ) {
+                return updatedValue;
+            }
 
             wasSuccessful = ref.compareAndSet( originalValue, updatedValue );
         } while ( !wasSuccessful );

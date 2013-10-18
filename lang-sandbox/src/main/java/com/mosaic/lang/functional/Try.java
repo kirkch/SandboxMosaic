@@ -11,6 +11,7 @@ import com.mosaic.lang.Failure;
  */
 public interface Try<T> {
 
+
     /**
      * Returns true if the try contains the successful result.  False means
      * that the try contains a failure of some kind.
