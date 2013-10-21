@@ -200,7 +200,7 @@ public class FutureNbl<T> implements TryNbl<T> {
 
                 this.onComplete( new CompletedCallbackNbl<T>() {
                     public void completedWithNullResult() {
-                        // todo
+                        mappedFuture.completeWithResultNbl(Nullable.NULL);
                     }
 
                     public void completedWithResult( T result ) {
@@ -214,7 +214,13 @@ public class FutureNbl<T> implements TryNbl<T> {
 
                 return mappedFuture;
             case HAS_RESULT:
-                return handleMapResult( FutureNbl.<B>promise(), getResultNoBlock(), mappingFunction );
+                Nullable<T> resultNbl = getResultNoBlock();
+
+                if ( resultNbl.isNull() ) {
+                    return (FutureNbl<B>) this;
+                } else {
+                    return handleMapResult( FutureNbl.<B>promise(), resultNbl.getValue(), mappingFunction );
+                }
             case HAS_FAILURE:
                 return (FutureNbl<B>) this;  // NB future contains a failure, and so will never hold a result; thus the cast is safe
             default:
@@ -231,7 +237,7 @@ public class FutureNbl<T> implements TryNbl<T> {
 
                 this.onComplete( new CompletedCallbackNbl<T>() {
                     public void completedWithNullResult() {
-                        // todo
+                        mappedFuture.completeWithResultNbl(Nullable.NULL);
                     }
 
                     public void completedWithResult( T result ) {
@@ -245,7 +251,12 @@ public class FutureNbl<T> implements TryNbl<T> {
 
                 return mappedFuture;
             case HAS_RESULT:
-                return handleFlatMapResult(FutureNbl.<B>promise(), getResultNoBlock(), mappingFunction);
+                Nullable<T> result = getResultNoBlock();
+                if ( result.isNull() ) {
+                    return (FutureNbl<B>) this;
+                }
+
+                return handleFlatMapResult(FutureNbl.<B>promise(), result.getValue(), mappingFunction);
             case HAS_FAILURE:
                 return (FutureNbl<B>) this;  // NB future contains a failure, and so will never hold a result; thus the cast is safe
             default:
@@ -301,7 +312,7 @@ public class FutureNbl<T> implements TryNbl<T> {
 
                 this.onComplete( new CompletedCallbackNbl<T>() {
                     public void completedWithNullResult() {
-                        // todo
+                        mappedFuture.completeWithResultNbl(Nullable.NULL);
                     }
 
                     public void completedWithResult( T result ) {
@@ -363,7 +374,7 @@ public class FutureNbl<T> implements TryNbl<T> {
 
                 this.onComplete( new CompletedCallbackNbl<T>() {
                     public void completedWithNullResult() {
-                        // todo
+                        mappedFuture.completeWithResultNbl(Nullable.NULL);
                     }
 
                     public void completedWithResult( T result ) {
@@ -477,53 +488,10 @@ public class FutureNbl<T> implements TryNbl<T> {
         return promise;
     }
 
-    private <B> FutureNbl<B> handleMapResult( FutureNbl<B> promise, Nullable<T> preMappedResult, Function1<T,B> mappingFunction ) {
-        try {
-            if ( preMappedResult.isNull() ) {
-                promise.completeWithResultNbl( Nullable.NULL );
-            } else {
-                promise.completeWithResult( mappingFunction.invoke(preMappedResult.getValue()) );
-            }
-        } catch ( Exception e ) {
-            promise.completeWithFailure( new Failure(e) );
-        }
-
-        return promise;
-    }
 
     private <B> FutureNbl<B> handleFlatMapResult( final FutureNbl<B> promise, T preMappedResult, Function1<T,TryNbl<B>> mappingFunction ) {
         try {
             TryNbl<B> childFuture = mappingFunction.invoke(preMappedResult);
-
-            childFuture.onComplete(new CompletedCallbackNbl<B>() {
-                public void completedWithNullResult() {
-                    //todo
-                }
-
-                public void completedWithResult(B result) {
-                    promise.completeWithResult(result);
-                }
-
-                public void completedWithFailure(Failure f) {
-                    promise.completeWithFailure(f);
-                }
-            });
-        } catch ( Exception e ) {
-            promise.completeWithFailure( new Failure(e) );
-        }
-
-        return promise;
-    }
-
-    private <B> FutureNbl<B> handleFlatMapResult( final FutureNbl<B> promise, Nullable<T> preMappedResult, Function1<T,TryNbl<B>> mappingFunction ) {
-        if ( preMappedResult.isNull() ) {
-            promise.completeWithResultNbl(Nullable.NULL);
-
-            return promise;
-        }
-
-        try {
-            TryNbl<B> childFuture = mappingFunction.invoke(preMappedResult.getValue());
 
             childFuture.onComplete(new CompletedCallbackNbl<B>() {
                 public void completedWithNullResult() {

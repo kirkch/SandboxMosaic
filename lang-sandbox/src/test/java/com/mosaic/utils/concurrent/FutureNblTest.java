@@ -5,6 +5,7 @@ import com.mosaic.lang.Failure;
 import com.mosaic.lang.functional.*;
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.*;
@@ -22,6 +23,13 @@ public class FutureNblTest {
         FutureNbl<String> f = FutureNbl.successful(Nullable.createNullable("hello"));
 
         assertEquals( "hello", f.getResultNoBlock().getValue() );
+    }
+
+    @Test
+    public void givenCompletedFutureNblWithNullResult_getResult_expectNullResultImmediately() {
+        FutureNbl<String> f = FutureNbl.successful(Nullable.NULL);
+
+        assertEquals(Nullable.NULL, f.getResultNoBlock());
     }
 
     @Test
@@ -88,6 +96,7 @@ public class FutureNblTest {
     }
 
 
+// MAP RESULT
 
     @Test
     public void givenCompletedFutureNblWithResult_mapResult_expectNewFutureNblWithMappedResult() {
@@ -100,6 +109,23 @@ public class FutureNblTest {
 
         assertCompletedFutureNblWithResult( f1, "hello" );
         assertCompletedFutureNblWithResult( f2, 5 );
+    }
+
+    @Test
+    public void givenCompletedFutureNblWithNullResult_mapResult_expectUnmodifiedFutureAndNoMappingCall() {
+        FutureNbl<String> f1 = FutureNbl.successful(Nullable.NULL);
+        final AtomicBoolean flag = new AtomicBoolean(false);
+
+        FutureNbl<Integer> f2 = f1.mapResult( new Function1<String,Integer>() {
+            public Integer invoke( String v ) {
+                flag.set(true);
+
+                return v.length();
+            }
+        });
+
+        assertFalse( flag.get() );
+        assertSame( f1, f2 );
     }
 
     @Test
@@ -202,6 +228,17 @@ public class FutureNblTest {
     }
 
     @Test
+    public void givenPromise_completeWithNullResult_expectGetResultToReturnNullValue() {
+        FutureNbl<String> promise = new FutureNbl<String>();
+
+        promise.completeWithResultNbl(Nullable.NULL);
+
+        assertTrue( promise.isComplete() );
+        assertTrue( promise.hasResult() );
+        assertEquals(Nullable.NULL, promise.getResultNoBlock());
+    }
+
+    @Test
     public void givenPromise_completeWithResult_expectGetErrorToReturnNull() {
         FutureNbl<String> promise = new FutureNbl<String>();
 
@@ -230,6 +267,8 @@ public class FutureNblTest {
     }
 
 
+// MAP RESULT ON A PROMISE
+
     @Test
     public void givenPromise_mapResultThenCompleteFirstFutureNbl_expectSecondFutureNblToBeCompletedWithMappedResult() {
         FutureNbl<String> promise = new FutureNbl<String>();
@@ -243,6 +282,21 @@ public class FutureNblTest {
 
         assertCompletedFutureNblWithResult( promise, "hello world" );
         assertCompletedFutureNblWithResult( f2, 11 );
+    }
+
+    @Test
+    public void givenPromise_mapResultThenCompleteFirstFutureWithNull_expectSecondFutureNblToBeCompletedWithMappedResult() {
+        FutureNbl<String> promise = new FutureNbl<String>();
+        FutureNbl<Integer> f2 = promise.mapResult( new Function1<String, Integer>() {
+            public Integer invoke(String arg) {
+                return arg.length();
+            }
+        });
+
+        promise.completeWithResultNbl( Nullable.NULL );
+
+        assertCompletedFutureNblWithResult( promise, null );
+        assertCompletedFutureNblWithResult( f2, null );
     }
 
     @Test
@@ -503,6 +557,26 @@ public class FutureNblTest {
     }
 
     @Test
+    public void givenPromise_flatMapResultThenCompleteFirstFutureNblWithNull_expectSecondFutureNblToCompleteWithNull() {
+        FutureNbl<String> promise = new FutureNbl<String>();
+        final AtomicBoolean flag = new AtomicBoolean(false);
+
+        FutureNbl<Integer> f2 = promise.flatMapResult( new Function1<String, TryNbl<Integer>>() {
+            public FutureNbl<Integer> invoke( String v ) {
+                flag.set(true);
+
+                return FutureNbl.successful(Nullable.createNullable(v.length()));
+            }
+        });
+
+
+        promise.completeWithResultNbl(Nullable.NULL);
+
+        assertFalse( flag.get() );
+        assertEquals( Nullable.NULL, f2.getResultNoBlock() );
+    }
+
+    @Test
     public void givenPromise_flatMapResultThenCompleteFirstFutureNblWithPromise_expectSecondFutureNblToBeIncompletePromise() {
         FutureNbl<String> promise = new FutureNbl<String>();
 
@@ -571,6 +645,23 @@ public class FutureNblTest {
 
         assertCompletedFutureNblWithResult(f1, "hello");
         assertCompletedFutureNblWithResult(f2, 5);
+    }
+
+    @Test
+    public void givenCompletedFutureNblWithNullResult_flatMapResult_expectNoCallToMappingFunction() {
+        FutureNbl<String> f1 = FutureNbl.successful(Nullable.NULL);
+        final AtomicBoolean flag = new AtomicBoolean(false);
+
+        FutureNbl<Integer> f2 = f1.flatMapResult( new Function1<String, TryNbl<Integer>>() {
+            public FutureNbl<Integer> invoke( String v ) {
+                flag.set(true);
+                return FutureNbl.successful(Nullable.createNullable(v.length()));
+            }
+        });
+
+
+        assertFalse( flag.get() );
+        assertSame(f1, f2);
     }
 
     @Test
@@ -658,6 +749,27 @@ public class FutureNblTest {
     }
 
     @Test
+    public void givenPromise_flatMapFailureThenCompleteFirstFutureNblWithNull_expectSecondFutureNblToCompleteWithSameResult() {
+        FutureNbl<String> f1 = new FutureNbl<String>();
+        final AtomicBoolean flag = new AtomicBoolean(false);
+
+        FutureNbl<String> f2 = f1.flatMapFailure( new Function1<Failure, TryNbl<Failure>>() {
+            public FutureNbl<Failure> invoke( Failure f ) {
+                flag.set(true);
+
+                return FutureNbl.failed(new Failure(f, new Failure(this.getClass(), "mapped")));
+            }
+        });
+
+
+        f1.completeWithResultNbl( Nullable.NULL );
+
+        assertFalse(flag.get());
+        assertCompletedFutureNblWithResult(f1, null);
+        assertCompletedFutureNblWithResult(f2, null);
+    }
+
+    @Test
     public void givenPromise_flatMapFailureThenCompleteFirstFutureNblWithPromise_expectSecondFutureNblToBeIncompletePromise() {
         FutureNbl<String> f1 = new FutureNbl<String>();
 
@@ -729,6 +841,25 @@ public class FutureNblTest {
     }
 
     @Test
+    public void givenCompletedFutureNblWithNull_flatMapFailure_expectResultToBeUntouched() {
+        FutureNbl<String> f1 = FutureNbl.successful(Nullable.NULL);
+        final AtomicBoolean flag = new AtomicBoolean(false);
+
+        FutureNbl<String> f2 = f1.flatMapFailure( new Function1<Failure, TryNbl<Failure>>() {
+            public FutureNbl<Failure> invoke( Failure f ) {
+                flag.set(true);
+
+                return FutureNbl.failed( new Failure(f, new Failure(this.getClass(), "mapped")) );
+            }
+        });
+
+
+        assertFalse(flag.get());
+        assertCompletedFutureNblWithResult( f1, null );
+        assertCompletedFutureNblWithResult( f2, null );
+    }
+
+    @Test
     public void givenCompletedFutureNblWithFailure_flatMapFailure_expectResultToBeMappedFailure() {
         FutureNbl<String> f1 = FutureNbl.failed(new Failure(this.getClass(), "bomb"));
 
@@ -795,6 +926,26 @@ public class FutureNblTest {
     }
 
     @Test
+    public void givenPromise_flatRecoverThenCompleteFirstFutureNblWithNull_expectSecondFutureNblToCompleteWithSameResult() {
+        FutureNbl<String> f1 = FutureNbl.promise();
+        final AtomicBoolean flag = new AtomicBoolean(false);
+
+        FutureNbl<String> f2 = f1.flatRecover(new Function1<Failure, TryNbl<String>>() {
+            public FutureNbl<String> invoke(Failure f) {
+                flag.set(true);
+
+                return FutureNbl.successful(Nullable.createNullable("recovered"));
+            }
+        });
+
+        f1.completeWithResultNbl(Nullable.NULL);
+
+        assertFalse(flag.get());
+        assertCompletedFutureNblWithResult(f1, null);
+        assertCompletedFutureNblWithResult( f2, null );
+    }
+
+    @Test
     public void givenPromise_flatRecoverThenCompleteFirstFutureNblWithPromise_expectSecondFutureNblToBeIncompletePromise() {
         FutureNbl<String> f1 = FutureNbl.promise();
 
@@ -856,6 +1007,24 @@ public class FutureNblTest {
 
 
         assertCompletedFutureNblWithResult( f2, "hello" );
+    }
+
+    @Test
+    public void givenCompletedFutureNblWithNull_flatRecover_expectResultToBeUntouched() {
+        FutureNbl<String> f1 = FutureNbl.successful( Nullable.NULL );
+        final AtomicBoolean flag = new AtomicBoolean(false);
+
+        FutureNbl<String> f2 = f1.flatRecover(new Function1<Failure, TryNbl<String>>() {
+            public FutureNbl<String> invoke(Failure f) {
+                flag.set(true);
+
+                return FutureNbl.successful(Nullable.createNullable("recovered"));
+            }
+        });
+
+
+        assertFalse(flag.get());
+        assertCompletedFutureNblWithResult( f2, null );
     }
 
     @Test
