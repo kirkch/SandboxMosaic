@@ -281,7 +281,7 @@ public class FutureNbl<T> implements TryNbl<T> {
 
                 this.onComplete( new CompletedCallbackNbl<T>() {
                     public void completedWithNullResult() {
-                        // todo
+                        mappedFuture.completeWithResultNbl(Nullable.NULL);
                     }
 
                     public void completedWithResult( T result ) {
@@ -343,7 +343,7 @@ public class FutureNbl<T> implements TryNbl<T> {
 
                 this.onComplete( new CompletedCallbackNbl<T>() {
                     public void completedWithNullResult() {
-                        // todo
+                        mappedFuture.completeWithResultNbl(Nullable.NULL);
                     }
 
                     public void completedWithResult( T result ) {
@@ -428,9 +428,7 @@ public class FutureNbl<T> implements TryNbl<T> {
      */
     public void onFailure( final VoidFunction1<Failure> callback ) {
         this.onComplete( new CompletedCallbackNbl<T>() {
-            public void completedWithNullResult() {
-                // todo
-            }
+            public void completedWithNullResult() {}
 
             public void completedWithResult(T result) {}
 
@@ -495,7 +493,7 @@ public class FutureNbl<T> implements TryNbl<T> {
 
             childFuture.onComplete(new CompletedCallbackNbl<B>() {
                 public void completedWithNullResult() {
-                    //todo
+                    promise.completeWithResultNbl(Nullable.NULL);
                 }
 
                 public void completedWithResult(B result) {
@@ -529,7 +527,7 @@ public class FutureNbl<T> implements TryNbl<T> {
 
             recoveredFuture.onComplete( new CompletedCallbackNbl<T>() {
                 public void completedWithNullResult() {
-                    // todo
+                    promise.completeWithResultNbl(Nullable.NULL);
                 }
 
                 public void completedWithResult(T recoveredResult) {
@@ -566,7 +564,7 @@ public class FutureNbl<T> implements TryNbl<T> {
 
             mappedFailureFuture.onComplete( new CompletedCallbackNbl<Failure>() {
                 public void completedWithNullResult() {
-                    // todo
+                    promise.completeWithResultNbl(Nullable.NULL);
                 }
 
                 public void completedWithResult( Failure mappedFailure ) {
