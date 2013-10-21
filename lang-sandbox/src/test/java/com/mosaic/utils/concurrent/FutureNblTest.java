@@ -1063,8 +1063,8 @@ public class FutureNblTest {
         FutureNbl<String> f1    = FutureNbl.successful(Nullable.createNullable("meadow"));
         final AtomicInteger  count = new AtomicInteger(0);
 
-        f1.onResult( new VoidFunction1<String>() {
-            public void invoke(String arg) {
+        f1.onResult( new VoidFunction1<Nullable<String>>() {
+            public void invoke(Nullable<String> arg) {
                 count.incrementAndGet();
             }
         });
@@ -1078,8 +1078,8 @@ public class FutureNblTest {
         FutureNbl<String> f1    = FutureNbl.failed(new Failure(this.getClass(), "splat"));
         final AtomicInteger  count = new AtomicInteger(0);
 
-        f1.onResult( new VoidFunction1<String>() {
-            public void invoke(String arg) {
+        f1.onResult( new VoidFunction1<Nullable<String>>() {
+            public void invoke(Nullable<String> arg) {
                 count.incrementAndGet();
             }
         });
@@ -1096,8 +1096,8 @@ public class FutureNblTest {
         FutureNbl<String> f1    = FutureNbl.promise();
         final AtomicInteger  count = new AtomicInteger(0);
 
-        f1.onResult( new VoidFunction1<String>() {
-            public void invoke(String arg) {
+        f1.onResult( new VoidFunction1<Nullable<String>>() {
+            public void invoke(Nullable<String> arg) {
                 count.incrementAndGet();
             }
         });
@@ -1109,18 +1109,37 @@ public class FutureNblTest {
     }
 
     @Test
+    public void givenPromise_registerOnResultCallbackAndCompleteWithNull_expectCallback() {
+        FutureNbl<String> f1    = FutureNbl.promise();
+        final AtomicInteger  count = new AtomicInteger(0);
+
+        f1.onResult( new VoidFunction1<Nullable<String>>() {
+            public void invoke(Nullable<String> arg) {
+                count.incrementAndGet();
+
+                assertEquals( Nullable.NULL, arg );
+            }
+        });
+
+
+        f1.completeWithResultNbl(Nullable.NULL);
+
+        assertEquals( 1, count.get() );
+    }
+
+    @Test
     public void givenPromise_registerTwoOnResultCallbackAndCompleteWithResult_expectCallbacks() {
         FutureNbl<String> f1    = FutureNbl.promise();
         final AtomicInteger  count = new AtomicInteger(0);
 
-        f1.onResult( new VoidFunction1<String>() {
-            public void invoke(String arg) {
+        f1.onResult( new VoidFunction1<Nullable<String>>() {
+            public void invoke(Nullable<String> arg) {
                 count.incrementAndGet();
             }
         });
 
-        f1.onResult( new VoidFunction1<String>() {
-            public void invoke(String arg) {
+        f1.onResult( new VoidFunction1<Nullable<String>>() {
+            public void invoke(Nullable<String> arg) {
                 count.incrementAndGet();
             }
         });
@@ -1136,8 +1155,8 @@ public class FutureNblTest {
         FutureNbl<String> f1    = FutureNbl.promise();
         final AtomicInteger  count = new AtomicInteger(0);
 
-        f1.onResult( new VoidFunction1<String>() {
-            public void invoke(String arg) {
+        f1.onResult( new VoidFunction1<Nullable<String>>() {
+            public void invoke(Nullable<String> arg) {
                 count.incrementAndGet();
             }
         });
@@ -1153,8 +1172,8 @@ public class FutureNblTest {
         FutureNbl<String> f1    = FutureNbl.promise();
         final AtomicInteger  count = new AtomicInteger(0);
 
-        f1.onResult( new VoidFunction1<String>() {
-            public void invoke(String arg) {
+        f1.onResult( new VoidFunction1<Nullable<String>>() {
+            public void invoke(Nullable<String> arg) {
                 count.incrementAndGet();
             }
         });
@@ -1170,8 +1189,8 @@ public class FutureNblTest {
         FutureNbl<String> f1    = FutureNbl.promise();
         final AtomicInteger  count = new AtomicInteger(0);
 
-        f1.onResult( new VoidFunction1<String>() {
-            public void invoke(String arg) {
+        f1.onResult( new VoidFunction1<Nullable<String>>() {
+            public void invoke(Nullable<String> arg) {
                 count.incrementAndGet();
             }
         });
@@ -1194,6 +1213,21 @@ public class FutureNblTest {
     @Test
     public void givenCompletedFutureNblWithResult_registerOnFailureCallback_expectNoCallback() {
         FutureNbl<String> f1    = FutureNbl.successful(Nullable.createNullable("meadow"));
+        final AtomicInteger  count = new AtomicInteger(0);
+
+        f1.onFailure( new VoidFunction1<Failure>() {
+            public void invoke(Failure f) {
+                count.incrementAndGet();
+            }
+        });
+
+
+        assertEquals( 0, count.get() );
+    }
+
+    @Test
+    public void givenCompletedFutureNblWithNull_registerOnFailureCallback_expectNoCallback() {
+        FutureNbl<String> f1    = FutureNbl.successful(Nullable.NULL);
         final AtomicInteger  count = new AtomicInteger(0);
 
         f1.onFailure( new VoidFunction1<Failure>() {
@@ -1238,6 +1272,24 @@ public class FutureNblTest {
 
 
         f1.completeWithResult("hello");
+
+        assertEquals( 0, count.get() );
+    }
+
+    @Test
+    public void givenPromise_registerOnFailureCallbackAndCompleteWithNull_expectNoCallback() {
+        FutureNbl<String> f1    = FutureNbl.promise();
+        final AtomicInteger  count = new AtomicInteger(0);
+
+
+        f1.onFailure( new VoidFunction1<Failure>() {
+            public void invoke(Failure f) {
+                count.incrementAndGet();
+            }
+        });
+
+
+        f1.completeWithResultNbl(Nullable.NULL);
 
         assertEquals( 0, count.get() );
     }
@@ -1308,8 +1360,8 @@ public class FutureNblTest {
         FutureNbl<String> f1    = FutureNbl.promise();
         final AtomicInteger  count = new AtomicInteger(0);
 
-        f1.onResult( new VoidFunction1<String>() {
-            public void invoke(String arg) {
+        f1.onResult( new VoidFunction1<Nullable<String>>() {
+            public void invoke(Nullable<String> arg) {
                 count.incrementAndGet();
             }
         });
@@ -1345,6 +1397,29 @@ public class FutureNblTest {
 
             public void completedWithFailure(Failure f) {
                 count.decrementAndGet();
+            }
+        });
+
+
+        assertEquals( 1, count.get() );
+    }
+
+    @Test
+    public void givenCompletedFutureNblWithNull_registerOnCompletionCallback_expectResultCallback() {
+        FutureNbl<String> f1    = FutureNbl.successful(Nullable.NULL);
+        final AtomicInteger  count = new AtomicInteger(0);
+
+        f1.onComplete(new CompletedCallbackNbl<String>() {
+            public void completedWithNullResult() {
+                count.incrementAndGet();
+            }
+
+            public void completedWithResult(String result) {
+                fail("not expected");
+            }
+
+            public void completedWithFailure(Failure f) {
+                fail("not expected");
             }
         });
 
@@ -1399,6 +1474,31 @@ public class FutureNblTest {
 
 
         f1.completeWithResult("hello");
+
+        assertEquals( 1, count.get() );
+    }
+
+    @Test
+    public void givenPromise_registerOnCompletionCallbackAndCompleteWithNull_expectResultCallback() {
+        FutureNbl<String> f1    = FutureNbl.promise();
+        final AtomicInteger  count = new AtomicInteger(0);
+
+        f1.onComplete(new CompletedCallbackNbl<String>() {
+            public void completedWithNullResult() {
+                count.incrementAndGet();
+            }
+
+            public void completedWithResult(String result) {
+                fail("not expected");
+            }
+
+            public void completedWithFailure(Failure f) {
+                fail("not expected");
+            }
+        });
+
+
+        f1.completeWithResultNbl(Nullable.NULL);
 
         assertEquals( 1, count.get() );
     }

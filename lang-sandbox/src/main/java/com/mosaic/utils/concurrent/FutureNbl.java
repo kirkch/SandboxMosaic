@@ -404,14 +404,14 @@ public class FutureNbl<T> implements TryNbl<T> {
      * already completed then the callback will be invoked immediately from this
      * thread before onResult returns.
      */
-    public void onResult( final VoidFunction1<T> callback ) {
+    public void onResult( final VoidFunction1<Nullable<T>> callback ) {
         this.onComplete( new CompletedCallbackNbl<T>() {
             public void completedWithNullResult() {
-                // todo
+                callback.invoke( Nullable.NULL );
             }
 
             public void completedWithResult(T result) {
-                callback.invoke( result );
+                callback.invoke( Nullable.createNullable(result) );
             }
 
             public void completedWithFailure(Failure f) {}
