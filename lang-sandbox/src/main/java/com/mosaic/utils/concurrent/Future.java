@@ -267,11 +267,6 @@ public class Future<T> implements Try<T> {
         stateReference = new Atomic( InternalState.<T>promise() );
     }
 
-    /**
-     * Returns true if the future has been completed either with a result or
-     * a description of why the job failed.  False means that the job has not
-     * yet completed.
-     */
     public boolean isComplete() {
         InternalState<T> state = stateReference.get();
 
@@ -313,58 +308,30 @@ public class Future<T> implements Try<T> {
         return this;
     }
 
-    /**
-     * Returns true if the future has been completed with the successful result
-     * of a job.  False means that the future has either not been completed
-     * or the job failed.
-     */
     public boolean hasResult() {
         InternalState<T> state = stateReference.get();
 
         return state.hasResult();
     }
 
-    /**
-     * Returns true if the future has been completed with a description of
-     * why the job failed.  False means that the future has either not been
-     * completed or the job succeeded without error.
-     */
     public boolean hasFailure() {
         InternalState<T> state = stateReference.get();
 
         return state.hasFailure();
     }
 
-    /**
-     * Returns the result of the job if available.  This method will return null
-     * when the future has not yet been completed, or it has been completed
-     * with a failure or a null result.  Thus confirming the state of the
-     * future before calling this method will avoid ambiguity of what null means.
-     */
     public T getResultNoBlock() {
         InternalState<T> state = stateReference.get();
 
         return state.result;
     }
 
-    /**
-     * Returns the description of why the job failed.  This method will return null
-     * when the future has not yet been completed, or it has been completed
-     * with a successful result.  Thus confirming the state of the
-     * future before calling this method will avoid ambiguity of what null means.
-     */
     public Failure getFailureNoBlock() {
         InternalState<T> state = stateReference.get();
 
         return state.failure;
     }
 
-    /**
-     * Stores the successful result of a job within this future.  If this future
-     * has already been completed then the result will be ignored and this method
-     * will return false.  Successful storage of the result in this future will
-     * result in this method returning true.
-     */
     public boolean completeWithResult( T result ) {
         InternalState<T> newState = InternalState.success(result);
 
@@ -394,15 +361,6 @@ public class Future<T> implements Try<T> {
     }
 
 
-    /**
-     * Creates a new future that will be completed when this future is completed.
-     * The new future will either be completed with the result of the first future
-     * after it has been converted via the supplied mappingFunction or it will hold
-     * the same failure as the first future.<p/>
-     *
-     * This method reduces the amount of boilerplate code required to respond
-     * to asynchronous work without blocking a thread.
-     */
     public <B> Future<B> mapResult( final Function1<T,B> mappingFunction ) {
         InternalState<T> state = stateReference.get();
 
@@ -430,25 +388,6 @@ public class Future<T> implements Try<T> {
         }
     }
 
-    /**
-     * Trigger and wait for another asynchronous job after this future completes.
-     * This function creates a new future that will be completed when this future is completed.
-     * The new future will either be completed with the result of the first future
-     * after it has been converted via the supplied mappingFunction or it will hold
-     * the same failure as the first future.<p/>
-     *
-     * This method reduces the amount of boilerplate code required to respond
-     * to asynchronous that itself triggers more asynchronous work without blocking a thread.<p/>
-     *
-     * For example, one may need to search for a user's account by name asynchronous
-     * from a search index.  Once identified we may want to load the information
-     * about that account asynchronously from a database.<p/>
-     *
-     * mapResult could also trigger such work, however it will result in the next
-     * Future in the chain storing Future&lt;Future&lt;Account>> while flatMapResult will avoid
-     * the nesting of Futures in the type signature and return Future&lt;Account>; which is easier
-     * to work with.
-     */
     public <B> Future<B> flatMapResult( final Function1<T,Try<B>> mappingFunction ) {
         InternalState<T> state = stateReference.get();
 
@@ -476,23 +415,6 @@ public class Future<T> implements Try<T> {
         }
     }
 
-    /**
-     * Offers the opportunity to recover from a failure. Creates a new future that
-     * will be completed when this future is completed.<p/>
-     *
-     * The new future will either be completed with the result of the first future
-     * or it will hold the result of the recoveryFunction passed to this method.
-     * If the recovery method itself fails, or throws an exception then the new
-     * future will store the original failure and the recoveryFunction's failure
-     * chained together.<p/>
-     *
-     * This method reduces the amount of boilerplate code required to respond
-     * to asynchronous work without blocking a thread.  For example, when
-     * implementing a HttpServer the final future in a chain of futures would
-     * describe the HttpResponse.  If the future instead stored a failure, then
-     * we can use recover to turn the description of the failure into an Http 500
-     * (server error) describing the failure.
-     */
     public Future<T> recover( final Function1<Failure,T> recoveryFunction ) {
         InternalState<T> state = stateReference.get();
 
@@ -520,24 +442,6 @@ public class Future<T> implements Try<T> {
         }
     }
 
-    /**
-     * Offers the opportunity to recover from a failure. Creates a new future that
-     * will be completed when this future is completed.<p/>
-     *
-     * The new future will either be completed with the result of the first future
-     * or it will hold the result of the recoveryFunction passed to this method
-     * after the asynchronous job that recoveryFunction has started completes.<p/>
-     *
-     * If the recovery method itself fails, or throws an exception then the new
-     * future will store the original failure and the recoveryFunction's failure
-     * chained together.<p/>
-     *
-     * This method reduces the amount of boilerplate code required to respond
-     * to asynchronous work without blocking a thread.  For example, when writing
-     * to a file asynchronously the write may fail because the file does not exist.
-     * In such a case, flatRecover could be used to start another job to create
-     * the file asynchronously and then try writing to the file again.
-     */
     public Future<T> flatRecover( final Function1<Failure,Try<T>> recoveryFunction ) {
         InternalState<T> state = stateReference.get();
 
@@ -565,24 +469,6 @@ public class Future<T> implements Try<T> {
         }
     }
 
-    /**
-     * Offers the opportunity to modify the description of a failed asynchronous
-     * job. This method creates a new future that will be completed when this
-     * future is completed.<p/>
-     *
-     * The new future will either be completed with the result of the first future
-     * or it will hold the result of the mappingFunction passed to this method.<p/>
-     *
-     * If the mappingFunction itself fails, or throws an exception then the new
-     * future will store the original failure and the recoveryFunction's failure
-     * chained together.<p/>
-     *
-     * This method reduces the amount of boilerplate code required to respond
-     * to asynchronous work without blocking a thread.  For example, a low level
-     * description of a database failure could be converted into a higher level
-     * description more suitable for reporting to a user or reclassified for
-     * further processing.
-     */
     public Future<T> mapFailure( final Function1<Failure,Failure> mappingFunction ) {
         InternalState<T> state = stateReference.get();
 
@@ -610,24 +496,6 @@ public class Future<T> implements Try<T> {
         }
     }
 
-    /**
-     * Offers the opportunity to modify the description of a failed asynchronous
-     * job. This method creates a new future that will be completed when this
-     * future is completed.<p/>
-     *
-     * The new future will either be completed with the result of the first future
-     * or it will hold the result of the mappingFunction passed to this method
-     * after the asynchronous job created by the mappingFunction completes.<p/>
-     *
-     * If the mappingFunction itself fails, or throws an exception then the new
-     * future will store the original failure and the recoveryFunction's failure
-     * chained together.<p/>
-     *
-     * This method reduces the amount of boilerplate code required to respond
-     * to asynchronous work without blocking a thread.  For example, error code
-     * reported in an integration layer could be looked up in a database for
-     * a more descriptive definition of the failure than 'error code 1822213'.
-     */
     public Future<T> flatMapFailure( final Function1<Failure,Try<Failure>> mappingFunction ) {
         InternalState<T> state = stateReference.get();
 
@@ -858,12 +726,12 @@ public class Future<T> implements Try<T> {
 
 
 
-    private static enum FutureStateEnum {
+    static enum FutureStateEnum {
         PROMISE, HAS_RESULT, HAS_FAILURE
     }
 
     @SuppressWarnings("unchecked")
-    private static class InternalState<T> {
+    static class InternalState<T> {
 
         private static final InternalState PROMISE_STATE = new InternalState(FutureStateEnum.PROMISE,null,null);
 
