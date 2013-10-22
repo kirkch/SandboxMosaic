@@ -360,6 +360,19 @@ public class Future<T> implements Try<T> {
         return didStateChange;
     }
 
+    public void completeWithTry(Try<T> otherFuture) {
+        otherFuture.onComplete(
+                new CompletedCallback<T>() {
+                    public void completedWithResult( T result ) {
+                        Future.this.completeWithResult( result );
+                    }
+
+                    public void completedWithFailure( Failure f ) {
+                        Future.this.completeWithFailure( f );
+                    }
+                }
+        );
+    }
 
     public <B> Future<B> mapResult( final Function1<T,B> mappingFunction ) {
         InternalState<T> state = stateReference.get();

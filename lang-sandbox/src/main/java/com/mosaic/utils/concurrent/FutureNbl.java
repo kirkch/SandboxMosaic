@@ -214,7 +214,7 @@ public class FutureNbl<T> implements TryNbl<T> {
 
                 return mappedFuture;
             case HAS_RESULT:
-                Nullable<T> resultNbl = getResultNoBlock();
+                Nullable<T> resultNbl = state.result;
 
                 if ( resultNbl.isNull() ) {
                     return (FutureNbl<B>) this;
@@ -264,12 +264,103 @@ public class FutureNbl<T> implements TryNbl<T> {
         }
     }
 
-    public Try<T> replaceNull(Function0<T> mappingFunction) {
-        return null; // todo
+    public Future<T> replaceNull( final Function0<T> mappingFunction ) {
+        final InternalState<Nullable<T>> state   = stateReference.get();
+        final Future<T>                  promise = new Future<T>();
+
+        switch (state.stateEnum) {
+            case PROMISE:
+                this.onComplete( new CompletedCallbackNbl<T>() {
+                    public void completedWithNullResult() {
+                        try {
+                            promise.completeWithResult( mappingFunction.invoke() );
+                        } catch ( Exception e ) {
+                            promise.completeWithFailure( new Failure(e) );
+                        }
+                    }
+
+                    public void completedWithResult( T result ) {
+                        promise.completeWithResult(result);
+                    }
+
+                    public void completedWithFailure( Failure f ) {
+                        promise.completeWithFailure(f);
+                    }
+                });
+
+                break;
+            case HAS_RESULT:
+                try {
+                    T result = state.result.getValueNbl();
+
+                    if ( result == null ) {
+                        result = mappingFunction.invoke();
+                    }
+
+                    promise.completeWithResult( result );
+                } catch ( Exception e ) {
+                    promise.completeWithFailure( new Failure(e) );
+                }
+
+                break;
+            case HAS_FAILURE:
+                promise.completeWithFailure( state.failure );
+                break;
+            default:
+                throw new IllegalStateException("unknown state: " + state.stateEnum.name() );
+        }
+
+        return promise;
     }
 
-    public Try<T> flatReplaceNull(Function0<Try<T>> mappingFunction) {
-        return null; // todo
+    public Future<T> flatReplaceNull( final Function0<Try<T>> mappingFunction ) {
+        final InternalState<Nullable<T>> state   = stateReference.get();
+        final Future<T>                  promise = new Future<T>();
+
+        switch (state.stateEnum) {
+            case PROMISE:
+                this.onComplete( new CompletedCallbackNbl<T>() {
+                    public void completedWithNullResult() {
+                        try {
+                            promise.completeWithTry( mappingFunction.invoke() );
+                        } catch ( Exception ex ) {
+                            promise.completeWithFailure( new Failure(ex) );
+                        }
+                    }
+
+                    public void completedWithResult( T result ) {
+                        promise.completeWithResult(result);
+                    }
+
+                    public void completedWithFailure( Failure f ) {
+                        promise.completeWithFailure( f );
+                    }
+                });
+
+                break;
+            case HAS_RESULT:
+                T result = state.result.getValueNbl();
+
+                if ( result == null ) {
+                    try {
+                        promise.completeWithTry(mappingFunction.invoke());
+                    } catch ( Exception e ) {
+                        promise.completeWithFailure(new Failure(e));
+                    }
+                } else {
+                    promise.completeWithResult( result );
+                }
+
+                break;
+            case HAS_FAILURE:
+                promise.completeWithFailure( state.failure );
+
+                break;
+            default:
+                throw new IllegalStateException("unknown state: " + state.stateEnum.name() );
+        }
+
+        return promise;
     }
 
     public FutureNbl<T> recover( final Function1<Failure,T> recoveryFunction ) {
@@ -582,6 +673,20 @@ public class FutureNbl<T> implements TryNbl<T> {
         }
 
         return promise;
+    }
+
+    public void completeWithTry( Try<T> otherFuture ) {
+        otherFuture.onComplete(
+                new CompletedCallback<T>() {
+                    public void completedWithResult( T result ) {
+                        FutureNbl.this.completeWithResult( result );
+                    }
+
+                    public void completedWithFailure( Failure f ) {
+                        FutureNbl.this.completeWithFailure( f );
+                    }
+                }
+        );
     }
 
     private boolean completeWith( final InternalState<Nullable<T>> newState ) {

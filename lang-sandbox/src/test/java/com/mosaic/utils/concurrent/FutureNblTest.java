@@ -1568,35 +1568,446 @@ public class FutureNblTest {
     }
 
 
+// REPLACE NULL (completed try)
+
+    @Test
+    public void givenCompletedFutureNblWithResult_replaceNull_expectUnchangedValue() {
+        FutureNbl<String> f1 = FutureNbl.successful(Nullable.createNullable("meadow"));
+
+        final AtomicInteger count = new AtomicInteger(0);
+
+        Future<String> f2 = f1.replaceNull( new Function0<String>() {
+            public String invoke() {
+                count.incrementAndGet();
+
+                return "replaced";
+            }
+        });
 
 
-
-
-
-
-    private <T> void assertCompletedFutureNblWithResult( FutureNbl<T> FutureNbl, T expectedResult ) {
-        assertTrue( FutureNbl.isComplete() );
-        assertTrue( FutureNbl.hasResult() );
-        assertFalse( FutureNbl.hasFailure() );
-
-        assertNull( FutureNbl.getFailureNoBlock() );
-        assertEquals( expectedResult, FutureNbl.getResultNoBlock().getValueNbl() );
+        assertEquals( 0, count.get() );
+        assertCompletedFutureNblWithResult(f1, "meadow");
+        assertCompletedFutureNblWithResult(f2, "meadow");
     }
 
-    private <T> void assertCompletedFutureNblWithFailure( FutureNbl<T> FutureNbl, String expectedFailureMessage ) {
-        assertCompletedFutureNblWithFailure( FutureNbl, new Failure(this.getClass(), expectedFailureMessage) );
+    @Test
+    public void givenCompletedFutureNblWithFailure_replaceNull_expectUnchangedValue() {
+        FutureNbl<String> f1 = FutureNbl.failed(new Failure(this.getClass(), "splat"));
+
+        final AtomicInteger count = new AtomicInteger(0);
+
+        Future<String> f2 = f1.replaceNull( new Function0<String>() {
+            public String invoke() {
+                count.incrementAndGet();
+
+                return "replaced";
+            }
+        });
+
+
+        assertEquals( 0, count.get() );
+        assertCompletedFutureNblWithFailure(f1, "splat");
+        assertCompletedFutureNblWithFailure(f2, "splat");
+    }
+
+    @Test
+    public void givenCompletedFutureNblWithNullResult_replaceNull_expectReplacedValue() {
+        FutureNbl<String> f1 = FutureNbl.successful(Nullable.NULL);
+
+        final AtomicInteger count = new AtomicInteger(0);
+
+        Future<String> f2 = f1.replaceNull( new Function0<String>() {
+            public String invoke() {
+                count.incrementAndGet();
+
+                return "replaced";
+            }
+        });
+
+
+        assertEquals( 1, count.get() );
+        assertCompletedFutureNblWithResult(f1, null);
+        assertCompletedFutureNblWithResult(f2, "replaced");
+    }
+
+    @Test
+    public void givenCompletedFutureNblWithNullResult_replaceNullAndThrowException_expectUpdatedError() {
+        FutureNbl<String> f1 = FutureNbl.successful( Nullable.NULL );
+
+        final AtomicInteger count = new AtomicInteger(0);
+
+        Future<String> f2 = f1.replaceNull( new Function0<String>() {
+            public String invoke() {
+                count.incrementAndGet();
+
+                throw new IllegalStateException("splat");
+            }
+        });
+
+
+        assertEquals( 1, count.get() );
+        assertCompletedFutureNblWithResult(f1, null);
+        assertCompletedFutureNblWithFailure(f2, new Failure(new IllegalStateException("splat")));
+    }
+
+
+// REPLACE NULL (completing a promise)
+
+    @Test
+    public void givenPromise_replaceNull_expectUncompletedFuture() {
+        FutureNbl<String> f1 = FutureNbl.promise();
+
+        final AtomicInteger count = new AtomicInteger(0);
+
+        Future<String> f2 = f1.replaceNull( new Function0<String>() {
+            public String invoke() {
+                count.incrementAndGet();
+
+                return "replaced";
+            }
+        });
+
+
+        assertEquals( 0, count.get() );
+        assertFalse( f1.isComplete() );
+        assertFalse( f2.isComplete() );
+    }
+
+    @Test
+    public void givenPromise_completeWithValueThenReplaceNull_expectUnchangedValue() {
+        FutureNbl<String> f1 = FutureNbl.promise();
+
+        final AtomicInteger count = new AtomicInteger(0);
+
+        Future<String> f2 = f1.replaceNull( new Function0<String>() {
+            public String invoke() {
+                count.incrementAndGet();
+
+                return "replaced";
+            }
+        });
+
+
+        f1.completeWithResult("hello");
+
+        assertEquals( 0, count.get() );
+        assertCompletedFutureNblWithResult(f1, "hello");
+        assertCompletedFutureNblWithResult(f2, "hello");
+    }
+
+    @Test
+    public void givenPromise_completeWithFailureThenReplaceNull_expectUnchangedValue() {
+        FutureNbl<String> f1 = FutureNbl.promise();
+
+        final AtomicInteger count = new AtomicInteger(0);
+
+        Future<String> f2 = f1.replaceNull( new Function0<String>() {
+            public String invoke() {
+                count.incrementAndGet();
+
+                return "replaced";
+            }
+        });
+
+
+        f1.completeWithFailure(new Failure(this.getClass(), "splat"));
+
+        assertEquals( 0, count.get() );
+        assertCompletedFutureNblWithFailure(f1, "splat");
+        assertCompletedFutureNblWithFailure(f2, "splat");
+    }
+
+    @Test
+    public void givenPromise_completeWithNullThenReplaceNull_expectChangedValue() {
+        FutureNbl<String> f1 = FutureNbl.promise();
+
+        final AtomicInteger count = new AtomicInteger(0);
+
+        Future<String> f2 = f1.replaceNull( new Function0<String>() {
+            public String invoke() {
+                count.incrementAndGet();
+
+                return "replaced";
+            }
+        });
+
+
+        f1.completeWithResultNbl(Nullable.NULL);
+
+        assertEquals( 1, count.get() );
+        assertCompletedFutureNblWithResult(f1, null);
+        assertCompletedFutureNblWithResult(f2, "replaced");
+    }
+
+    @Test
+    public void givenPromise_completeWithNullThenReplaceNullThatThrowsException_expectFailure() {
+        FutureNbl<String> f1 = FutureNbl.promise();
+
+        final AtomicInteger count = new AtomicInteger(0);
+
+        Future<String> f2 = f1.replaceNull( new Function0<String>() {
+            public String invoke() {
+                count.incrementAndGet();
+
+                throw new IllegalStateException("splat");
+            }
+        });
+
+
+        f1.completeWithResultNbl( Nullable.NULL );
+
+        assertEquals(1, count.get());
+        assertCompletedFutureNblWithResult(f1, null);
+        assertCompletedFutureNblWithFailure(f2, new Failure(new IllegalStateException("splat")));
+    }
+
+
+// REPLACE NULL (completed try)
+
+    @Test
+    public void givenCompletedFutureNblWithResult_flatReplaceNull_expectUnchangedValue() {
+        FutureNbl<String> f1 = FutureNbl.successful(Nullable.createNullable("meadow"));
+
+        final AtomicInteger count = new AtomicInteger(0);
+
+        Future<String> f2 = f1.flatReplaceNull( new Function0<Try<String>>() {
+            public Future<String> invoke() {
+                count.incrementAndGet();
+
+                return Future.successful("replaced");
+            }
+        });
+
+
+        assertEquals( 0, count.get() );
+        assertCompletedFutureNblWithResult(f1, "meadow");
+        assertCompletedFutureNblWithResult(f2, "meadow");
+    }
+
+    @Test
+    public void givenCompletedFutureNblWithFailure_flatReplaceNull_expectUnchangedValue() {
+        FutureNbl<String> f1 = FutureNbl.failed(new Failure(this.getClass(), "splat"));
+
+        final AtomicInteger count = new AtomicInteger(0);
+
+        Future<String> f2 = f1.flatReplaceNull( new Function0<Try<String>>() {
+            public Future<String> invoke() {
+                count.incrementAndGet();
+
+                return Future.successful("replaced");
+            }
+        });
+
+
+        assertEquals( 0, count.get() );
+        assertCompletedFutureNblWithFailure(f1, "splat");
+        assertCompletedFutureNblWithFailure(f2, "splat");
+    }
+
+    @Test
+    public void givenCompletedFutureNblWithNullResult_flatReplaceNull_expectReplacedValue() {
+        FutureNbl<String> f1 = FutureNbl.successful(Nullable.NULL);
+
+        final AtomicInteger count = new AtomicInteger(0);
+
+        Future<String> f2 = f1.flatReplaceNull( new Function0<Try<String>>() {
+            public Future<String> invoke() {
+                count.incrementAndGet();
+
+                return Future.successful("replaced");
+            }
+        });
+
+
+        assertEquals( 1, count.get() );
+        assertCompletedFutureNblWithResult(f1, null);
+        assertCompletedFutureNblWithResult(f2, "replaced");
+    }
+
+    @Test
+    public void givenCompletedFutureNblWithNullResult_flatReplaceNullAndThrowException_expectUpdatedError() {
+        FutureNbl<String> f1 = FutureNbl.successful( Nullable.NULL );
+
+        final AtomicInteger count = new AtomicInteger(0);
+
+        Future<String> f2 = f1.flatReplaceNull( new Function0<Try<String>>() {
+            public Future<String> invoke() {
+                count.incrementAndGet();
+
+                throw new IllegalStateException("splat");
+            }
+        });
+
+
+
+        assertEquals( 1, count.get() );
+        assertCompletedFutureNblWithResult(f1, null);
+        assertCompletedFutureNblWithFailure(f2, new Failure(new IllegalStateException("splat")));
+    }
+
+
+// REPLACE NULL (completing a promise)
+
+    @Test
+    public void givenPromise_flatReplaceNull_expectUncompletedFuture() {
+        FutureNbl<String> f1 = FutureNbl.promise();
+
+        final AtomicInteger count = new AtomicInteger(0);
+
+        Future<String> f2 = f1.flatReplaceNull( new Function0<Try<String>>() {
+            public Future<String> invoke() {
+                count.incrementAndGet();
+
+                return Future.successful("replaced");
+            }
+        });
+
+
+        assertEquals( 0, count.get() );
+        assertFalse( f1.isComplete() );
+        assertFalse( f2.isComplete() );
+    }
+
+    @Test
+    public void givenPromise_completeWithValueThenFlatReplaceNull_expectUnchangedValue() {
+        FutureNbl<String> f1 = FutureNbl.promise();
+
+        final AtomicInteger count = new AtomicInteger(0);
+
+        Future<String> f2 = f1.flatReplaceNull( new Function0<Try<String>>() {
+            public Future<String> invoke() {
+                count.incrementAndGet();
+
+                return Future.successful("replaced");
+            }
+        });
+
+
+        f1.completeWithResult("hello");
+
+        assertEquals( 0, count.get() );
+        assertCompletedFutureNblWithResult(f1, "hello");
+        assertCompletedFutureNblWithResult(f2, "hello");
+    }
+
+    @Test
+    public void givenPromise_completeWithFailureThenFlatReplaceNull_expectUnchangedValue() {
+        FutureNbl<String> f1 = FutureNbl.promise();
+
+        final AtomicInteger count = new AtomicInteger(0);
+
+        Future<String> f2 = f1.flatReplaceNull( new Function0<Try<String>>() {
+            public Future<String> invoke() {
+                count.incrementAndGet();
+
+                return Future.successful("replaced");
+            }
+        });
+
+
+        f1.completeWithFailure(new Failure(this.getClass(), "splat"));
+
+        assertEquals( 0, count.get() );
+        assertCompletedFutureNblWithFailure(f1, "splat");
+        assertCompletedFutureNblWithFailure(f2, "splat");
+    }
+
+    @Test
+    public void givenPromise_completeWithNullThenFlatReplaceNull_expectChangedValue() {
+        FutureNbl<String> f1 = FutureNbl.promise();
+
+        final AtomicInteger count = new AtomicInteger(0);
+
+        Future<String> f2 = f1.flatReplaceNull( new Function0<Try<String>>() {
+            public Future<String> invoke() {
+                count.incrementAndGet();
+
+                return Future.successful("replaced");
+            }
+        });
+
+
+        f1.completeWithResultNbl(Nullable.NULL);
+
+        assertEquals( 1, count.get() );
+        assertCompletedFutureNblWithResult(f1, null);
+        assertCompletedFutureNblWithResult(f2, "replaced");
+    }
+
+    @Test
+    public void givenPromise_completeWithNullThenFlatReplaceNullThatThrowsException_expectFailure() {
+        FutureNbl<String> f1 = FutureNbl.promise();
+
+        final AtomicInteger count = new AtomicInteger(0);
+
+        Future<String> f2 = f1.flatReplaceNull( new Function0<Try<String>>() {
+            public Future<String> invoke() {
+                count.incrementAndGet();
+
+                throw new IllegalStateException("splat");
+            }
+        });
+
+
+        f1.completeWithResultNbl( Nullable.NULL );
+
+        assertEquals(1, count.get());
+        assertCompletedFutureNblWithResult(f1, null);
+        assertCompletedFutureNblWithFailure(f2, new Failure(new IllegalStateException("splat")));
+    }
+
+
+
+
+
+    private <T> void assertCompletedFutureNblWithResult( FutureNbl<T> future, T expectedResult ) {
+        assertTrue(future.isComplete());
+        assertTrue(future.hasResult());
+        assertFalse( future.hasFailure() );
+
+        assertNull(future.getFailureNoBlock());
+        assertEquals( expectedResult, future.getResultNoBlock().getValueNbl() );
+    }
+
+    private <T> void assertCompletedFutureNblWithResult( Future<T> future, T expectedResult ) {
+        assertTrue( future.isComplete() );
+        assertTrue( future.hasResult() );
+        assertFalse( future.hasFailure() );
+
+        assertNull( future.getFailureNoBlock() );
+        assertEquals( expectedResult, future.getResultNoBlock() );
+    }
+
+    private <T> void assertCompletedFutureNblWithFailure( FutureNbl<T> future, String expectedFailureMessage ) {
+        assertCompletedFutureNblWithFailure(future, new Failure(this.getClass(), expectedFailureMessage));
     }
 
     private <T> void assertCompletedFutureNblWithFailure( FutureNbl<T> FutureNbl, Failure expectedFailure ) {
         assertTrue( FutureNbl.isComplete() );
-        assertFalse( FutureNbl.hasResult() );
-        assertTrue( FutureNbl.hasFailure() );
+        assertFalse(FutureNbl.hasResult());
+        assertTrue(FutureNbl.hasFailure());
 
         assertNull( FutureNbl.getResultNoBlock() );
         assertEquals( expectedFailure.getSource(), FutureNbl.getFailureNoBlock().getSource() );
         assertEquals( expectedFailure.getMessage(), FutureNbl.getFailureNoBlock().getMessage() );
 
         assertEquals( expectedFailure, FutureNbl.getFailureNoBlock() );
+    }
+
+    private <T> void assertCompletedFutureNblWithFailure( Future<T> future, String expectedFailureMessage ) {
+        assertCompletedFutureNblWithFailure( future, new Failure(this.getClass(), expectedFailureMessage) );
+    }
+
+    private <T> void assertCompletedFutureNblWithFailure( Future<T> future, Failure expectedFailure ) {
+        assertTrue(future.isComplete());
+        assertFalse(future.hasResult());
+        assertTrue( future.hasFailure() );
+
+        assertNull(future.getResultNoBlock());
+        assertEquals( expectedFailure.getSource(), future.getFailureNoBlock().getSource() );
+        assertEquals(expectedFailure.getMessage(), future.getFailureNoBlock().getMessage());
+
+        assertEquals( expectedFailure, future.getFailureNoBlock() );
     }
 
 }

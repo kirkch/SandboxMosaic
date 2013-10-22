@@ -62,7 +62,7 @@ public interface TryNbl<T> {
      * However if the result is not null then the result of this TryNbl will be
      * wrapped in a Try.
      */
-    public Try<T> replaceNull(Function0<T> mappingFunction);
+    public Try<T> replaceNull( Function0<T> mappingFunction );
 
     /**
      * Creates a new try that cannot be null.  If this TryNbl holds a null value
@@ -74,7 +74,7 @@ public interface TryNbl<T> {
      * another Try.  This method will return that Try directly and will not
      * wrap it with another Try the way that mapResult would.
      */
-    public Try<T> flatReplaceNull(Function0<Try<T>> mappingFunction);
+    public Try<T> flatReplaceNull( Function0<Try<T>> mappingFunction );
 
     /**
      * Offers the opportunity to recover from a failure. If this Try contains
