@@ -9,6 +9,9 @@ import com.mosaic.utils.concurrent.FutureNbl;
  */
 public class TryNow {
 
+    public static final TryNbl NULL = successfulNbl(Nullable.NULL);
+
+    
     public static <T> Try<T> tryNow( Function0<T> op ) {
         try {
             return successful( op.invoke() );
