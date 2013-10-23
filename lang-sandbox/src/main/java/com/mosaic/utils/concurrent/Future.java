@@ -323,6 +323,10 @@ public class Future<T> implements Try<T> {
     public T getResultNoBlock() {
         InternalState<T> state = stateReference.get();
 
+        if ( state.hasFailure() ) {
+            throw new IllegalStateException( "Unable to retrieve result as future has failed: '"+state.failure.getMessage()+"'");
+        }
+
         return state.result;
     }
 

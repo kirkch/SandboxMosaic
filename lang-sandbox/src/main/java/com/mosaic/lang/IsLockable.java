@@ -9,9 +9,9 @@ package com.mosaic.lang;
  * Requires every method that could mutate state to verify that the object
  * is currently unlocked before proceeding.
  */
-public interface IsLockable<T extends IsLockable<T>> {
+public interface IsLockable<T extends IsLockable<T>> extends Cloneable {
 
-    public IsLockable<T> lock();
+    public T lock();
     public boolean isLocked();
     public boolean isUnlocked();
 

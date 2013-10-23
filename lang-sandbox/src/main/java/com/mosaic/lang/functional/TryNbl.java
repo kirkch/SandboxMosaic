@@ -24,11 +24,14 @@ public interface TryNbl<T> {
      */
     public boolean hasFailure();
 
+    public boolean isNull();
 
     /**
      * Returns the result of the job if available.  This method will return null
      * when the try contains a failure or a null result. Thus confirming the state of the
-     * future before calling this method will avoid ambiguity of what null means.
+     * future before calling this method will avoid ambiguity of what null means.<p/>
+     *
+     * @throws IllegalStateException if the TryNbl contains a failure
      */
     public Nullable<T> getResultNoBlock();
 

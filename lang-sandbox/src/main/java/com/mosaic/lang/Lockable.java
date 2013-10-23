@@ -8,6 +8,7 @@ import java.util.Map;
 /**
  * Convenience base class for implementing IsLockable.
  */
+@SuppressWarnings("unchecked")
 public class Lockable<T extends Lockable<T>> implements IsLockable<T> {
 
     /**
@@ -60,13 +61,13 @@ public class Lockable<T extends Lockable<T>> implements IsLockable<T> {
 
 
 
-    public IsLockable<T> lock() {
+    public T lock() {
         if ( !isLocked ) {
             this.isLocked = true;
             onLock();
         }
 
-        return this;
+        return (T) this;
     }
 
     public boolean isLocked() {

@@ -3,6 +3,7 @@ package com.mosaic.utils.concurrent;
 
 import com.mosaic.lang.Failure;
 import com.mosaic.lang.functional.*;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -33,10 +34,16 @@ public class FutureNblTest {
     }
 
     @Test
-    public void givenCompletedFutureNblWithError_getResult_expectNullImmediately() {
+    public void givenCompletedFutureNblWithError_getResult_expectGetResultToThrowIllegalStateException() {
         FutureNbl<String> f = FutureNbl.failed(new Failure(FutureNblTest.class, "things went south"));
 
-        assertNull(f.getResultNoBlock());
+        try {
+            f.getResultNoBlock();
+
+            Assert.fail("expected IllegalStateException");
+        } catch (IllegalStateException e) {
+            Assert.assertEquals("Unable to retrieve result as future has failed: 'things went south'", e.getMessage());
+        }
     }
 
     @Test
@@ -44,13 +51,6 @@ public class FutureNblTest {
         FutureNbl<String> f = FutureNbl.successful(Nullable.createNullable("hello"));
 
         assertNull(f.getFailureNoBlock());
-    }
-
-    @Test
-    public void givenCompletedFutureNblWithError_getFailure_expectFailureImmediately() {
-        FutureNbl<String> f = FutureNbl.failed(new Failure(FutureNblTest.class, "things went south"));
-
-        assertNull(f.getResultNoBlock());
     }
 
     @Test
@@ -248,12 +248,18 @@ public class FutureNblTest {
     }
 
     @Test
-    public void givenPromise_completeWithError_expectGetResultToReturnNull() {
+    public void givenPromise_completeWithError_expectGetResultToThrowIllegalStateException() {
         FutureNbl<String> promise = new FutureNbl<String>();
 
         promise.completeWithFailure(new Failure(FutureNblTest.class, "splat"));
 
-        assertNull(promise.getResultNoBlock());
+        try {
+            promise.getResultNoBlock();
+
+            Assert.fail("expected IllegalStateException");
+        } catch (IllegalStateException e) {
+            Assert.assertEquals("Unable to retrieve result as future has failed: 'splat'", e.getMessage());
+        }
     }
 
     @Test
@@ -1940,7 +1946,7 @@ public class FutureNblTest {
 
         final AtomicInteger count = new AtomicInteger(0);
 
-        Future<String> f2 = f1.flatReplaceNull( new Function0<Try<String>>() {
+        Future<String> f2 = f1.flatReplaceNull(new Function0<Try<String>>() {
             public Future<String> invoke() {
                 count.incrementAndGet();
 
@@ -1987,7 +1993,6 @@ public class FutureNblTest {
         assertFalse(FutureNbl.hasResult());
         assertTrue(FutureNbl.hasFailure());
 
-        assertNull( FutureNbl.getResultNoBlock() );
         assertEquals( expectedFailure.getSource(), FutureNbl.getFailureNoBlock().getSource() );
         assertEquals( expectedFailure.getMessage(), FutureNbl.getFailureNoBlock().getMessage() );
 
@@ -2003,7 +2008,6 @@ public class FutureNblTest {
         assertFalse(future.hasResult());
         assertTrue( future.hasFailure() );
 
-        assertNull(future.getResultNoBlock());
         assertEquals( expectedFailure.getSource(), future.getFailureNoBlock().getSource() );
         assertEquals(expectedFailure.getMessage(), future.getFailureNoBlock().getMessage());
 

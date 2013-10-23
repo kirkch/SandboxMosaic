@@ -6,6 +6,7 @@ import com.mosaic.lang.functional.CompletedCallback;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.Try;
 import com.mosaic.lang.functional.VoidFunction1;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -33,7 +34,13 @@ public class FutureTest {
     public void givenCompletedFutureWithError_getResult_expectNullImmediately() {
         Future<String> f = Future.failed(new Failure(FutureTest.class, "things went south"));
 
-        assertNull(f.getResultNoBlock());
+        try {
+            f.getResultNoBlock();
+
+            Assert.fail("expected IllegalStateException");
+        } catch (IllegalStateException e) {
+            Assert.assertEquals("Unable to retrieve result as future has failed: 'things went south'", e.getMessage());
+        }
     }
 
     @Test
@@ -47,7 +54,7 @@ public class FutureTest {
     public void givenCompletedFutureWithError_getFailure_expectFailureImmediately() {
         Future<String> f = Future.failed(new Failure(FutureTest.class, "things went south"));
 
-        assertNull(f.getResultNoBlock());
+        assertNotNull(f.getFailureNoBlock());
     }
 
     @Test
@@ -221,7 +228,13 @@ public class FutureTest {
 
         promise.completeWithFailure(new Failure(FutureTest.class, "splat"));
 
-        assertNull(promise.getResultNoBlock());
+        try {
+            promise.getResultNoBlock();
+
+            Assert.fail("expected IllegalStateException");
+        } catch (IllegalStateException e) {
+            Assert.assertEquals("Unable to retrieve result as future has failed: 'splat'", e.getMessage());
+        }
     }
 
     @Test
@@ -1482,7 +1495,6 @@ public class FutureTest {
         assertTrue( future.hasResult() );
         assertFalse( future.hasFailure() );
 
-        assertNull( future.getFailureNoBlock() );
         assertEquals( expectedResult, future.getResultNoBlock() );
     }
 
@@ -1495,7 +1507,6 @@ public class FutureTest {
         assertFalse( future.hasResult() );
         assertTrue( future.hasFailure() );
 
-        assertNull( future.getResultNoBlock() );
         assertEquals( expectedFailure.getSource(), future.getFailureNoBlock().getSource() );
         assertEquals( expectedFailure.getMessage(), future.getFailureNoBlock().getMessage() );
 

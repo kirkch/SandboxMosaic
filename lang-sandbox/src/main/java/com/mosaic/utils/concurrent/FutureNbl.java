@@ -144,8 +144,18 @@ public class FutureNbl<T> implements TryNbl<T> {
         return state.hasFailure();
     }
 
+    public boolean isNull() {
+        InternalState<Nullable<T>> state = stateReference.get();
+
+        return state.hasResult() && state.result.isNull();
+    }
+
     public Nullable<T> getResultNoBlock() {
         InternalState<Nullable<T>> state = stateReference.get();
+
+        if ( state.hasFailure() ) {
+            throw new IllegalStateException( "Unable to retrieve result as future has failed: '"+state.failure.getMessage()+"'");
+        }
 
         return state.result;
     }
