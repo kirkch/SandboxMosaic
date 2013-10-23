@@ -607,6 +607,28 @@ public class Future<T> implements Try<T> {
 
 
 
+    public String toString() {
+        InternalState state = stateReference.get();
+        StringBuilder buf = new StringBuilder();
+
+
+
+        if ( state.hasResult() ) {
+            buf.append( "Future(" );
+            buf.append( state.result );
+            buf.append( ")" );
+        } else if ( state.hasFailure() ) {
+            buf.append( "Future(" );
+            buf.append( state.failure );
+            buf.append( ")" );
+        } else {
+            buf.append("Promise()");
+        }
+
+        return buf.toString();
+    }
+
+
     private <B> Future<B> handleMapResult( Future<B> promise, T preMappedResult, Function1<T,B> mappingFunction ) {
         try {
             promise.completeWithResult( mappingFunction.invoke(preMappedResult) );

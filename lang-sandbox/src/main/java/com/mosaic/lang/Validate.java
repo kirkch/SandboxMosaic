@@ -2,6 +2,7 @@ package com.mosaic.lang;
 
 import com.mosaic.lang.math.MathematicalNumber;
 import com.mosaic.utils.MathUtils;
+import com.mosaic.utils.StringUtils;
 
 /**
  *
@@ -261,11 +262,15 @@ public class Validate {
         }
     }
 
-//    public static void notBlank( CharSequence chars, String fieldName ) {
-//        if ( StringUtils.isBlank( chars )) {
-//            throwException( "%s must not be %s", fieldName, chars );
-//        }
-//    }
+    public static void notBlank( String chars, String fieldName ) {
+        notBlank( chars, fieldName, "%s must not be blank (was '%s')" );
+    }
+
+    public static void notBlank( String chars, String fieldName, String description ) {
+        if ( StringUtils.isBlank(chars) ) {
+            throwException( description, fieldName, chars );
+        }
+    }
 
     public static void notNull( Object o, String fieldName ) {
         if ( o == null ) {

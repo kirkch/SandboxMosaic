@@ -7,21 +7,19 @@ import java.io.Writer;
 /**
  * Converts a source object into an alternative representation, and optionally back again.
  */
-public interface StringCodec<T> {
-    public String encode( T v );
-    public void encodeTo( T v, Writer out ) throws IOException;
+public abstract class StringCodec<T> implements Codec<T,String> {
+
+    public void encodeTo( T v, Writer out ) throws IOException {
+        throw new RuntimeException("todo");
+    }
 
     /**
      *
      * @return null if the string does not match
      */
-    public T decode( String v );
-
-    /**
-     *
-     * @return null if the string does not match
-     */
-    public T encodeFrom( Reader in ) throws IOException;
+    public T encodeFrom( Reader in ) throws IOException {
+        throw new RuntimeException("todo");
+    }
 
     /**
      * When decoding into a instance object is not necessary, consumes matching characters from the input reader that
@@ -29,8 +27,17 @@ public interface StringCodec<T> {
      *
      * @return number of characters consumed
      */
-    public int skipMatchingCharactersFrom( Reader in ) throws IOException;
+    public int skipMatchingCharactersFrom( Reader in ) throws IOException {
+        throw new RuntimeException("todo");
+    }
 
-    public boolean supportsDecoding();
-    public boolean supportsEncoding();
+
+    public boolean supportsDecoding() {
+        return true;
+    }
+
+    public boolean supportsEncoding() {
+        return true;
+    }
+
 }

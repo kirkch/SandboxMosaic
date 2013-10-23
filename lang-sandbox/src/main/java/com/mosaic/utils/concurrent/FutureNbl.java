@@ -575,6 +575,26 @@ public class FutureNbl<T> implements TryNbl<T> {
         }
     }
 
+    public String toString() {
+        InternalState state = stateReference.get();
+        StringBuilder buf = new StringBuilder();
+
+
+
+        if ( state.hasResult() ) {
+            buf.append( "Future(" );
+            buf.append( state.result );
+            buf.append( ")" );
+        } else if ( state.hasFailure() ) {
+            buf.append( "Future(" );
+            buf.append( state.failure );
+            buf.append( ")" );
+        } else {
+            buf.append("Promise()");
+        }
+
+        return buf.toString();
+    }
 
 
     private <B> FutureNbl<B> handleMapResult( FutureNbl<B> promise, T preMappedResult, Function1<T,B> mappingFunction ) {

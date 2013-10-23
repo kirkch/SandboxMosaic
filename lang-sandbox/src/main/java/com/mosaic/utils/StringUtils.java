@@ -22,4 +22,8 @@ public class StringUtils {
         return buf.toString();
     }
 
+    public static boolean isBlank( String chars ) {
+        return chars == null || chars.trim().length() == 0;
+    }
+
 }
