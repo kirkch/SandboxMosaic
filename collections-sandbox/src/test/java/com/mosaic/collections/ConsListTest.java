@@ -70,6 +70,14 @@ public class ConsListTest {
     }
 
     @Test
+    public void newConsList() {
+        ConsList a = ConsList.Nil.cons("c").cons("b").cons("a");
+        ConsList b = ConsList.newConsList("a","b","c");
+
+        assertTrue(a.equals(b));
+    }
+
+    @Test
     public void givenAList_mapItsContents_expectConvertedList() {
         ConsList a = ConsList.Nil.cons("a").cons("b").cons("c");
         ConsList b = a.map( new Function1<String,String>() {

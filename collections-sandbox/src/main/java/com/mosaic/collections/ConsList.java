@@ -19,6 +19,18 @@ import java.util.Objects;
 public abstract class ConsList<T> {
     public static final ConsList Nil = new NilNode();
 
+    public static <T> ConsList<T> newConsList( T...elements ) {
+        ConsList<T> list = Nil;
+
+        for ( int i=elements.length-1; i>=0; i-- ) {
+            list = list.cons( elements[i] );
+        }
+
+        return list;
+    }
+
+
+
 
     public abstract T head();
     public abstract ConsList<T> tail();
