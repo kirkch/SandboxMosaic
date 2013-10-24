@@ -15,6 +15,16 @@ public class StandardStringCodecs {
 
 
 
+    public static StringCodec<String> NO_OP_CODEC = new StringCodec<String>() {
+        public Try<String> encode( String v ) {
+            return TryNow.successful( v );
+        }
+
+        public Try<String> decode( String v ) {
+            return TryNow.successful( v );
+        }
+    };
+
     public static StringCodec<Boolean> BOOLEAN_CODEC = new StringCodec<Boolean>() {
         private final Set<String> TRUE_VALUES = SetUtils.asImmutableSet("true", "t", "y", "yes","on","1");
 

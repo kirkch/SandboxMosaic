@@ -105,4 +105,10 @@ public interface Try<T> {
      */
     public void onComplete( CompletedCallback<T> callback );
 
+
+    /**
+     * Convert this Try&lt;T> into a TryNbl&lt;T>.
+     */
+    public TryNbl<T> toTryNbl();
+
 }

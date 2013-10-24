@@ -1966,7 +1966,7 @@ public class FutureNblTest {
 
 
 
-    private <T> void assertCompletedFutureNblWithResult( FutureNbl<T> future, T expectedResult ) {
+    static <T> void assertCompletedFutureNblWithResult( FutureNbl<T> future, T expectedResult ) {
         assertTrue(future.isComplete());
         assertTrue(future.hasResult());
         assertFalse( future.hasFailure() );
@@ -1975,7 +1975,7 @@ public class FutureNblTest {
         assertEquals( expectedResult, future.getResultNoBlock().getValueNbl() );
     }
 
-    private <T> void assertCompletedFutureNblWithResult( Future<T> future, T expectedResult ) {
+    static <T> void assertCompletedFutureNblWithResult( Future<T> future, T expectedResult ) {
         assertTrue( future.isComplete() );
         assertTrue( future.hasResult() );
         assertFalse( future.hasFailure() );
@@ -1984,11 +1984,11 @@ public class FutureNblTest {
         assertEquals( expectedResult, future.getResultNoBlock() );
     }
 
-    private <T> void assertCompletedFutureNblWithFailure( FutureNbl<T> future, String expectedFailureMessage ) {
-        assertCompletedFutureNblWithFailure(future, new Failure(this.getClass(), expectedFailureMessage));
+    static <T> void assertCompletedFutureNblWithFailure( FutureNbl<T> future, String expectedFailureMessage ) {
+        assertCompletedFutureNblWithFailure(future, new Failure(FutureNblTest.class, expectedFailureMessage));
     }
 
-    private <T> void assertCompletedFutureNblWithFailure( FutureNbl<T> FutureNbl, Failure expectedFailure ) {
+    static <T> void assertCompletedFutureNblWithFailure( FutureNbl<T> FutureNbl, Failure expectedFailure ) {
         assertTrue( FutureNbl.isComplete() );
         assertFalse(FutureNbl.hasResult());
         assertTrue(FutureNbl.hasFailure());
@@ -1999,11 +1999,11 @@ public class FutureNblTest {
         assertEquals( expectedFailure, FutureNbl.getFailureNoBlock() );
     }
 
-    private <T> void assertCompletedFutureNblWithFailure( Future<T> future, String expectedFailureMessage ) {
-        assertCompletedFutureNblWithFailure( future, new Failure(this.getClass(), expectedFailureMessage) );
+    static <T> void assertCompletedFutureNblWithFailure( Future<T> future, String expectedFailureMessage ) {
+        assertCompletedFutureNblWithFailure( future, new Failure(FutureNblTest.class, expectedFailureMessage) );
     }
 
-    private <T> void assertCompletedFutureNblWithFailure( Future<T> future, Failure expectedFailure ) {
+    static <T> void assertCompletedFutureNblWithFailure( Future<T> future, Failure expectedFailure ) {
         assertTrue(future.isComplete());
         assertFalse(future.hasResult());
         assertTrue( future.hasFailure() );

@@ -12,6 +12,20 @@ import static com.mosaic.io.StandardStringCodecs.*;
 public class StandardStringCodecsTest {
 
     @Test
+    public void encodeNoOp() {
+        assertTrySuccess("abc", NO_OP_CODEC.encode("abc"));
+        assertTrySuccess("123", NO_OP_CODEC.encode("123"));
+    }
+
+    @Test
+    public void decodeNoOp() {
+        assertTrySuccess("abc", NO_OP_CODEC.decode("abc"));
+        assertTrySuccess("123", NO_OP_CODEC.decode("123"));
+    }
+
+
+
+    @Test
     public void encodeBooleans() {
         assertTrySuccess("true", BOOLEAN_CODEC.encode(true));
         assertTrySuccess("false", BOOLEAN_CODEC.encode(false));

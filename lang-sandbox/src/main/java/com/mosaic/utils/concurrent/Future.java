@@ -3,10 +3,7 @@ package com.mosaic.utils.concurrent;
 
 import com.mosaic.lang.Failure;
 import com.mosaic.lang.ThreadSafe;
-import com.mosaic.lang.functional.CompletedCallback;
-import com.mosaic.lang.functional.Function1;
-import com.mosaic.lang.functional.Try;
-import com.mosaic.lang.functional.VoidFunction1;
+import com.mosaic.lang.functional.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -605,6 +602,21 @@ public class Future<T> implements Try<T> {
         }
     }
 
+    public FutureNbl<T> toTryNbl() {
+        final FutureNbl<T> promise = FutureNbl.promise();
+
+        this.onComplete( new CompletedCallback<T>() {
+            public void completedWithResult(T result) {
+                promise.completeWithResult(result);
+            }
+
+            public void completedWithFailure(Failure f) {
+                promise.completeWithFailure(f);
+            }
+        });
+
+        return promise;
+    }
 
 
     public String toString() {

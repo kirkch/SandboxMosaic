@@ -1476,15 +1476,51 @@ public class FutureTest {
     }
 
 
+// toTryNbl
 
+    @Test
+    public void givenPromise_toTryNbl_expectIncompleteFutureNbl() {
+        Future<String>    f1 = Future.promise();
+        FutureNbl<String> f2 = f1.toTryNbl();
 
+        assertFalse( f2.isComplete() );
+    }
 
-    // NB: Not convinced that I want to add any support for blocking threads
-    //  via a future. Once added they will get used, and that always turns into
-    //  a slippery slope of adding more functions that block.
+    @Test
+    public void givenResult_toTryNbl_expectFutureNblWithResult() {
+        Future<String>    f1 = Future.successful("foo");
+        FutureNbl<String> f2 = f1.toTryNbl();
 
-    // givenPromise_callGetResult_expectToBlockForSpecifiedDurationAndThenError
-    // givenPromise_callGetFailure_expectToBlockForSpecifiedDurationAndThenError
+        FutureNblTest.assertCompletedFutureNblWithResult( f2, "foo" );
+    }
+
+    @Test
+    public void givenFailure_toTryNbl_expectFutureNblWithFailure() {
+        Future<String>    f1 = Future.failed(new Failure(FutureNblTest.class, "splat"));
+        FutureNbl<String> f2 = f1.toTryNbl();
+
+        FutureNblTest.assertCompletedFutureNblWithFailure( f2, f1.getFailureNoBlock() );
+    }
+
+    @Test
+    public void givenPromise_toTryNblThenCompleteWithResult_expectFutureNblWithResult() {
+        Future<String>    f1 = Future.promise();
+        FutureNbl<String> f2 = f1.toTryNbl();
+
+        f1.completeWithResult("foo");
+
+        FutureNblTest.assertCompletedFutureNblWithResult( f2, "foo" );
+    }
+
+    @Test
+    public void givenPromise_toTryNblThenCompleteWithResult_expectFutureNblWithFailure() {
+        Future<String>    f1 = Future.promise();
+        FutureNbl<String> f2 = f1.toTryNbl();
+
+        f1.completeWithFailure(new Failure(FutureNblTest.class, "splat"));
+
+        FutureNblTest.assertCompletedFutureNblWithFailure( f2, f1.getFailureNoBlock() );
+    }
 
 
 
