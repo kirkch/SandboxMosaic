@@ -1,9 +1,9 @@
 package com.mosaic.parsers.csv;
 
 
-import com.mosaic.junitpro.Benchmark;
-import com.mosaic.junitpro.JUnitPro;
 import com.mosaic.parsers.MatchResult;
+import com.softwaremosaic.junit.JUnitMosaicRunner;
+import com.softwaremosaic.junit.annotations.Benchmark;
 import org.junit.runner.RunWith;
 
 import java.nio.CharBuffer;
@@ -11,7 +11,7 @@ import java.nio.CharBuffer;
 /**
  *
  */
-@RunWith(JUnitPro.class)
+@RunWith(JUnitMosaicRunner.class)
 public class CSVColumnValueMatcherBenchmark {
 
     private CSVColumnValueMatcher matcher = new CSVColumnValueMatcher(',');

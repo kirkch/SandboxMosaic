@@ -43,14 +43,14 @@
 
 
     <repositories>
-            <repository>
-                <id>softwaremosaic-nexus-public</id>
-                <name>internal repo</name>
-                <url>http://nexus.private.softwaremosaic.co.uk:8002/nexus/content/groups/public</url>
-                <snapshots>
-                    <enabled>true</enabled>
-                </snapshots>
-            </repository>
+            <!--<repository>-->
+                <!--<id>softwaremosaic-nexus-public</id>-->
+                <!--<name>internal repo</name>-->
+                <!--<url>http://nexus.private.softwaremosaic.co.uk:8002/nexus/content/groups/public</url>-->
+                <!--<snapshots>-->
+                    <!--<enabled>true</enabled>-->
+                <!--</snapshots>-->
+            <!--</repository>-->
 
         <repository>
             <id>snapshots</id>
@@ -94,6 +94,12 @@
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.softwaremosaic</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
@@ -143,8 +149,8 @@
             </dependency>
 
             <dependency>
-                <groupId>com.mosaic</groupId>
-                <artifactId>junitpro</artifactId>
+                <groupId>com.softwaremosaic</groupId>
+                <artifactId>junit</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 

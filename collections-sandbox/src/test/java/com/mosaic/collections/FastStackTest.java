@@ -1,7 +1,7 @@
 package com.mosaic.collections;
 
-import com.mosaic.junitpro.JUnitPro;
-import com.mosaic.junitpro.Test;
+import com.softwaremosaic.junit.JUnitMosaicRunner;
+import com.softwaremosaic.junit.annotations.Test;
 import net.java.quickcheck.Generator;
 import net.java.quickcheck.generator.CombinedGenerators;
 import net.java.quickcheck.generator.PrimitiveGenerators;
@@ -15,7 +15,7 @@ import static org.junit.Assert.assertTrue;
 /**
  *
  */
-@RunWith(JUnitPro.class)
+@RunWith(JUnitMosaicRunner.class)
 @SuppressWarnings("UnusedDeclaration")
 public class FastStackTest {
 
@@ -25,10 +25,10 @@ public class FastStackTest {
 
     private FastStack stack = new FastStack();
 
-//    @Before
-//    public void resetStack() {
-//        stack.clear();
-//    }
+    @Before
+    public void resetStack() {
+        stack.clear();
+    }
 
     @Test
     public void emptyStack_size_expectZero() {
@@ -36,22 +36,23 @@ public class FastStackTest {
     }
 
 
-    // two issues
-    // 1) should use of generators call setup/tear down methods between each run?
-    // 2) generator of collections do not have their linked objects checked yet
+//    @Test( generators={"stringGenerator"} )  // todo currently fails as method is called n times in a row without calling before/after methods
+    public void pushPeek_expectPeekToReturnLastValue( String[] values ) {
+        assertEquals( 0, stack.size() );
+        assertTrue( stack.isEmpty() );
+
+        pushAll( values );
+
+        assertEquals( values.length, stack.size() );
+
+        assertSame( values[values.length-1], stack.peek() );
+        assertEquals( values.length, stack.size() );
+    }
 
     @Test( memCheck=true, generators={"stringGenerator"} )
-    public void pushPeek_expectPeekToReturnLastValue( String[] values ) {
-//        assertTrue( stack.isEmpty() );
-//        assertEquals( 0, stack.size() );
-//
+    public void pushValues_clearThem_expectValuesToBecomeGCable( String[] values ) {
         pushAll( values );
-//
-//        assertEquals( values.length, stack.size() );
-//
-//        assertSame( values[values.length-1], stack.peek() );
-//        assertEquals( values.length, stack.size() );
-//
+
         stack.clear();
     }
 

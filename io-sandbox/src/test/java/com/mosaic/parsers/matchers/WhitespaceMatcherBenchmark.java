@@ -1,8 +1,8 @@
 package com.mosaic.parsers.matchers;
 
-import com.mosaic.junitpro.Benchmark;
-import com.mosaic.junitpro.JUnitPro;
 import com.mosaic.parsers.Matcher;
+import com.softwaremosaic.junit.annotations.Benchmark;
+import com.softwaremosaic.junit.JUnitMosaicRunner;
 import org.junit.runner.RunWith;
 
 import java.nio.CharBuffer;
@@ -10,7 +10,7 @@ import java.nio.CharBuffer;
 /**
  *
  */
-@RunWith(JUnitPro.class)
+@RunWith(JUnitMosaicRunner.class)
 public class WhitespaceMatcherBenchmark {
 
     private Matcher spaceMatcher   = WhitespaceMatcher.tabOrSpaceMatcher();

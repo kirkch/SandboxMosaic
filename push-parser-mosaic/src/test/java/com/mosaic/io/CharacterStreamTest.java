@@ -1,6 +1,6 @@
 package com.mosaic.io;
 
-import com.mosaic.jtunit.TestTools;
+//import com.mosaic.jtunit.TestTools;
 import org.junit.Test;
 
 import java.lang.ref.Reference;
@@ -343,7 +343,7 @@ public class CharacterStreamTest {
         //noinspection UnusedAssignment
         block1 = null;
 
-        TestTools.spinUntilReleased( block1Ref );
+//        TestTools.spinUntilReleased( block1Ref );  TODO
     }
 
     @Test
