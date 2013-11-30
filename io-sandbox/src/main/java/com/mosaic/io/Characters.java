@@ -8,7 +8,9 @@ import java.util.List;
 
 /**
  * An immutable collection of characters. Modification of these characters
- * returns a new immutable instance of Characters.
+ * returns a new immutable instance of Characters.  Supports wrapping different
+ * character stores, such as CharBuffer and String.  Designed for use with
+ * simple pull parsers such as Tokenizer.
  */
 public abstract class Characters implements CharSequence {
 

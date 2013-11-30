@@ -20,12 +20,12 @@ public class WhitespaceMatcherBenchmark {
     private CharBuffer buf2 = CharBuffer.wrap("Hello");
 
 /*
-81.55ns
-21.98ns
-14.89ns
-14.79ns
-14.80ns
-14.82ns
+    16.09ns per call
+    16.85ns per call
+    14.42ns per call
+    18.75ns per call
+    14.65ns per call
+    14.41ns per call
 */
 
     @Benchmark( durationResultMultiplier = 1.0/2 )
@@ -40,12 +40,12 @@ public class WhitespaceMatcherBenchmark {
     }
 
 /*
-79.19ns
-16.46ns
-15.13ns
-18.04ns
-14.48ns
-14.46ns
+    14.56ns per call
+    14.98ns per call
+    17.99ns per call
+    13.60ns per call
+    13.13ns per call
+    12.88ns per call
 */
     @Benchmark( durationResultMultiplier = 1.0/2 )
     public void newLineMatcherBenchmark( int count ) {

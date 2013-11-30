@@ -6,9 +6,10 @@ import java.nio.CharBuffer;
 
 
 /**
- * An incremental parser.  Capable of processing input as it arrives without
- * holding on to memory.  Very useful for handling large volumes of data inbound
- * on an asynchronous network link.
+ * An incremental push parser.  Capable of processing input as it arrives without
+ * holding on to its memory.  As data arrives the parser is responsible for
+ * generating callbacks to signal that an entity has been recognised.  Very useful
+ * for handling large volumes of data inbound on an asynchronous network link.
  */
 public interface PushParser {
 

@@ -5,7 +5,9 @@ import com.mosaic.io.CharPredicate;
 import com.mosaic.io.Characters;
 
 /**
- * Walks a CharSequence breaking it up into defined sub-strings.
+ * Walks a CharSequence breaking it up into defined sub-strings.  In essence, a
+ * pull parser.  Stores more data in memory than a push parser, but simpler
+ * to understand.
  */
 public class Tokenizer implements CharSequence {
 
