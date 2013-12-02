@@ -272,6 +272,16 @@ public class Validate {
         }
     }
 
+    public static void notEmpty( String chars, String fieldName ) {
+        notEmpty( chars, fieldName, "%s must not be empty (was '%s')" );
+    }
+
+    public static void notEmpty( String chars, String fieldName, String description ) {
+        if ( chars == null || chars.length() == 0 ) {
+            throwException( description, fieldName, chars );
+        }
+    }
+
     public static void notNull( Object o, String fieldName ) {
         if ( o == null ) {
             throwException( "%s must not be %s", fieldName, o );
