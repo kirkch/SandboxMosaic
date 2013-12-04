@@ -21,13 +21,14 @@ public class ConstantMatcherBenchmark {
     private CharBuffer buf = CharBuffer.wrap("assert foo == bar;");
 
     /*
-15.63ns
-14.13ns
-17.78ns
-14.10ns
-14.06ns
+    2.37ns per char
+    2.44ns per char
+    2.39ns per char
+    2.18ns per char
+    2.20ns per char
+    2.23ns per char
      */
-    @Benchmark( durationResultMultiplier = 1.0/3 )
+    @Benchmark( durationResultMultiplier = 1.0/(3*6), units="char" )
     public void benchmark6() {
         buf.position(0);
 

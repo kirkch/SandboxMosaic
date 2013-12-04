@@ -24,22 +24,15 @@ public class CSVParserBenchmark {
 
 
 /*
-12712.80ns
-8140.03ns
-9464.38ns
-4902.50ns
-4344.58ns
-4304.85ns
-
-    3919.95ns per call
-    3236.53ns per call
-    3336.48ns per call
-    3181.40ns per call
-    3140.58ns per call
-    3303.33ns per call
+    16.73ns per char
+    16.49ns per char
+    17.97ns per char
+    15.67ns per char
+    15.65ns per char
+    15.78ns per char
 */
 
-    @Benchmark( value=10000, durationResultMultiplier=0.25, units="row" )
+    @Benchmark( value=10000, durationResultMultiplier=(1/818.0), units="char" )
     public void csvBenchmark( int iterationCount ) {
         for ( int i=0; i<iterationCount; i++ ) {
             inputBuffer.position(0);

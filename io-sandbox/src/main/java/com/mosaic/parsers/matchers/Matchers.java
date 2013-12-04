@@ -54,8 +54,12 @@ public class Matchers {
         return WhitespaceMatcher.tabOrSpaceMatcher();
     }
 
-    public static Matcher whitespaceMatcher() {
+    public static Matcher whitespace() {
         return WhitespaceMatcher.whitespaceMatcher();
+    }
+
+    public static Matcher skipWhitespace() {
+        return WhitespaceMatcher.whitespaceMatcher().skip();
     }
 
 

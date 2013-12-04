@@ -24,6 +24,16 @@ public interface PushParser {
      *
      * @return number of characters consumed from the buffer
      */
+    public long push( CharBuffer buf );
+
+    /**
+     * Reads the characters from the buffer. The data that has been parsed
+     * results in callbacks to process them.
+     *
+     * @param isEOS true if these characters are the last ones to be received
+     *
+     * @return number of characters consumed from the buffer
+     */
     public long push( CharBuffer buf, boolean isEOS );
 
     /**

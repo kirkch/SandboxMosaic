@@ -29,6 +29,10 @@ public abstract class BasePushParser implements PushParser {
     private Matcher errorRecoveryMatcher;
 
 
+    private int line = 1;
+    private int col  = 1;
+
+
     private FastStack stack = new FastStack();
 
 
@@ -45,7 +49,14 @@ public abstract class BasePushParser implements PushParser {
     }
 
 
+    /**
+     * Callback when the parser starts parsing.  Override to handle the event.
+     */
     protected void parserStartedEvent() {}
+
+    /**
+     * Callback when the parser has finished parsing.  Override to handle the event.
+     */
     protected void parserFinishedEvent() {}
 
 
@@ -64,6 +75,10 @@ public abstract class BasePushParser implements PushParser {
 
         // TODO
         return 0;
+    }
+
+    public long push( CharBuffer buf ) {
+        return this.push( buf, false );
     }
 
     public long push( CharBuffer buf, boolean isEOS ) {

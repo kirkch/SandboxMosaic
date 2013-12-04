@@ -15,21 +15,22 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public class SeparatedListMatcher extends BaseMatcher {
 
-    private Matcher valueMatcher;
-    private Matcher separatorMatcher;
-
+    private MatchResult firstMatchResult;
+    private MatchResult mandatoryValueMatchResult;
+    private MatchResult separatorMatchResult;
 
     private List resultsList = new ArrayList();
 
 
 
     public SeparatedListMatcher( Matcher valueMatcher, Matcher separatorMatcher ) {
-        this.valueMatcher     = valueMatcher;
-        this.separatorMatcher = separatorMatcher;
+        this.firstMatchResult          = MatchResult.continuation(valueMatcher, firstAndThusOptionalValueContinuation);
+        this.mandatoryValueMatchResult = MatchResult.continuation(valueMatcher, mandatoryValueContinuation);
+        this.separatorMatchResult      = MatchResult.continuation(separatorMatcher, separatorContinuation);
     }
 
     public MatchResult match(CharBuffer buf, boolean isEOS) {
-        return MatchResult.continuation(valueMatcher, firstAndThusOptionalValueContinuation);
+        return firstMatchResult;
     }
 
 
@@ -46,7 +47,7 @@ public class SeparatedListMatcher extends BaseMatcher {
 
             resultsList.add( childsResult.getParsedValue() );
 
-            return MatchResult.continuation(separatorMatcher, separatorContinuation);
+            return separatorMatchResult;
         }
 
         public String toString() {
@@ -57,14 +58,14 @@ public class SeparatedListMatcher extends BaseMatcher {
     private Function1<MatchResult,MatchResult> mandatoryValueContinuation = new Function1<MatchResult,MatchResult>() {
         public MatchResult invoke( MatchResult childsResult ) {
             if ( childsResult.isNoMatch() ) {
-                return MatchResult.errored(0, "expected value after '" + separatorMatcher + "'");
+                return MatchResult.errored(0, "expected value after '" + separatorMatchResult.getNextMatcher() + "'");
             } else if ( !childsResult.isMatch() ) {
                 return childsResult;
             }
 
             resultsList.add( childsResult.getParsedValue() );
 
-            return MatchResult.continuation(separatorMatcher, separatorContinuation);
+            return separatorMatchResult;
         }
 
         public String toString() {
@@ -77,7 +78,7 @@ public class SeparatedListMatcher extends BaseMatcher {
             if ( childsResult.isNoMatch() ) {
                 return createMatchedResult();
             } else if ( childsResult.isMatch() ) {
-                return MatchResult.continuation(valueMatcher, mandatoryValueContinuation);
+                return mandatoryValueMatchResult;
             }
 
             return childsResult;
@@ -93,7 +94,7 @@ public class SeparatedListMatcher extends BaseMatcher {
             return MatchResult.noMatch();
         }
 
-        ArrayList clonedResult = new ArrayList(resultsList);
+        List clonedResult = new ArrayList(resultsList);
         resultsList.clear();
 
         return MatchResult.matched(0, clonedResult);
