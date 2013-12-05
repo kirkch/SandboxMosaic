@@ -16,6 +16,7 @@
         <module>lang-sandbox</module>
         <module>collections-sandbox</module>
         <module>io-sandbox</module>
+        <module>parsers-sandbox</module>
 	</modules>
 
     <properties>
