@@ -67,8 +67,7 @@ public class ParserTest {
     @Test
     public void givenAutomataExpectingA_parseB_expectError() {
         Node n = automata.getStartingNode();
-        n.setLabel( "ConstantA" );
-        n.appendConstant("a");
+        n.appendConstant("ConstantA", "a");
 
 
         Parser parser = Parser.compile( automata, l );
@@ -78,6 +77,45 @@ public class ParserTest {
         List<String> expectedAudit = Arrays.asList(
             "started",
             "(1,1): unexpected character 'b', expected 'ConstantA'"
+        );
+
+        assertEquals( l.audit, expectedAudit );
+        assertEquals( 0, numCharactersConsumed );
+    }
+
+    @Test
+    public void givenAutomataExpectingB_parseB_expectError() {
+        Node n = automata.getStartingNode();
+        n.appendConstant("ConstantB", "b");
+
+
+        Parser parser = Parser.compile( automata, l );
+
+        int numCharactersConsumed = parser.append("a");
+
+        List<String> expectedAudit = Arrays.asList(
+            "started",
+            "(1,1): unexpected character 'a', expected 'ConstantB'"
+        );
+
+        assertEquals( l.audit, expectedAudit );
+        assertEquals( 0, numCharactersConsumed );
+    }
+
+    @Test
+    public void givenAutomataExpectingAorB_parseC_expectError() {
+        Node n = automata.getStartingNode();
+        n.appendConstant("ConstantA", "a");
+        n.appendConstant("ConstantB", "b");
+
+
+        Parser parser = Parser.compile( automata, l );
+
+        int numCharactersConsumed = parser.append("c");
+
+        List<String> expectedAudit = Arrays.asList(
+            "started",
+            "(1,1): unexpected character 'c', expected 'ConstantA' or 'ConstantB'"
         );
 
         assertEquals( l.audit, expectedAudit );

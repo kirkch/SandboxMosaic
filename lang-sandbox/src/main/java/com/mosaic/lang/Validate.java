@@ -263,7 +263,7 @@ public class Validate {
     }
 
     public static void notBlank( String chars, String fieldName ) {
-        notBlank( chars, fieldName, "%s must not be blank (was '%s')" );
+        notBlank( chars, fieldName, "%s must not be blank (was %s)" );
     }
 
     public static void notBlank( String chars, String fieldName, String description ) {
@@ -272,11 +272,11 @@ public class Validate {
         }
     }
 
-    public static void notEmpty( String chars, String fieldName ) {
-        notEmpty( chars, fieldName, "%s must not be empty (was '%s')" );
+    public static void notEmpty( CharSequence chars, String fieldName ) {
+        notEmpty( chars, fieldName, "%s must not be empty (was %s)" );
     }
 
-    public static void notEmpty( String chars, String fieldName, String description ) {
+    public static void notEmpty( CharSequence chars, String fieldName, String description ) {
         if ( chars == null || chars.length() == 0 ) {
             throwException( description, fieldName, chars );
         }
