@@ -1,14 +1,12 @@
 package com.softwaremosaic.parsers.automata;
 
-import com.mosaic.lang.functional.Function1;
-import com.mosaic.utils.ListUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.Assert.*;
+
 
 /**
  *
@@ -145,7 +143,7 @@ public class NodeTest {
         assertFalse( node.isTerminal() );
         assertTrue( endNode.isTerminal() );
 
-        assertEquals( Arrays.asList(endNode), walk(node, "hello") );
+        assertEquals( Arrays.asList(endNode), node.walk("hello") );
         assertEquals( Arrays.<Node>asList(), node.walk('e') );
     }
 
@@ -168,8 +166,8 @@ public class NodeTest {
         Node n2           = startingNode.appendConstant("abc").get(0);
 
         assertSame(n1, n2);
-        assertEquals( Arrays.asList(n1), walk(startingNode,"abc") );
-        assertEquals(Arrays.<Node>asList(), walk(startingNode,"abd"));
+        assertEquals( Arrays.asList(n1), startingNode.walk("abc") );
+        assertEquals(Arrays.<Node>asList(), startingNode.walk("abd"));
     }
 
     @Test
@@ -179,8 +177,8 @@ public class NodeTest {
         Node n2           = startingNode.appendConstant("l1", "abc").get(0);
 
         assertSame(n1, n2);
-        assertEquals( Arrays.asList(n1), walk(startingNode,"abc") );
-        assertEquals(Arrays.<Node>asList(), walk(startingNode,"abd"));
+        assertEquals( Arrays.asList(n1), startingNode.walk("abc") );
+        assertEquals(Arrays.<Node>asList(), startingNode.walk("abd"));
     }
 
     @Test
@@ -194,8 +192,23 @@ public class NodeTest {
         assertEquals( 1, startingNode.walk('a').size() );
         assertEquals( 1, startingNode.walk('a').get(0).walk('b').size() );
 
-        assertEquals( Arrays.asList(n1), walk(startingNode,"abc") );
-        assertEquals( Arrays.asList(n2), walk(startingNode,"abd") );
+        assertEquals( Arrays.asList(n1), startingNode.walk("abc") );
+        assertEquals( Arrays.asList(n2), startingNode.walk("abd") );
+    }
+
+    @Test
+    public void givenBlankNode_appendTwoConstantsThatShareSamePrefixButDifferAndHaveDifferentLabels_expectNoSharedNodes() {
+        Node startingNode = new Node();
+        Node n1           = startingNode.appendConstant("l1", "abc").get(0);
+        Node n2           = startingNode.appendConstant("l2", "abd").get(0);
+
+        assertNotSame(n1, n2);
+
+        assertEquals( 2, startingNode.walk('a').size() );
+        assertEquals( 2, startingNode.walk("ab").size() );
+
+        assertEquals( Arrays.asList(n1), startingNode.walk("abc") );
+        assertEquals( Arrays.asList(n2), startingNode.walk("abd") );
     }
 
 
@@ -234,22 +247,4 @@ public class NodeTest {
 
 
 
-
-
-
-    private List<Node> walk( Node node, String path ) {
-        List<Node> currentNodes = Arrays.asList(node);
-
-        for ( final char c : path.toCharArray() ) {
-            List<List<Node>> nextNodes = ListUtils.map(currentNodes, new Function1<Node,List<Node>>() {
-                public List<Node> invoke( Node n ) {
-                    return n.walk(c);
-                }
-            });
-
-            currentNodes = ListUtils.flatten( nextNodes );
-        }
-
-        return currentNodes;
-    }
 }

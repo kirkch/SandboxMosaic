@@ -1,5 +1,6 @@
 package com.softwaremosaic.parsers.automata;
 
+import com.mosaic.collections.KV;
 import com.mosaic.lang.Validate;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.utils.ListUtils;
@@ -134,6 +135,35 @@ public class Node {
         return new Node(newLabel);
     }
 
+
+
+    public List<Node> walk( String path ) {
+        List<Node> currentNodes = Arrays.asList(this);
+
+        for ( final char c : path.toCharArray() ) {
+            List<List<Node>> nextNodes = ListUtils.map(currentNodes, new Function1<Node,List<Node>>() {
+                public List<Node> invoke( Node n ) {
+                    return n.walk(c);
+                }
+            });
+
+            currentNodes = ListUtils.flatten( nextNodes );
+        }
+
+        return currentNodes;
+    }
+
+    public List<KV<Character,Node>> getOutEdges() {
+        List<KV<Character,Node>> out = new ArrayList<>();
+
+        for ( Map.Entry<Character,List<Node>> e : edges.entrySet() ) {
+            for ( Node n : e.getValue() ) {
+                out.add( new KV(e.getKey(), n) );
+            }
+        }
+
+        return out;
+    }
 
     public String toString() {
         StringBuilder buf = new StringBuilder();

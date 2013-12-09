@@ -2,9 +2,7 @@ package com.mosaic.utils;
 
 import com.mosaic.lang.Validate;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -30,4 +28,28 @@ public class MapUtils {
         return (Map<K,V>) result;
     }
 
+    /**
+     * Append the specified V to a list of values under the specified K.  If the
+     * key is not in the map, then create a new list for it.
+     */
+    public static <K,V> void appendToListElement( Map<K,List<V>> map, K k, V v ) {
+        List<V> list = map.get(k);
+
+        if ( list == null ) {
+            list = new ArrayList();
+            map.put(k, list);
+        }
+
+        list.add( v );
+    }
+
+    public static <K,V> Map<K, V> toTreeMap( Map<K,V> source ) {
+        Map<K,V> result = new TreeMap();
+
+        for ( Map.Entry<K,V> e : source.entrySet() ) {
+            result.put( e.getKey(), e.getValue() );
+        }
+
+        return result;
+    }
 }

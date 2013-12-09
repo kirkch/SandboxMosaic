@@ -1,10 +1,11 @@
 package com.mosaic.utils;
 
 import com.mosaic.lang.functional.Function1;
+import com.mosaic.lang.functional.Function2;
 import com.mosaic.lang.functional.Nullable;
+import com.mosaic.lang.functional.Tuple2;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  *
@@ -72,6 +73,36 @@ public class ListUtils {
         }
 
         return results;
+    }
+
+    /**
+     * Perform op on every value within the list starting with the specified
+     * firstValue.  For example, given the list [1,2,3] and the firstValue 0 then
+     * the result would be: 0 op 1 op 2 op 3.  If the list was [], then the result
+     * would be the first value, which is 0 in this example.
+     */
+    public static <T,V> V fold( List<T> list, V firstValue, Function2<V, T, V> op ) {
+        V valueSoFar = firstValue;
+
+        for ( T e : list ) {
+            valueSoFar = op.invoke(valueSoFar, e);
+        }
+
+        return valueSoFar;
+    }
+
+    public static <T,G> Map<G,List<T>> groupBy( List<T> list, Function1<T,G> groupByValueFunction ) {
+        Map<G,List<T>> result = new HashMap();
+
+        if ( list != null ) {
+            for ( T v : list ) {
+                G groupedBy = groupByValueFunction.invoke(v);
+
+                MapUtils.appendToListElement( result, groupedBy, v );
+            }
+        }
+
+        return result;
     }
 
 }
