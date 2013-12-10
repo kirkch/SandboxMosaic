@@ -124,20 +124,20 @@ public class ParserTest {
     }
 
     @Test
-    public void givenAutomataExpectingABorC_parsed_expectErrorThatCollapsesTheSharedDestinationForAB() {
+    public void givenAutomataExpectingADorC_parseE_expectErrorThatCollapsesTheSharedDestinationForAB() {
         Node n = automata.getStartingNode();
-        n.appendConstant("ConstantAB", "a");
-        n.appendConstant("ConstantAB", "b");
+        n.appendConstant("ConstantAD", "a");
+        n.appendConstant("ConstantAD", "d");
         n.appendConstant("ConstantC", "c");
 
 
         Parser parser = Parser.compile( automata, l );
 
-        int numCharactersConsumed = parser.append("d");
+        int numCharactersConsumed = parser.append("e");
 
         List<String> expectedAudit = Arrays.asList(
             "started",
-            "(1,1): unexpected character 'd', expected 'a|b -> ConstantAB' or 'c -> ConstantC'"
+            "(1,1): unexpected character 'e', expected '[ad] -> ConstantAD' or 'c -> ConstantC'"
         );
 
         assertEquals( expectedAudit, l.audit );
@@ -308,6 +308,30 @@ public class ParserTest {
     }
 
 
+    @Test
+    public void givenAutomataExpectingABorC_parseE_expectACRangeInErrorMessage() {
+        Node n = automata.getStartingNode();
+        n.appendConstant("ConstantABC", "a");
+        n.appendConstant("ConstantABC", "b");
+        n.appendConstant("ConstantABC", "c");
+        n.appendConstant("ConstantD", "d");
+
+
+        Parser parser = Parser.compile( automata, l );
+
+        int numCharactersConsumed = parser.append("e");
+
+        List<String> expectedAudit = Arrays.asList(
+                "started",
+                "(1,1): unexpected character 'e', expected '[a-c] -> ConstantABC' or 'd -> ConstantD'"
+        );
+
+        assertEquals( expectedAudit, l.audit );
+        assertEquals( 0, numCharactersConsumed );
+    }
+
+
+    // collapse ranges in default error messages
     // custom error messages
     // recoveries
     // custom events

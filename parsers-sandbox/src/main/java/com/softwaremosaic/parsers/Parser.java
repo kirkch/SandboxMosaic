@@ -155,8 +155,8 @@ public class Parser {
      */
     private static final Formatter<Map.Entry<String, List<KV<Character,Node>>>> NEXT_STEPS_FORMATTER = new Formatter<Map.Entry<String, List<KV<Character,Node>>>>() {
         public void write( Appendable buf, Map.Entry<String, List<KV<Character, Node>>> step ) throws IOException {
-            String         label      = step.getKey();
-            Set<Character> characters = new TreeSet();
+            String             label      = step.getKey();
+            TreeSet<Character> characters = new TreeSet();
 
             for ( KV<Character, Node> p : step.getValue() ) {
                 characters.add( p.getKey() );
@@ -164,10 +164,79 @@ public class Parser {
 
 
             buf.append('\'');
-            StringUtils.join(buf, characters, "|");
+            formatCharacters(buf, characters);
             buf.append( " -> " );
             buf.append( label );
             buf.append('\'');
+        }
+
+        /**
+         * If more than one character, rewrite into a regexp [] block, including ranges.
+         */
+        private void formatCharacters( Appendable buf, TreeSet<Character> characters ) throws IOException {
+            switch ( characters.size() ) {
+                case 0:
+                    break;
+                case 1:
+                    buf.append( characters.first().charValue() );
+                    break;
+                default:
+                    buf.append('[');
+
+                    appendRegExpBlock(buf, characters);
+
+
+                    buf.append(']');
+            }
+        }
+
+        /**
+         * Summarizes the characters using a [] regexp block.  Characters that
+         * are next to each other get grouped into a range, and solo characters
+         * get printed by themselves.  For example the character set {abce2345}
+         * would get displayed as 'a-ce2-5'  (without the quotes).
+         */
+        private void appendRegExpBlock(Appendable buf, TreeSet<Character> characters) throws IOException {
+            Character lowerBound = null;
+            Character upperBound = null;
+
+            Iterator<Character> it = characters.iterator();
+            while ( it.hasNext() ) {
+                Character c = it.next();
+
+                if ( lowerBound == null ) {
+                    lowerBound = c;
+                } else if ( upperBound == null ) {
+                    if ( lowerBound.charValue()+1 == c.charValue() ) {
+                        upperBound = c;
+                    } else {
+                        buf.append( lowerBound.charValue() );
+                        lowerBound = c;
+                    }
+                } else {
+                    if ( upperBound.charValue()+1 == c.charValue() ) {
+                        upperBound = c;
+                    } else {
+                        buf.append( lowerBound.charValue() );
+                        buf.append( '-' );
+                        buf.append( upperBound.charValue() );
+
+                        upperBound = null;
+                        lowerBound = c;
+                    }
+                }
+            }
+
+            //noinspection StatementWithEmptyBody
+            if ( lowerBound == null ) {
+                // do nothing in this case
+            } else if ( upperBound == null ) {
+                buf.append( lowerBound.charValue() );
+            } else {
+                buf.append( lowerBound.charValue() );
+                buf.append( '-' );
+                buf.append( upperBound.charValue() );
+            }
         }
     };
 
