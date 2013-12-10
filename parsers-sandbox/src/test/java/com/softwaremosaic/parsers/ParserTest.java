@@ -2,6 +2,7 @@ package com.softwaremosaic.parsers;
 
 import com.softwaremosaic.parsers.automata.Automata;
 import com.softwaremosaic.parsers.automata.Node;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -162,6 +163,154 @@ public class ParserTest {
         assertEquals( 1, numCharactersConsumed );
     }
 
+    @Test
+    public void givenAutomataExpectingAnewlineB_parseAnewlineC_expectErrorAtLine2Col1() {
+        Node n = automata.getStartingNode();
+        n.appendConstant("ConstantAB", "a\nb");
+
+
+        Parser parser = Parser.compile( automata, l );
+
+        int numCharactersConsumed = parser.append("a\nc");
+
+        List<String> expectedAudit = Arrays.asList(
+            "started",
+            "(2,1): unexpected character 'c', expected 'b -> ConstantAB'"
+        );
+
+        assertEquals( expectedAudit, l.audit );
+        assertEquals( 2, numCharactersConsumed );
+    }
+
+    @Test
+    public void givenAutomataExpectingAB_parseAB_expectSuccessfulParsingAndEndOfParsingEvent() {
+        Node n = automata.getStartingNode();
+        n.appendConstant("ConstantAB", "ab");
+
+
+        Parser parser = Parser.compile( automata, l );
+
+        int numCharactersConsumed = parser.append("ab");
+
+        parser.appendEOS();
+
+        List<String> expectedAudit = Arrays.asList(
+                "started",
+                "finished"
+        );
+
+        assertEquals( expectedAudit, l.audit );
+        assertEquals( 2, numCharactersConsumed );
+    }
+
+    @Test
+    public void givenAutomataExpectingAB_parseAThenB_expectStartedParsingEventOnlyOnce() {
+        Node n = automata.getStartingNode();
+        n.appendConstant("ConstantAB", "ab");
+
+
+        Parser parser = Parser.compile( automata, l );
+
+        int numCharactersConsumed = parser.append("a") + parser.append("b");
+
+        List<String> expectedAudit = Arrays.asList(
+                "started"
+        );
+
+        assertEquals( expectedAudit, l.audit );
+        assertEquals( 2, numCharactersConsumed );
+    }
+
+    @Test
+    public void givenAutomataExpectingAB_appendEOS_expectStartFinishEvents() {
+        Node n = automata.getStartingNode();
+        n.appendConstant("ConstantAB", "ab");
+
+
+        Parser parser = Parser.compile( automata, l );
+
+        parser.appendEOS();
+
+        List<String> expectedAudit = Arrays.asList(
+                "started",
+                "finished"
+        );
+
+        assertEquals( expectedAudit, l.audit );
+    }
+
+    @Test
+    public void givenAutomataExpectingAB_appendEOSTwice_expectException() {
+        Node n = automata.getStartingNode();
+        n.appendConstant("ConstantAB", "ab");
+
+
+        Parser parser = Parser.compile( automata, l );
+
+        parser.appendEOS();
+
+
+        try {
+            parser.appendEOS();
+
+            Assert.fail("expected IllegalStateException");
+        } catch (IllegalStateException e) {
+            Assert.assertEquals("the parser has already been notified of EOS", e.getMessage());
+        }
+    }
+
+    @Test
+    public void givenAutomataExpectingAB_appendEOSThenA_expectException() {
+        Node n = automata.getStartingNode();
+        n.appendConstant("ConstantAB", "ab");
+
+
+        Parser parser = Parser.compile( automata, l );
+
+        parser.appendEOS();
+
+
+        try {
+            parser.append("a");
+
+            Assert.fail("expected IllegalStateException");
+        } catch (IllegalStateException e) {
+            Assert.assertEquals("the parser has already been notified of EOS", e.getMessage());
+        }
+    }
+
+
+
+    @Test
+    public void givenParserABThatHasAlreadyParsedA_resetThenAppendB_expectSuccessfulReset() {
+        Node n = automata.getStartingNode();
+        n.appendConstant("ConstantAB", "ab");
+
+
+        Parser parser = Parser.compile( automata, l );
+        parser.append("a");
+        parser.reset();
+        l.audit.clear();
+
+
+        int numCharactersConsumed = parser.append("b");
+
+        parser.appendEOS();
+
+        List<String> expectedAudit = Arrays.asList(
+                "started",
+                "(1,1): unexpected character 'b', expected 'a -> ConstantAB'",
+                "finished"
+        );
+
+        assertEquals( expectedAudit, l.audit );
+        assertEquals( 0, numCharactersConsumed );
+    }
+
+
+    // custom error messages
+    // recoveries
+    // custom events
 
 
     @SuppressWarnings("unchecked")
@@ -172,7 +321,7 @@ public class ParserTest {
             audit.add("started");
         }
 
-        public void error(int line, int col, String message) {
+        public void error( int line, int col, String message ) {
             audit.add( String.format("(%d,%d): %s", line, col, message) );
         }
 

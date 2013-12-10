@@ -300,6 +300,13 @@ public class Validate {
         }
     }
 
+    public static void isFalseState( boolean flag, String msg, Object...args ) {
+        if ( flag ) {
+            throwIllegalStateException( msg, args );
+        }
+    }
+
+
     public static void isNull( Object o, String fieldName ) {
         if ( o != null ) {
             throwException( "%s must be null but was %s", fieldName, o );
@@ -321,6 +328,12 @@ public class Validate {
 
     public static void isTrue( boolean condition, String msg, Object...values ) {
         if ( !condition ) {
+            throwException( msg, values );
+        }
+    }
+
+    public static void isFalse( boolean condition, String msg, Object...values ) {
+        if ( condition ) {
             throwException( msg, values );
         }
     }

@@ -30,6 +30,7 @@ public class Parser {
 
     private List<Node> currentNodes;
     private boolean isFirstNode = true;
+    private boolean hasReachedEOS = false;
 
     private int col  = 1;
     private int line = 1;
@@ -41,15 +42,19 @@ public class Parser {
         this.automata = automata;
         this.listener = listener;
 
-        this.currentNodes = Arrays.asList(automata.getStartingNode());
+        reset();
     }
 
 
 
     public int append( CharSequence text ) {
-//        if ( isFirstNode ) {
+        throwIfNotAcceptingAppends();
+
+        if ( isFirstNode ) {
             listener.started();
-//        }
+
+            isFirstNode = false;
+        }
 
         final int numChars = text.length();
         for ( int i=0; i<numChars; i++ ) {
@@ -61,6 +66,36 @@ public class Parser {
         }
 
         return numChars;
+    }
+
+    /**
+     *
+     * @DesignNote this method generates the listener.finished() call; it could
+     *   be done as we append characters however the efficiency saving of
+     *   not explicitly checking and then rechecking is worth while
+     */
+    public void appendEOS() {
+        throwIfNotAcceptingAppends();
+
+        if ( isFirstNode ) {
+            listener.started();
+
+            isFirstNode = false;
+        }
+
+        listener.finished();
+
+        hasReachedEOS = true;
+    }
+
+    public void reset() {
+        this.col           = 1;
+        this.line          = 1;
+
+        this.isFirstNode   = true;
+        this.hasReachedEOS = false;
+
+        this.currentNodes  = Arrays.asList(automata.getStartingNode());
     }
 
     private boolean walk( char c ) {
@@ -78,8 +113,21 @@ public class Parser {
         return true;
     }
 
+    private void throwIfNotAcceptingAppends() {
+        Validate.isFalseState(hasReachedEOS, "the parser has already been notified of EOS");
+    }
+
     private void incrementColumnAndLinePositionsGiven( char c ) {
-        col++;
+        switch (c) {
+            case '\n':
+                col   = 1;
+                line += 1;
+                break;
+            case '\r':
+                break; // skip
+            default:
+                col += 1;
+        }
     }
 
     private void reportUnexpectedCharacter( char c ) {
