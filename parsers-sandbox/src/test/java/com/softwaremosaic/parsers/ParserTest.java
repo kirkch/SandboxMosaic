@@ -2,6 +2,7 @@ package com.softwaremosaic.parsers;
 
 import com.softwaremosaic.parsers.automata.Automata;
 import com.softwaremosaic.parsers.automata.Node;
+import com.softwaremosaic.parsers.automata.Nodes;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -331,13 +332,40 @@ public class ParserTest {
     }
 
 
-    // collapse ranges in default error messages
+// custom actions
+
+//    @Test
+    public void givenHelloParser_parseHelloJim_expectHelloCallback() {
+        Node n = automata.getStartingNode();
+        Nodes endOfHelloConstant = n.appendConstant("Hello", "Hello").skipWhiteSpace();
+//        Node endName            = endOfHelloConstant.appendRegexpIC( "[a-z]+" );
+
+//        endName.onExitInvoke( "hello" );
+
+
+        Parser parser = Parser.compile( automata, l );
+
+        int numCharactersConsumed = parser.append("Hello Jim");
+        parser.appendEOS();
+
+        List<String> expectedAudit = Arrays.asList(
+                "started",
+                "(1,7): Welcome 'Jim'",
+                "finished"
+        );
+
+        assertEquals( expectedAudit, l.audit );
+        assertEquals( 0, numCharactersConsumed );
+    }
+
+
+
     // custom error messages
     // recoveries
     // custom events
 
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "UnusedDeclaration"})
     private static class RecordingParserListener implements ParserListener {
         public final List<String> audit = new ArrayList();
 
@@ -347,6 +375,10 @@ public class ParserTest {
 
         public void error( int line, int col, String message ) {
             audit.add( String.format("(%d,%d): %s", line, col, message) );
+        }
+
+        public void hello( int line, int col, String name ) {
+            audit.add(  String.format("(%d,%d): Welcome '%s'", line, col, name) );
         }
 
         public void finished() {

@@ -23,7 +23,7 @@ public class Node {
 
     public Node() {}
 
-    public Node( String label ) {
+    public Node(String label) {
         this.label = label;
     }
 
@@ -37,7 +37,7 @@ public class Node {
         return label;
     }
 
-    public void setLabel( String label ) {
+    public void setLabel(String label) {
         this.label = label;
     }
 
@@ -47,7 +47,7 @@ public class Node {
      * node then the node will be reused.  Else a new node will be created.
      * Each transition will reuse the label from this node.
      */
-    public List<Node> appendCharacter( char c ) {
+    public Nodes appendCharacter( char c ) {
         return appendCharacter(this.label, c);
     }
 
@@ -56,7 +56,7 @@ public class Node {
      * already exists for the character, and it shares the same label as this
      * node then the node will be reused.  Else a new node will be created.
      */
-    public List<Node> appendCharacter( final String newLabel, char c ) {
+    public Nodes appendCharacter( final String newLabel, char c ) {
         List<Node> nextNodes = touchEdges(c);
 
         List<Node> nextNodesByLabel = ListUtils.filter( nextNodes, new Function1<Node, Boolean>() {
@@ -71,9 +71,9 @@ public class Node {
 
             nextNodes.add(newNode);
 
-            return Arrays.asList(newNode);
+            return new Nodes(Arrays.asList(newNode));
         } else {
-            return nextNodesByLabel;
+            return new Nodes(nextNodesByLabel);
         }
     }
 
@@ -83,7 +83,7 @@ public class Node {
      * node then the node will be reused.  Else a new node will be created.
      * Each transition will reuse the label from this node.
      */
-    public List<Node> appendConstant( String a ) {
+    public Nodes appendConstant(String a) {
         return appendConstant( this.label, a );
     }
 
@@ -92,7 +92,7 @@ public class Node {
      * already exists for the character, and it shares the same label as this
      * node then the node will be reused.  Else a new node will be created.
      */
-    public List<Node> appendConstant( String newLabel, CharSequence constant ) {
+    public Nodes appendConstant(String newLabel, CharSequence constant) {
         Validate.notEmpty( constant, "constant" );
 
         List<Node> currentNodes = Arrays.asList(this);
@@ -100,7 +100,7 @@ public class Node {
             List<Node> flattenedNextNodes = new ArrayList<>();
 
             for ( Node n : currentNodes ) {
-                List<Node> nextNodes = n.appendCharacter( newLabel, constant.charAt(i) );
+                Nodes nextNodes = n.appendCharacter( newLabel, constant.charAt(i) );
 
                 flattenedNextNodes.addAll( nextNodes );
             }
@@ -108,20 +108,20 @@ public class Node {
             currentNodes = flattenedNextNodes;
         }
 
-        return currentNodes;
+        return new Nodes(currentNodes);
     }
 
     /**
      * Retrieves the nodes that can be transitioned to by consuming the specified
      * character.  If there are no edges, then an empty list will be returned.
      */
-    public List<Node> walk( char c ) {
+    public Nodes walk( char c ) {
         List<Node> nextNodes = edges.get(c);
         if ( nextNodes == null ) {
-            nextNodes = Collections.EMPTY_LIST;
+            return Nodes.EMPTY;
         }
 
-        return nextNodes;
+        return new Nodes(nextNodes);
     }
 
     /**
@@ -131,27 +131,27 @@ public class Node {
         return edges.isEmpty();
     }
 
-    private Node newNode( String newLabel ) {
-        return new Node(newLabel);
-    }
-
-
-
-    public List<Node> walk( String path ) {
+    public Nodes walk(String path) {
         List<Node> currentNodes = Arrays.asList(this);
 
         for ( final char c : path.toCharArray() ) {
-            List<List<Node>> nextNodes = ListUtils.map(currentNodes, new Function1<Node,List<Node>>() {
-                public List<Node> invoke( Node n ) {
+            List<Nodes> nextNodes = ListUtils.map(currentNodes, new Function1<Node,Nodes>() {
+                public Nodes invoke( Node n ) {
                     return n.walk(c);
                 }
             });
 
             currentNodes = ListUtils.flatten( nextNodes );
+//            currentNodes = ListUtils.filterNot(currentNodes, new Function1<Node, Boolean>() {
+//                public Boolean invoke( Node n ) {
+//                    return n.isTerminal();
+//                }
+//            });
         }
 
-        return currentNodes;
+        return new Nodes(currentNodes);
     }
+
 
     public List<KV<Character,Node>> getOutEdges() {
         List<KV<Character,Node>> out = new ArrayList<>();
@@ -177,6 +177,10 @@ public class Node {
         return buf.toString();
     }
 
+    private Node newNode( String newLabel ) {
+        return new Node(newLabel);
+    }
+
     private List<Node> touchEdges( char c ) {
         List<Node> nodes = edges.get(c);
         if ( nodes == null ) {
@@ -186,6 +190,49 @@ public class Node {
         }
 
         return nodes;
+    }
+
+    public Node skipWhiteSpace() {
+        appendEdge(  ' ', this );
+        appendEdge( '\t', this );
+        appendEdge( '\n', this );
+        appendEdge( '\r', this );
+
+        return this;
+    }
+
+    private void appendEdge( char c, Node node ) {
+        List<Node> nextNodes = touchEdges(c);
+
+        nextNodes.add( node );
+    }
+
+    public Nodes appendRegexpIC( String regexp ) {
+        Nodes pos = new Nodes(this);
+
+        int regexpLength = regexp.length();
+        for ( int i=0; i< regexpLength; i++ ) {
+            char lc = Character.toLowerCase(regexp.charAt(i));
+            char uc = Character.toUpperCase(lc);
+
+            pos.appendCharacter(lc);  // todo don't repeat nodes
+            pos.appendCharacter(uc);
+
+            pos = pos.getOutNodes();
+        }
+
+        return pos;
+    }
+
+
+    public Nodes getOutNodes() {
+        List<Node> outNodes = new ArrayList<>();
+
+        for ( List<Node> nodes : edges.values() ) {
+            outNodes.addAll( nodes );
+        }
+
+        return new Nodes(outNodes);
     }
 
 }

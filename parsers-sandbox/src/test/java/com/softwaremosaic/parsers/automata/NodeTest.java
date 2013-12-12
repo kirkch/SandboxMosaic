@@ -228,10 +228,65 @@ public class NodeTest {
         assertEquals( "l2", nextNode.getLabel() );
     }
 
+// skipWhitespace
+
+    @Test
+    public void givenBlankNode_skipWhitespaceThenMatchFoo() {
+        Node node     = new Node("l1");
+        Node skip = node.skipWhiteSpace();
+
+        assertSame( node, skip );
+
+        Nodes endNode = node.appendConstant("foo");
+
+        assertEquals( endNode, node.walk("  \tfoo") );
+    }
+
+// appendRegexpIC
+
+    @Test
+    public void givenBlankNode_appendRegexpICConstant() {
+        Node start     = new Node("l1");
+        start.appendRegexpIC( "hello" );
+
+        assertCanWalk( start, "hello" );
+        assertCanWalk( start, "Hello" );
+        assertCanWalk( start, "HeLlo" );
+        assertCanWalk( start, "HeLlO" );
+
+        assertEquals( 0, start.walk("Heo").size() );
+    }
+
+    // a*
+    // abc*
+    // a+
+    // abc+
+    // a?
+    // abc?
+    // [abc]
+    // [a-z]
+    // [0-9]
+    // [a\-z]
+    // [a\\z]
+    // [a\\z]
+    // [abc]*
+    // [a-z]*
+    // [abc]+
+    // [a-z]+
+    // [abc]?
+    // [a-z]?
 
 
 
+    private void assertCanWalk( Node start, String path ) {
+        Nodes pos = new Nodes(start);
 
+        for ( char c : path.toCharArray() ) {
+            pos = pos.walk(c);
+
+            assertTrue( pos.size() > 0 );
+        }
+    }
 
     // appendSet
     // appendRange

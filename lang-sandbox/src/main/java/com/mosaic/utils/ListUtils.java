@@ -45,7 +45,7 @@ public class ListUtils {
         return results;
     }
 
-    public static <T> List<T> flatten( List<List<T>> list ) {
+    public static <T, C extends List<T>> List<T> flatten( List<C> list ) {
         List<T> results = new ArrayList<T>(list.size()*2);
 
         if ( list != null ) {
@@ -67,6 +67,24 @@ public class ListUtils {
         if ( list != null ) {
             for ( T v : list ) {
                 if ( predicate.invoke(v) ) {
+                    results.add(v);
+                }
+            }
+        }
+
+        return results;
+    }
+
+    public static <T> List<T> filterNot( List<T> list, Function1<T,Boolean> predicate ) {
+        if ( list != null && list.isEmpty() ) {
+            return list;
+        }
+
+        List<T> results = new ArrayList<T>( list.size() );
+
+        if ( list != null ) {
+            for ( T v : list ) {
+                if ( !predicate.invoke(v) ) {
                     results.add(v);
                 }
             }
