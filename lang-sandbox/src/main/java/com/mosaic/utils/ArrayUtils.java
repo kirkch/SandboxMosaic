@@ -1,6 +1,7 @@
 package com.mosaic.utils;
 
 import com.mosaic.lang.Factory;
+import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.functional.Function1;
 
 import java.lang.reflect.Array;
@@ -64,4 +65,14 @@ public class ArrayUtils {
         return buf.toString();
     }
 
+    public static Object[] newArray( int len, Function0 factory ) {
+        Object[] array = new Object[len];
+
+        for ( int i=0; i<len; i++ ) {
+            array[i] = factory.invoke();
+        }
+
+        return array;
+    }
+    
 }
