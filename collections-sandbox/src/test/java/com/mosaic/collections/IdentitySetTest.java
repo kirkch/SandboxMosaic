@@ -1,5 +1,6 @@
 package com.mosaic.collections;
 
+import com.mosaic.utils.SetUtils;
 import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Test;
 import net.java.quickcheck.Generator;
@@ -7,24 +8,24 @@ import net.java.quickcheck.generator.CombinedGenerators;
 import net.java.quickcheck.generator.PrimitiveGenerators;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- *
+ * Compares elements using ==.  This version is optimised for speed when working
+ * with small sets, the smaller the better ( < 20 ).  If larger, use the JDK
+ * HashSet using a custom comparator.
  */
 @SuppressWarnings("unchecked")
 @RunWith(JUnitMosaicRunner.class)
 public class IdentitySetTest {
 
     @SuppressWarnings("UnusedDeclaration")
-    private Generator<List<Integer>> GEN = CombinedGenerators.lists( PrimitiveGenerators.integers(-100,100), 0, 1000 );
+    private Generator<List<String>> GEN = CombinedGenerators.lists( PrimitiveGenerators.strings(1, 100), 1, 100 );
+
 
     private Set set = new IdentitySet();
 
@@ -50,36 +51,84 @@ public class IdentitySetTest {
     }
 
     @Test( generators = {"GEN"} )
-    public void randomInputComparisonWithHashSet( List<Integer> input ) {
+    public void randomInputComparisonWithHashSet( List<String> input ) {
         set.clear();
         d(input);
     }
 
     @Test
-    public void randomInputComparisonWithHashSet2( ) {
+    public void testDelete() {
+        set.add("a");
+        set.add("b");
 
-        d(
-                Arrays.asList(
-                        -87, -95, -2, -78, 18,
-                        21, 83, -81, 8, 84, 9,
-                        -56, -45, 89, -78, -73
-                ));
+        set.remove("a");
+
+        assertEquals(SetUtils.asSet("b"), set);
+    }
+
+    @Test
+    public void testDelete2() {
+        set.add("a");
+        set.add("b");
+
+        set.remove("a");
+        set.remove("b");
+
+        assertEquals(SetUtils.asSet(), set);
+    }
+
+    @Test( memCheck = true, generators = {"GEN"} )
+    public void FULLFAT_addTwice_removeTwice_compareWithControlJDKHashSet( List input ) {
+        set.clear();
+
+
+        Set controlSet = new HashSet();
+
+        controlSet.addAll( input );
+        set.addAll( input );
+        set.addAll( input );
+
+        assertEquals( controlSet, set );
+
+
+        int expectedSize = set.size();
+        for ( Object o : input ) {
+            boolean wasDeleted = set.remove(o);
+
+            if ( wasDeleted ) {
+                assertEquals( --expectedSize, set.size() );
+            }
+        }
+
+        assertEquals(0, set.size());
+
+        for ( Object o : input ) {
+            boolean wasDeleted = set.remove(o);
+
+            if ( wasDeleted ) {
+                assertEquals( --expectedSize, set.size() );
+            }
+        }
+
+        assertEquals(0, set.size());
     }
 
 
-    private void d(List<Integer> input) {
+
+
+    private void d(List input) {
         Set comparisonSet = new HashSet();
 
         assertEquals( comparisonSet.size(), set.size() );
 
-        for ( Integer v : input ) {
+        for ( Object v : input ) {
             set.add(v);
             comparisonSet.add(v);
 
             assertEquals( "Failed for input '"+input+"' " + v, comparisonSet.size(), set.size() );
         }
 
-        assertEquals( comparisonSet, set );
+        assertEquals(comparisonSet, set);
     }
 
 }

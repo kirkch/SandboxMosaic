@@ -3,8 +3,8 @@ package com.mosaic.collections;
 import com.mosaic.lang.Validate;
 
 import java.util.AbstractSet;
-import java.util.Arrays;
 import java.util.Iterator;
+
 
 /**
  * Stores a set of unique objects.  Unique is defined by object identity (==).
@@ -14,126 +14,95 @@ public class IdentitySet<T> extends AbstractSet<T> {
 
     private Object[] array;
     private int contentsCount;
-    private int watermark;
-    private int bitmask;
+
 
     public IdentitySet() {
-        this(16);
+        this(10);
     }
 
-    private IdentitySet( int initialSize ) {
-        initialSize = Math.max( initialSize, 128 );
-
-        array     = new Object[initialSize];
-        watermark = initialSize / 4 - 1;   // 2, 4, 8
-        bitmask   = 2*initialSize - 1;
+    public IdentitySet( int size ) {
+        array = new Object[size];
     }
 
     public void clear() {
-        Arrays.fill(array, null);
+        for ( int i=0; i<contentsCount; i++ ) {
+            array[i] = null;
+        }
 
         contentsCount = 0;
     }
 
     public boolean add( T v ) {
-        int hash = v.hashCode();
-        int i    = hash & bitmask;
-
-
-        return addAt(v, i);
-    }
-
-    private boolean addAt( Object v, int i ) {
-        int max = array.length;
-        while ( i < max) {
-            Object current = array[i];
-            if ( current == null ) {
-                array[i] = v;
-
-                contentsCount++;
-
-                if ( contentsCount >= watermark ) {
-                    growArray();
-                }
-
-                return true;
-            } else if ( current == v ) {
+        for ( int i=0; i<contentsCount; i++ ) {
+            if ( array[i] == v ) {
                 return false;
             }
-
-            i++;
         }
 
-        return addAt(v, 0);
+        if ( contentsCount == array.length ) {
+            Object[] newArray = new Object[array.length*2];
+
+            System.arraycopy( array, 0, newArray, 0, array.length );
+
+            array = newArray;
+        }
+
+        array[contentsCount++] = v;
+
+        return true;
     }
 
     public boolean contains( Object v ) {
-        int hash = v.hashCode();
-        int i = hash & bitmask;
-
-        while ( i < array.length ) {
-            if ( array[i] == null ) {
-                return false;
-            } else if ( array[i] == v ) {
+        for ( int i=0; i<contentsCount; i++ ) {
+            if ( array[i] == v ) {
                 return true;
             }
-
-            i++;
-        }
-
-        i=0;
-        while ( i < array.length ) {
-            if ( array[i] == null ) {
-                return false;
-            } else if ( array[i] == v ) {
-                return true;
-            }
-
-            i++;
         }
 
         return false;
     }
 
+    public boolean remove( Object o ) {
+        for ( int i=0; i<contentsCount; i++ ) {
+            if ( array[i] == o ) {
+                removeElementAt(i);
 
-    private void growArray() {
-        Object[] oldArray = array;
-        Object[] newArray = new Object[array.length*2];
-
-        array = newArray;
-        contentsCount = 0;
-        watermark = newArray.length * 3 / 4 - 1;
-
-        for ( int i=0; i<oldArray.length; i++ ) {
-            if ( oldArray[i] != null ) {
-                add((T) oldArray[i]);
+                return true;
             }
         }
+
+        return false;
     }
 
+    private void removeElementAt(int i) {
+        if ( i == contentsCount-1 ) {
+            array[i] = null;
+        } else {
+            System.arraycopy( array, i+1, array, i, contentsCount-i-1 );
+            array[contentsCount-1] = null;
+        }
+
+        contentsCount--;
+    }
 
 
     public Iterator<T> iterator() {
         return new Iterator<T>() {
             private int pos = 0;
-            private int returnedCount = 0;
+
 
             public boolean hasNext() {
-                return returnedCount < contentsCount;
+                return pos < contentsCount;
             }
 
             public T next() {
-                while ( array[pos] == null ) {
-                    pos++;
-                }
+                Validate.isTrueState( hasNext(), "the iterator is empty, call hasNext() first" );
 
-                returnedCount++;
-
-                return (T) array[pos];
+                return (T) array[pos++];
             }
 
             public void remove() {
-                throw new UnsupportedOperationException();
+                removeElementAt(pos);
             }
         };
     }
