@@ -1,13 +1,10 @@
 package com.softwaremosaic.parsers.automata.regexp;
 
 import com.softwaremosaic.parsers.automata.Node;
-import com.softwaremosaic.parsers.automata.NodeFormatter;
 import org.junit.Test;
 
-import java.util.Arrays;
-
+import static com.softwaremosaic.parsers.automata.GraphAssertions.assertGraphEquals;
 import static com.softwaremosaic.parsers.automata.regexp.AutomataOp.CaseSensitivity.*;
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -37,15 +34,26 @@ public class ConstantOpTest {
         assertGraphEquals( s, "l1: 1 -[Aa]-> 2t" );
     }
 
+    @Test
+    public void givenBlankStartingNode_appendABCaseSensitive() {
+        Node       s  = new Node("l1");
+        AutomataOp op = new ConstantOp( "ab", CaseSensitive );
 
-    //
-    // givenBlankStartingNode_appendABCaseSensitive
-    // givenBlankStartingNode_appendABCaseInsensitive
+        op.appendTo( "l1", s );
 
-    private void assertGraphEquals( Node startingNode, String...graphDescription ) {
-        NodeFormatter f = new NodeFormatter();
 
-        assertEquals( Arrays.asList(graphDescription), f.format(startingNode) );
+        assertGraphEquals( s, "l1: 1 -a-> 2 -b-> 3t" );
+    }
+
+    @Test
+    public void givenBlankStartingNode_appendABCaseInsensitive() {
+        Node       s  = new Node("l1");
+        AutomataOp op = new ConstantOp( "ab", CaseInsensitive );
+
+        op.appendTo( "l1", s );
+
+
+        assertGraphEquals( s, "l1: 1 -[Aa]-> 2 -[Bb]-> 3t" );
     }
 
 }
