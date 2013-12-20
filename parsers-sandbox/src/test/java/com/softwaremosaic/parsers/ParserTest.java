@@ -310,12 +310,13 @@ public class ParserTest {
 
 
     @Test
-    public void givenAutomataExpectingABorC_parseE_expectACRangeInErrorMessage() {
+    public void givenAutomataExpectingABCorD_parseE_expectADRangeInErrorMessage() {
         Node n = automata.getStartingNode();
-        n.appendConstant("ConstantABC", "a");
-        n.appendConstant("ConstantABC", "b");
-        n.appendConstant("ConstantABC", "c");
-        n.appendConstant("ConstantD", "d");
+        n.appendConstant("ConstantABCD", "a");
+        n.appendConstant("ConstantABCD", "b");
+        n.appendConstant("ConstantABCD", "c");
+        n.appendConstant("ConstantABCD", "d");
+        n.appendConstant("ConstantF", "f");
 
 
         Parser parser = Parser.compile( automata, l );
@@ -324,7 +325,7 @@ public class ParserTest {
 
         List<String> expectedAudit = Arrays.asList(
                 "started",
-                "(1,1): unexpected character 'e', expected '[a-c] -> ConstantABC' or 'd -> ConstantD'"
+                "(1,1): unexpected character 'e', expected '[a-d] -> ConstantABCD' or 'f -> ConstantF'"
         );
 
         assertEquals( expectedAudit, l.audit );

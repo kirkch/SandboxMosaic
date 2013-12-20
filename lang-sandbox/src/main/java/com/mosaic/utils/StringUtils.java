@@ -78,4 +78,27 @@ public class StringUtils {
         }
     }
 
+    public static void repeat( StringBuilder buf, int numTimes, char c ) {
+        for ( int i=0; i<numTimes; i++ ) {
+            buf.append(c);
+        }
+    }
+
+    /**
+     * Given two strings, compares them in order and identifies the index of
+     * the first char that does not match between them.  For example
+     * given 'abc' and 'abd' it will return 2.  'ab' and 'ba' will return
+     * 0.
+     */
+    public static int endIndexExcOfCommonPrefix(String a, String b) {
+        int max = Math.min( a.length(), b.length() );
+        for ( int i=0; i<max; i++ ) {
+            if ( a.charAt(i) != b.charAt(i) )  {
+                return i;
+            }
+        }
+
+        return max;
+    }
+
 }

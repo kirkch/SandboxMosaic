@@ -3,6 +3,7 @@ package com.mosaic.collections;
 import com.mosaic.lang.functional.Nullable;
 import com.mosaic.lang.functional.Function1;
 
+import java.util.Iterator;
 import java.util.Objects;
 
 /**
@@ -16,7 +17,7 @@ import java.util.Objects;
  * be around 2k; but it depends on the amount of space left on the stack.
  */
 @SuppressWarnings("unchecked")
-public abstract class ConsList<T> {
+public abstract class ConsList<T> implements Iterable<T> {
     public static final ConsList Nil = new NilNode();
 
     public static <T> ConsList<T> newConsList( T...elements ) {
@@ -44,7 +45,7 @@ public abstract class ConsList<T> {
     /**
      * Create a new list that contains the mapped version of each value in this list.
      */
-    public abstract <B> ConsList<T> map( Function1<T,B> mappingFunction );
+    public abstract <B> ConsList<B> map( Function1<T,B> mappingFunction );
 
     /**
      * Returns the first value in this list that satisfies the specified predicateFunction.
@@ -92,6 +93,49 @@ public abstract class ConsList<T> {
 
     public abstract String toString();
 
+    /**
+     * Converts this list to a string.  Each element will be separated by separator
+     * and the join order will be head and then tail.
+     */
+    public String join( String separator ) {
+        StringBuilder buf = new StringBuilder();
+
+        boolean needsSeparator = false;
+        for ( T v : this ) {
+            if ( needsSeparator ) {
+                buf.append( separator );
+            } else {
+                needsSeparator = true;
+            }
+
+            buf.append( v.toString() );
+        }
+
+        return buf.toString();
+    }
+
+    public Iterator<T> iterator() {
+        return new Iterator<T>() {
+            private ConsList<T> pos = ConsList.this;
+
+            public boolean hasNext() {
+                return !pos.isEmpty();
+            }
+
+            public T next() {
+                T v = pos.head();
+
+                pos = pos.tail();
+
+                return v;
+            }
+
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
+    }
+
     private static class NilNode<T> extends ConsList<T> {
 
         public T head() {
@@ -106,8 +150,8 @@ public abstract class ConsList<T> {
             return true;
         }
 
-        public <B> ConsList<T> map( Function1<T,B> mappingFunction ) {
-            return this;
+        public <B> ConsList<B> map( Function1<T,B> mappingFunction ) {
+            return (ConsList<B>) this;
         }
 
         public <B> Nullable<B> mapSingleValue( Function1<T,Nullable<B>> mappingFunction ) {
@@ -162,7 +206,7 @@ public abstract class ConsList<T> {
             return false;
         }
 
-        public <B> ConsList<T> map( Function1<T,B> mappingFunction ) {
+        public <B> ConsList<B> map( Function1<T,B> mappingFunction ) {
             return new ElementNode( mappingFunction.invoke(head), tail.map(mappingFunction) );
         }
 

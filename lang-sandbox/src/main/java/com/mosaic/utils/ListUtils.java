@@ -13,6 +13,16 @@ import java.util.*;
 @SuppressWarnings("unchecked")
 public class ListUtils {
 
+    public static <T> List<T> asList( Iterable<T> it ) {
+        List<T> list = new ArrayList();
+
+        for ( T v : it ) {
+            list.add( v );
+        }
+
+        return list;
+    }
+
     public static <T> Nullable<T> firstMatch( List<T> list, Function1<T,Boolean> predicateFunction ) {
         for ( T e : list ) {
             if ( predicateFunction.invoke(e) ) {

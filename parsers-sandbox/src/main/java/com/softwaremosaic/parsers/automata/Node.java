@@ -1,11 +1,16 @@
 package com.softwaremosaic.parsers.automata;
 
+import com.mosaic.collections.ConsList;
+import com.mosaic.collections.FastStack;
+import com.mosaic.collections.InitialValueMap;
 import com.mosaic.collections.KV;
 import com.mosaic.lang.Validate;
 import com.mosaic.lang.functional.Function1;
+import com.mosaic.lang.functional.VoidFunction1;
 import com.mosaic.utils.ListUtils;
 
 import java.util.*;
+
 
 /**
  * A Node within a Finite State Automata.  Transitions between nodes are made
@@ -37,9 +42,9 @@ public class Node {
         return label;
     }
 
-    public void setLabel(String label) {
-        this.label = label;
-    }
+//    public void setLabel(String label) {
+//        this.label = label;
+//    }
 
     /**
      * Creates a new transition for the specified character.  If a transition
@@ -61,8 +66,7 @@ public class Node {
 
         List<Node> nextNodesByLabel = ListUtils.filter( nextNodes, new Function1<Node, Boolean>() {
             public Boolean invoke(Node n) {
-                boolean equals = Objects.equals(newLabel, n.getLabel());
-                return equals;
+                return Objects.equals(newLabel, n.getLabel());
             }
         });
 
@@ -142,11 +146,6 @@ public class Node {
             });
 
             currentNodes = ListUtils.flatten( nextNodes );
-//            currentNodes = ListUtils.filterNot(currentNodes, new Function1<Node, Boolean>() {
-//                public Boolean invoke( Node n ) {
-//                    return n.isTerminal();
-//                }
-//            });
         }
 
         return new Nodes(currentNodes);
@@ -163,6 +162,19 @@ public class Node {
         }
 
         return out;
+    }
+
+    private Map<Node,Set<Character>> getDestinationsGroupedByCharacters() {
+        Map<Node,Set<Character>> map = InitialValueMap.identityMapOfSets();
+
+        for ( Map.Entry<Character,List<Node>> e : edges.entrySet() ) {
+            for ( Node n : e.getValue() ) {
+                Set<Character> charactersSoFar = map.get(n);
+                charactersSoFar.add( e.getKey() );
+            }
+        }
+
+        return map;
     }
 
     public String toString() {
@@ -201,7 +213,13 @@ public class Node {
         return this;
     }
 
-    private void appendEdge( char c, Node node ) {
+    void appendEdge( char c, Nodes nodes ) {
+        for ( Node n : nodes ) {
+            appendEdge( c, n );
+        }
+    }
+
+    void appendEdge( char c, Node node ) {
         List<Node> nextNodes = touchEdges(c);
 
         nextNodes.add( node );
@@ -211,14 +229,15 @@ public class Node {
         Nodes pos = new Nodes(this);
 
         int regexpLength = regexp.length();
-        for ( int i=0; i< regexpLength; i++ ) {
+        for ( int i=0; i < regexpLength; i++ ) {
             char lc = Character.toLowerCase(regexp.charAt(i));
             char uc = Character.toUpperCase(lc);
 
-            pos.appendCharacter(lc);  // todo don't repeat nodes
-            pos.appendCharacter(uc);
+            Node next = newNode(this.label);
+            pos.appendEdge(lc, next);
+            pos.appendEdge(uc, next);
 
-            pos = pos.getOutNodes();
+            pos = new Nodes(next);
         }
 
         return pos;
@@ -233,6 +252,87 @@ public class Node {
         }
 
         return new Nodes(outNodes);
+    }
+
+    /**
+     * Walks the graph calling the specified callbackFunction for each node past,
+     * as they are past.  The traversal will take the edges sorted by the traversal
+     * characters (lowest first) and grouped so that a traversal to the same node will
+     * not be repeated.<p/>
+     *
+     * The call to the callback function supplies the path walked so far.  The
+     * first not will have an empty set of characters, then for each traversal
+     * taken a set of characters for that edge (or edges if more than one) that
+     * lead to the next node.
+     */
+    public void depthFirstPrefixTraversal( VoidFunction1<ConsList<KV<Set<Character>,Node>>> callbackFunction ) {
+        DepthFirstTraverser t = new DepthFirstTraverser(this);
+
+        for ( ConsList<KV<Set<Character>,Node>> path : t ) {
+            callbackFunction.invoke( path );
+        }
+    }
+
+
+    private static class DepthFirstTraverser implements Iterable<ConsList<KV<Set<Character>,Node>>> {
+
+        private Set<Node>                                    nodesVisitedSoFar = new HashSet();
+        private FastStack<ConsList<KV<Set<Character>,Node>>> pathsYetToVisit   = new FastStack();
+
+
+        public DepthFirstTraverser(Node startingNode) {
+            pathsYetToVisit.push(ConsList.newConsList(new KV<Set<Character>, Node>(Collections.EMPTY_SET, startingNode)));
+        }
+
+        @Override
+        public Iterator<ConsList<KV<Set<Character>, Node>>> iterator() {
+            return new Iterator<ConsList<KV<Set<Character>, Node>>>() {
+                public boolean hasNext() {
+                    return !pathsYetToVisit.isEmpty();
+                }
+
+                public ConsList<KV<Set<Character>, Node>> next() {
+                    ConsList<KV<Set<Character>,Node>> pathSoFar = pathsYetToVisit.pop();
+                    Node                              nextNode  = pathSoFar.head().getValue();
+
+                    scheduleOutEdgesFrom( nextNode, pathSoFar );
+
+                    return pathSoFar;
+                }
+
+                private void scheduleOutEdgesFrom(Node nextNode, ConsList<KV<Set<Character>, Node>> pathUpToNode) {
+                    boolean alreadyVisited = !nodesVisitedSoFar.add(nextNode);
+                    if ( alreadyVisited ) {
+                        return;
+                    }
+
+
+                    Map<Node,Set<Character>> edges = nextNode.getDestinationsGroupedByCharacters();
+
+                    for ( Map.Entry<Node,Set<Character>> e : sortEdges(edges) ) {
+                        KV<Set<Character>,Node> newEdge = new KV( e.getValue(), e.getKey() );
+                        pathsYetToVisit.push(pathUpToNode.cons(newEdge));
+                    }
+                }
+
+                public void remove() {
+                    throw new UnsupportedOperationException();
+                }
+
+                private List<Map.Entry<Node,Set<Character>>> sortEdges( Map<Node,Set<Character>> edges ) {
+                    List<Map.Entry<Node, Set<Character>>> entries = ListUtils.asList(edges.entrySet());
+
+                    Collections.sort( entries, new Comparator<Map.Entry<Node, Set<Character>>>() {
+                        public int compare( Map.Entry<Node, Set<Character>> a, Map.Entry<Node, Set<Character>> b ) {
+                            return b.getValue().iterator().next() - a.getValue().iterator().next();
+                        }
+                    });
+
+                    return entries;
+                }
+
+            };
+        }
     }
 
 }

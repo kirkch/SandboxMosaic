@@ -258,6 +258,40 @@ public class ConsListTest {
     }
 
 
+// JOIN
+
+
+
+    @Test
+    public void givenEmptyList_join_expectEmptyString() {
+        ConsList a = ConsList.Nil;
+
+        assertEquals( "", a.join(",") );
+    }
+
+    @Test
+    public void givenSingleElementList_join_expectSingleElement() {
+        ConsList a = ConsList.Nil.cons('a');
+
+        assertEquals( "a", a.join(",") );
+    }
+
+    @Test
+    public void givenTwoElementList_join_expectTwoElements() {
+        ConsList a = ConsList.Nil.cons('a').cons('b');
+
+        assertEquals( "b,a", a.join(",") );
+    }
+
+    @Test
+    public void givenThreeElementList_join_expectThreeElements() {
+        ConsList a = ConsList.Nil.cons('a').cons('b').cons('c');
+
+        assertEquals( "c,b,a", a.join(",") );
+    }
+
+
+
     private <T> void assertConsListEquals( ConsList<T> list, T...expectedValues ) {
         ConsList<T> listSoFar = list;
 

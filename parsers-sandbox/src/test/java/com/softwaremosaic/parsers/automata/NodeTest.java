@@ -257,6 +257,28 @@ public class NodeTest {
         assertEquals( 0, start.walk("Heo").size() );
     }
 
+    @Test
+    public void givenNodeContainingRegExp_expectUpperLowercaseTransitionToShareTheSameNode() {
+        Node start     = new Node("l1");
+        start.appendRegexpIC( "hello" );
+
+        Node n1 = start.walk('h').get(0);
+        Node n2 = start.walk('H').get(0);
+
+        assertSame( n1, n2 );
+    }
+
+//    @Test
+//    public void givenBlankNode_appendRegexpICZeroOrMore() {
+//        Node start     = new Node("l1");
+//        start.appendRegexpIC( "a*" );
+//
+//        Node n1 = start.walk('h').get(0);
+//        Node n2 = start.walk('H').get(0);
+//
+//        assertSame( n1, n2 );
+//    }
+
     // a*
     // abc*
     // a+

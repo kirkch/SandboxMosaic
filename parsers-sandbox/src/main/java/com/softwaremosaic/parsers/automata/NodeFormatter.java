@@ -1,0 +1,167 @@
+package com.softwaremosaic.parsers.automata;
+
+import com.mosaic.collections.ConsList;
+import com.mosaic.collections.KV;
+import com.mosaic.lang.Validate;
+import com.mosaic.lang.functional.Function1;
+import com.mosaic.lang.functional.VoidFunction1;
+import com.mosaic.utils.ListUtils;
+import com.mosaic.utils.StringUtils;
+import com.softwaremosaic.parsers.automata.regexp.RegExpCharacterUtils;
+
+import java.util.*;
+
+/**
+ * Encodes a graph of nodes into lines of text.
+ *
+ * Format:
+ *
+ * '[label]: nodeNumber -(chars)-> nodeNumber[t]
+ *
+ * The nodes are numbered from 1, in the order that they are traversed.  The
+ * traversal order is depth first, in ascending order of the characters on each
+ * edge.
+ */
+@SuppressWarnings("unchecked")
+public class NodeFormatter {
+
+    public List<String> format( Node startingNode ) {
+        Validate.notNull( startingNode, "startingNode" );
+
+        final List<String> formattedGraph = new ArrayList();
+
+        startingNode.depthFirstPrefixTraversal(
+                new VoidFunction1<ConsList<KV<Set<Character>, Node>>>() {
+                    public void invoke( ConsList<KV<Set<Character>, Node>> path ) {
+                        if ( path.head().getValue().isTerminal() ) {
+                            appendPath( path.reverse(), formattedGraph );
+                        }
+                    }
+                }
+        );
+
+        return blankOutRepeatedPrefixes( formattedGraph );
+    }
+
+    private List<String> blankOutRepeatedPrefixes( List<String> formattedGraph ) {
+        return ListUtils.map(formattedGraph, new Function1<String, String>() {
+            private String previousLine = null;
+
+            public String invoke( String currentLine ) {
+                String modifiedLine = blankOutCommonPrefix(previousLine, currentLine);
+
+                previousLine = currentLine;
+
+                return modifiedLine;
+            }
+
+            private String blankOutCommonPrefix( String a, String b ) {
+                if ( a == null ) {
+                    return b;
+                }
+
+                int toExc = commonPrefixUpToEdge(a, b);
+                if ( toExc == 0 ) {
+                    return b;
+                }
+
+                int endOfLabelIndex = b.indexOf(':')+1;
+                if ( toExc < endOfLabelIndex ) {  // prevent truncation of similar labels
+                    return b;
+                }
+
+                StringBuilder buf = new StringBuilder(b.length());
+                StringUtils.repeat( buf, toExc, ' ' );
+                buf.append( b.substring(toExc) );
+
+                return buf.toString();
+            }
+
+            /**
+             * Given two strings, compares them in order and identifies the index of
+             * the first char that does not match.  It then back tracks to ' -',
+             * which marks the last edge transition in the string.
+             */
+            private int commonPrefixUpToEdge( String a, String b ) {
+                int sharedPrefixEndExc = StringUtils.endIndexExcOfCommonPrefix(a, b);
+
+                int i = sharedPrefixEndExc;
+                while ( i > 0 ) {
+                    if ( b.charAt(i) == '-' && b.charAt(i-1) == ' ' ) {
+                        return i;
+                    }
+
+                    i--;
+                }
+
+                return sharedPrefixEndExc;
+            }
+        });
+    }
+
+
+    private Function1<Node,String> nodeLabeler = new Function1<Node, String>() {
+        private Map<Node,String> existingLabels = new IdentityHashMap<>();
+        private long             nextLabel      = 1;
+
+        public String invoke( Node node ) {
+            String label = existingLabels.get(node);
+            if ( label == null ) {
+                label = Long.toString(nextLabel++);
+
+                if ( node.isTerminal() ) {
+                    label += "t";
+                }
+
+                existingLabels.put( node, label );
+            }
+
+            return label;
+        }
+    };
+
+    private void appendPath( ConsList<KV<Set<Character>, Node>> path, List<String> formattedGraph ) {
+        Node startingNode = path.head().getValue();
+
+        StringBuilder buf = new StringBuilder();
+
+        String firstLabel = startingNode.getLabel();
+        if ( firstLabel != null ) {
+            buf.append( firstLabel );
+            buf.append(": ");
+        }
+
+
+        for ( KV<Set<Character>,Node> step : path ) {
+            Set<Character> characters = step.getKey();
+            Node           node       = step.getValue();
+
+            // when labels do not match, split the path across multiple lines
+            if ( !Objects.equals(firstLabel,node.getLabel()) ) {
+                String line = buf.toString();
+
+                formattedGraph.add(line);
+
+                buf.setLength(0);
+
+                buf.append(node.getLabel());
+                buf.append(':');
+
+                StringUtils.repeat( buf, line.length()-node.getLabel().length()-1, ' ' );
+
+                firstLabel = node.getLabel();
+            }
+
+            if ( !characters.isEmpty() ) {
+                buf.append( " -" );
+                RegExpCharacterUtils.formatCharacters(buf, characters);
+                buf.append( "-> " );
+            }
+
+            buf.append(nodeLabeler.invoke(node));
+        }
+
+        formattedGraph.add( buf.toString() );
+    }
+
+}

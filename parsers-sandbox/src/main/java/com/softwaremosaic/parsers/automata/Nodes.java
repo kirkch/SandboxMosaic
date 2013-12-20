@@ -95,4 +95,9 @@ public class Nodes extends AbstractList<Node> {
         return new Nodes(outNodes);
     }
 
+    public void appendEdge( char c, Node next ) {
+        for ( Node n : nodes ) {
+            n.appendEdge( c, next );
+        }
+    }
 }
