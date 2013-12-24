@@ -6,7 +6,7 @@ import com.mosaic.collections.InitialValueMap;
 import com.mosaic.collections.KV;
 import com.mosaic.lang.Validate;
 import com.mosaic.lang.functional.Function1;
-import com.mosaic.lang.functional.VoidFunction1;
+import com.mosaic.lang.functional.VoidFunction2;
 import com.mosaic.utils.ListUtils;
 
 import java.util.*;
@@ -116,6 +116,30 @@ public class Node {
     }
 
     /**
+     * Scan this nodes out edges for the transition with character c to a specified
+     * destination node, then replace the node with a replacement.
+     */
+    public int replace( char c, Node expectedCurrentNode, Node replacementNode ) {
+        List<Node> destinationNodes = edges.get(c);
+        if ( destinationNodes == null ) {
+            return 0;
+        }
+
+
+        int count = 0;
+        for ( int i=0; i<destinationNodes.size(); i++ ) {
+            if ( destinationNodes.get(i) == expectedCurrentNode ) {
+                destinationNodes.set( i, replacementNode );
+
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+
+    /**
      * Retrieves the nodes that can be transitioned to by consuming the specified
      * character.  If there are no edges, then an empty list will be returned.
      */
@@ -213,13 +237,13 @@ public class Node {
         return this;
     }
 
-    void appendEdge( char c, Nodes nodes ) {
+    public void appendEdge( char c, Nodes nodes ) {
         for ( Node n : nodes ) {
             appendEdge( c, n );
         }
     }
 
-    void appendEdge( char c, Node node ) {
+    public void appendEdge( char c, Node node ) {
         List<Node> nextNodes = touchEdges(c);
 
         nextNodes.add( node );
@@ -260,47 +284,86 @@ public class Node {
      * characters (lowest first) and grouped so that a traversal to the same node will
      * not be repeated.<p/>
      *
-     * The call to the callback function supplies the path walked so far.  The
-     * first not will have an empty set of characters, then for each traversal
+     * The call to the callback function supplies the path walked so far and
+     * a boolean which will be true if the path has reached the last node in the
+     * traversal before it backtracks to another path.<p/>
+     *
+     * The first path will have an empty set of characters, then for each traversal
      * taken a set of characters for that edge (or edges if more than one) that
      * lead to the next node.
      */
-    public void depthFirstPrefixTraversal( VoidFunction1<ConsList<KV<Set<Character>,Node>>> callbackFunction ) {
+    public void depthFirstPrefixTraversal( VoidFunction2<ConsList<KV<Set<Character>,Node>>, Boolean> callbackFunction ) {
         DepthFirstTraverser t = new DepthFirstTraverser(this);
 
-        for ( ConsList<KV<Set<Character>,Node>> path : t ) {
-            callbackFunction.invoke( path );
+        for ( Path path : t ) {
+            callbackFunction.invoke( path.edges, path.isEndOfPath );
         }
     }
 
+    private static class Path {
 
-    private static class DepthFirstTraverser implements Iterable<ConsList<KV<Set<Character>,Node>>> {
+        public static Path create( Path pathUpToNode, Set<Character> characters, Node destinationNode, Set<Node> alreadyVisitedNodes ) {
+            boolean isEndOfPath = destinationNode.isTerminal() || alreadyVisitedNodes.contains(destinationNode);
 
-        private Set<Node>                                    nodesVisitedSoFar = new HashSet();
-        private FastStack<ConsList<KV<Set<Character>,Node>>> pathsYetToVisit   = new FastStack();
+            return new Path( pathUpToNode, characters, destinationNode, isEndOfPath );
+        }
+
+
+
+        private ConsList<KV<Set<Character>,Node>> edges;
+        private boolean                           isEndOfPath;
+
+        public Path( ConsList<KV<Set<Character>, Node>> edges, boolean isEndOfPath ) {
+            this.edges       = edges;
+            this.isEndOfPath = isEndOfPath;
+        }
+
+        public Path( Path pathUpToNode, Set<Character> characters, Node destinationNode, boolean isEndOfPath ) {
+            assert !pathUpToNode.isEndOfPath : "cannot extend a path that is already marked as complete";
+
+            KV<Set<Character>,Node> newEdge = new KV( characters, destinationNode );
+
+            this.edges       = pathUpToNode.edges.cons(newEdge);
+            this.isEndOfPath = isEndOfPath;
+        }
+
+        public Node getDestinationNode() {
+            return edges.head().getValue();
+        }
+    }
+
+    private static class DepthFirstTraverser implements Iterable<Path> {
+
+        private Set<Node>       nodesVisitedSoFar = new HashSet();
+        private FastStack<Path> pathsYetToVisit   = new FastStack();
 
 
         public DepthFirstTraverser(Node startingNode) {
-            pathsYetToVisit.push(ConsList.newConsList(new KV<Set<Character>, Node>(Collections.EMPTY_SET, startingNode)));
+            Path path = new Path(
+                    ConsList.newConsList(new KV<Set<Character>, Node>(Collections.EMPTY_SET, startingNode)),
+                    startingNode.isTerminal()
+            );
+
+            pathsYetToVisit.push(path);
         }
 
         @Override
-        public Iterator<ConsList<KV<Set<Character>, Node>>> iterator() {
-            return new Iterator<ConsList<KV<Set<Character>, Node>>>() {
+        public Iterator<Path> iterator() {
+            return new Iterator<Path>() {
                 public boolean hasNext() {
                     return !pathsYetToVisit.isEmpty();
                 }
 
-                public ConsList<KV<Set<Character>, Node>> next() {
-                    ConsList<KV<Set<Character>,Node>> pathSoFar = pathsYetToVisit.pop();
-                    Node                              nextNode  = pathSoFar.head().getValue();
+                public Path next() {
+                    Path pathSoFar = pathsYetToVisit.pop();
 
-                    scheduleOutEdgesFrom( nextNode, pathSoFar );
+                    scheduleOutEdgesFrom( pathSoFar );
 
                     return pathSoFar;
                 }
 
-                private void scheduleOutEdgesFrom(Node nextNode, ConsList<KV<Set<Character>, Node>> pathUpToNode) {
+                private void scheduleOutEdgesFrom( Path pathUpToNode ) {
+                    Node nextNode  = pathUpToNode.getDestinationNode();
                     boolean alreadyVisited = !nodesVisitedSoFar.add(nextNode);
                     if ( alreadyVisited ) {
                         return;
@@ -310,8 +373,7 @@ public class Node {
                     Map<Node,Set<Character>> edges = nextNode.getDestinationsGroupedByCharacters();
 
                     for ( Map.Entry<Node,Set<Character>> e : sortEdges(edges) ) {
-                        KV<Set<Character>,Node> newEdge = new KV( e.getValue(), e.getKey() );
-                        pathsYetToVisit.push(pathUpToNode.cons(newEdge));
+                        pathsYetToVisit.push( Path.create(pathUpToNode, e.getValue(), e.getKey(), nodesVisitedSoFar));
                     }
                 }
 
@@ -333,6 +395,7 @@ public class Node {
 
             };
         }
+
     }
 
 }

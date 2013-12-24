@@ -17,7 +17,7 @@ public class ConstantOp extends AutomataOp {
         this.caseSensitivity = caseSensitivity;
     }
 
-    public void appendTo( String label, Node startNode ) {
+    public Nodes appendTo( String label, Node startNode ) {
         int max = constant.length();
 
         Nodes n = new Nodes(startNode);
@@ -37,6 +37,8 @@ public class ConstantOp extends AutomataOp {
                 n = n.appendCharacter( label, c );
             }
         }
+
+        return n;
     }
 
 }

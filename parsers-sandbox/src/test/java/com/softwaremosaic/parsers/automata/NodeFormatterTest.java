@@ -137,4 +137,22 @@ public class NodeFormatterTest {
         assertEquals(expected, formattedGraph );
     }
 
+    @Test
+    public void formatNodeThatLoopsBackToItself() {
+        Node startingNode = new Node("l1");
+
+        startingNode.appendEdge('a', startingNode);
+
+
+        List<String> formattedGraph = formatter.format(startingNode);
+
+        List<String> expected = Arrays.asList(
+                "l1: 1 -a-> 1"
+        );
+
+        assertEquals(expected, formattedGraph );
+    }
+
+
+    // cycles
 }

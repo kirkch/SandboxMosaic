@@ -1,6 +1,7 @@
 package com.softwaremosaic.parsers.automata.regexp;
 
 import com.softwaremosaic.parsers.automata.Node;
+import com.softwaremosaic.parsers.automata.Nodes;
 
 /**
  * Grow an automata in a defined way.  Appends a series of transitions to
@@ -23,6 +24,14 @@ public abstract class AutomataOp {
         appendTo( startNode.getLabel(), startNode );
     }
 
-    public abstract void appendTo( String label, Node startNode );
+    /**
+     * Append this op to the specified node.
+     *
+     * @return the end nodes of this operation.  For example if node 1 was that
+     * start node, and this op created and linked to node 2 and then node to node
+     * 3 and then stopped.  Then node 3 would be the result, and the intermediate
+     * node 2 would be silently hidden within the graph.
+     */
+    public abstract Nodes appendTo( String label, Node startNode );
 
 }

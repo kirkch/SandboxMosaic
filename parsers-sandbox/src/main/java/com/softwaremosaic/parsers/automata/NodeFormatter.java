@@ -5,6 +5,7 @@ import com.mosaic.collections.KV;
 import com.mosaic.lang.Validate;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.VoidFunction1;
+import com.mosaic.lang.functional.VoidFunction2;
 import com.mosaic.utils.ListUtils;
 import com.mosaic.utils.StringUtils;
 import com.softwaremosaic.parsers.automata.regexp.RegExpCharacterUtils;
@@ -31,9 +32,9 @@ public class NodeFormatter {
         final List<String> formattedGraph = new ArrayList();
 
         startingNode.depthFirstPrefixTraversal(
-                new VoidFunction1<ConsList<KV<Set<Character>, Node>>>() {
-                    public void invoke( ConsList<KV<Set<Character>, Node>> path ) {
-                        if ( path.head().getValue().isTerminal() ) {
+                new VoidFunction2<ConsList<KV<Set<Character>, Node>>,Boolean>() {
+                    public void invoke( ConsList<KV<Set<Character>, Node>> path, Boolean isLeaf ) {
+                        if ( isLeaf ) {
                             appendPath( path.reverse(), formattedGraph );
                         }
                     }

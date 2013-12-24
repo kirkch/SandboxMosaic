@@ -242,6 +242,83 @@ public class NodeTest {
         assertEquals( endNode, node.walk("  \tfoo") );
     }
 
+// replaceNode
+
+    @Test
+    public void givenBlankNode_replaceNode_expectNoChange() {
+        Node n = new Node();
+
+        assertEquals( 0, n.replace('a', new Node("l1"), new Node("l2")) );
+    }
+
+    @Test
+    public void givenNodeWithOneEdge_replaceNodeWithNoMatch_expectNoChange() {
+        Node n1 = new Node("l1");
+        Node n2 = new Node("l2");
+        Node n3 = new Node("l3");
+
+        n1.appendEdge('a', n2);
+
+        assertEquals( 0, n1.replace('a', new Node("l2"), n3) );
+        assertSame(n2, n1.walk('a').get(0));
+    }
+
+    @Test
+    public void givenNodeWithOneEdge_replaceNodeWithMatch_expectOneChange() {
+        Node n1 = new Node("l1");
+        Node n2 = new Node("l2");
+        Node n3 = new Node("l3");
+
+        n1.appendEdge('a', n2);
+
+        int numNodesReplaced = n1.replace('a', n2, n3);
+        assertEquals( 1, numNodesReplaced );
+        assertSame( n3, n1.walk('a').get(0) );
+    }
+
+    @Test
+    public void givenNodeWithTwoEdges_replaceNodeWithOneMatchOneCharMismatch_expectOneChange() {
+        Node n1 = new Node("l1");
+        Node n2 = new Node("l2");
+        Node n3 = new Node("l3");
+
+        n1.appendEdge('a', n2);
+        n1.appendEdge('b', n2);
+
+        int numNodesReplaced = n1.replace('a', n2, n3);
+        assertEquals( 1, numNodesReplaced );
+        assertSame( n3, n1.walk('a').get(0) );
+    }
+
+    @Test
+    public void givenNodeWithTwoEdges_replaceNodeWithOneMatchAndOneNodeMismatch_expectOneChange() {
+        Node n1 = new Node("l1");
+        Node n2 = new Node("l2");
+        Node n3 = new Node("l3");
+
+        n1.appendEdge('a', n2);
+        n1.appendEdge('a', n3);
+
+        int numNodesReplaced = n1.replace('a', n2, n3);
+        assertEquals( 1, numNodesReplaced );
+        assertSame( n3, n1.walk('a').get(0) );
+    }
+
+    @Test
+    public void givenNodeWithTwoEdges_replaceNodeWithTwoMatches_expectOneChange() {
+        Node n1 = new Node("l1");
+        Node n2 = new Node("l2");
+        Node n3 = new Node("l3");
+
+        n1.appendEdge('a', n2);
+        n1.appendEdge('a', n2);
+
+        int numNodesReplaced = n1.replace('a', n2, n3);
+        assertEquals( 2, numNodesReplaced );
+        assertSame( n3, n1.walk('a').get(0) );
+    }
+
+
 // appendRegexpIC
 
     @Test
@@ -265,7 +342,7 @@ public class NodeTest {
         Node n1 = start.walk('h').get(0);
         Node n2 = start.walk('H').get(0);
 
-        assertSame( n1, n2 );
+        assertSame(n1, n2);
     }
 
 //    @Test

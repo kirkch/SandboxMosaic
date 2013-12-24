@@ -39,7 +39,7 @@ public class CSVColumnValueMatcherBenchmark {
 1091.28ns
  */
 
-    @Benchmark( durationResultMultiplier=0.25 )
+//    @Benchmark( durationResultMultiplier=0.25 )
     public void benchmark() {
         buf.position(0);
 
