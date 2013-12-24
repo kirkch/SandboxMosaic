@@ -60,8 +60,25 @@ public class ZeroOrMoreOpTest {
         assertGraphEquals( n1, expected );
     }
 
+    @Test
+    public void givenBlankStartingNode_appendAorBWithDifferentEdges_expectBothAAndBToLoopBack() {
+        Node n1  = new Node("l1");
+        Node n2  = new Node("l1");
+        AutomataOp op = new ZeroOrMoreOp( new OrOp(new ConstantOp("a", CaseSensitive), new ConstantOp("b", CaseSensitive)) );
+
+        n1.appendEdge( 'a', n2 );
+        op.appendTo( "l1", n2 );
+
+
+        String[] expected = new String[] {
+                "l1: 1 -a-> 2 -[ab]-> 2"
+        };
+
+        assertGraphEquals( n1, expected );
+    }
+
 
     // givenBlankStartingNode_appendAB_expectABThenLoopBack
-    // givenBlankStartingNode_appendAorBWithDifferentEdges_expectBothAAndBToLoopBack
+    //
 
 }

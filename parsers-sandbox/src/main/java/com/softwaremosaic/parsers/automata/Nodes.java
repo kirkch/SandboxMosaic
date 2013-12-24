@@ -14,6 +14,10 @@ public class Nodes extends AbstractList<Node> {
 
     private List<Node> nodes;
 
+    public Nodes() {
+        this( new ArrayList() );
+    }
+
     public Nodes( Node node ) {
         this( Arrays.asList(node) );
     }
@@ -32,6 +36,10 @@ public class Nodes extends AbstractList<Node> {
 
     public int size() {
         return nodes.size();
+    }
+
+    public void add(int index, Node element) {
+        nodes.add( index,element );
     }
 
     public Nodes walk( char c ) {
@@ -97,7 +105,7 @@ public class Nodes extends AbstractList<Node> {
 
     public void appendEdge( char c, Node next ) {
         for ( Node n : nodes ) {
-            n.appendEdge( c, next );
+            n.appendEdge(c, next);
         }
     }
 }
