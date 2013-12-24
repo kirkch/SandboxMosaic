@@ -8,11 +8,10 @@ import com.softwaremosaic.parsers.automata.Nodes;
 
 import java.util.Set;
 
-
 /**
  *
  */
-public class ZeroOrMoreOp extends AutomataOp {
+public class OneOrMoreOp extends AutomataOp {
 
     private AutomataOp opToRepeat;
 
@@ -20,14 +19,17 @@ public class ZeroOrMoreOp extends AutomataOp {
      *
      * @param op the op to repeat
      */
-    public ZeroOrMoreOp( AutomataOp op ) {
+    public OneOrMoreOp( AutomataOp op ) {
         opToRepeat = op;
     }
 
 
 
-    public Nodes appendTo( String label, final Node startNode ) {
-        final Nodes endNodes = opToRepeat.appendTo( label, startNode );
+    public Nodes appendTo( String label, Node startNode ) {
+        final Nodes afterFirstStepNodes = opToRepeat.appendTo( label, startNode );
+
+
+        final Nodes endNodes = opToRepeat.appendTo( label, afterFirstStepNodes );
 
         startNode.depthFirstPrefixTraversal(new VoidFunction2<ConsList<KV<Set<Character>,Node>>, Boolean>() {
             public void invoke( ConsList<KV<Set<Character>, Node>> path, Boolean isEndOfPath ) {
@@ -36,7 +38,7 @@ public class ZeroOrMoreOp extends AutomataOp {
                     for ( char c : path.head().getKey() ) {
                         Node sourceNode = path.tail().head().getValue();
 
-                        sourceNode.replace( c, visiting, startNode );
+                        sourceNode.replace( c, visiting, afterFirstStepNodes );
                     }
                 }
             }
@@ -45,5 +47,4 @@ public class ZeroOrMoreOp extends AutomataOp {
 
         return new Nodes(startNode);
     }
-
 }

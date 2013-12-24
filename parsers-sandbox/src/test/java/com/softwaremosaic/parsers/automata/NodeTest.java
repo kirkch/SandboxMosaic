@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
+import static com.softwaremosaic.parsers.automata.GraphAssertions.assertGraphEquals;
 import static org.junit.Assert.*;
 
 
@@ -273,7 +274,7 @@ public class NodeTest {
 
         int numNodesReplaced = n1.replace('a', n2, n3);
         assertEquals( 1, numNodesReplaced );
-        assertSame( n3, n1.walk('a').get(0) );
+        assertSame(n3, n1.walk('a').get(0));
     }
 
     @Test
@@ -287,7 +288,7 @@ public class NodeTest {
 
         int numNodesReplaced = n1.replace('a', n2, n3);
         assertEquals( 1, numNodesReplaced );
-        assertSame( n3, n1.walk('a').get(0) );
+        assertSame(n3, n1.walk('a').get(0));
     }
 
     @Test
@@ -318,6 +319,38 @@ public class NodeTest {
         assertSame( n3, n1.walk('a').get(0) );
     }
 
+
+// removeEdge
+
+    @Test
+    public void givenBlankNode_removeEdge_expectNoChange() {
+        Node n1 = new Node("l1");
+        Node n2 = new Node("l2");
+
+        int numEdgesRemoved = n1.removeEdge('a', n2);
+
+        assertEquals(0, numEdgesRemoved);
+
+        assertGraphEquals( n1, "l1: 1t" );
+    }
+
+    @Test
+    public void givenNodeWithTwoOutEdgesForSameChar_removeOneEdge_expectOneEdgeLeft() {
+        Node n1 = new Node("l1");
+        Node n2 = new Node("l1");
+        Node n3 = new Node("l1");
+
+        n1.appendEdge( 'a', n2 );
+        n1.appendEdge( 'a', n3 );
+
+        int numEdgesRemoved = n1.removeEdge('a', n2);
+
+        assertEquals(1, numEdgesRemoved);
+
+        assertGraphEquals( n1, "l1: 1 -a-> 2t" );
+
+        assertSame( n3, n1.getOutNodes().get(0) );
+    }
 
 // appendRegexpIC
 

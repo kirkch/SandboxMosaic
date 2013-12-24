@@ -138,6 +138,27 @@ public class Node {
         return count;
     }
 
+    public int replace( char c, Node expectedCurrentNode, Nodes replacementNodes ) {
+        int count = removeEdge( c, expectedCurrentNode );
+
+        if ( count > 0 ) {
+            appendEdge( c, replacementNodes );
+        }
+
+        return count;
+    }
+
+    public int removeEdge( char c, Node targetNode ) {
+        List<Node> destinationNodes = edges.get(c);
+        if ( destinationNodes == null ) {
+            return 0;
+        }
+
+        destinationNodes.remove(targetNode);
+
+        return 1;
+    }
+
 
     /**
      * Retrieves the nodes that can be transitioned to by consuming the specified

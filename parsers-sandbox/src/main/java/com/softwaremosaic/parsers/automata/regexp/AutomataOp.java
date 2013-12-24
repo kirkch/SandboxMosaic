@@ -34,4 +34,15 @@ public abstract class AutomataOp {
      */
     public abstract Nodes appendTo( String label, Node startNode );
 
+
+    public Nodes appendTo( String label, Nodes startNodes ) {
+        Nodes endNodes = new Nodes();
+
+        for ( Node n : startNodes ) {
+            endNodes.addAll(  this.appendTo(label, n)  );
+        }
+
+        return endNodes;
+    }
+
 }

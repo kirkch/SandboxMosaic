@@ -22,7 +22,7 @@ public class OrOpTest {
 
         assertGraphEquals( s,
                 "l1: 1 -a-> 2t",
-                "l1: 1 -b-> 3t"
+                "      -b-> 3t"
         );
 
         assertEquals( 2, endNodes.size() );
