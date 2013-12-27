@@ -13,4 +13,12 @@ public class Tuple2<V1,V2> {
         this.v2 = v2;
     }
 
+    public V1 getFirst() {
+        return v1;
+    }
+
+    public V2 getSecond() {
+        return v2;
+    }
+
 }

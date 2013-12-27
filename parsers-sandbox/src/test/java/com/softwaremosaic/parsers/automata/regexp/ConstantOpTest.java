@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import static com.softwaremosaic.parsers.automata.GraphAssertions.assertGraphEquals;
 import static com.softwaremosaic.parsers.automata.regexp.AutomataOp.CaseSensitivity.*;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -54,6 +55,24 @@ public class ConstantOpTest {
 
 
         assertGraphEquals( s, "l1: 1 -[Aa]-> 2 -[Bb]-> 3t" );
+    }
+
+
+
+// toString
+
+    @Test
+    public void givenCaseSensitive_toString_expectLowercaseString() {
+        AutomataOp op = new ConstantOp( "aB", CaseSensitive );
+
+        assertEquals( "aB", op.toString() );
+    }
+
+    @Test
+    public void givenCaseInsensitive_toString_expectLowerAndUppercaseString() {
+        AutomataOp op = new ConstantOp( "aB", CaseInsensitive );
+
+        assertEquals( "~ab", op.toString() );
     }
 
 }

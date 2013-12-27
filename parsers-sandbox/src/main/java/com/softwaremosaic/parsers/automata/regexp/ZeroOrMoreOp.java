@@ -46,4 +46,9 @@ public class ZeroOrMoreOp extends AutomataOp {
         return new Nodes(startNode);
     }
 
+
+    public String toString() {
+        return "(" + opToRepeat.toString() + ")*";
+    }
+
 }

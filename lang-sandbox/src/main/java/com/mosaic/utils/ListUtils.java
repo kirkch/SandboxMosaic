@@ -133,4 +133,25 @@ public class ListUtils {
         return result;
     }
 
+
+
+    /**
+     * Groups all of the elements of collection that match the predicate into
+     * the first list of the returned Pair.  Everything else goes into the second.
+     */
+    public static <T> Tuple2<List<T>, List<T>> partition( Iterable<T> collection, Function1<T, Boolean> predicate ) {
+        List<T> matches = new ArrayList<T>();
+        List<T> misses  = new ArrayList<T>();
+
+        for ( T v : collection ) {
+            if ( predicate.invoke(v) ) {
+                matches.add(v);
+            } else {
+                misses.add(v);
+            }
+        }
+
+        return new Tuple2( matches, misses );
+    }
+
 }

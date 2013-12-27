@@ -6,6 +6,7 @@ import org.junit.Test;
 import static com.softwaremosaic.parsers.automata.GraphAssertions.assertGraphEquals;
 import static com.softwaremosaic.parsers.automata.regexp.AutomataOp.CaseSensitivity.CaseInsensitive;
 import static com.softwaremosaic.parsers.automata.regexp.AutomataOp.CaseSensitivity.CaseSensitive;
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -81,4 +82,21 @@ public class ZeroOrMoreOpTest {
     // givenBlankStartingNode_appendAB_expectABThenLoopBack
     //
 
+
+
+// toString
+
+    @Test
+    public void givenConstantA_toString() {
+        AutomataOp op = new ZeroOrMoreOp( new ConstantOp("a", CaseSensitive) );
+
+        assertEquals( "(a)*", op.toString() );
+    }
+
+    @Test
+    public void givenAorBWithDifferentEdges_toString() {
+        AutomataOp op = new ZeroOrMoreOp( new OrOp(new ConstantOp("a", CaseSensitive), new ConstantOp("b", CaseSensitive)) );
+
+        assertEquals( "(a|b)*", op.toString() );
+    }
 }

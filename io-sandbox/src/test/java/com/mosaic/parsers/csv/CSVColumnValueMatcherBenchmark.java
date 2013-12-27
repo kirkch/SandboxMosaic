@@ -11,7 +11,7 @@ import java.nio.CharBuffer;
 /**
  *
  */
-@RunWith(JUnitMosaicRunner.class)
+//@RunWith(JUnitMosaicRunner.class)
 public class CSVColumnValueMatcherBenchmark {
 
     private CSVColumnValueMatcher matcher = new CSVColumnValueMatcher(',');

@@ -41,4 +41,20 @@ public class ConstantOp extends AutomataOp {
         return n;
     }
 
+    public String toString() {
+        if ( caseSensitivity.ignoreCase() ) {
+            return "~" + constant.toLowerCase();
+        } else {
+            return constant;
+        }
+    }
+
+    public boolean isCaseSensitive() {
+        return !caseSensitivity.ignoreCase();
+    }
+
+    public String getConstant() {
+        return constant;
+    }
+
 }
