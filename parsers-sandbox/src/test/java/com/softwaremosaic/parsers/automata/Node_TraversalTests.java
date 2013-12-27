@@ -3,41 +3,45 @@ package com.softwaremosaic.parsers.automata;
 import com.mosaic.collections.ConsList;
 import com.mosaic.collections.KV;
 import com.mosaic.lang.functional.Function1;
-import com.mosaic.lang.functional.VoidFunction1;
 import com.mosaic.lang.functional.VoidFunction2;
+import com.mosaic.utils.ListUtils;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
+
 /**
- *
- */
+*
+*/
+@SuppressWarnings("unchecked")
 public class Node_TraversalTests {
 
-    private Node                      startingNode     = new Node("s");
+    private Node<Character>           startingNode     = new ObjectNode();
     private TraversalAuditingCallback auditingCallback = new TraversalAuditingCallback();
 
+    
     @Test
     public void givenAnEmptyNode_traverse_expectOnlyOneCallback() {
         startingNode.depthFirstPrefixTraversal( auditingCallback );
 
-        assertEquals( Arrays.asList("([], s) [leaf]"), auditingCallback.callbacks );
+        assertEquals( Arrays.asList("[] [leaf]"), auditingCallback.callbacks );
     }
 
     @Test
     public void givenTwoNodesConnectedInSerial_traverse_expectTwoCallbacks() {
-        startingNode.appendCharacter("n2", 'a');
+        startingNode.append('a');
 
         startingNode.depthFirstPrefixTraversal( auditingCallback );
 
         List<String> expectedAudit = Arrays.asList(
-                "([], s)",
-                "([], s) -> ([a], n2) [leaf]"
+                "[]",
+                "[] -> [a] [leaf]"
         );
 
         assertEquals(expectedAudit, auditingCallback.callbacks );
@@ -45,15 +49,15 @@ public class Node_TraversalTests {
 
     @Test
     public void givenThreeNodesConnectedInSerial_traverse_expectThreeCallbacks() {
-        Nodes n2 = startingNode.appendCharacter("n2", 'a');
-        n2.appendCharacter("n3", 'b');
+        Nodes n2 = startingNode.append('a');
+        n2.append('b');
 
         startingNode.depthFirstPrefixTraversal( auditingCallback );
 
         List<String> expectedAudit = Arrays.asList(
-                "([], s)",
-                "([], s) -> ([a], n2)",
-                "([], s) -> ([a], n2) -> ([b], n3) [leaf]"
+                "[]",
+                "[] -> [a]",
+                "[] -> [a] -> [b] [leaf]"
         );
 
         assertEquals(expectedAudit, auditingCallback.callbacks );
@@ -61,14 +65,14 @@ public class Node_TraversalTests {
 
     @Test
     public void givenTwoNodesConnectedInSerialTwice_traverse_expectTwoCallbacks() {
-        Nodes n2 = startingNode.appendCharacter("n2", 'a');
-        startingNode.appendEdge('b', n2);
+        Nodes n2 = startingNode.append('a');
+        startingNode.append('b', n2);
 
         startingNode.depthFirstPrefixTraversal( auditingCallback );
 
         List<String> expectedAudit = Arrays.asList(
-                "([], s)",
-                "([], s) -> ([a, b], n2) [leaf]"
+                "[]",
+                "[] -> [a, b] [leaf]"
         );
 
         assertEquals(expectedAudit, auditingCallback.callbacks );
@@ -76,15 +80,15 @@ public class Node_TraversalTests {
 
     @Test
     public void givenTwoNodesConnectedThreeTimes_traverse_expectTwoCallbacks() {
-        Nodes n2 = startingNode.appendCharacter("n2", 'a');
-        startingNode.appendEdge('c', n2);
-        startingNode.appendEdge('b', n2);
+        Nodes n2 = startingNode.append('a');
+        startingNode.append('c', n2);
+        startingNode.append('b', n2);
 
         startingNode.depthFirstPrefixTraversal( auditingCallback );
 
         List<String> expectedAudit = Arrays.asList(
-                "([], s)",
-                "([], s) -> ([a, b, c], n2) [leaf]"
+                "[]",
+                "[] -> [a, b, c] [leaf]"
         );
 
         assertEquals(expectedAudit, auditingCallback.callbacks );
@@ -92,15 +96,15 @@ public class Node_TraversalTests {
 
     @Test
     public void givenTwoNodesConnectedInParallel_traverse_expectThreeCallbacks() {
-        startingNode.appendCharacter("n2", 'a');
-        startingNode.appendCharacter("n3", 'b');
+        startingNode.append('a');
+        startingNode.append('b');
 
         startingNode.depthFirstPrefixTraversal( auditingCallback );
 
         List<String> expectedAudit = Arrays.asList(
-                "([], s)",
-                "([], s) -> ([a], n2) [leaf]",
-                "([], s) -> ([b], n3) [leaf]"
+                "[]",
+                "[] -> [a] [leaf]",
+                "[] -> [b] [leaf]"
         );
 
         assertEquals(expectedAudit, auditingCallback.callbacks );
@@ -108,13 +112,13 @@ public class Node_TraversalTests {
 
     @Test
     public void givenNodeThatPointsToItself_traverse_expectTwoCallbacks() {
-        startingNode.appendEdge('a', startingNode);
+        startingNode.append('a', startingNode);
 
         startingNode.depthFirstPrefixTraversal( auditingCallback );
 
         List<String> expectedAudit = Arrays.asList(
-                "([], s)",
-                "([], s) -> ([a], s) [leaf]"
+                "[]",
+                "[] -> [a] [leaf]"
         );
 
         assertEquals(expectedAudit, auditingCallback.callbacks );
@@ -122,15 +126,15 @@ public class Node_TraversalTests {
 
     @Test
     public void givenTwoNodesThatCreateACycle_traverse_expectThreeCallbacks() {
-        Nodes n2 = startingNode.appendCharacter("n2", 'a');
-        n2.appendEdge('b', startingNode);
+        Nodes n2 = startingNode.append('a');
+        n2.append('b', startingNode);
 
         startingNode.depthFirstPrefixTraversal( auditingCallback );
 
         List<String> expectedAudit = Arrays.asList(
-                "([], s)",
-                "([], s) -> ([a], n2)",
-                "([], s) -> ([a], n2) -> ([b], s) [leaf]"
+                "[]",
+                "[] -> [a]",
+                "[] -> [a] -> [b] [leaf]"
         );
 
         assertEquals(expectedAudit, auditingCallback.callbacks );
@@ -139,13 +143,16 @@ public class Node_TraversalTests {
 
 
     @SuppressWarnings("unchecked")
-    private class TraversalAuditingCallback implements VoidFunction2<ConsList<KV<Set<Character>,Node>>,Boolean> {
+    private class TraversalAuditingCallback implements VoidFunction2<ConsList<KV<Set<Character>,Node<Character>>>,Boolean> {
         public List<String> callbacks = new ArrayList();
 
-        public void invoke( ConsList<KV<Set<Character>, Node>> traversedPath, Boolean isLeaf ) {
-            ConsList<String> nodesVisitedStr = traversedPath.map(new Function1<KV<Set<Character>, Node>, String>() {
-                public String invoke(KV<Set<Character>, Node> edge) {
-                    return "(" + edge.getKey() + ", " + edge.getValue().getLabel() + ")";
+        public void invoke( ConsList<KV<Set<Character>, Node<Character>>> traversedPath, Boolean isLeaf ) {
+            ConsList<String> nodesVisitedStr = traversedPath.map(new Function1<KV<Set<Character>, Node<Character>>, String>() {
+                public String invoke(KV<Set<Character>, Node<Character>> edge) {
+                    List labels = ListUtils.asList(edge.getKey());
+                    Collections.sort(labels);
+
+                    return labels.toString();
                 }
             });
 

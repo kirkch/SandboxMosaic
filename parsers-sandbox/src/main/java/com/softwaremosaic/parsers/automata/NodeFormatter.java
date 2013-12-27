@@ -4,13 +4,16 @@ import com.mosaic.collections.ConsList;
 import com.mosaic.collections.KV;
 import com.mosaic.lang.Validate;
 import com.mosaic.lang.functional.Function1;
-import com.mosaic.lang.functional.VoidFunction1;
 import com.mosaic.lang.functional.VoidFunction2;
 import com.mosaic.utils.ListUtils;
 import com.mosaic.utils.StringUtils;
 import com.softwaremosaic.parsers.automata.regexp.RegExpCharacterUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Encodes a graph of nodes into lines of text.
@@ -24,16 +27,16 @@ import java.util.*;
  * edge.
  */
 @SuppressWarnings("unchecked")
-public class NodeFormatter {
+public class NodeFormatter<T extends Comparable<T>> {
 
-    public List<String> format( Node startingNode ) {
+    public List<String> format( Node<T> startingNode ) {
         Validate.notNull( startingNode, "startingNode" );
 
         final List<String> formattedGraph = new ArrayList();
 
         startingNode.depthFirstPrefixTraversal(
-                new VoidFunction2<ConsList<KV<Set<Character>, Node>>,Boolean>() {
-                    public void invoke( ConsList<KV<Set<Character>, Node>> path, Boolean isLeaf ) {
+                new VoidFunction2<ConsList<KV<Set<T>, Node<T>>>,Boolean>() {
+                    public void invoke( ConsList<KV<Set<T>, Node<T>>> path, Boolean isLeaf ) {
                         if ( isLeaf ) {
                             appendPath( path.reverse(), formattedGraph );
                         }
@@ -101,11 +104,11 @@ public class NodeFormatter {
     }
 
 
-    private Function1<Node,String> nodeLabeler = new Function1<Node, String>() {
-        private Map<Node,String> existingLabels = new IdentityHashMap<>();
+    private Function1<Node<T>,String> nodeLabeler = new Function1<Node<T>, String>() {
+        private Map<Node<T>,String> existingLabels = new IdentityHashMap<>();
         private long             nextLabel      = 1;
 
-        public String invoke( Node node ) {
+        public String invoke( Node<T> node ) {
             String label = existingLabels.get(node);
             if ( label == null ) {
                 label = Long.toString(nextLabel++);
@@ -121,41 +124,18 @@ public class NodeFormatter {
         }
     };
 
-    private void appendPath( ConsList<KV<Set<Character>, Node>> path, List<String> formattedGraph ) {
-        Node startingNode = path.head().getValue();
-
+    private void appendPath( ConsList<KV<Set<T>, Node<T>>> path, List<String> formattedGraph ) {
         StringBuilder buf = new StringBuilder();
 
-        String firstLabel = startingNode.getLabel();
-        if ( firstLabel != null ) {
-            buf.append( firstLabel );
-            buf.append(": ");
-        }
+        for ( KV<Set<T>,Node<T>> step : path ) {
+            Set<T>  labels = step.getKey();
+            Node<T> node       = step.getValue();
 
-
-        for ( KV<Set<Character>,Node> step : path ) {
-            Set<Character> characters = step.getKey();
-            Node           node       = step.getValue();
-
-            // when labels do not match, split the path across multiple lines
-            if ( !Objects.equals(firstLabel,node.getLabel()) ) {
-                String line = buf.toString();
-
-                formattedGraph.add(line);
-
-                buf.setLength(0);
-
-                buf.append(node.getLabel());
-                buf.append(':');
-
-                StringUtils.repeat( buf, line.length()-node.getLabel().length()-1, ' ' );
-
-                firstLabel = node.getLabel();
-            }
-
-            if ( !characters.isEmpty() ) {
+            if ( !labels.isEmpty() ) {
                 buf.append( " -" );
-                RegExpCharacterUtils.formatCharacters(buf, characters);
+
+                appendLabels( buf, labels );
+
                 buf.append( "-> " );
             }
 
@@ -163,6 +143,16 @@ public class NodeFormatter {
         }
 
         formattedGraph.add( buf.toString() );
+    }
+
+    private void appendLabels( StringBuilder buf, Set<T> labels ) {
+        if ( labels.iterator().next() instanceof Character ) {
+            RegExpCharacterUtils.formatCharacters( buf, (Set<Character>) labels );
+        } else {
+            for ( T l : labels ) {
+                buf.append( l );
+            }
+        }
     }
 
 }

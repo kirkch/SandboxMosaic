@@ -3,22 +3,26 @@ package com.softwaremosaic.parsers.automata.regexp;
 import com.softwaremosaic.parsers.automata.Node;
 import com.softwaremosaic.parsers.automata.Nodes;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  *
  */
-public class AndOp extends AutomataOp {
+@SuppressWarnings("unchecked")
+public class AndOp<T extends Comparable<T>> extends GraphBuilder<T> {
 
-    private AutomataOp[] childOps;
+    private List<GraphBuilder<T>> childOps;
 
-    public AndOp( AutomataOp...childOps ) {
-        this.childOps = childOps;
+    public AndOp( GraphBuilder<T>...childOps ) {
+        this.childOps = Arrays.asList(childOps);
     }
 
-    public Nodes appendTo( String label, Node startNode ) {
-        Nodes pos = new Nodes(startNode);
+    public Nodes<T> appendTo( Node<T> startNode ) {
+        Nodes<T> pos = new Nodes(startNode);
 
-        for ( AutomataOp op : childOps ) {
-            pos = op.appendTo(label,pos);
+        for ( GraphBuilder op : childOps ) {
+            pos = op.appendTo(pos);
         }
 
         return pos;

@@ -2,21 +2,21 @@ package com.softwaremosaic.parsers.automata.regexp;
 
 import com.mosaic.collections.FastStack;
 
-import static com.softwaremosaic.parsers.automata.regexp.AutomataOp.CaseSensitivity.*;
+import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.*;
 
 
 /**
  * Converts a text definition of a regular expression into an instance of
- * AutomataOp.  The regular expression can then be appended to any node within
+ * GraphBuilder.  The regular expression can then be appended to any node within
  * an automata, as many times as required and in any place.
  */
 @SuppressWarnings("unchecked")
 public class RegexpAutomataOpParser {
 
-    private FastStack<AutomataOp> opStack = new FastStack();
+    private FastStack<GraphBuilder> opStack = new FastStack();
 
 
-    public AutomataOp parse( String regexpString ) {
+    public GraphBuilder parse( String regexpString ) {
         int pos = 0;
         do {
             pos = parseNext( pos, regexpString );
@@ -50,14 +50,14 @@ public class RegexpAutomataOpParser {
     }
 
     private int parseConstant( int i, String str ) {
-        AutomataOp op;
+        GraphBuilder op;
 
         int endExc = nextSpecialCharacter( i+1, str );
 
         if ( str.charAt(i) == '~' ) {
-            op = new ConstantOp(str.substring(i+1,endExc), CaseInsensitive );
+            op = new StringOp(str.substring(i+1,endExc), CaseInsensitive );
         } else {
-            op = new ConstantOp(str.substring(i,endExc), CaseSensitive );
+            op = new StringOp(str.substring(i,endExc), CaseSensitive );
         }
 
         opStack.push( op );

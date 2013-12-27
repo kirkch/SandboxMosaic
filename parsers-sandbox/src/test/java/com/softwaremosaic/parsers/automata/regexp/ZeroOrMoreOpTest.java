@@ -1,29 +1,31 @@
 package com.softwaremosaic.parsers.automata.regexp;
 
 import com.softwaremosaic.parsers.automata.Node;
+import com.softwaremosaic.parsers.automata.ObjectNode;
 import org.junit.Test;
 
 import static com.softwaremosaic.parsers.automata.GraphAssertions.assertGraphEquals;
-import static com.softwaremosaic.parsers.automata.regexp.AutomataOp.CaseSensitivity.CaseInsensitive;
-import static com.softwaremosaic.parsers.automata.regexp.AutomataOp.CaseSensitivity.CaseSensitive;
+import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseInsensitive;
+import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseSensitive;
 import static org.junit.Assert.assertEquals;
 
 /**
- *
- */
+*
+*/
+@SuppressWarnings("unchecked")
 public class ZeroOrMoreOpTest {
 
 
     @Test
     public void givenBlankStartingNode_appendACaseSensitive_expectSingleTransition() {
-        Node s  = new Node("l1");
-        AutomataOp op = new ZeroOrMoreOp( new ConstantOp("a", CaseSensitive) );
+        Node         s  = new ObjectNode();
+        GraphBuilder op = new ZeroOrMoreOp( new StringOp("a", CaseSensitive) );
 
-        op.appendTo( "l1", s );
+        op.appendTo( s );
 
 
         String[] expected = new String[] {
-                "l1: 1 -a-> 1"
+                "1 -a-> 1"
         };
 
         assertGraphEquals( s, expected );
@@ -31,14 +33,14 @@ public class ZeroOrMoreOpTest {
 
     @Test
     public void givenBlankStartingNode_appendACaseInsensitive_expectSingleTransition() {
-        Node s  = new Node("l1");
-        AutomataOp op = new ZeroOrMoreOp( new ConstantOp("a", CaseInsensitive) );
+        Node s  = new ObjectNode();
+        GraphBuilder op = new ZeroOrMoreOp( new StringOp("a", CaseInsensitive) );
 
-        op.appendTo( "l1", s );
+        op.appendTo( s );
 
 
         String[] expected = new String[] {
-                "l1: 1 -[Aa]-> 1"
+                "1 -[Aa]-> 1"
         };
 
         assertGraphEquals( s, expected );
@@ -46,16 +48,16 @@ public class ZeroOrMoreOpTest {
 
     @Test
     public void givenSingleExistingTransition_appendACaseInsensitive_expectSingleTransitionThenLoopBack() {
-        Node n1  = new Node("l1");
-        Node n2  = new Node("l1");
-        AutomataOp op = new ZeroOrMoreOp( new ConstantOp("b", CaseSensitive) );
+        ObjectNode n1  = new ObjectNode();
+        ObjectNode n2  = new ObjectNode();
+        GraphBuilder op = new ZeroOrMoreOp( new StringOp("b", CaseSensitive) );
 
-        n1.appendEdge( 'a', n2 );
-        op.appendTo( "l1", n2 );
+        n1.append( 'a', n2 );
+        op.appendTo( n2 );
 
 
         String[] expected = new String[] {
-                "l1: 1 -a-> 2 -b-> 2"
+                "1 -a-> 2 -b-> 2"
         };
 
         assertGraphEquals( n1, expected );
@@ -63,16 +65,16 @@ public class ZeroOrMoreOpTest {
 
     @Test
     public void givenBlankStartingNode_appendAorBWithDifferentEdges_expectBothAAndBToLoopBack() {
-        Node n1  = new Node("l1");
-        Node n2  = new Node("l1");
-        AutomataOp op = new ZeroOrMoreOp( new OrOp(new ConstantOp("a", CaseSensitive), new ConstantOp("b", CaseSensitive)) );
+        ObjectNode n1  = new ObjectNode();
+        ObjectNode n2  = new ObjectNode();
+        GraphBuilder op = new ZeroOrMoreOp( new OrOp(new StringOp("a", CaseSensitive), new StringOp("b", CaseSensitive)) );
 
-        n1.appendEdge( 'a', n2 );
-        op.appendTo( "l1", n2 );
+        n1.append( 'a', n2 );
+        op.appendTo( n2 );
 
 
         String[] expected = new String[] {
-                "l1: 1 -a-> 2 -[ab]-> 2"
+                "1 -a-> 2 -[ab]-> 2"
         };
 
         assertGraphEquals( n1, expected );
@@ -88,14 +90,14 @@ public class ZeroOrMoreOpTest {
 
     @Test
     public void givenConstantA_toString() {
-        AutomataOp op = new ZeroOrMoreOp( new ConstantOp("a", CaseSensitive) );
+        GraphBuilder op = new ZeroOrMoreOp( new StringOp("a", CaseSensitive) );
 
         assertEquals( "(a)*", op.toString() );
     }
 
     @Test
     public void givenAorBWithDifferentEdges_toString() {
-        AutomataOp op = new ZeroOrMoreOp( new OrOp(new ConstantOp("a", CaseSensitive), new ConstantOp("b", CaseSensitive)) );
+        GraphBuilder op = new ZeroOrMoreOp( new OrOp(new StringOp("a", CaseSensitive), new StringOp("b", CaseSensitive)) );
 
         assertEquals( "(a|b)*", op.toString() );
     }

@@ -12,29 +12,30 @@ import java.util.Set;
 /**
  *
  */
-public class ZeroOrMoreOp extends AutomataOp {
+@SuppressWarnings("unchecked")
+public class ZeroOrMoreOp<T extends Comparable<T>> extends GraphBuilder<T> {
 
-    private AutomataOp opToRepeat;
+    private GraphBuilder<T> opToRepeat;
 
     /**
      *
      * @param op the op to repeat
      */
-    public ZeroOrMoreOp( AutomataOp op ) {
+    public ZeroOrMoreOp( GraphBuilder<T> op ) {
         opToRepeat = op;
     }
 
 
 
-    public Nodes appendTo( String label, final Node startNode ) {
-        final Nodes endNodes = opToRepeat.appendTo( label, startNode );
+    public Nodes<T> appendTo( final Node<T> startNode ) {
+        final Nodes endNodes = opToRepeat.appendTo( startNode );
 
-        startNode.depthFirstPrefixTraversal(new VoidFunction2<ConsList<KV<Set<Character>,Node>>, Boolean>() {
-            public void invoke( ConsList<KV<Set<Character>, Node>> path, Boolean isEndOfPath ) {
-                Node visiting = path.head().getValue();
+        startNode.depthFirstPrefixTraversal(new VoidFunction2<ConsList<KV<Set<T>,Node<T>>>, Boolean>() {
+            public void invoke( ConsList<KV<Set<T>, Node<T>>> path, Boolean isEndOfPath ) {
+                Node<T> visiting = path.head().getValue();
                 if ( isEndOfPath && endNodes.contains(visiting) ) {
-                    for ( char c : path.head().getKey() ) {
-                        Node sourceNode = path.tail().head().getValue();
+                    for ( T c : path.head().getKey() ) {
+                        Node<T> sourceNode = path.tail().head().getValue();
 
                         sourceNode.replace( c, visiting, startNode );
                     }

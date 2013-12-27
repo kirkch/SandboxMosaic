@@ -9,8 +9,9 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
- *
- */
+*
+*/
+@SuppressWarnings("unchecked")
 public class NodeFormatterTest {
 
     private NodeFormatter formatter = new NodeFormatter();
@@ -29,7 +30,7 @@ public class NodeFormatterTest {
 
     @Test
     public void givenEmptyNode_format_expectDisplay() {
-        Node startingNode = new Node();
+        ObjectNode startingNode = new ObjectNode();
 
         List<String> formattedGraph = formatter.format(startingNode);
 
@@ -38,100 +39,83 @@ public class NodeFormatterTest {
 
     @Test
     public void givenEmptyNodeWithLabel_format_expectDisplay() {
-        Node startingNode = new Node("l1");
+        ObjectNode startingNode = new ObjectNode();
 
         List<String> formattedGraph = formatter.format(startingNode);
 
-        assertEquals( Arrays.asList("l1: 1t"), formattedGraph );
+        assertEquals( Arrays.asList("1t"), formattedGraph );
     }
 
     @Test
     public void formatNodeWithSingleTraversal() {
-        Node startingNode = new Node("l1");
-        startingNode.appendCharacter('a');
+        ObjectNode startingNode = new ObjectNode();
+        startingNode.append('a');
 
         List<String> formattedGraph = formatter.format(startingNode);
 
-        assertEquals( Arrays.asList("l1: 1 -a-> 2t"), formattedGraph );
+        assertEquals( Arrays.asList("1 -a-> 2t"), formattedGraph );
     }
 
     @Test
     public void formatThreeNodesLinkedInSerial() {
-        Node startingNode = new Node("l1");
-        Nodes n1 = startingNode.appendCharacter('a');
-        n1.appendCharacter('b');
+        ObjectNode startingNode = new ObjectNode();
+        Nodes n1 = startingNode.append('a');
+        n1.append( 'b' );
 
         List<String> formattedGraph = formatter.format(startingNode);
 
-        assertEquals( Arrays.asList("l1: 1 -a-> 2 -b-> 3t"), formattedGraph );
+        assertEquals( Arrays.asList("1 -a-> 2 -b-> 3t"), formattedGraph );
     }
 
     @Test
     public void formatNodeWithTwoTraversalsToSameNode() {
-        Node startingNode = new Node("l1");
-        Nodes n1 = startingNode.appendCharacter('a');
-        startingNode.appendEdge('b', n1);
+        ObjectNode startingNode = new ObjectNode();
+        Nodes n1 = startingNode.append('a');
+        startingNode.append('b', n1);
 
 
         List<String> formattedGraph = formatter.format(startingNode);
 
-        assertEquals( Arrays.asList("l1: 1 -[ab]-> 2t"), formattedGraph );
+        assertEquals( Arrays.asList("1 -[ab]-> 2t"), formattedGraph );
     }
 
     @Test
     public void formatNodeWithMultipleTraversalsToSameNode_expectCharactersToBeGrouped() {
-        Node startingNode = new Node("l1");
-        Nodes n1 = startingNode.appendCharacter('a');
-        startingNode.appendEdge('f', n1);
-        startingNode.appendEdge('c', n1);
-        startingNode.appendEdge('d', n1);
-        startingNode.appendEdge('t', n1);
-        startingNode.appendEdge('x', n1);
-        startingNode.appendEdge('b', n1);
-        startingNode.appendEdge('z', n1);
-        startingNode.appendEdge('y', n1);
-        startingNode.appendEdge('0', n1);
-        startingNode.appendEdge('1', n1);
-        startingNode.appendEdge('2', n1);
-        startingNode.appendEdge('3', n1);
-        startingNode.appendEdge('4', n1);
-        startingNode.appendEdge('5', n1);
+        ObjectNode startingNode = new ObjectNode();
+        Nodes n1 = startingNode.append('a');
+        startingNode.append('f', n1);
+        startingNode.append('c', n1);
+        startingNode.append('d', n1);
+        startingNode.append('t', n1);
+        startingNode.append('x', n1);
+        startingNode.append('b', n1);
+        startingNode.append('z', n1);
+        startingNode.append('y', n1);
+        startingNode.append('0', n1);
+        startingNode.append('1', n1);
+        startingNode.append('2', n1);
+        startingNode.append('3', n1);
+        startingNode.append('4', n1);
+        startingNode.append('5', n1);
 
 
         List<String> formattedGraph = formatter.format(startingNode);
 
-        assertEquals( Arrays.asList("l1: 1 -[0-5a-dftxyz]-> 2t"), formattedGraph );
+        assertEquals( Arrays.asList("1 -[0-5a-dftxyz]-> 2t"), formattedGraph );
     }
 
     @Test
     public void formatNodeLinkedToTwoOtherNodes() {
-        Node startingNode = new Node("l1");
-        startingNode.appendCharacter('a');
-        startingNode.appendCharacter('b');
+        ObjectNode startingNode = new ObjectNode();
+        startingNode.append('a');
+        startingNode.append('b');
 
 
         List<String> formattedGraph = formatter.format(startingNode);
 
         List<String> expected = Arrays.asList(
-                "l1: 1 -a-> 2t",
-                "      -b-> 3t"
-        );
-
-        assertEquals(expected, formattedGraph );
-    }
-
-    @Test
-    public void formatThreeNodesInSerialSpanningTwoLabels() {
-        Node  startingNode = new Node("l1");
-        Nodes secondNode   = startingNode.appendCharacter('a');
-        secondNode.appendCharacter("l2", 'a');
-
-
-        List<String> formattedGraph = formatter.format(startingNode);
-
-        List<String> expected = Arrays.asList(
-                "l1: 1 -a-> 2",
-                "l2:          -a-> 3t"
+                "1 -a-> 2t",
+                "  -b-> 3t"
         );
 
         assertEquals(expected, formattedGraph );
@@ -139,15 +123,15 @@ public class NodeFormatterTest {
 
     @Test
     public void formatNodeThatLoopsBackToItself() {
-        Node startingNode = new Node("l1");
+        ObjectNode startingNode = new ObjectNode();
 
-        startingNode.appendEdge('a', startingNode);
+        startingNode.append('a', startingNode);
 
 
         List<String> formattedGraph = formatter.format(startingNode);
 
         List<String> expected = Arrays.asList(
-                "l1: 1 -a-> 1"
+                "1 -a-> 1"
         );
 
         assertEquals(expected, formattedGraph );

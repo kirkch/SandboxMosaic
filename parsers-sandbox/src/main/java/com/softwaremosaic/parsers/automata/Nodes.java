@@ -1,36 +1,40 @@
 package com.softwaremosaic.parsers.automata;
 
-import java.util.*;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * A wrapper class for multiple nodes.  Essentially the same as List&lt;Nodes>
  * except that it is more friendly to work with.
  */
 @SuppressWarnings("unchecked")
-public class Nodes extends AbstractList<Node> {
-    public static final Nodes EMPTY = new Nodes(Collections.EMPTY_LIST);
+public class Nodes<T extends Comparable<T>> extends AbstractList<Node<T>> {
+    public static final Nodes EMPTY = new Nodes( Collections.EMPTY_LIST );
 
 
-
-    private List<Node> nodes;
+    private List<Node<T>> nodes;
 
     public Nodes() {
         this( new ArrayList() );
     }
 
-    public Nodes( Node node ) {
-        this( Arrays.asList(node) );
+    public Nodes( Node<T> node ) {
+        this( Arrays.asList( node ) );
     }
 
-    public Nodes( List<Node> nodes ) {
+    public Nodes( List<Node<T>> nodes ) {
         this.nodes = nodes;
     }
 
-    public Node get( int i ) {
-        return nodes.get(i);
+    public Node<T> get( int i ) {
+        return nodes.get( i );
     }
 
-    public Iterator<Node> iterator() {
+    public Iterator<Node<T>> iterator() {
         return nodes.iterator();
     }
 
@@ -38,74 +42,61 @@ public class Nodes extends AbstractList<Node> {
         return nodes.size();
     }
 
-    public void add(int index, Node element) {
-        nodes.add( index,element );
+    public void add( int index, Node<T> element ) {
+        nodes.add( index, element );
     }
 
-    public Nodes walk( char c ) {
-        List<Node> endNodes = new ArrayList();
+    public Nodes walk( T label ) {
+        List<Node<T>> endNodes = new ArrayList();
 
-        for ( Node n : nodes ) {
-            endNodes.addAll( n.walk(c) );
+        for ( Node<T> n : nodes ) {
+            endNodes.addAll( n.walk(label) );
         }
 
-        return new Nodes(endNodes);
+        return new Nodes( endNodes );
     }
 
-    public Nodes walk( String path ) {
-        List<Node> endNodes = new ArrayList();
-
-        for ( Node n : nodes ) {
-            endNodes.addAll( n.walk(path) );
-        }
-
-        return new Nodes(endNodes);
+    public Nodes walk( T...path ) {
+        return walk( Arrays.asList(path) );
     }
 
-    public Nodes skipWhiteSpace() {
-        for ( Node n : nodes ) {
-            n.skipWhiteSpace();
+    public Nodes walk( Iterable <T> path ) {
+        List<Node<T>> endNodes = new ArrayList();
+
+        for ( Node<T> n : nodes ) {
+            endNodes.addAll( n.walk( path ) );
         }
 
-        return this;
+        return new Nodes( endNodes );
     }
 
-    public Nodes appendCharacter( char c ) {
-        List<Node> endNodes = new ArrayList();
+    public Nodes append( T label ) {
+        List<Node<T>> endNodes = new ArrayList();
 
-        for ( Node n : nodes ) {
-            endNodes.addAll( n.appendCharacter(c) );
+        for ( Node<T> n : nodes ) {
+            endNodes.addAll( n.append(label) );
         }
 
-        return new Nodes(endNodes);
+        return new Nodes( endNodes );
     }
 
-    public Nodes appendCharacter( String label, char c ) {
-        List<Node> endNodes = new ArrayList();
-
-        for ( Node n : nodes ) {
-            endNodes.addAll( n.appendCharacter(label, c) );
+    public void append( T label, Node<T> next ) {
+        for ( Node<T> n : nodes ) {
+            n.append( label, next );
         }
-
-        return new Nodes(endNodes);
     }
 
     /**
      * Returns all of the nodes that can be transitioned to from this set of nodes.
      */
-    public Nodes getOutNodes() {
-        List<Node> outNodes = new ArrayList();
+    public Nodes<T> getOutNodes() {
+        List<Node<T>> outNodes = new ArrayList();
 
-        for ( Node n : nodes ) {
+        for ( Node<T> n : nodes ) {
             outNodes.addAll( n.getOutNodes() );
         }
 
-        return new Nodes(outNodes);
+        return new Nodes( outNodes );
     }
 
-    public void appendEdge( char c, Node next ) {
-        for ( Node n : nodes ) {
-            n.appendEdge(c, next);
-        }
-    }
 }

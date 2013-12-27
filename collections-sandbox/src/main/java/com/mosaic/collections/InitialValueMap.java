@@ -3,9 +3,9 @@ package com.mosaic.collections;
 import com.mosaic.lang.functional.Function0;
 
 import java.util.IdentityHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Factory for creating maps that generate a default value when none exist for
@@ -26,10 +26,10 @@ public class InitialValueMap {
 
     public static <K,V> Map<K,Set<V>> identityMapOfSets() {
         return identityMapOfSets(
-            new IdentityHashMap<K,Set<V>>(),
+            new IdentityHashMap<K, Set<V>>(),
             new Function0<Set<V>>() {
                 public Set<V> invoke() {
-                    return new TreeSet<V>();
+                    return new LinkedHashSet<>();
                 }
             }
         );

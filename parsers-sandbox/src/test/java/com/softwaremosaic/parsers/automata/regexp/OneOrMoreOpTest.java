@@ -1,26 +1,28 @@
 package com.softwaremosaic.parsers.automata.regexp;
 
 import com.softwaremosaic.parsers.automata.Node;
+import com.softwaremosaic.parsers.automata.ObjectNode;
 import org.junit.Test;
 
 import static com.softwaremosaic.parsers.automata.GraphAssertions.assertGraphEquals;
-import static com.softwaremosaic.parsers.automata.regexp.AutomataOp.CaseSensitivity.CaseSensitive;
+import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseSensitive;
 
 /**
- *
- */
+*
+*/
+@SuppressWarnings("unchecked")
 public class OneOrMoreOpTest {
 
     @Test
     public void givenBlankStartingNode_appendACaseSensitive_expectOneTransitionThenLoopBack() {
-        Node s  = new Node("l1");
-        AutomataOp op = new OneOrMoreOp( new ConstantOp("a", CaseSensitive) );
+        Node s  = new ObjectNode();
+        GraphBuilder op = new OneOrMoreOp( new StringOp("a", CaseSensitive) );
 
-        op.appendTo( "l1", s );
+        op.appendTo( s );
 
 
         String[] expected = new String[] {
-                "l1: 1 -a-> 2 -a-> 2"
+                "1 -a-> 2 -a-> 2"
         };
 
         assertGraphEquals( s, expected );

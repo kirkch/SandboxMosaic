@@ -14,23 +14,23 @@ public class RegexpAutomataOpParserTest {
 
     @Test
     public void givenA_expectConstantAOpBack() {
-        AutomataOp op = parser.parse( "a" );
+        GraphBuilder op = parser.parse( "a" );
 
         assertEquals( "a", op.toString() );
     }
 
     @Test
     public void givenAIgnoreCase_expectConstantAOpBack() {
-        AutomataOp op = parser.parse( "~a" );
+        GraphBuilder op = parser.parse( "~a" );
 
         assertEquals( "~a", op.toString() );
-        assertEquals( false, ((ConstantOp) op).isCaseSensitive() );
-        assertEquals( "a", ((ConstantOp) op).getConstant() );
+        assertEquals( false, ((StringOp) op).isCaseSensitive() );
+        assertEquals( "a", ((StringOp) op).getConstant() );
     }
 
     @Test
     public void givenABC_expectConstantABCOpBack() {
-        AutomataOp op = parser.parse( "abc" );
+        GraphBuilder op = parser.parse( "abc" );
 
         assertEquals( "abc", op.toString() );
     }

@@ -11,9 +11,9 @@ package com.softwaremosaic.parsers.automata;
  */
 public class Automata {
 
-    private Node startingNode = new Node();
+    private ObjectNode startingNode = new ObjectNode();
 
-    public Node getStartingNode() {
+    public ObjectNode getStartingNode() {
         return startingNode;
     }
 

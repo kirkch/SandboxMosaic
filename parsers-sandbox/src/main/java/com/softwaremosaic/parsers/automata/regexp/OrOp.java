@@ -1,10 +1,5 @@
 package com.softwaremosaic.parsers.automata.regexp;
 
-import com.mosaic.collections.KV;
-import com.mosaic.lang.functional.Function1;
-import com.mosaic.lang.functional.Tuple2;
-import com.mosaic.utils.ArrayUtils;
-import com.mosaic.utils.ListUtils;
 import com.mosaic.utils.StringUtils;
 import com.softwaremosaic.parsers.automata.Node;
 import com.softwaremosaic.parsers.automata.Nodes;
@@ -15,19 +10,19 @@ import java.util.List;
 /**
  *
  */
-public class OrOp extends AutomataOp {
+public class OrOp<T extends Comparable<T>> extends GraphBuilder<T> {
 
-    private List<AutomataOp> childOps;
+    private List<GraphBuilder<T>> childOps;
 
-    public OrOp( AutomataOp...childOps ) {
+    public OrOp( GraphBuilder<T>...childOps ) {
         this.childOps = Arrays.asList(childOps);
     }
 
-    public Nodes appendTo( String label, Node startNode ) {
-        Nodes endNodes = new Nodes();
+    public Nodes<T> appendTo( Node<T> startNode ) {
+        Nodes<T> endNodes = new Nodes();
 
-        for ( AutomataOp op : childOps ) {
-            endNodes.addAll( op.appendTo(label,startNode) );
+        for ( GraphBuilder op : childOps ) {
+            endNodes.addAll( op.appendTo(startNode) );
         }
 
         return endNodes;

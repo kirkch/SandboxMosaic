@@ -2,22 +2,24 @@ package com.softwaremosaic.parsers.automata.regexp;
 
 import com.softwaremosaic.parsers.automata.Node;
 import com.softwaremosaic.parsers.automata.Nodes;
+import com.softwaremosaic.parsers.automata.ObjectNode;
 
 /**
  * Append the transitions required to match a constant onto the automata.
  */
-public class ConstantOp extends AutomataOp {
+@SuppressWarnings("unchecked")
+public class StringOp extends GraphBuilder<Character> {
 
     private String          constant;
     private CaseSensitivity caseSensitivity;
 
 
-    public ConstantOp( String constant, CaseSensitivity caseSensitivity ) {
+    public StringOp( String constant, CaseSensitivity caseSensitivity ) {
         this.constant        = constant;
         this.caseSensitivity = caseSensitivity;
     }
 
-    public Nodes appendTo( String label, Node startNode ) {
+    public Nodes<Character> appendTo( Node<Character> startNode ) {
         int max = constant.length();
 
         Nodes n = new Nodes(startNode);
@@ -28,13 +30,13 @@ public class ConstantOp extends AutomataOp {
                 char lc = Character.toLowerCase(c);
                 char uc = Character.toUpperCase(c);
 
-                Node dest = new Node(label);
-                n.appendEdge(lc, dest);
-                n.appendEdge(uc, dest);
+                Node<Character> dest = new ObjectNode();  // todo use CharacterNode
+                n.append(lc, dest);
+                n.append(uc, dest);
 
                 n = new Nodes(dest);
             } else {
-                n = n.appendCharacter( label, c );
+                n = n.append( c );
             }
         }
 

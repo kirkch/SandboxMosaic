@@ -11,34 +11,35 @@ import java.util.Set;
 /**
  *
  */
-public class OneOrMoreOp extends AutomataOp {
+@SuppressWarnings("unchecked")
+public class OneOrMoreOp<T extends Comparable<T>> extends GraphBuilder<T> {
 
-    private AutomataOp opToRepeat;
+    private GraphBuilder<T> opToRepeat;
 
     /**
      *
      * @param op the op to repeat
      */
-    public OneOrMoreOp( AutomataOp op ) {
+    public OneOrMoreOp( GraphBuilder<T> op ) {
         opToRepeat = op;
     }
 
 
 
-    public Nodes appendTo( String label, Node startNode ) {
-        final Nodes afterFirstStepNodes = opToRepeat.appendTo( label, startNode );
+    public Nodes<T> appendTo( Node<T> startNode ) {
+        final Nodes<T> afterFirstStepNodes = opToRepeat.appendTo( startNode );
 
 
-        final Nodes endNodes = opToRepeat.appendTo( label, afterFirstStepNodes );
+        final Nodes endNodes = opToRepeat.appendTo( afterFirstStepNodes );
 
-        startNode.depthFirstPrefixTraversal(new VoidFunction2<ConsList<KV<Set<Character>,Node>>, Boolean>() {
-            public void invoke( ConsList<KV<Set<Character>, Node>> path, Boolean isEndOfPath ) {
-                Node visiting = path.head().getValue();
+        startNode.depthFirstPrefixTraversal(new VoidFunction2<ConsList<KV<Set<T>,Node<T>>>, Boolean>() {
+            public void invoke( ConsList<KV<Set<T>, Node<T>>> path, Boolean isEndOfPath ) {
+                Node<T> visiting = path.head().getValue();
                 if ( isEndOfPath && endNodes.contains(visiting) ) {
-                    for ( char c : path.head().getKey() ) {
+                    for ( T label : path.head().getKey() ) {
                         Node sourceNode = path.tail().head().getValue();
 
-                        sourceNode.replace( c, visiting, afterFirstStepNodes );
+                        sourceNode.replace( label, visiting, afterFirstStepNodes );
                     }
                 }
             }

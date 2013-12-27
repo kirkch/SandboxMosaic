@@ -9,7 +9,7 @@ import com.softwaremosaic.parsers.automata.Nodes;
  * to represent a regular expression that can be appended to any graph on
  * demand.
  */
-public abstract class AutomataOp {
+public abstract class GraphBuilder<T extends Comparable<T>> {
 
     public static enum CaseSensitivity {
         CaseSensitive, CaseInsensitive;
@@ -19,27 +19,19 @@ public abstract class AutomataOp {
         }
     }
 
-
-    public void appendTo( Node startNode ) {
-        appendTo( startNode.getLabel(), startNode );
-    }
-
     /**
      * Append this op to the specified node.
      *
-     * @return the end nodes of this operation.  For example if node 1 was that
-     * start node, and this op created and linked to node 2 and then node to node
-     * 3 and then stopped.  Then node 3 would be the result, and the intermediate
-     * node 2 would be silently hidden within the graph.
+     * @return the last nodes appended to the graph
      */
-    public abstract Nodes appendTo( String label, Node startNode );
+    public abstract Nodes<T> appendTo( Node<T> startNode );
 
 
-    public Nodes appendTo( String label, Nodes startNodes ) {
+    public Nodes<T> appendTo( Nodes<T> startNodes ) {
         Nodes endNodes = new Nodes();
 
         for ( Node n : startNodes ) {
-            endNodes.addAll(  this.appendTo(label, n)  );
+            endNodes.addAll(this.appendTo(n));
         }
 
         return endNodes;
