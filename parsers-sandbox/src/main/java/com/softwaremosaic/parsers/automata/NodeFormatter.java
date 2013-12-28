@@ -152,7 +152,7 @@ public class NodeFormatter<T extends Comparable<T>> {
         if ( labels.size() == 1 ) {
             buf.append( labels.iterator().next() );
         } else {
-            buf.append( Labels.or(labels) );
+            buf.append( Labels.orLabels(labels) );
         }
     }
 

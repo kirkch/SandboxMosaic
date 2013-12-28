@@ -21,12 +21,20 @@ public class Labels {
       return new NotValueLabel<>(v);
     }
 
-    public static <T extends Comparable<T>> Label<T> or( Iterable<T> values ) {
-      return new OrLabel( values );
+    public static <T extends Comparable<T>> Label<T> orValues( Iterable<T> values ) {
+      return new OrValuesLabel( values );
     }
 
-    public static <T extends Comparable<T>> Label<T> or( T[] values ) {
-      return new OrLabel( Arrays.asList(values) );
+    public static <T extends Comparable<T>> Label<T> orValues( T...values ) {
+      return new OrValuesLabel( Arrays.asList(values) );
+    }
+
+    public static <T extends Comparable<T>> Label<T> orLabels( Iterable<Label<T>> labels ) {
+      return new OrLabelsLabel( labels );
+    }
+
+    public static <T extends Comparable<T>> Label<T> orLabels( Label<T>...labels ) {
+      return new OrLabelsLabel( Arrays.asList(labels) );
     }
 
     public static Label<Character> caseInsensitive( char c ) {
@@ -92,10 +100,10 @@ public class Labels {
         }
     }
 
-    private static class OrLabel<T extends Comparable<T>> implements Label<T> {
+    private static class OrValuesLabel<T extends Comparable<T>> implements Label<T> {
         private Iterable<T> values;
 
-        public OrLabel( Iterable<T> values ) {
+        public OrValuesLabel( Iterable<T> values ) {
             this.values = values;
         }
 
@@ -114,12 +122,43 @@ public class Labels {
         }
 
         public int compareTo( Label<T> o ) {
-            if ( !(o instanceof OrLabel) ) {
+            if ( !(o instanceof OrValuesLabel) ) {
                 return -1;
             }
 
-            OrLabel<T> other = (OrLabel) o;
+            OrValuesLabel<T> other = (OrValuesLabel) o;
             return Objects.equals(this.values, other.values) ? 0 : this.values.iterator().next().compareTo(other.values.iterator().next());
+        }
+    }
+
+    private static class OrLabelsLabel<T extends Comparable<T>> implements Label<T> {
+        private Iterable<Label<T>> labels;
+
+        public OrLabelsLabel( Iterable<Label<T>> labels ) {
+            this.labels = labels;
+        }
+
+        public boolean matches( T input ) {
+            for ( Label<T> l : labels ) {
+                if (l.matches(input) ) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public String toString() {
+            return StringUtils.join( labels, "|" );
+        }
+
+        public int compareTo( Label<T> o ) {
+            if ( !(o instanceof OrValuesLabel) ) {
+                return -1;
+            }
+
+            OrLabelsLabel<T> other = (OrLabelsLabel) o;
+            return Objects.equals(this.labels, other.labels) ? 0 : this.labels.iterator().next().compareTo(other.labels.iterator().next());
         }
     }
 

@@ -67,6 +67,8 @@ public interface Node<T extends Comparable<T>> extends Iterable<KV<Label<T>,Node
     public void isValidEndNode( boolean flag );
 
 
+    public List<Label<T>> getOutLabels();
+
     public List<KV<Label<T>,Node<T>>> getOutEdges();
 
 //    public Node<T> skipWhiteSpace();
@@ -92,5 +94,8 @@ public interface Node<T extends Comparable<T>> extends Iterable<KV<Label<T>,Node
      * lead to the next node.
      */
     public void depthFirstPrefixTraversal( VoidFunction2<ConsList<KV<Set<Label<T>>,Node<T>>>, Boolean> callbackFunction );
+
+
+
 
 }

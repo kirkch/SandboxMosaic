@@ -142,8 +142,26 @@ public class LabelNode<T extends Comparable<T>> implements Node<T> {
     }
 
 
+    public List<Label<T>> getOutLabels() {
+        return ListUtils.map(edges, new Function1<KV<Label<T>, Node<T>>, Label<T>>() {
+            public Label<T> invoke( KV<Label<T>, Node<T>> edge ) {
+                return edge.getKey();
+            }
+        });
+    }
+
     public List<KV<Label<T>,Node<T>>> getOutEdges() {
         return Collections.unmodifiableList( edges );
+    }
+
+    public Nodes<T> getOutNodes() {
+        List outNodes = ListUtils.map(edges, new Function1<KV<Label<T>, Node<T>>, Node<T>>() {
+            public Node<T> invoke( KV<Label<T>, Node<T>> edge ) {
+                return edge.getValue();
+            }
+        });
+
+        return new Nodes(outNodes);
     }
 
     public Iterator<KV<Label<T>,Node<T>>> iterator() {
@@ -165,16 +183,6 @@ public class LabelNode<T extends Comparable<T>> implements Node<T> {
         buf.append( ')' );
 
         return buf.toString();
-    }
-
-    public Nodes<T> getOutNodes() {
-        List outNodes = ListUtils.map(edges, new Function1<KV<Label<T>, Node<T>>, Node<T>>() {
-            public Node<T> invoke( KV<Label<T>, Node<T>> edge ) {
-                return edge.getValue();
-            }
-        });
-
-        return new Nodes(outNodes);
     }
 
     /**
