@@ -2,7 +2,7 @@ package com.softwaremosaic.parsers.automata.regexp;
 
 import com.softwaremosaic.parsers.automata.Node;
 import com.softwaremosaic.parsers.automata.Nodes;
-import com.softwaremosaic.parsers.automata.ObjectNode;
+import com.softwaremosaic.parsers.automata.LabelNode;
 import org.junit.Test;
 
 import static com.softwaremosaic.parsers.automata.GraphAssertions.assertGraphEquals;
@@ -17,7 +17,7 @@ public class AndOpTest {
 
     @Test
     public void givenBlankStartingNode_appendAThenB_expectTwoEdgesThenLoopBack() {
-        Node         s  = new ObjectNode();
+        Node         s  = new LabelNode();
         GraphBuilder op = new AndOp( new StringOp("a", CaseSensitive), new StringOp("b", CaseSensitive) );
 
         Nodes endNodes = op.appendTo( s );
@@ -31,7 +31,7 @@ public class AndOpTest {
 
     @Test
     public void givenBlankStartingNode_appendAOrBTHENCorD() {
-        Node         s   = new ObjectNode();
+        Node         s   = new LabelNode();
         GraphBuilder or1 = new OrOp( new StringOp("a", CaseSensitive), new StringOp("b", CaseSensitive) );
         GraphBuilder or2 = new OrOp( new StringOp("c", CaseSensitive), new StringOp("d", CaseSensitive) );
         GraphBuilder op  = new AndOp( or1, or2 );

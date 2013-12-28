@@ -45,8 +45,28 @@ public class ListUtils {
         return Nullable.NULL;
     }
 
-    public static <A,B> List<B> map( List<A> list, Function1<A,B> mappingFunction ) {
-        List<B> results = new ArrayList<B>( list.size() );
+    public static <B> List<B> map( CharSequence str, Function1<Character,B> mappingFunction ) {
+        List<B> results = new ArrayList( str.length() );
+
+        for ( int i=0; i<str.length(); i++ ) {
+            results.add( mappingFunction.invoke(str.charAt(i)) );
+        }
+
+        return results;
+    }
+
+    public static <A,B> List<B> map( Collection<A> list, Function1<A,B> mappingFunction ) {
+        List<B> results = new ArrayList( list.size() );
+
+        for ( A v : list ) {
+            results.add( mappingFunction.invoke(v) );
+        }
+
+        return results;
+    }
+
+    public static <A,B> List<B> map( Iterable<A> list, Function1<A,B> mappingFunction ) {
+        List<B> results = new ArrayList();
 
         for ( A v : list ) {
             results.add( mappingFunction.invoke(v) );
@@ -56,7 +76,7 @@ public class ListUtils {
     }
 
     public static <T, C extends List<T>> List<T> flatten( List<C> list ) {
-        List<T> results = new ArrayList<T>(list.size()*2);
+        List<T> results = new ArrayList(list.size()*2);
 
         if ( list != null ) {
             for ( List<T> sublist : list ) {

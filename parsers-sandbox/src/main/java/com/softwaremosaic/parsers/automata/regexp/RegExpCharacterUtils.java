@@ -104,4 +104,8 @@ public class RegExpCharacterUtils {
         }
     }
 
+    public static String escape( String s ) {
+        return s; // todo
+    }
+
 }

@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  *
  */
-public interface Node<T extends Comparable<T>> extends Iterable<KV<T,Node<T>>> {
+public interface Node<T extends Comparable<T>> extends Iterable<KV<Label<T>,Node<T>>> {
 
     /**
      * Creates a new transition for the specified character.  If a transition
@@ -21,15 +21,25 @@ public interface Node<T extends Comparable<T>> extends Iterable<KV<T,Node<T>>> {
      */
     public Nodes<T> append( T label );
 
+    public Nodes<T> append( Label<T> label );
+
+    public void append( T label, Nodes<T> nodes );
+    public void append( Label<T> label, Nodes<T> nodes );
+
+    public void append( T label, Node<T> node );
+    public void append( Label<T> label, Node<T> node );
+
+
+
     /**
      * Scan this nodes out edges for the transition with character c to a specified
      * destination node, then replace the node with a replacement.
      */
-    public int replace( T label, Node<T> expectedCurrentNode, Node<T> replacementNode );
+    public int replace( Label<T> label, Node<T> expectedCurrentNode, Node<T> replacementNode );
 
-    public int replace( T label, Node<T> expectedCurrentNode, Nodes<T> replacementNodes );
+    public int replace( Label<T> label, Node<T> expectedCurrentNode, Nodes<T> replacementNodes );
 
-    public int remove( T label, Node<T> targetNode );
+    public int remove( Label<T> label, Node<T> targetNode );
 
 
     /**
@@ -57,13 +67,10 @@ public interface Node<T extends Comparable<T>> extends Iterable<KV<T,Node<T>>> {
     public void isValidEndNode( boolean flag );
 
 
-    public List<KV<T,Node<T>>> getOutEdges();
+    public List<KV<Label<T>,Node<T>>> getOutEdges();
 
 //    public Node<T> skipWhiteSpace();
 
-    public void append( T label, Nodes<T> nodes );
-
-    public void append( T label, Node<T> node );
 
 //    public Nodes appendRegexpIC( String regexp );
 
@@ -84,6 +91,6 @@ public interface Node<T extends Comparable<T>> extends Iterable<KV<T,Node<T>>> {
      * taken a set of characters for that edge (or edges if more than one) that
      * lead to the next node.
      */
-    public void depthFirstPrefixTraversal( VoidFunction2<ConsList<KV<Set<T>,Node<T>>>, Boolean> callbackFunction );
+    public void depthFirstPrefixTraversal( VoidFunction2<ConsList<KV<Set<Label<T>>,Node<T>>>, Boolean> callbackFunction );
 
 }

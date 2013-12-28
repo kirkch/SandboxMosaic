@@ -7,7 +7,6 @@ import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.VoidFunction2;
 import com.mosaic.utils.ListUtils;
 import com.mosaic.utils.StringUtils;
-import com.softwaremosaic.parsers.automata.regexp.RegExpCharacterUtils;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -16,16 +15,16 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Encodes a graph of nodes into lines of text.
- *
- * Format:
- *
- * '[label]: nodeNumber -(chars)-> nodeNumber[t]
- *
- * The nodes are numbered from 1, in the order that they are traversed.  The
- * traversal order is depth first, in ascending order of the characters on each
- * edge.
- */
+* Encodes a graph of nodes into lines of text.
+*
+* Format:
+*
+* '[label]: nodeNumber -(chars)-> nodeNumber[t]
+*
+* The nodes are numbered from 1, in the order that they are traversed.  The
+* traversal order is depth first, in ascending order of the characters on each
+* edge.
+*/
 @SuppressWarnings("unchecked")
 public class NodeFormatter<T extends Comparable<T>> {
 
@@ -35,8 +34,8 @@ public class NodeFormatter<T extends Comparable<T>> {
         final List<String> formattedGraph = new ArrayList();
 
         startingNode.depthFirstPrefixTraversal(
-                new VoidFunction2<ConsList<KV<Set<T>, Node<T>>>,Boolean>() {
-                    public void invoke( ConsList<KV<Set<T>, Node<T>>> path, Boolean isLeaf ) {
+                new VoidFunction2<ConsList<KV<Set<Label<T>>, Node<T>>>,Boolean>() {
+                    public void invoke( ConsList<KV<Set<Label<T>>, Node<T>>> path, Boolean isLeaf ) {
                         if ( isLeaf ) {
                             appendPath( path.reverse(), formattedGraph );
                         }
@@ -113,6 +112,10 @@ public class NodeFormatter<T extends Comparable<T>> {
             if ( label == null ) {
                 label = Long.toString(nextLabel++);
 
+                if ( node.isValidEndNode() ) {
+                    label += "e";
+                }
+
                 if ( node.isTerminal() ) {
                     label += "t";
                 }
@@ -124,12 +127,12 @@ public class NodeFormatter<T extends Comparable<T>> {
         }
     };
 
-    private void appendPath( ConsList<KV<Set<T>, Node<T>>> path, List<String> formattedGraph ) {
+    private void appendPath( ConsList<KV<Set<Label<T>>, Node<T>>> path, List<String> formattedGraph ) {
         StringBuilder buf = new StringBuilder();
 
-        for ( KV<Set<T>,Node<T>> step : path ) {
-            Set<T>  labels = step.getKey();
-            Node<T> node       = step.getValue();
+        for ( KV<Set<Label<T>>,Node<T>> step : path ) {
+            Set<Label<T>>  labels = step.getKey();
+            Node<T>        node       = step.getValue();
 
             if ( !labels.isEmpty() ) {
                 buf.append( " -" );
@@ -145,13 +148,11 @@ public class NodeFormatter<T extends Comparable<T>> {
         formattedGraph.add( buf.toString() );
     }
 
-    private void appendLabels( StringBuilder buf, Set<T> labels ) {
-        if ( labels.iterator().next() instanceof Character ) {
-            RegExpCharacterUtils.formatCharacters( buf, (Set<Character>) labels );
+    private void appendLabels( StringBuilder buf, Set<Label<T>> labels ) {
+        if ( labels.size() == 1 ) {
+            buf.append( labels.iterator().next() );
         } else {
-            for ( T l : labels ) {
-                buf.append( l );
-            }
+            buf.append( Labels.or(labels) );
         }
     }
 

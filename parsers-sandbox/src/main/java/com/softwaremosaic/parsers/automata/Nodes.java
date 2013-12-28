@@ -71,6 +71,10 @@ public class Nodes<T extends Comparable<T>> extends AbstractList<Node<T>> {
     }
 
     public Nodes append( T label ) {
+        return append( Labels.singleValue(label) );
+    }
+
+    public Nodes append( Label<T> label ) {
         List<Node<T>> endNodes = new ArrayList();
 
         for ( Node<T> n : nodes ) {
@@ -81,6 +85,10 @@ public class Nodes<T extends Comparable<T>> extends AbstractList<Node<T>> {
     }
 
     public void append( T label, Node<T> next ) {
+        append( Labels.singleValue(label), next );
+    }
+
+    public void append( Label<T> label, Node<T> next ) {
         for ( Node<T> n : nodes ) {
             n.append( label, next );
         }

@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 @SuppressWarnings("unchecked")
 public class Node_TraversalTests {
 
-    private Node<Character>           startingNode     = new ObjectNode();
+    private Node<Character>           startingNode     = new LabelNode();
     private TraversalAuditingCallback auditingCallback = new TraversalAuditingCallback();
 
     
@@ -143,12 +143,12 @@ public class Node_TraversalTests {
 
 
     @SuppressWarnings("unchecked")
-    private class TraversalAuditingCallback implements VoidFunction2<ConsList<KV<Set<Character>,Node<Character>>>,Boolean> {
+    private class TraversalAuditingCallback implements VoidFunction2<ConsList<KV<Set<Label<Character>>,Node<Character>>>,Boolean> {
         public List<String> callbacks = new ArrayList();
 
-        public void invoke( ConsList<KV<Set<Character>, Node<Character>>> traversedPath, Boolean isLeaf ) {
-            ConsList<String> nodesVisitedStr = traversedPath.map(new Function1<KV<Set<Character>, Node<Character>>, String>() {
-                public String invoke(KV<Set<Character>, Node<Character>> edge) {
+        public void invoke( ConsList<KV<Set<Label<Character>>, Node<Character>>> traversedPath, Boolean isLeaf ) {
+            ConsList<String> nodesVisitedStr = traversedPath.map(new Function1<KV<Set<Label<Character>>, Node<Character>>, String>() {
+                public String invoke(KV<Set<Label<Character>>, Node<Character>> edge) {
                     List labels = ListUtils.asList(edge.getKey());
                     Collections.sort(labels);
 

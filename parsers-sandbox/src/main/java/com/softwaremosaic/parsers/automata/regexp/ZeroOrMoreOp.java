@@ -3,6 +3,7 @@ package com.softwaremosaic.parsers.automata.regexp;
 import com.mosaic.collections.ConsList;
 import com.mosaic.collections.KV;
 import com.mosaic.lang.functional.VoidFunction2;
+import com.softwaremosaic.parsers.automata.Label;
 import com.softwaremosaic.parsers.automata.Node;
 import com.softwaremosaic.parsers.automata.Nodes;
 
@@ -30,11 +31,11 @@ public class ZeroOrMoreOp<T extends Comparable<T>> extends GraphBuilder<T> {
     public Nodes<T> appendTo( final Node<T> startNode ) {
         final Nodes endNodes = opToRepeat.appendTo( startNode );
 
-        startNode.depthFirstPrefixTraversal(new VoidFunction2<ConsList<KV<Set<T>,Node<T>>>, Boolean>() {
-            public void invoke( ConsList<KV<Set<T>, Node<T>>> path, Boolean isEndOfPath ) {
+        startNode.depthFirstPrefixTraversal(new VoidFunction2<ConsList<KV<Set<Label<T>>,Node<T>>>, Boolean>() {
+            public void invoke( ConsList<KV<Set<Label<T>>, Node<T>>> path, Boolean isEndOfPath ) {
                 Node<T> visiting = path.head().getValue();
                 if ( isEndOfPath && endNodes.contains(visiting) ) {
-                    for ( T c : path.head().getKey() ) {
+                    for ( Label<T> c : path.head().getKey() ) {
                         Node<T> sourceNode = path.tail().head().getValue();
 
                         sourceNode.replace( c, visiting, startNode );

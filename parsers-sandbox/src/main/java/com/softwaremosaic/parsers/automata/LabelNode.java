@@ -7,56 +7,61 @@ import com.mosaic.collections.KV;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.VoidFunction2;
 import com.mosaic.utils.ListUtils;
+import com.mosaic.utils.StringUtils;
 
 import java.util.*;
 
 
 /**
- * A Node within a Finite State Automata.  Transitions between nodes are made
- * by traversing characters.  This particular graph supports cycles, multiple
- * edges to the same node, duplicate key edges and self cycles.  In short it is
- * a full fat character graph.
+ *
  */
 @SuppressWarnings("unchecked")
-public class ObjectNode<T extends Comparable<T>> implements Node<T> {
+public class LabelNode<T extends Comparable<T>> implements Node<T> {
 
-    private Map<T,List<Node<T>>> edges = new HashMap();
+    private List<KV<Label<T>,Node<T>>> edges = new ArrayList();
 
     private boolean isValidEndNode;
 
 
-    public Nodes append( T label ) {
-        List<Node<T>> nextNodes = touchEdges( label );
-        Node<T> newNode = new ObjectNode();
 
-        nextNodes.add( newNode );
+    public Nodes append( T label ) {
+        return append( Labels.singleValue(label) );
+    }
+
+    public Nodes append( Label<T> label ) {
+        Node<T> newNode = new LabelNode();
+
+        append( label, newNode );
 
         return new Nodes( newNode );
     }
 
     public void append( T label, Nodes<T> nodes ) {
+        append( Labels.singleValue(label), nodes );
+    }
+
+    public void append( Label<T> label, Nodes<T> nodes ) {
         for ( Node<T> n : nodes ) {
             append( label, n );
         }
     }
 
     public void append( T label, Node<T> node ) {
-        List<Node<T>> nextNodes = touchEdges(label);
-
-        nextNodes.add( node );
+        append( Labels.singleValue(label), node );
     }
 
-    public int replace( T label, Node<T> expectedCurrentNode, Node<T> replacementNode ) {
-        List<Node<T>> destinationNodes = edges.get( label );
-        if ( destinationNodes == null ) {
-            return 0;
-        }
+    public void append( Label<T> label, Node<T> newNode ) {
+        edges.add( new KV(label,newNode) );
+    }
 
-
+    public int replace( Label<T> label, Node<T> expectedCurrentNode, Node<T> replacementNode ) {
         int count = 0;
-        for ( int i=0; i<destinationNodes.size(); i++ ) {
-            if ( destinationNodes.get(i) == expectedCurrentNode ) {
-                destinationNodes.set( i, replacementNode );
+
+        for ( int i=0; i<edges.size(); i++ ) {
+            KV<Label<T>,Node<T>> edge = edges.get(i);
+
+            if ( edge.getValue() == expectedCurrentNode && edge.getKey() == label ) {
+                edges.set( i, new KV(edge.getKey(),replacementNode) );
 
                 count++;
             }
@@ -65,7 +70,7 @@ public class ObjectNode<T extends Comparable<T>> implements Node<T> {
         return count;
     }
 
-    public int replace( T label, Node<T> expectedCurrentNode, Nodes<T> replacementNodes ) {
+    public int replace( Label<T> label, Node<T> expectedCurrentNode, Nodes<T> replacementNodes ) {
         int count = remove( label, expectedCurrentNode );
 
         if ( count > 0 ) {
@@ -75,22 +80,30 @@ public class ObjectNode<T extends Comparable<T>> implements Node<T> {
         return count;
     }
 
-    public int remove( T label, Node<T> targetNode ) {
-        List<Node<T>> destinationNodes = edges.get( label );
-        if ( destinationNodes == null ) {
-            return 0;
+    public int remove( Label<T> label, Node<T> targetNode ) {
+        int count = 0;
+
+        Iterator<KV<Label<T>,Node<T>>> it = edges.iterator();
+        while ( it.hasNext() ) {
+            KV<Label<T>,Node<T>> edge = it.next();
+
+            if ( edge.getValue() == targetNode && edge.getKey() == label ) {
+                it.remove();
+
+                count++;
+            }
         }
 
-        destinationNodes.remove( targetNode );
-
-        return 1;
+        return count;
     }
 
     public Nodes<T> walk( T label ) {
-        List<Node<T>> nextNodes = edges.get( label );
+        List<Node<T>> nextNodes = new ArrayList();
 
-        if ( nextNodes == null ) {
-            return Nodes.EMPTY;
+        for ( KV<Label<T>,Node<T>> edge : edges ) {
+            if ( edge.getKey().matches(label) ) {
+                nextNodes.add( edge.getValue() );
+            }
         }
 
         return new Nodes(nextNodes);
@@ -109,18 +122,18 @@ public class ObjectNode<T extends Comparable<T>> implements Node<T> {
     }
 
     public Nodes<T> walk( T...path ) {
-        return this.walk( Arrays.asList(path) );
+        return this.walk( Arrays.asList( path ) );
     }
 
     public Nodes<T> walk( Iterable<T> path ) {
         List<Node<T>> currentNodes = Arrays.asList( (Node<T>) this );
 
         for ( final T label : path ) {
-            List<Nodes<T>> nextNodes = ListUtils.map(currentNodes, new Function1<Node<T>,Nodes<T>>() {
+            List<Nodes<T>> nextNodes = ListUtils.map( currentNodes, new Function1<Node<T>, Nodes<T>>() {
                 public Nodes<T> invoke( Node<T> n ) {
                     return n.walk( label );
                 }
-            });
+            } );
 
             currentNodes = ListUtils.flatten( nextNodes );
         }
@@ -129,50 +142,37 @@ public class ObjectNode<T extends Comparable<T>> implements Node<T> {
     }
 
 
-    public List<KV<T,Node<T>>> getOutEdges() {
-        List<KV<T,Node<T>>> out = new ArrayList<>();
-
-        for ( Map.Entry<T,List<Node<T>>> e : edges.entrySet() ) {
-            for ( Node<T> n : e.getValue() ) {
-                out.add( new KV(e.getKey(), n) );
-            }
-        }
-
-        return out;
+    public List<KV<Label<T>,Node<T>>> getOutEdges() {
+        return Collections.unmodifiableList( edges );
     }
 
-    public Iterator<KV<T,Node<T>>> iterator() {
-        return getOutEdges().iterator();
+    public Iterator<KV<Label<T>,Node<T>>> iterator() {
+        return edges.iterator();
     }
 
 
     public String toString() {
         StringBuilder buf = new StringBuilder();
 
+        List labels = ListUtils.map(edges, new Function1<KV<Label<T>, Node<T>>, Label<T>>() {
+            public Label<T> invoke( KV<Label<T>, Node<T>> edge ) {
+                return edge.getKey();
+            }
+        });
+
         buf.append( "Node(" );
-        buf.append( edges.keySet() );
+        StringUtils.join( buf, labels, ", ");
         buf.append( ')' );
 
         return buf.toString();
     }
 
-    private List<Node<T>> touchEdges( T label ) {
-        List<Node<T>> nodes = edges.get( label );
-        if ( nodes == null ) {
-            nodes = new ArrayList<>();
-
-            edges.put( label, nodes );
-        }
-
-        return nodes;
-    }
-
     public Nodes<T> getOutNodes() {
-        List<Node<T>> outNodes = new ArrayList<>();
-
-        for ( List<Node<T>> nodes : edges.values() ) {
-            outNodes.addAll( nodes );
-        }
+        List outNodes = ListUtils.map(edges, new Function1<KV<Label<T>, Node<T>>, Node<T>>() {
+            public Node<T> invoke( KV<Label<T>, Node<T>> edge ) {
+                return edge.getValue();
+            }
+        });
 
         return new Nodes(outNodes);
     }
@@ -191,7 +191,7 @@ public class ObjectNode<T extends Comparable<T>> implements Node<T> {
      * taken a set of characters for that edge (or edges if more than one) that
      * lead to the next node.
      */
-    public void depthFirstPrefixTraversal( VoidFunction2<ConsList<KV<Set<T>,Node<T>>>, Boolean> callbackFunction ) {
+    public void depthFirstPrefixTraversal( VoidFunction2<ConsList<KV<Set<Label<T>>,Node<T>>>, Boolean> callbackFunction ) {
         DepthFirstTraverser<T> t = new DepthFirstTraverser(this);
 
         for ( Path path : t ) {
@@ -202,24 +202,24 @@ public class ObjectNode<T extends Comparable<T>> implements Node<T> {
 
     private static class Path<T extends Comparable<T>> {
 
-        public static <T extends Comparable<T>> Path createPath( Path pathUpToNode, Set<T> labels, Node<T> destinationNode, Set<Node<T>> alreadyVisitedNodes ) {
+        public static <T extends Comparable<T>> Path createPath( Path pathUpToNode, Set<Label<T>> labels, Node<T> destinationNode, Set<Node<T>> alreadyVisitedNodes ) {
             boolean isEndOfPath = destinationNode.isTerminal() || alreadyVisitedNodes.contains(destinationNode);
 
             return new Path( pathUpToNode, labels, destinationNode, isEndOfPath );
         }
 
-        private ConsList<KV<Set<T>,Node<T>>> edges;
-        private boolean                isEndOfPath;
+        private ConsList<KV<Set<Label<T>>,Node<T>>> edges;
+        private boolean                             isEndOfPath;
 
-        public Path( ConsList<KV<Set<T>, Node<T>>> edges, boolean isEndOfPath ) {
+        public Path( ConsList<KV<Set<Label<T>>, Node<T>>> edges, boolean isEndOfPath ) {
             this.edges       = edges;
             this.isEndOfPath = isEndOfPath;
         }
 
-        public Path( Path pathUpToNode, Set<T> labels, Node<T> destinationNode, boolean isEndOfPath ) {
+        public Path( Path pathUpToNode, Set<Label<T>> labels, Node<T> destinationNode, boolean isEndOfPath ) {
             assert !pathUpToNode.isEndOfPath : "cannot extend a path that is already marked as complete";
 
-            KV<Set<T>,Node<T>> newEdge = new KV( labels, destinationNode );
+            KV<Set<Label<T>>,Node<T>> newEdge = new KV( labels, destinationNode );
 
             this.edges       = pathUpToNode.edges.cons(newEdge);
             this.isEndOfPath = isEndOfPath;
@@ -232,14 +232,13 @@ public class ObjectNode<T extends Comparable<T>> implements Node<T> {
 
     private static class DepthFirstTraverser<T extends Comparable<T>> implements Iterable<Path<T>> {
 
+        public static <T extends Comparable<T>> Map<Node<T>,Set<Label<T>>> getDestinationsGroupedByCharacters( Node<T> n ) {
+            Map<Node<T>,Set<Label<T>>> map = InitialValueMap.identityMapOfSets();
 
-        public static <T extends Comparable<T>> Map<Node<T>,Set<T>> getDestinationsGroupedByCharacters( Node<T> n ) {
-            Map<Node<T>,Set<T>> map = InitialValueMap.identityMapOfSets();
+            for ( KV<Label<T>,Node<T>> e : n.getOutEdges() ) {
+                Set<Label<T>> labelsSoFar = map.get(e.getValue());
 
-            for ( KV<T,Node<T>> e : n.getOutEdges() ) {
-                Set<T> charactersSoFar = map.get(e.getValue());
-
-                charactersSoFar.add( e.getKey() );
+                labelsSoFar.add( e.getKey() );
             }
 
             return map;
@@ -252,8 +251,8 @@ public class ObjectNode<T extends Comparable<T>> implements Node<T> {
 
         public DepthFirstTraverser( Node startingNode ) {
             Path path = new Path(
-                    ConsList.newConsList(new KV<Set<T>, Node<T>>(Collections.EMPTY_SET, startingNode)),
-                    startingNode.isTerminal()
+                ConsList.newConsList(new KV<Set<Label<T>>, Node<T>>( Collections.EMPTY_SET, startingNode)),
+                startingNode.isTerminal()
             );
 
             pathsYetToVisit.push(path);
@@ -281,9 +280,9 @@ public class ObjectNode<T extends Comparable<T>> implements Node<T> {
                     }
 
 
-                    Map<Node<T>,Set<T>> edges = getDestinationsGroupedByCharacters(nextNode);
+                    Map<Node<T>,Set<Label<T>>> edges = getDestinationsGroupedByCharacters(nextNode);
 
-                    for ( Map.Entry<Node<T>,Set<T>> e : sortEdges(edges) ) {
+                    for ( Map.Entry<Node<T>,Set<Label<T>>> e : sortEdges(edges) ) {
 //                    for ( KV<T,Node<T>> edge : nextNode ) {
                         pathsYetToVisit.push( Path.createPath( pathUpToNode, e.getValue(), e.getKey(), nodesVisitedSoFar ));
                     }
@@ -293,13 +292,13 @@ public class ObjectNode<T extends Comparable<T>> implements Node<T> {
                     throw new UnsupportedOperationException();
                 }
 
-                private List<Map.Entry<Node<T>,Set<T>>> sortEdges( Map<Node<T>,Set<T>> edges ) {
+                private List<Map.Entry<Node<T>,Set<Label<T>>>> sortEdges( Map<Node<T>,Set<Label<T>>> edges ) {
 //                    return ListUtils.asList(edges.entrySet());
 
-                    List<Map.Entry<Node<T>, Set<T>>> entries = ListUtils.asList(edges.entrySet());
+                    List<Map.Entry<Node<T>, Set<Label<T>>>> entries = ListUtils.asList(edges.entrySet());
 
-                    Collections.sort( entries, new Comparator<Map.Entry<Node<T>, Set<T>>>() {
-                        public int compare( Map.Entry<Node<T>, Set<T>> a, Map.Entry<Node<T>, Set<T>> b ) {
+                    Collections.sort( entries, new Comparator<Map.Entry<Node<T>, Set<Label<T>>>>() {
+                        public int compare( Map.Entry<Node<T>, Set<Label<T>>> a, Map.Entry<Node<T>, Set<Label<T>>> b ) {
                             return b.getValue().iterator().next().compareTo(a.getValue().iterator().next());
                         }
                     });

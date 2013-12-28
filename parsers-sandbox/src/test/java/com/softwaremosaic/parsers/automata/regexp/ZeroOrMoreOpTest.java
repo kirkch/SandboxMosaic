@@ -1,7 +1,9 @@
 package com.softwaremosaic.parsers.automata.regexp;
 
+import com.softwaremosaic.parsers.automata.Label;
+import com.softwaremosaic.parsers.automata.LabelNode;
+import com.softwaremosaic.parsers.automata.Labels;
 import com.softwaremosaic.parsers.automata.Node;
-import com.softwaremosaic.parsers.automata.ObjectNode;
 import org.junit.Test;
 
 import static com.softwaremosaic.parsers.automata.GraphAssertions.assertGraphEquals;
@@ -15,10 +17,12 @@ import static org.junit.Assert.assertEquals;
 @SuppressWarnings("unchecked")
 public class ZeroOrMoreOpTest {
 
+    private Label<Character> a = Labels.singleValue( 'a' );
+
 
     @Test
     public void givenBlankStartingNode_appendACaseSensitive_expectSingleTransition() {
-        Node         s  = new ObjectNode();
+        Node         s  = new LabelNode();
         GraphBuilder op = new ZeroOrMoreOp( new StringOp("a", CaseSensitive) );
 
         op.appendTo( s );
@@ -33,7 +37,7 @@ public class ZeroOrMoreOpTest {
 
     @Test
     public void givenBlankStartingNode_appendACaseInsensitive_expectSingleTransition() {
-        Node s  = new ObjectNode();
+        Node s  = new LabelNode();
         GraphBuilder op = new ZeroOrMoreOp( new StringOp("a", CaseInsensitive) );
 
         op.appendTo( s );
@@ -46,13 +50,15 @@ public class ZeroOrMoreOpTest {
         assertGraphEquals( s, expected );
     }
 
+
+
     @Test
     public void givenSingleExistingTransition_appendACaseInsensitive_expectSingleTransitionThenLoopBack() {
-        ObjectNode n1  = new ObjectNode();
-        ObjectNode n2  = new ObjectNode();
+        LabelNode n1  = new LabelNode();
+        LabelNode n2  = new LabelNode();
         GraphBuilder op = new ZeroOrMoreOp( new StringOp("b", CaseSensitive) );
 
-        n1.append( 'a', n2 );
+        n1.append( a, n2 );
         op.appendTo( n2 );
 
 
@@ -65,16 +71,16 @@ public class ZeroOrMoreOpTest {
 
     @Test
     public void givenBlankStartingNode_appendAorBWithDifferentEdges_expectBothAAndBToLoopBack() {
-        ObjectNode n1  = new ObjectNode();
-        ObjectNode n2  = new ObjectNode();
+        LabelNode n1  = new LabelNode();
+        LabelNode n2  = new LabelNode();
         GraphBuilder op = new ZeroOrMoreOp( new OrOp(new StringOp("a", CaseSensitive), new StringOp("b", CaseSensitive)) );
 
-        n1.append( 'a', n2 );
+        n1.append( a, n2 );
         op.appendTo( n2 );
 
 
         String[] expected = new String[] {
-                "1 -a-> 2 -[ab]-> 2"
+                "1 -a-> 2 -a|b-> 2"
         };
 
         assertGraphEquals( n1, expected );

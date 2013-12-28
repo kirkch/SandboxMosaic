@@ -1,6 +1,6 @@
 package com.softwaremosaic.parsers.automata.regexp;
 
-import com.softwaremosaic.parsers.automata.ObjectNode;
+import com.softwaremosaic.parsers.automata.LabelNode;
 import org.junit.Test;
 
 import static com.softwaremosaic.parsers.automata.GraphAssertions.assertGraphEquals;
@@ -9,14 +9,14 @@ import static org.junit.Assert.assertEquals;
 
 
 /**
-*
-*/
+ *
+ */
 @SuppressWarnings("unchecked")
 public class StringOpTest {
 
     @Test
     public void givenBlankStartingNode_appendACaseSensitive_expectSingleTransition() {
-        ObjectNode s  = new ObjectNode();
+        LabelNode s  = new LabelNode();
         GraphBuilder op = new StringOp( "a", CaseSensitive );
 
         op.appendTo( s );
@@ -27,7 +27,7 @@ public class StringOpTest {
 
     @Test
     public void givenBlankStartingNode_appendACaseInsensitive_expectTwoTransitionsToOneNode() {
-        ObjectNode s  = new ObjectNode();
+        LabelNode s  = new LabelNode();
         GraphBuilder op = new StringOp( "a", CaseInsensitive );
 
         op.appendTo( s );
@@ -37,7 +37,7 @@ public class StringOpTest {
 
     @Test
     public void givenBlankStartingNode_appendABCaseSensitive() {
-        ObjectNode s  = new ObjectNode();
+        LabelNode s  = new LabelNode();
         GraphBuilder op = new StringOp( "ab", CaseSensitive );
 
         op.appendTo( s );
@@ -48,7 +48,7 @@ public class StringOpTest {
 
     @Test
     public void givenBlankStartingNode_appendABCaseInsensitive() {
-        ObjectNode s  = new ObjectNode();
+        LabelNode s  = new LabelNode();
         GraphBuilder op = new StringOp( "ab", CaseInsensitive );
 
         op.appendTo( s );
