@@ -1,10 +1,13 @@
 package com.softwaremosaic.parsers.automata;
 
+import com.mosaic.lang.Validate;
 import com.mosaic.utils.StringUtils;
 import com.softwaremosaic.parsers.automata.regexp.GraphBuilder;
 import com.softwaremosaic.parsers.automata.regexp.RegExpCharacterUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -47,6 +50,13 @@ public class Labels {
 
     public static Label<Character> characterLabel( char c, GraphBuilder.CaseSensitivity caseSensitivity ) {
         return caseSensitivity.ignoreCase() ? caseInsensitive(c) : singleValue(c);
+    }
+
+    /**
+     * Supports the character selection options of a [abc] and [^abc] regexp component.
+     */
+    public static CharacterSelectionLabel characterSelection() {
+        return new CharacterSelectionLabel();
     }
 
 
@@ -140,7 +150,7 @@ public class Labels {
 
         public boolean matches( T input ) {
             for ( Label<T> l : labels ) {
-                if (l.matches(input) ) {
+                if (l.matches( input ) ) {
                     return true;
                 }
             }
@@ -217,5 +227,95 @@ public class Labels {
 
             return a == 0 ? b : a;
         }
+    }
+
+    public static class CharacterSelectionLabel implements Label<Character> {
+
+        private boolean invert;
+        private List<CharacterSelection> candidates = new ArrayList();
+
+
+        public boolean matches( Character input ) {
+            for ( CharacterSelection predicate : candidates ) {
+                if ( predicate.matches(input) ) {
+                    return !invert;
+                }
+            }
+
+            return invert;
+        }
+
+        public void invert() {
+            this.invert = true;
+        }
+
+        public void appendCharacter( final char c ) {
+            candidates.add( new CharacterSelection() {
+                public boolean matches( Character input ) {
+                    return input.charValue() == c;
+                }
+
+                public void toString( StringBuilder buf ) {
+                    conditionalEscapeAndAppendToBuffer( buf, c );
+                }
+            });
+        }
+
+        public void appendRange( final char minInc, final char maxInc ) {
+            Validate.isLTE( minInc, maxInc, "minInc" );
+
+            candidates.add( new CharacterSelection() {
+                public boolean matches( Character input ) {
+                    char c = input.charValue();
+
+                    return c >= minInc && c <= maxInc;
+                }
+
+                public void toString( StringBuilder buf ) {
+                    conditionalEscapeAndAppendToBuffer( buf, minInc );
+                    buf.append( '-' );
+                    conditionalEscapeAndAppendToBuffer( buf, maxInc );
+                }
+            });
+        }
+
+        public String toString() {
+            StringBuilder buf = new StringBuilder();
+
+            buf.append( '[' );
+
+            if ( invert ) {
+                buf.append( '^' );
+            }
+
+            for ( CharacterSelection candidate : candidates ) {
+                candidate.toString( buf );
+            }
+
+            buf.append( ']' );
+
+            return buf.toString();
+        }
+
+        public int compareTo( Label<Character> o ) {
+            if ( !(o instanceof CharacterSelectionLabel) ) {
+                return -1;
+            }
+
+            return this.toString().compareTo( o.toString() );
+        }
+
+        private void conditionalEscapeAndAppendToBuffer( StringBuilder buf, char c ) {
+            if ( c == '^' || c == ']' || c == '-' ) {
+                buf.append( '\\' );
+            }
+
+            buf.append(c);
+        }
+    }
+
+    private static interface CharacterSelection {
+        public boolean matches( Character input );
+        public void toString( StringBuilder buf );
     }
 }

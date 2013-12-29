@@ -4,7 +4,7 @@ import com.mosaic.utils.StringUtils;
 import com.softwaremosaic.parsers.automata.Node;
 import com.softwaremosaic.parsers.automata.Nodes;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,10 +12,16 @@ import java.util.List;
  */
 public class OrOp<T extends Comparable<T>> extends GraphBuilder<T> {
 
-    private List<GraphBuilder<T>> childOps;
+    private List<GraphBuilder<T>> childOps = new ArrayList();
 
     public OrOp( GraphBuilder<T>...childOps ) {
-        this.childOps = Arrays.asList(childOps);
+        for ( GraphBuilder<T> c : childOps ) {
+            this.childOps.add( c );
+        }
+    }
+
+    public void add( GraphBuilder<T> childOp ) {
+        childOps.add( childOp );
     }
 
     public Nodes<T> appendTo( Node<T> startNode ) {

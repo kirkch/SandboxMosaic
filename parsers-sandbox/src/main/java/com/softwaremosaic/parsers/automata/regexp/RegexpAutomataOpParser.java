@@ -2,7 +2,8 @@ package com.softwaremosaic.parsers.automata.regexp;
 
 import com.mosaic.collections.FastStack;
 
-import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.*;
+import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseInsensitive;
+import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseSensitive;
 
 
 /**
@@ -19,14 +20,14 @@ public class RegexpAutomataOpParser {
     public GraphBuilder parse( String regexpString ) {
         int pos = 0;
         do {
-            pos = parseNext( pos, regexpString );
+            pos = parseNext( pos, regexpString, 0 );
         } while ( pos < regexpString.length() );
 
         return opStack.pop();
     }
 
 
-    private int parseNext( int i, String str ) {
+    private int parseNext( int i, String str, int nestedBracketCount ) {
         if ( i >= str.length() ) {
             return i;
         }
@@ -35,9 +36,25 @@ public class RegexpAutomataOpParser {
         switch ( c ) {
             case '*':
                 return parseZeroOrMore(i, str);
+            case '+':
+                return parseOneOrMore( i, str );
+            case '?':
+                return parseOptional( i, str );
+            case '[':
+                return parseCharacterSelection( i, str );
+            case '|':
+                int next = parseNext( i+1, str, nestedBracketCount );
+
+                parseOr(i, str);
+
+                return next;
+            case '(':
+                return parseNext(i+1, str, nestedBracketCount+1);
+            case ')':
+                return i+1;
             case '~':
             default:
-                return parseConstant( i, str );
+                return parseConstant( i, str, nestedBracketCount );
         }
     }
 
@@ -49,7 +66,48 @@ public class RegexpAutomataOpParser {
         return i+1;
     }
 
-    private int parseConstant( int i, String str ) {
+    private int parseOneOrMore( int i, String str ) {
+        assert str.charAt(i) == '+';
+
+        opStack.push( new OneOrMoreOp(opStack.pop()) );
+
+        return i+1;
+    }
+
+    private int parseOptional( int i, String str ) {
+        assert str.charAt(i) == '?';
+
+        opStack.push( new OptionalOp(opStack.pop()) );
+
+        return i+1;
+    }
+
+    private int parseCharacterSelection( int i, String str ) {
+        assert str.charAt(i) == '[';
+
+//        Labels.characterRange(  )
+
+        return i+1;
+    }
+
+    private void parseOr( int i, String str ) {
+        assert str.charAt(i) == '|';
+
+        GraphBuilder b = opStack.pop();
+        GraphBuilder a = opStack.pop();
+
+        if ( a.getClass() == OrOp.class ) {
+            OrOp op = (OrOp) a;
+
+            op.add( b );
+
+            opStack.push( op );
+        } else {
+            opStack.push( new OrOp(a,b) );
+        }
+    }
+
+    private int parseConstant( int i, String str, int nestedBracketCount ) {
         GraphBuilder op;
 
         int endExc = nextSpecialCharacter( i+1, str );
@@ -69,7 +127,7 @@ public class RegexpAutomataOpParser {
         for ( int i=fromInc; i<str.length(); i++ ) {
             char c = str.charAt(i);
 
-            if ( c == '*' ) {
+            if ( c == '*' || c == ')' || c == '+' || c == '?' || c == '|' || c == '[' || c == ']') {
                 return i;
             }
         }

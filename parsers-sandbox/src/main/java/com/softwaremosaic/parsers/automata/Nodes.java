@@ -46,6 +46,8 @@ public class Nodes<T extends Comparable<T>> extends AbstractList<Node<T>> {
         nodes.add( index, element );
     }
 
+
+
     public Nodes walk( T label ) {
         List<Node<T>> endNodes = new ArrayList();
 

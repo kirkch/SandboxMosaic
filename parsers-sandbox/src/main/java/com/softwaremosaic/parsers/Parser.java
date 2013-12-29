@@ -1,24 +1,18 @@
 package com.softwaremosaic.parsers;
 
-import com.mosaic.collections.KV;
-import com.mosaic.io.Formatter;
 import com.mosaic.lang.Validate;
 import com.softwaremosaic.parsers.automata.Label;
-import com.softwaremosaic.parsers.automata.LabelNode;
 import com.softwaremosaic.parsers.automata.Labels;
 import com.softwaremosaic.parsers.automata.Node;
 import com.softwaremosaic.parsers.automata.Nodes;
 import com.softwaremosaic.parsers.automata.ProductionRule;
-import com.softwaremosaic.parsers.automata.regexp.RegExpCharacterUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 
 
 /**
@@ -144,29 +138,6 @@ public abstract class Parser<T extends Comparable<T>> {
     private String prettyPrint( List<Label> labels ) {
         return Labels.orValues( labels ).toString();
     }
-
-    /**
-     * A map of 'next steps' is a map containing all of the out edges from a node
-     * grouped by the destination node labels.  Used for formatting what the
-     * next step for the parser could be.
-     */
-    private static final Formatter<Map.Entry<String, List<KV<Character,LabelNode>>>> NEXT_STEPS_FORMATTER = new Formatter<Map.Entry<String, List<KV<Character,LabelNode>>>>() {
-        public void write( Appendable buf, Map.Entry<String, List<KV<Character, LabelNode>>> step ) throws IOException {
-            String             label      = step.getKey();
-            TreeSet<Character> characters = new TreeSet();
-
-            for ( KV<Character, LabelNode> p : step.getValue() ) {
-                characters.add( p.getKey() );
-            }
-
-
-            buf.append('\'');
-            RegExpCharacterUtils.formatCharacters((StringBuilder) buf, characters);
-            buf.append( " -> " );
-            buf.append( label );
-            buf.append('\'');
-        }
-    };
 
     private List<Label> fetchAllCandidateNextSteps() {
         List<Label> allOutEdges = new ArrayList();
