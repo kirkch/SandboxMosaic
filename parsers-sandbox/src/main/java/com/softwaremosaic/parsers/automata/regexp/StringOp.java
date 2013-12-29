@@ -9,6 +9,8 @@ import com.softwaremosaic.parsers.automata.Nodes;
 
 import java.util.List;
 
+import static com.softwaremosaic.parsers.automata.regexp.RegExpCharacterUtils.escape;
+
 /**
  * Append the transitions required to match a constant onto the automata.
  */
@@ -43,9 +45,9 @@ public class StringOp extends GraphBuilder<Character> {
 
     public String toString() {
         if ( caseSensitivity.ignoreCase() ) {
-            return "~" + constant.toLowerCase();
+            return "~" + escape( constant.toLowerCase() );
         } else {
-            return constant;
+            return escape(constant);
         }
     }
 

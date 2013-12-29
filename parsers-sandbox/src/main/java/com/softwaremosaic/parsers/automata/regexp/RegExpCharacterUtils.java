@@ -105,7 +105,30 @@ public class RegExpCharacterUtils {
     }
 
     public static String escape( String s ) {
-        return s; // todo
+        StringBuilder buf = new StringBuilder();
+
+        escape( buf, s );
+
+        return buf.toString();
+    }
+
+    public static void escape( StringBuilder buf, String s ) {
+        int max = s.length();
+
+        for ( int i=0; i<max; i++ ) {
+            char c = s.charAt( i );
+
+            if ( isSpecialChar(c) ) {
+                buf.append( '\\' );
+            }
+
+            buf.append(c);
+        }
+    }
+
+
+    public static boolean isSpecialChar( char c ) {
+        return c == '*' || c == ')' || c == '+' || c == '?' || c == '|' || c == '[' || c == ']' || c == '~' || c == '(';
     }
 
 }

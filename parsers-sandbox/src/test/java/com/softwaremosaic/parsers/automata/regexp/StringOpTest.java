@@ -75,4 +75,11 @@ public class StringOpTest {
         assertEquals( "~ab", op.toString() );
     }
 
+    @Test
+    public void givenSpecialCharsInString_toString_escapedString() {
+        GraphBuilder op = new StringOp( "~a*B", CaseSensitive );
+
+        assertEquals( "\\~a\\*B", op.toString() );
+    }
+
 }
