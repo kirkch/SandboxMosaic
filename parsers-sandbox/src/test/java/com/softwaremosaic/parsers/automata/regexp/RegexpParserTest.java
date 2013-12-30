@@ -1,16 +1,23 @@
 package com.softwaremosaic.parsers.automata.regexp;
 
-import org.junit.Assert;
+import com.softwaremosaic.parsers.automata.LabelNode;
+import com.softwaremosaic.parsers.automata.Node;
+import com.softwaremosaic.parsers.automata.NodeFormatter;
+import com.softwaremosaic.parsers.automata.Nodes;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  *
  */
-public class RegexpAutomataOpParserTest {
+@SuppressWarnings("unchecked")
+public class RegexpParserTest {
 
-    private RegexpAutomataOpParser parser = new RegexpAutomataOpParser();
+    private RegexpParser parser = new RegexpParser();
 
 
     @Test
@@ -29,7 +36,7 @@ public class RegexpAutomataOpParserTest {
         assertEquals( "a", ((StringOp) op).getConstant() );
     }
 
-//    @Test
+    @Test
     public void givenAEscapedIgnoreCase_expectConstantTildaAOpBack() {
         GraphBuilder op = parser.parse( "\\~a" );
 
@@ -162,14 +169,72 @@ public class RegexpAutomataOpParserTest {
         try {
             parser.parse( "((abc|0123)?|[a-z]" );
 
-            Assert.fail( "expected IllegalArgumentException" );
+            fail( "expected IllegalArgumentException" );
         } catch ( IllegalArgumentException e ) {
-            Assert.assertEquals( "Expected closing bracket ')' at index 18 of '((abc|0123)?|[a-z]'", e.getMessage() );
+            assertEquals( "Expected closing bracket ')' but found instead ''", e.getMessage() );
         }
     }
 
+    @Test
+    public void anyChar() {
+        GraphBuilder op = parser.parse( "a.c" );
+
+        assertEquals( "a.c", op.toString() );
 
 
-    //escapedChars
-    // .
+        Node n = createGraph( op );
+
+        assertEquals( Arrays.asList("1 -a-> 2 -.-> 3 -c-> 4t"), new NodeFormatter().format( n ) );
+
+        assertTrue( walk( n, Arrays.asList('a', 'b', 'c') ) );
+        assertTrue( walk( n, Arrays.asList('a', 'a', 'c') ) );
+        assertTrue( walk( n, Arrays.asList('a', 'c', 'c') ) );
+        assertTrue( walk( n, Arrays.asList('a', '|', 'c') ) );
+        assertTrue( walk( n, Arrays.asList('a', '\"', 'c') ) );
+        assertTrue( walk( n, Arrays.asList('a', '!', 'c') ) );
+        assertTrue( walk( n, Arrays.asList('a', 'f', 'c') ) );
+
+        assertFalse( walk( n, Arrays.asList('b', 'f', 'c') ) );
+        assertFalse( walk( n, Arrays.asList( 'a', 'f', 'd' ) ) );
+    }
+
+    @Test
+    public void whiteSpace() {
+        GraphBuilder op = parser.parse( "[ \n\t\r]*" );
+
+        assertEquals( "([ \n\t\r])*", op.toString() );
+
+
+        Node n = createGraph( op );
+
+        assertTrue( walk( n, Arrays.asList(' ') ) );
+        assertTrue( walk( n, Arrays.asList('\t') ) );
+        assertTrue( walk( n, Arrays.asList(' ', ' ') ) );
+        assertTrue( walk( n, Arrays.asList('\n', '\r', ' ') ) );
+
+        assertFalse( walk( n, Arrays.asList('b', 'f', 'c') ) );
+        assertFalse( walk( n, Arrays.asList( 'a', 'f', 'd' ) ) );
+    }
+
+    private boolean walk( Node n, List<Character> input ) {
+        Nodes pos = new Nodes(n);
+
+        for ( Character c : input ) {
+            pos = pos.walk( c );
+
+            if ( pos.isEmpty() ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private Node createGraph( GraphBuilder op ) {
+        Node n = new LabelNode();
+
+        op.appendTo( n );
+
+        return n;
+    }
 }

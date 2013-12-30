@@ -9,6 +9,8 @@ import com.softwaremosaic.parsers.automata.Nodes;
 
 import java.util.List;
 
+import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseInsensitive;
+import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseSensitive;
 import static com.softwaremosaic.parsers.automata.regexp.RegExpCharacterUtils.escape;
 
 /**
@@ -57,6 +59,10 @@ public class StringOp extends GraphBuilder<Character> {
 
     public String getConstant() {
         return constant;
+    }
+
+    public void insensitive( boolean b ) {
+        caseSensitivity = b ? CaseInsensitive : CaseSensitive;
     }
 
 }

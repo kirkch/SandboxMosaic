@@ -127,8 +127,16 @@ public class RegExpCharacterUtils {
     }
 
 
+    private static char[] SPECIAL_CHARS = new char[] {'*',')','+','?','|','[',']','~','(','^','-', '.'};
+
     public static boolean isSpecialChar( char c ) {
-        return c == '*' || c == ')' || c == '+' || c == '?' || c == '|' || c == '[' || c == ']' || c == '~' || c == '(';
+        for ( char s : SPECIAL_CHARS ) {
+            if ( c == s ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

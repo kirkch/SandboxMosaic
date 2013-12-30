@@ -37,4 +37,11 @@ public abstract class GraphBuilder<T extends Comparable<T>> {
         return endNodes;
     }
 
+    /**
+     * Override this method to enable/disable case sensitivity as appropriate.
+     */
+    public void insensitive( boolean b ) {
+
+    }
+
 }

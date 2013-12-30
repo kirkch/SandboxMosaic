@@ -12,6 +12,7 @@ import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensit
 import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseSensitive;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -77,18 +78,23 @@ public class OptionalOpTest {
     @Test
     public void givenBlankStartingNode_appendAorBWithDifferentEdges_expectBothAAndBToLoopBack() {
         LabelNode n1  = new LabelNode();
-        LabelNode n2  = new LabelNode();
-        GraphBuilder op = new OptionalOp( new OrOp(new StringOp("a", CaseSensitive), new StringOp("b", CaseSensitive)) );
 
-        n1.append( a, n2 );
-        op.appendTo( n2 );
+        GraphBuilder op = new OptionalOp(
+            new OrOp(new StringOp("a", CaseSensitive), new StringOp("b", CaseSensitive))
+        );
+
+        Nodes nextNodes = op.appendTo( n1 );
 
 
         String[] expected = new String[] {
-            "1 -a-> 2 -a|b-> 3t"
+            "1 -a-> 2t",
+            "  -b-> 3t"
         };
 
         assertGraphEquals( n1, expected );
+
+        assertEquals( 3, nextNodes.size() );
+        assertTrue( nextNodes.contains(n1) );
     }
 
 

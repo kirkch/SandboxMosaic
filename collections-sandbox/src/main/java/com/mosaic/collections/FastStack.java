@@ -65,4 +65,14 @@ public class FastStack<T> {
         return position;
     }
 
+    public ConsList<T> popAll() {
+        ConsList<T> list = ConsList.Nil;
+
+        while ( this.hasContents() ) {
+            list = list.cons( this.pop() );
+        }
+
+        return list;
+    }
+
 }

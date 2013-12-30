@@ -52,6 +52,10 @@ public class Labels {
         return caseSensitivity.ignoreCase() ? caseInsensitive(c) : singleValue(c);
     }
 
+    public static Label<Character> appendAnyCharacter() {
+        return AnyCharacterLabel.INSTANCE;
+    }
+
     /**
      * Supports the character selection options of a [abc] and [^abc] regexp component.
      */
@@ -107,6 +111,26 @@ public class Labels {
 
             NotValueLabel<T> other = (NotValueLabel) o;
             return this.v.compareTo(other.v);
+        }
+    }
+
+    private static class AnyCharacterLabel implements Label<Character> {
+        public static AnyCharacterLabel INSTANCE = new AnyCharacterLabel();
+
+        public boolean matches( Character input ) {
+            return true;
+        }
+
+        public String toString() {
+            return ".";
+        }
+
+        public int compareTo( Label o ) {
+            if ( !(o instanceof AnyCharacterLabel) ) {
+                return -1;
+            }
+
+            return 0;
         }
     }
 
