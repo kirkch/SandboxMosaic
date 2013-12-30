@@ -1,5 +1,6 @@
 package com.softwaremosaic.parsers;
 
+import com.mosaic.collections.ConsList;
 import com.mosaic.lang.Validate;
 import com.softwaremosaic.parsers.automata.Label;
 import com.softwaremosaic.parsers.automata.Labels;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -154,6 +156,7 @@ public abstract class Parser<T extends Comparable<T>> {
      */
     private List<ParserState> considerNextStep( T input ) {
         List<ParserState> nextStates = new ArrayList();
+
         for ( ParserState state : currentStates ) {
             state.consume( nextStates, input );
         }
@@ -162,31 +165,105 @@ public abstract class Parser<T extends Comparable<T>> {
     }
 
 
+    private static class StackFrame {
+        public final ProductionRule rule;
+        public final Node           currentNode;
+
+        public final ConsList<ProductionRule> nextRules;
+
+        public final ConsList returnValueCollectedSoFar;
+
+        public StackFrame( ProductionRule rule ) {
+            this.rule                      = rule;
+            this.returnValueCollectedSoFar = ConsList.Nil;
+
+            if ( rule.isTerminal() ) {
+                currentNode = rule.getNode();
+                nextRules   = ConsList.Nil;
+            } else {
+                currentNode = null;
+                nextRules   = rule.getChildRules();
+            }
+        }
+
+        private StackFrame( StackFrame frameToDuplicate, Object input, Node n ) {
+            this.rule                      = frameToDuplicate.rule;
+            this.currentNode               = n;
+
+            this.nextRules                 = frameToDuplicate.nextRules;
+
+
+            this.returnValueCollectedSoFar = frameToDuplicate.returnValueCollectedSoFar;
+            if ( rule.isCapture() ) {
+                this.returnValueCollectedSoFar.cons( input );
+            }
+        }
+
+        public StackFrame consumedValue( Object input, Node nextNode ) {
+            return new StackFrame( this, input, nextNode );
+        }
+    }
+
+
     private class ParserState {
 
-        private ProductionRule productionRule;
-        private Node           currentNode;
+        private final ConsList<StackFrame> stack;
 
 
-        public ParserState( ProductionRule productionRule ) {
-            this( productionRule, productionRule.getStartingNode() );
+        public ParserState( ProductionRule firstRule ) {
+            this( ConsList.Nil.cons( new StackFrame( firstRule ) ) );
         }
 
-        private ParserState( ProductionRule productionRule, Node node ) {
-            this.productionRule = productionRule;
-            this.currentNode    = node;
+        private ParserState( ConsList<StackFrame> stack ) {
+            this.stack = stack;
         }
 
-        public Collection<? extends Label> getNextCandidateLabels() {
-            return currentNode.getOutLabels();
-        }
 
-        public void consume( List<ParserState> nextStates, T input ) {
-            Nodes<T> next = currentNode.walk( input );
+        public void consume( List<ParserState> nextStatesOutput, T input ) {
+            StackFrame currentFrame = stack.head();
 
-            for ( Node<T> n : next ) {
-                nextStates.add( new ParserState(productionRule,n) );
+            if ( currentFrame.currentNode != null) {
+                traverseNextEdgeInGraph( nextStatesOutput, input, currentFrame );
             }
+//            else if ( currentFrame.nextRules.hasContents() ) {
+//                ParserState newState = pushNextRule();
+//
+//                newState.consume( nextStatesOutput, input );
+//            } else { // pass value back up the stack
+//                ParserState newState = pushNextRule();
+//
+//                newState.consume( nextStatesOutput, input );
+//            }
+        }
+
+        private void traverseNextEdgeInGraph( List<ParserState> nextStatesOutput, T input, StackFrame currentFrame ) {
+            Nodes nextNodes = currentFrame.currentNode.walk( input );
+
+            Iterator it = nextNodes.iterator();
+            while ( it.hasNext() ) {
+                Node n = (Node) it.next();
+
+                if ( n.isValidEndNode() ) {
+
+                } else {
+                    StackFrame updatedFrame = currentFrame.consumedValue( input, n );
+
+                    ParserState newState = this.replaceHeadWith( updatedFrame );
+                    nextStatesOutput.add( newState );
+                }
+            }
+        }
+
+        private ParserState replaceHeadWith( StackFrame updatedFrame ) {
+            return new ParserState( this.stack.tail().cons( updatedFrame ) );
+        }
+
+        /**
+         * Retrieves the candidate next nodes given the current position.  Used
+         * for error reporting.
+         */
+        public Collection<? extends Label> getNextCandidateLabels() {
+            return stack.head().currentNode.getOutLabels();
         }
     }
 

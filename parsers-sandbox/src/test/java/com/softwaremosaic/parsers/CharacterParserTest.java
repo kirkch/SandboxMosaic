@@ -1,5 +1,6 @@
 package com.softwaremosaic.parsers;
 
+import com.mosaic.utils.MapUtils;
 import com.softwaremosaic.parsers.automata.Label;
 import com.softwaremosaic.parsers.automata.LabelNode;
 import com.softwaremosaic.parsers.automata.Labels;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -29,7 +31,7 @@ public class CharacterParserTest {
 
     @Test
     public void givenBlankAutomata_matchA_expectErrorCallback() {
-        ProductionRule    rule1  = new ProductionRule( new LabelNode() );
+        ProductionRule    rule1  = ProductionRule.terminal( new LabelNode() );
         Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
 
 
@@ -45,7 +47,7 @@ public class CharacterParserTest {
 
     @Test
     public void givenBlankAutomata_matchB_expectErrorCallback() {
-        ProductionRule    rule1  = new ProductionRule( new LabelNode() );
+        ProductionRule    rule1  = ProductionRule.terminal( new LabelNode() );
         Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
 
         int numCharactersConsumed = consume(parser, "b");
@@ -61,7 +63,7 @@ public class CharacterParserTest {
 
     @Test
     public void givenBlankAutomata_matchAB_expectErrorCallback() {
-        ProductionRule    rule1  = new ProductionRule( new LabelNode() );
+        ProductionRule    rule1  = ProductionRule.terminal( new LabelNode() );
         Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
 
         int numCharactersConsumed = consume(parser, "ab");
@@ -81,7 +83,7 @@ public class CharacterParserTest {
         n.append( 'a' );
 
 
-        ProductionRule    rule1  = new ProductionRule( n );
+        ProductionRule    rule1  = ProductionRule.terminal( n );
         Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
 
 
@@ -103,7 +105,7 @@ public class CharacterParserTest {
         n.append( 'b' );
 
 
-        ProductionRule    rule1  = new ProductionRule( n );
+        ProductionRule    rule1  = ProductionRule.terminal( n );
         Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
 
 
@@ -126,7 +128,7 @@ public class CharacterParserTest {
         n.append( 'b' );
 
 
-        ProductionRule    rule1  = new ProductionRule( n );
+        ProductionRule    rule1  = ProductionRule.terminal( n );
         Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
 
 
@@ -148,7 +150,7 @@ public class CharacterParserTest {
         n2.append('b');
 
 
-        ProductionRule    rule1  = new ProductionRule( n1 );
+        ProductionRule    rule1  = ProductionRule.terminal( n1 );
         Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
 
 
@@ -169,7 +171,7 @@ public class CharacterParserTest {
         new StringOp( "a\nb", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
-        ProductionRule    rule1  = new ProductionRule( n1 );
+        ProductionRule    rule1  = ProductionRule.terminal( n1 );
         Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
 
 
@@ -190,7 +192,7 @@ public class CharacterParserTest {
         new StringOp( "ab", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
-        ProductionRule    rule1  = new ProductionRule( n1 );
+        ProductionRule    rule1  = ProductionRule.terminal( n1 );
         Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
 
 
@@ -213,7 +215,7 @@ public class CharacterParserTest {
         new StringOp( "ab", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
-        ProductionRule    rule1  = new ProductionRule( n1 );
+        ProductionRule    rule1  = ProductionRule.terminal( n1 );
         Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
 
 
@@ -233,7 +235,7 @@ public class CharacterParserTest {
         new StringOp( "ab", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
-        ProductionRule    rule1  = new ProductionRule( n1 );
+        ProductionRule    rule1  = ProductionRule.terminal( n1 );
         Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
 
 
@@ -254,7 +256,7 @@ public class CharacterParserTest {
         new StringOp( "ab", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
-        ProductionRule    rule1  = new ProductionRule( n1 );
+        ProductionRule    rule1  = ProductionRule.terminal( n1 );
         Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
 
 
@@ -276,7 +278,7 @@ public class CharacterParserTest {
         new StringOp( "a\nb", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
-        ProductionRule    rule1  = new ProductionRule( n1 );
+        ProductionRule    rule1  = ProductionRule.terminal( n1 );
         Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
 
 
@@ -298,7 +300,7 @@ public class CharacterParserTest {
         new StringOp( "ab", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
-        ProductionRule    rule1  = new ProductionRule( n1 );
+        ProductionRule    rule1  = ProductionRule.terminal( n1 );
         Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
 
 
@@ -324,12 +326,12 @@ public class CharacterParserTest {
     @Test
     public void givenAutomataExpectingABCorD_parseE_expectADRangeInErrorMessage() {
         LabelNode<Character> n1 = new LabelNode();
-        Label<Character> label = Labels.orLabels( Labels.characterRange( 'a', 'd'), Labels.singleValue('f') );
+        Label<Character> label = Labels.orLabels( Labels.characterRange( 'a', 'd' ), Labels.singleValue('f') );
 
         n1.append( label );
 
 
-        ProductionRule    rule1  = new ProductionRule( n1 );
+        ProductionRule    rule1  = ProductionRule.terminal( n1 );
         Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
 
 
@@ -348,29 +350,43 @@ public class CharacterParserTest {
 
 // custom actions
 
-////    @Test
-//    public void givenHelloParser_parseHelloJim_expectHelloCallback() {
-//        LabelNode n = automata.getStartingNode();
-//        Nodes endOfHelloConstant = n.appendConstant("Hello", "Hello").skipWhiteSpace();
-////        Node endName            = endOfHelloConstant.appendRegexpIC( "[a-z]+" );
-//
-////        endName.onExitInvoke( "hello" );
-//
-//
-//        Parser parser = Parser.compile( automata, l );
-//
-//        int numCharactersConsumed = consume(parser,"Hello Jim");
-//        parser.appendEOS();
-//
-//        List<String> expectedAudit = Arrays.asList(
-//                "started",
-//                "(1,7): Welcome 'Jim'",
-//                "finished"
-//        );
-//
-//        assertEquals( expectedAudit, l.audit );
-//        assertEquals( 0, numCharactersConsumed );
-//    }
+    // name = [a-zA-Z]+
+    // helloName = Hello $NAME
+
+//    @Test
+    public void givenHelloParser_parseHelloJim_expectHelloCallback() {
+        ProductionRule nameRule = new ProductionRuleBuilder()
+            .appendRegexp("[a-zA-Z]+")
+            .build();
+
+        ProductionRule helloNameRule = new ProductionRuleBuilder()
+            .appendConstant("Hello")
+            .skipWhitespace()
+            .appendRef( "NAME" )
+            .withCallback( RecordingParserListener.class, "hello" )
+            .build();
+
+        Map<String,ProductionRule> productionRules = MapUtils.asMap(
+            "name", nameRule
+        );
+
+        Parser<Character> parser = new CharacterParser(helloNameRule, productionRules, l);
+
+
+
+
+        int numCharactersConsumed = consume(parser,"Hello Jim");
+        parser.appendEOS();
+
+        List<String> expectedAudit = Arrays.asList(
+                "started",
+                "(1,7): Welcome 'Jim'",
+                "finished"
+        );
+
+        assertEquals( expectedAudit, l.audit );
+        assertEquals( 0, numCharactersConsumed );
+    }
 
 
 

@@ -109,4 +109,9 @@ public class Nodes<T extends Comparable<T>> extends AbstractList<Node<T>> {
         return new Nodes( outNodes );
     }
 
+    public void isValidEndNode( boolean flag ) {
+        for ( Node n : this ) {
+            n.isValidEndNode( flag );
+        }
+    }
 }

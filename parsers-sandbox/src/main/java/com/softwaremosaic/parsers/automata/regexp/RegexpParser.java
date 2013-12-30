@@ -2,7 +2,6 @@ package com.softwaremosaic.parsers.automata.regexp;
 
 import com.mosaic.collections.FastStack;
 import com.mosaic.lang.functional.Function0;
-import com.mosaic.lang.functional.Predicate;
 import com.mosaic.lang.functional.Stream;
 import com.mosaic.utils.StringUtils;
 import com.softwaremosaic.parsers.automata.Labels;
@@ -41,11 +40,10 @@ import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensit
 @SuppressWarnings("unchecked")
 public class RegexpParser {
 
-    private static final Predicate<Character> PREDICATE = new Predicate<Character>() {
-        public Boolean invoke( Character arg ) {
-            return RegExpCharacterUtils.isSpecialChar( arg );
-        }
-    };
+    public static GraphBuilder compile( String regexp ) {
+        return new RegexpParser().parse( regexp );
+    }
+
 
 
     private FastStack<GraphBuilder> opStack = new FastStack();
