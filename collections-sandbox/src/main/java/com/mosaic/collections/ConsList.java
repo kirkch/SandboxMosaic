@@ -1,7 +1,7 @@
 package com.mosaic.collections;
 
-import com.mosaic.lang.functional.Nullable;
 import com.mosaic.lang.functional.Function1;
+import com.mosaic.lang.functional.Nullable;
 
 import java.util.Iterator;
 import java.util.Objects;
@@ -134,6 +134,16 @@ public abstract class ConsList<T> implements Iterable<T> {
                 throw new UnsupportedOperationException();
             }
         };
+    }
+
+    public ConsList<T> append( Iterable<T> collection ) {
+        ConsList<T> l = this;
+
+        for ( T v : collection ) {
+            l = l.cons(v);
+        }
+
+        return l;
     }
 
     private static class NilNode<T> extends ConsList<T> {

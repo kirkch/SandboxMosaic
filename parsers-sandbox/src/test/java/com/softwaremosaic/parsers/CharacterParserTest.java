@@ -1,6 +1,5 @@
 package com.softwaremosaic.parsers;
 
-import com.mosaic.utils.MapUtils;
 import com.softwaremosaic.parsers.automata.Label;
 import com.softwaremosaic.parsers.automata.LabelNode;
 import com.softwaremosaic.parsers.automata.Labels;
@@ -15,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -348,29 +346,70 @@ public class CharacterParserTest {
     }
 
 
-// custom actions
+// Multiple production rules
 
-    // name = [a-zA-Z]+
-    // helloName = Hello $NAME
+    // SENTANCE   = $LIFE $WHITESPACE $ROCKS
+    // LIVE       = life
+    // WHITESPACE =  +
+    // ROCKS      = rocks
+    @Test
+    public void givenThreeTerminals_parseLifeRocks_expectSuccess() {
+        ProductionRule rule1 = ProductionRuleBuilder.terminalConstant( "life" );
+        ProductionRule rule2 = ProductionRuleBuilder.terminalRegexp( " +" );
+        ProductionRule rule3 = ProductionRuleBuilder.terminalConstant( "rocks" );
 
-//    @Test
-    public void givenHelloParser_parseHelloJim_expectHelloCallback() {
-        ProductionRule nameRule = new ProductionRuleBuilder()
-            .appendRegexp("[a-zA-Z]+")
-            .build();
+        ProductionRule rootRule = ProductionRule.nonTerminal( rule1, rule2, rule3 );
 
-        ProductionRule helloNameRule = new ProductionRuleBuilder()
-            .appendConstant("Hello")
-            .skipWhitespace()
-            .appendRef( "NAME" )
-            .withCallback( RecordingParserListener.class, "hello" )
-            .build();
 
-        Map<String,ProductionRule> productionRules = MapUtils.asMap(
-            "name", nameRule
+        Parser<Character> parser = new CharacterParser( rootRule, l );
+
+
+
+
+        int numCharactersConsumed = consume(parser,"life rocks");
+        parser.appendEOS();
+
+        List<String> expectedAudit = Arrays.asList(
+            "started",
+            "finished"
         );
 
-        Parser<Character> parser = new CharacterParser(helloNameRule, productionRules, l);
+        assertEquals( expectedAudit, l.audit );
+        assertEquals( 10, numCharactersConsumed );
+    }
+
+
+
+// custom actions
+
+    // hello = hello
+    // name = [a-zA-Z]+
+    // helloName = $hello $NAME
+
+    @Test
+    public void givenHelloParser_parseHelloJim_expectHelloCallback() {
+        ProductionRule rule1 = ProductionRuleBuilder.terminalConstant( "Hello" ).withLabel( "HelloRule" );
+        ProductionRule rule2 = ProductionRuleBuilder.terminalRegexp( " +" ).withLabel( "WhiteSpaceRule" );
+        ProductionRule rule3 = ProductionRuleBuilder.terminalRegexp( "[a-zA-Z]+" ).withLabel( "NameRule" )
+            .withCapture( true )
+            .withCallback( RecordingParserListener.class, "hello", String.class );
+
+        ProductionRule rootRule = ProductionRule.nonTerminal( rule1, rule2, rule3 ).withLabel( "RootLabel" );
+
+
+//        ProductionRule nameRule = new ProductionRuleBuilder()
+//            .appendRegexp("[a-zA-Z]+")
+//            .build();
+//
+//        ProductionRule helloNameRule = new ProductionRuleBuilder()
+//            .appendConstant("Hello")
+//            .skipWhitespace()
+//            .appendRef( "NAME" )
+//            .withCallback( RecordingParserListener.class, "hello" )
+//            .build();
+
+
+        Parser<Character> parser = new CharacterParser(rootRule, l);
 
 
 

@@ -109,12 +109,12 @@ public class LabelNode<T extends Comparable<T>> implements Node<T> {
         return new Nodes(nextNodes);
     }
 
-    public boolean isTerminal() {
-        return edges.isEmpty();
+    public boolean isValidEndNode() {
+        return edges.isEmpty() || isValidEndNode;
     }
 
-    public boolean isValidEndNode() {
-        return isValidEndNode;
+    public boolean hasOutEdges() {
+        return !edges.isEmpty();
     }
 
     public void isValidEndNode( boolean flag ) {
@@ -211,7 +211,7 @@ public class LabelNode<T extends Comparable<T>> implements Node<T> {
     private static class Path<T extends Comparable<T>> {
 
         public static <T extends Comparable<T>> Path createPath( Path pathUpToNode, Set<Label<T>> labels, Node<T> destinationNode, Set<Node<T>> alreadyVisitedNodes ) {
-            boolean isEndOfPath = destinationNode.isTerminal() || alreadyVisitedNodes.contains(destinationNode);
+            boolean isEndOfPath = destinationNode.isValidEndNode() || alreadyVisitedNodes.contains(destinationNode);
 
             return new Path( pathUpToNode, labels, destinationNode, isEndOfPath );
         }
@@ -260,7 +260,7 @@ public class LabelNode<T extends Comparable<T>> implements Node<T> {
         public DepthFirstTraverser( Node startingNode ) {
             Path path = new Path(
                 ConsList.newConsList(new KV<Set<Label<T>>, Node<T>>( Collections.EMPTY_SET, startingNode)),
-                startingNode.isTerminal()
+                startingNode.isValidEndNode()
             );
 
             pathsYetToVisit.push(path);

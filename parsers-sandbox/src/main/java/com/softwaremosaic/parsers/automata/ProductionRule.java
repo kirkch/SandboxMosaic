@@ -17,12 +17,17 @@ public abstract class ProductionRule<I extends Comparable<I>, O extends Comparab
         return new TerminalProductionRule( n );
     }
 
-    public static ProductionRule nonTerminal( ConsList<ProductionRule> productionRules ) {
+    public static ProductionRule nonTerminal( ProductionRule...productionRules ) {
+        return nonTerminal( ConsList.newConsList( productionRules ) );
+    }
+
+    public static ProductionRule nonTerminal( ConsList <ProductionRule> productionRules ) {
         return new NonTerminalProductionRule( productionRules );
     }
 
 
 
+    private String               label;
 
     private Function1<I,I>       prefilter   = Function1.PASSTHROUGH;
     private Function1<List<I>,O> postProcess = Function1.PASSTHROUGH;
@@ -51,12 +56,22 @@ public abstract class ProductionRule<I extends Comparable<I>, O extends Comparab
         this.postProcess = postProcess;
     }
 
-    public void setListenerCallback( MethodRef listenerCallback ) {
-        this.listenerCallback = listenerCallback;
+    public ProductionRule withCallback( Class listenerClass, String methodName, Class expectedArgType ) {
+        this.listenerCallback = MethodRef.create( listenerClass, methodName, Integer.TYPE, Integer.TYPE, expectedArgType );
+
+        return this;
     }
 
-    public void setCapture( boolean capture ) {
+    public ProductionRule withCallback( MethodRef listenerCallback ) {
+        this.listenerCallback = listenerCallback;
+
+        return this;
+    }
+
+    public ProductionRule withCapture( boolean capture ) {
         this.capture = capture;
+
+        return this;
     }
 
     public Function1<I, I> getPrefilter() {
@@ -75,8 +90,19 @@ public abstract class ProductionRule<I extends Comparable<I>, O extends Comparab
         return listenerCallback;
     }
 
+    public String getLabel() {
+        return label;
+    }
 
+    public ProductionRule withLabel( String label ) {
+        this.label = label;
 
+        return this;
+    }
+
+    public String toString() {
+        return label;
+    }
 
 
     private static class TerminalProductionRule<I extends Comparable<I>, O extends Comparable<O>> extends ProductionRule<I,O> {

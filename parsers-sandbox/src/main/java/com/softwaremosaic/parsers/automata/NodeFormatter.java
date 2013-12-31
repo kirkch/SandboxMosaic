@@ -116,10 +116,6 @@ public class NodeFormatter<T extends Comparable<T>> {
                     label += "e";
                 }
 
-                if ( node.isTerminal() ) {
-                    label += "t";
-                }
-
                 existingLabels.put( node, label );
             }
 

@@ -18,7 +18,7 @@ public class LabelNodeTest {
     public void givenBlankNode_isTerminal_expectTrue() {
         Node<Character> node = new LabelNode();
 
-        assertTrue( node.isTerminal() );
+        assertTrue( node.isValidEndNode() );
     }
 
 // APPEND LABEL
@@ -28,8 +28,8 @@ public class LabelNodeTest {
         Node<Character> node = new LabelNode();
         Node<Character> nextNode = node.append( 'a' ).get( 0 );
 
-        assertFalse( node.isTerminal() );
-        assertTrue( nextNode.isTerminal() );
+        assertFalse( node.isValidEndNode() );
+        assertTrue( nextNode.isValidEndNode() );
         assertEquals( Arrays.asList( nextNode ), node.walk( 'a' ) );
         assertEquals( Arrays.<Node<Character>>asList(), node.walk( 'b' ) );
     }

@@ -22,6 +22,30 @@ import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensit
 @SuppressWarnings("unchecked")
 public class ProductionRuleBuilder {
 
+    private static Node build( GraphBuilder builder ) {
+        Node n = new LabelNode();
+
+        Nodes endNodes = builder.appendTo( n );
+        endNodes.isValidEndNode( true );
+
+        return n;
+    }
+
+    public static ProductionRule terminalConstant( String str ) {
+        Node n = build( new StringOp(str, CaseSensitive) );
+
+        return ProductionRule.terminal( n );
+    }
+
+    public static ProductionRule terminalRegexp( String str ) {
+        Node n = build( RegexpParser.compile(str) );
+
+        return ProductionRule.terminal( n );
+    }
+
+
+
+
     private static GraphBuilder SKIPWHITESPACE = RegexpParser.compile( "[ \t\n\r]*" );
 
 
@@ -75,4 +99,5 @@ public class ProductionRuleBuilder {
 //        return new ProductionRule( n, callback );
         return null;
     }
+
 }

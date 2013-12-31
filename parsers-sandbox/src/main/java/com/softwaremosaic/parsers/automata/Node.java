@@ -52,17 +52,14 @@ public interface Node<T extends Comparable<T>> extends Iterable<KV<Label<T>,Node
 
     public Nodes<T> walk( Iterable<T> path );
 
-    /**
-     * A terminal node is a leaf node.  Thus it has no out going connections.
-     */
-    public boolean isTerminal();
 
     /**
-     * Returns true if this graph may end on this node.  May or may not be a
-     * terminal node.
+     * Returns true if this graph may end on this node.  Typically a leaf node,
+     * but may optionally be any node.
      */
     public boolean isValidEndNode();
 
+    public boolean hasOutEdges();
 
     public void isValidEndNode( boolean flag );
 

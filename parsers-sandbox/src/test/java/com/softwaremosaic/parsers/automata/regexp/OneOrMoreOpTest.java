@@ -1,11 +1,14 @@
 package com.softwaremosaic.parsers.automata.regexp;
 
-import com.softwaremosaic.parsers.automata.Node;
 import com.softwaremosaic.parsers.automata.LabelNode;
+import com.softwaremosaic.parsers.automata.Node;
+import com.softwaremosaic.parsers.automata.Nodes;
 import org.junit.Test;
 
 import static com.softwaremosaic.parsers.automata.GraphAssertions.assertGraphEquals;
 import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseSensitive;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 /**
 *
@@ -18,7 +21,7 @@ public class OneOrMoreOpTest {
         Node s  = new LabelNode();
         GraphBuilder op = new OneOrMoreOp( new StringOp("a", CaseSensitive) );
 
-        op.appendTo( s );
+        Nodes endNodes = op.appendTo( s );
 
 
         String[] expected = new String[] {
@@ -26,6 +29,9 @@ public class OneOrMoreOpTest {
         };
 
         assertGraphEquals( s, expected );
+
+        assertEquals( 1, endNodes.size() );
+        assertNotSame( s, endNodes.get(0) );
     }
 
 }

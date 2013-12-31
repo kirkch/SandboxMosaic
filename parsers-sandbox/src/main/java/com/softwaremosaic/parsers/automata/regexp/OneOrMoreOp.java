@@ -47,7 +47,7 @@ public class OneOrMoreOp<T extends Comparable<T>> extends GraphBuilder<T> {
         });
 
 
-        return new Nodes(startNode);
+        return afterFirstStepNodes;
     }
 
     public String toString() {
