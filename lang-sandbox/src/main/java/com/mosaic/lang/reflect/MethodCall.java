@@ -26,4 +26,8 @@ public class MethodCall<T> {
         return methodRef.invokeAgainst( obj, args );
     }
 
+    public String toString() {
+        return methodRef.toString() + "(" + Arrays.asList(args)+ ")";
+    }
+
 }

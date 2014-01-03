@@ -184,7 +184,7 @@ public class RegexpParserTest {
 
         Node n = createGraph( op );
 
-        assertEquals( Arrays.asList("1 -a-> 2 -.-> 3 -c-> 4t"), new NodeFormatter().format( n ) );
+        assertEquals( Arrays.asList("1 -a-> 2 -.-> 3 -c-> 4e"), new NodeFormatter().format( n ) );
 
         assertTrue( walk( n, Arrays.asList('a', 'b', 'c') ) );
         assertTrue( walk( n, Arrays.asList('a', 'a', 'c') ) );

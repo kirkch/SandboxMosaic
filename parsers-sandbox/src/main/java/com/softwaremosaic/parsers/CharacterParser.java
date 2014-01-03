@@ -2,20 +2,13 @@ package com.softwaremosaic.parsers;
 
 import com.softwaremosaic.parsers.automata.ProductionRule;
 
-import java.util.Collections;
-import java.util.Map;
-
 /**
  *
  */
 public class CharacterParser extends Parser<Character> {
 
     public CharacterParser( ProductionRule start, ParserListener listener ) {
-        this( start, Collections.EMPTY_MAP, listener );
-    }
-
-    public CharacterParser( ProductionRule start, Map<String, ProductionRule> productionRules, ParserListener listener ) {
-        super( start, productionRules, listener );
+        super( start, listener );
     }
 
     protected void incrementColumnAndLinePositionsGiven( Character input ) {

@@ -137,7 +137,7 @@ public class LabelNodeTest {
 
         assertEquals(0, numEdgesRemoved);
 
-        assertGraphEquals( n1, "1t" );
+        assertGraphEquals( n1, "1e" );
     }
 
     @Test
@@ -153,7 +153,7 @@ public class LabelNodeTest {
 
         assertEquals(1, numEdgesRemoved);
 
-        assertGraphEquals( n1, "1 -a-> 2t" );
+        assertGraphEquals( n1, "1 -a-> 2e" );
 
         assertSame( n3, n1.getOutNodes().get(0) );
     }

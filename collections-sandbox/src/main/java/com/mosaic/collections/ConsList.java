@@ -1,5 +1,6 @@
 package com.mosaic.collections;
 
+import com.mosaic.lang.Validate;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.Nullable;
 
@@ -67,6 +68,8 @@ public abstract class ConsList<T> implements Iterable<T> {
      * as its tail.
      */
     public ConsList<T> cons( T v ) {
+        Validate.notNull( v, "v" );
+
         return new ElementNode( v, this );
     }
 
@@ -241,7 +244,13 @@ public abstract class ConsList<T> implements Iterable<T> {
         }
 
         public String toString() {
-            return head + "::" + tail;
+            String headStr = head.toString();
+
+            if ( headStr.contains(":") ) {
+                return "(" + head + ")::" + tail;
+            } else {
+                return head + "::" + tail;
+            }
         }
 
         public int hashCode() {

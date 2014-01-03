@@ -22,8 +22,8 @@ public class OrOpTest {
         Nodes endNodes = op.appendTo( s );
 
         assertGraphEquals( s,
-                "1 -a-> 2t",
-                "  -b-> 3t"
+                "1 -a-> 2e",
+                "  -b-> 3e"
         );
 
         assertEquals( 2, endNodes.size() );

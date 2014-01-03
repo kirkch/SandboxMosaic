@@ -225,7 +225,7 @@ public class LabelNode<T extends Comparable<T>> implements Node<T> {
         }
 
         public Path( Path pathUpToNode, Set<Label<T>> labels, Node<T> destinationNode, boolean isEndOfPath ) {
-            assert !pathUpToNode.isEndOfPath : "cannot extend a path that is already marked as complete";
+//            assert !pathUpToNode.isEndOfPath : "cannot extend a path that is already marked as complete";
 
             KV<Set<Label<T>>,Node<T>> newEdge = new KV( labels, destinationNode );
 

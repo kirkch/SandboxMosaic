@@ -22,7 +22,7 @@ public class StringOpTest {
         op.appendTo( s );
 
 
-        assertGraphEquals( s, "1 -a-> 2t" );
+        assertGraphEquals( s, "1 -a-> 2e" );
     }
 
     @Test
@@ -32,7 +32,7 @@ public class StringOpTest {
 
         op.appendTo( s );
 
-        assertGraphEquals( s, "1 -[Aa]-> 2t" );
+        assertGraphEquals( s, "1 -[Aa]-> 2e" );
     }
 
     @Test
@@ -43,7 +43,7 @@ public class StringOpTest {
         op.appendTo( s );
 
 
-        assertGraphEquals( s, "1 -a-> 2 -b-> 3t" );
+        assertGraphEquals( s, "1 -a-> 2 -b-> 3e" );
     }
 
     @Test
@@ -54,7 +54,7 @@ public class StringOpTest {
         op.appendTo( s );
 
 
-        assertGraphEquals( s, "1 -[Aa]-> 2 -[Bb]-> 3t" );
+        assertGraphEquals( s, "1 -[Aa]-> 2 -[Bb]-> 3e" );
     }
 
 

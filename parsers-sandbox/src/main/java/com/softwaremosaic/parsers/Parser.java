@@ -28,6 +28,9 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public abstract class Parser<T extends Comparable<T>> {
 
+    @SuppressWarnings("FieldCanBeLocal")
+    private static boolean DEBUG = false;
+
 
     private ParserListener listener;
 
@@ -68,7 +71,11 @@ public abstract class Parser<T extends Comparable<T>> {
             isFirstNode = false;
         }
 
-        return walk(input);
+        boolean wasSuccessfullyParsed = walk( input );
+
+        debug( "Consumed '"+input+"': " + currentStates );
+
+        return wasSuccessfullyParsed;
     }
 
     /**
@@ -89,12 +96,14 @@ public abstract class Parser<T extends Comparable<T>> {
 
         currentStates = consumeEOS();
 
-        if ( currentStates.size() > 1 ) {
+        debug( "Consumed EOS: " + currentStates );
+
+        int numStates = currentStates.size();
+        if ( numStates > 1 ) {
             throw new IllegalStateException( "Ambiguous parser state: " + currentStates );
+        } else if ( numStates == 1 ) {
+            currentStates.get(0).fireActions();
         }
-
-        currentStates.get(0).fireActions();
-
 
         listener.finished();
 
@@ -109,6 +118,9 @@ public abstract class Parser<T extends Comparable<T>> {
         this.hasReachedEOS = false;
 
         this.currentStates  = startingRule == null ? Collections.EMPTY_LIST : Arrays.asList( new ParserState(startingRule) );
+
+
+        debug( "Reset: " + currentStates );
     }
 
     private boolean walk( T input ) {
@@ -186,6 +198,12 @@ public abstract class Parser<T extends Comparable<T>> {
     }
 
 
+    private void debug( String msg ) {
+        if ( DEBUG ) {
+            System.out.println( msg );
+        }
+    }
+
     private static class StackFrame {
         public final ProductionRule rule;
         public final Node           currentNode;
@@ -197,8 +215,14 @@ public abstract class Parser<T extends Comparable<T>> {
         private final ConsList<MethodCall> actions;
 
 
+        private int startedAtLine;
+        private int startedAtColumn;
+
+
         public String toString() {
-            return rule + "@" + ( currentNode == null ? nextRules : currentNode);
+            String ruleStr = rule == null ? "nullstr" : rule.toString();
+
+            return ruleStr + "@(" + ( currentNode == null ? nextRules : currentNode)+ ",v="+returnValueCollectedSoFar+",a="+actions +")";
         }
 
 
@@ -213,10 +237,13 @@ public abstract class Parser<T extends Comparable<T>> {
         }
 
         // used when going deeper into the tree
-        public StackFrame( ProductionRule rule ) {
+        public StackFrame( int line, int col, ProductionRule rule ) {
             this.rule                      = rule;
             this.returnValueCollectedSoFar = ConsList.Nil;
             this.actions                   = ConsList.Nil;
+
+            this.startedAtLine   = line;
+            this.startedAtColumn = col;
 
             if ( rule.isTerminal() ) {
                 currentNode = rule.getNode();
@@ -235,7 +262,8 @@ public abstract class Parser<T extends Comparable<T>> {
             this.nextRules                 = frameToDuplicate.nextRules;
 
 
-
+            this.startedAtLine   = frameToDuplicate.startedAtLine;
+            this.startedAtColumn = frameToDuplicate.startedAtColumn;
 
             if ( rule.isCapture() ) {
                 this.returnValueCollectedSoFar = frameToDuplicate.returnValueCollectedSoFar.cons( input );
@@ -264,7 +292,7 @@ public abstract class Parser<T extends Comparable<T>> {
         }
 
         public StackFrame consume( StackFrame oldFrameBeingPopped, ParserListener listener ) {
-            ConsList<MethodCall> mergedActions = this.actions.append( oldFrameBeingPopped.getActions( listener ) );
+            ConsList<MethodCall> mergedActions = this.actions.append( oldFrameBeingPopped.getActions(listener) );
 
             return new StackFrame( this, oldFrameBeingPopped.returnValueCollectedSoFar, this.currentNode, mergedActions );
         }
@@ -276,7 +304,7 @@ public abstract class Parser<T extends Comparable<T>> {
             if ( callback != null ) {
                 Object v = rule.getPostProcess().invoke( this.returnValueCollectedSoFar );
 
-                actions = actions.cons( new MethodCall(callback, listener, v ) );
+                actions = actions.cons( new MethodCall(callback, listener, startedAtLine, startedAtColumn, v ) );
             }
 
             return actions;
@@ -292,7 +320,7 @@ public abstract class Parser<T extends Comparable<T>> {
 
         // constructor used when starting out
         public ParserState( ProductionRule firstRule ) {
-            this( ConsList.Nil.cons( new StackFrame( firstRule ) ) );
+            this( ConsList.Nil.cons( new StackFrame( line, col, firstRule ) ) );
         }
 
         private ParserState( ConsList<StackFrame> stack ) {
@@ -319,12 +347,32 @@ public abstract class Parser<T extends Comparable<T>> {
         }
 
         public void consumeEOS( List<ParserState> nextStatesOutput ) {
+            ConsList<StackFrame> s = this.stack;
 
+            // while each stack frame is at a valid end node, pop its value and roll it up the stack
+            while ( s.hasContents() && s.head().currentNode != null && s.head().currentNode.isValidEndNode() ) {
+                s = popHeadRule(s);
+            }
+
+
+            if ( s.hasContents() && s.tail().isEmpty() && s.head().currentNode == null ) {
+                nextStatesOutput.add( new ParserState( s ) );   // return the current value (parse was successful)
+            }
         }
 
         private void traverseNextEdgeInGraph( List<ParserState> nextStatesOutput, T input, StackFrame currentFrame ) {
             Nodes nextNodes = currentFrame.currentNode.walk( input );
 
+            if ( nextNodes.isEmpty() && currentFrame.currentNode.isValidEndNode() ) {
+                ParserState poppedState = this.popCurrentRule();
+
+                poppedState.consume( nextStatesOutput, input );
+            } else {
+                appendNextNodes( nextStatesOutput, input, currentFrame, nextNodes );
+            }
+        }
+
+        private void appendNextNodes( List<ParserState> nextStatesOutput, T input, StackFrame currentFrame, Nodes nextNodes ) {
             Iterator it = nextNodes.iterator();
             while ( it.hasNext() ) {
                 Node n = (Node) it.next();
@@ -333,38 +381,38 @@ public abstract class Parser<T extends Comparable<T>> {
 
                 ParserState newState = this.replaceHeadWith( updatedFrame );
 
-                if ( n.hasOutEdges() ) {
+//                if ( n.hasOutEdges() ) {
                     nextStatesOutput.add( newState );
-                }
-
-                if ( n.isValidEndNode() ) {
-                    nextStatesOutput.add( newState.popCurrentRule() );
-                }
+//                }
             }
         }
 
         private ParserState pushNextRule() {
             ConsList<StackFrame> tail = stack.tail();
             StackFrame updatedOldHead = stack.head().popNextRule();
-            StackFrame newHead = new StackFrame( stack.head().nextRules.head() );
+            StackFrame newHead = new StackFrame( line, col, stack.head().nextRules.head() );
 
             return new ParserState( tail.cons(updatedOldHead).cons(newHead) );
         }
 
         private ParserState popCurrentRule() {
-            ConsList<StackFrame> tail = stack.tail();
+            return new ParserState( popHeadRule(this.stack) );
+        }
 
-            StackFrame head = stack.head();
+        private ConsList<StackFrame> popHeadRule( ConsList<StackFrame> s ) {
+            ConsList<StackFrame> tail = s.tail();
+            StackFrame           head = s.head();
+
             if ( tail.isEmpty() ) {
                 ConsList<MethodCall> actions = head.getActions( listener );
 
                 StackFrame newStackFrame = new StackFrame( head.returnValueCollectedSoFar, actions );
 
-                return new ParserState( ConsList.newConsList( newStackFrame ) );
+                return ConsList.newConsList( newStackFrame );
             } else {
                 StackFrame newHead = tail.head().consume( head, listener );
 
-                return new ParserState( tail.tail().cons(newHead) );
+                return tail.tail().cons(newHead);
             }
         }
 
@@ -381,12 +429,11 @@ public abstract class Parser<T extends Comparable<T>> {
         }
 
         public ParserState fireActions() {
-            if ( !stack.head().actions.hasContents() ) {
-                return this;
+            for ( MethodCall m : stack.head().actions ) {
+                debug( "FIRE on: " + m );
+
+                m.invoke();
             }
-
-
-            System.out.println("FIRE");
 
             return this;
         }

@@ -1,6 +1,7 @@
 package com.mosaic.lang.reflect;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 /**
  *
@@ -29,8 +30,12 @@ public class MethodRef<T> {
         try {
             return method.invoke( o, args );
         } catch ( Exception e ) {
-            throw ReflectionException.recast( e );
+            throw ReflectionException.recast( e, "args = " + Arrays.asList(args) );
         }
+    }
+
+    public String toString() {
+        return method.getName();
     }
 
 }

@@ -1,5 +1,7 @@
 package com.softwaremosaic.parsers;
 
+import com.mosaic.collections.ConsList;
+import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.reflect.MethodRef;
 import com.softwaremosaic.parsers.automata.LabelNode;
 import com.softwaremosaic.parsers.automata.Node;
@@ -22,6 +24,30 @@ import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensit
 @SuppressWarnings("unchecked")
 public class ProductionRuleBuilder {
 
+    private static Function1 CONSLIST_TOSTRING = new Function1() {
+        public Object invoke( Object arg ) {
+            ConsList<Character> l = (ConsList<Character>) arg;
+
+            StringBuilder buf = new StringBuilder(  );
+
+            append( buf, l );
+
+            return buf.toString();
+        }
+
+
+        private void append( StringBuilder buf, ConsList<Character> l ) {
+            if ( l.isEmpty() ) {
+                return;
+            }
+
+            append( buf, l.tail() );
+
+            buf.append( l.head().charValue() );
+        }
+    };
+
+
     private static Node build( GraphBuilder builder ) {
         Node n = new LabelNode();
 
@@ -34,13 +60,15 @@ public class ProductionRuleBuilder {
     public static ProductionRule terminalConstant( String str ) {
         Node n = build( new StringOp(str, CaseSensitive) );
 
-        return ProductionRule.terminal( n );
+        return ProductionRule.terminal( n )
+            .withPostProcess( CONSLIST_TOSTRING );
     }
 
     public static ProductionRule terminalRegexp( String str ) {
         Node n = build( RegexpParser.compile(str) );
 
-        return ProductionRule.terminal( n );
+        return ProductionRule.terminal( n )
+            .withPostProcess( CONSLIST_TOSTRING );
     }
 
 

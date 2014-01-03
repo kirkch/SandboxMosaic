@@ -12,7 +12,6 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -30,7 +29,7 @@ public class CharacterParserTest {
     @Test
     public void givenBlankAutomata_matchA_expectErrorCallback() {
         ProductionRule    rule1  = ProductionRule.terminal( new LabelNode() );
-        Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
+        Parser<Character> parser = new CharacterParser(rule1, l);
 
 
         parser.consume( 'a' );
@@ -46,7 +45,7 @@ public class CharacterParserTest {
     @Test
     public void givenBlankAutomata_matchB_expectErrorCallback() {
         ProductionRule    rule1  = ProductionRule.terminal( new LabelNode() );
-        Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
+        Parser<Character> parser = new CharacterParser(rule1, l);
 
         int numCharactersConsumed = consume(parser, "b");
 
@@ -62,7 +61,7 @@ public class CharacterParserTest {
     @Test
     public void givenBlankAutomata_matchAB_expectErrorCallback() {
         ProductionRule    rule1  = ProductionRule.terminal( new LabelNode() );
-        Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
+        Parser<Character> parser = new CharacterParser(rule1, l);
 
         int numCharactersConsumed = consume(parser, "ab");
 
@@ -82,7 +81,7 @@ public class CharacterParserTest {
 
 
         ProductionRule    rule1  = ProductionRule.terminal( n );
-        Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
+        Parser<Character> parser = new CharacterParser(rule1, l);
 
 
 
@@ -104,7 +103,7 @@ public class CharacterParserTest {
 
 
         ProductionRule    rule1  = ProductionRule.terminal( n );
-        Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
+        Parser<Character> parser = new CharacterParser(rule1, l);
 
 
 
@@ -127,7 +126,7 @@ public class CharacterParserTest {
 
 
         ProductionRule    rule1  = ProductionRule.terminal( n );
-        Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
+        Parser<Character> parser = new CharacterParser(rule1, l);
 
 
         int numCharactersConsumed = consume(parser, "c");
@@ -149,7 +148,7 @@ public class CharacterParserTest {
 
 
         ProductionRule    rule1  = ProductionRule.terminal( n1 );
-        Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
+        Parser<Character> parser = new CharacterParser(rule1, l);
 
 
         int numCharactersConsumed = consume(parser,"ac");
@@ -170,7 +169,7 @@ public class CharacterParserTest {
 
 
         ProductionRule    rule1  = ProductionRule.terminal( n1 );
-        Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
+        Parser<Character> parser = new CharacterParser(rule1, l);
 
 
         int numCharactersConsumed = consume(parser,"a\nc");
@@ -191,7 +190,7 @@ public class CharacterParserTest {
 
 
         ProductionRule    rule1  = ProductionRule.terminal( n1 );
-        Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
+        Parser<Character> parser = new CharacterParser(rule1, l);
 
 
         int numCharactersConsumed = consume(parser,"ab");
@@ -214,7 +213,7 @@ public class CharacterParserTest {
 
 
         ProductionRule    rule1  = ProductionRule.terminal( n1 );
-        Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
+        Parser<Character> parser = new CharacterParser(rule1, l);
 
 
         int numCharactersConsumed = consume(parser,"a") + consume(parser,"b");
@@ -234,7 +233,7 @@ public class CharacterParserTest {
 
 
         ProductionRule    rule1  = ProductionRule.terminal( n1 );
-        Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
+        Parser<Character> parser = new CharacterParser(rule1, l);
 
 
 
@@ -255,7 +254,7 @@ public class CharacterParserTest {
 
 
         ProductionRule    rule1  = ProductionRule.terminal( n1 );
-        Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
+        Parser<Character> parser = new CharacterParser(rule1, l);
 
 
         parser.appendEOS();
@@ -277,7 +276,7 @@ public class CharacterParserTest {
 
 
         ProductionRule    rule1  = ProductionRule.terminal( n1 );
-        Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
+        Parser<Character> parser = new CharacterParser(rule1, l);
 
 
         parser.appendEOS();
@@ -299,7 +298,7 @@ public class CharacterParserTest {
 
 
         ProductionRule    rule1  = ProductionRule.terminal( n1 );
-        Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
+        Parser<Character> parser = new CharacterParser(rule1, l);
 
 
         consume(parser,"a");
@@ -330,7 +329,7 @@ public class CharacterParserTest {
 
 
         ProductionRule    rule1  = ProductionRule.terminal( n1 );
-        Parser<Character> parser = new CharacterParser(rule1, Collections.EMPTY_MAP, l);
+        Parser<Character> parser = new CharacterParser(rule1, l);
 
 
 
@@ -424,7 +423,7 @@ public class CharacterParserTest {
         );
 
         assertEquals( expectedAudit, l.audit );
-        assertEquals( 0, numCharactersConsumed );
+        assertEquals( 9, numCharactersConsumed );
     }
 
 
@@ -450,7 +449,7 @@ public class CharacterParserTest {
     }
 
     @SuppressWarnings({"unchecked", "UnusedDeclaration"})
-    private static class RecordingParserListener implements ParserListener {
+    public static class RecordingParserListener implements ParserListener {
         public final List<String> audit = new ArrayList();
 
         public void started() {

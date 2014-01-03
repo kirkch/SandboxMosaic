@@ -23,7 +23,7 @@ public class AndOpTest {
         Nodes endNodes = op.appendTo( s );
 
         assertGraphEquals( s,
-                "1 -a-> 2 -b-> 3t"
+                "1 -a-> 2 -b-> 3e"
         );
 
         assertEquals( 1, endNodes.size() );
@@ -39,10 +39,10 @@ public class AndOpTest {
         Nodes endNodes = op.appendTo( s );
 
         assertGraphEquals( s,
-                "1 -a-> 2 -c-> 3t",
-                "         -d-> 4t",
-                "  -b-> 5 -c-> 6t",
-                "         -d-> 7t"
+                "1 -a-> 2 -c-> 3e",
+                "         -d-> 4e",
+                "  -b-> 5 -c-> 6e",
+                "         -d-> 7e"
         );
 
         assertEquals( 4, endNodes.size() );

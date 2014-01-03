@@ -35,7 +35,7 @@ public class OptionalOpTest {
         assertSame( s, endNodes.get(1) );
 
         String[] expected = new String[] {
-            "1 -a-> 2t"
+            "1 -a-> 2e"
         };
 
         assertGraphEquals( s, expected );
@@ -50,7 +50,7 @@ public class OptionalOpTest {
 
 
         String[] expected = new String[] {
-            "1 -[Aa]-> 2t"
+            "1 -[Aa]-> 2e"
         };
 
         assertGraphEquals( s, expected );
@@ -69,7 +69,7 @@ public class OptionalOpTest {
 
 
         String[] expected = new String[] {
-            "1 -a-> 2 -b-> 3t"
+            "1 -a-> 2 -b-> 3e"
         };
 
         assertGraphEquals( n1, expected );
@@ -87,8 +87,8 @@ public class OptionalOpTest {
 
 
         String[] expected = new String[] {
-            "1 -a-> 2t",
-            "  -b-> 3t"
+            "1 -a-> 2e",
+            "  -b-> 3e"
         };
 
         assertGraphEquals( n1, expected );

@@ -36,7 +36,7 @@ public abstract class ProductionRule<I extends Comparable<I>, O extends Comparab
     /**
      * Terminals capture their input, NonTerminals capture their childrens output.
      */
-    private boolean capture = true;
+    private boolean capture = false;
 
     private MethodRef listenerCallback;
 
@@ -48,12 +48,16 @@ public abstract class ProductionRule<I extends Comparable<I>, O extends Comparab
 
 
 
-    public void setPrefilter( Function1<I, I> prefilter ) {
+    public ProductionRule withPrefilter( Function1<I, I> prefilter ) {
         this.prefilter = prefilter;
+
+        return this;
     }
 
-    public void setPostProcess( Function1<List<I>, O> postProcess ) {
+    public ProductionRule withPostProcess( Function1<List<I>, O> postProcess ) {
         this.postProcess = postProcess;
+
+        return this;
     }
 
     public ProductionRule withCallback( Class listenerClass, String methodName, Class expectedArgType ) {
@@ -101,7 +105,7 @@ public abstract class ProductionRule<I extends Comparable<I>, O extends Comparab
     }
 
     public String toString() {
-        return label;
+        return label == null ? "anonrule" : label;
     }
 
 

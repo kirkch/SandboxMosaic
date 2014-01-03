@@ -6,6 +6,10 @@ import java.lang.reflect.InvocationTargetException;
  *
  */
 public final class ReflectionException extends RuntimeException {
+    public static RuntimeException recast( Throwable e, String msg ) {
+        return new ReflectionException( e, msg );
+    }
+
     public static RuntimeException recast( Throwable e ) {
         if ( e instanceof RuntimeException ) {
             return (RuntimeException) e;
@@ -18,5 +22,9 @@ public final class ReflectionException extends RuntimeException {
 
     private ReflectionException( Throwable e ) {
         super( e );
+    }
+
+    private ReflectionException( Throwable e, String msg ) {
+        super( msg, e );
     }
 }

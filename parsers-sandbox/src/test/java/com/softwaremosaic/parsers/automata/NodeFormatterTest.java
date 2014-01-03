@@ -34,7 +34,7 @@ public class NodeFormatterTest {
 
         List<String> formattedGraph = formatter.format(startingNode);
 
-        assertEquals( Arrays.asList("1t"), formattedGraph );
+        assertEquals( Arrays.asList("1e"), formattedGraph );
     }
 
     @Test
@@ -43,7 +43,7 @@ public class NodeFormatterTest {
 
         List<String> formattedGraph = formatter.format(startingNode);
 
-        assertEquals( Arrays.asList("1t"), formattedGraph );
+        assertEquals( Arrays.asList("1e"), formattedGraph );
     }
 
     @Test
@@ -53,7 +53,7 @@ public class NodeFormatterTest {
 
         List<String> formattedGraph = formatter.format(startingNode);
 
-        assertEquals( Arrays.asList("1 -a-> 2t"), formattedGraph );
+        assertEquals( Arrays.asList("1 -a-> 2e"), formattedGraph );
     }
 
     private Label<Character> b = Labels.singleValue( 'b' );
@@ -66,7 +66,7 @@ public class NodeFormatterTest {
 
         List<String> formattedGraph = formatter.format(startingNode);
 
-        assertEquals( Arrays.asList("1 -a-> 2 -b-> 3t"), formattedGraph );
+        assertEquals( Arrays.asList("1 -a-> 2 -b-> 3e"), formattedGraph );
     }
 
     @Test
@@ -78,7 +78,7 @@ public class NodeFormatterTest {
 
         List<String> formattedGraph = formatter.format(startingNode);
 
-        assertEquals( Arrays.asList("1 -a|b-> 2t"), formattedGraph );
+        assertEquals( Arrays.asList("1 -a|b-> 2e"), formattedGraph );
     }
 
     @Test
@@ -103,7 +103,7 @@ public class NodeFormatterTest {
 
         List<String> formattedGraph = formatter.format(startingNode);
 
-        assertEquals( Arrays.asList("1 -a|f|c|d|t|x|b|z|y|0|1|2|3|4|5-> 2t"), formattedGraph );
+        assertEquals( Arrays.asList("1 -a|f|c|d|t|x|b|z|y|0|1|2|3|4|5-> 2e"), formattedGraph );
     }
 
     @Test
@@ -116,8 +116,8 @@ public class NodeFormatterTest {
         List<String> formattedGraph = formatter.format(startingNode);
 
         List<String> expected = Arrays.asList(
-                "1 -a-> 2t",
-                "  -b-> 3t"
+                "1 -a-> 2e",
+                "  -b-> 3e"
         );
 
         assertEquals(expected, formattedGraph );
@@ -149,7 +149,8 @@ public class NodeFormatterTest {
         List<String> formattedGraph = formatter.format(startingNode);
 
         List<String> expected = Arrays.asList(
-                "1e -a-> 1e"
+            "1e",
+            "   -a-> 1e"
         );
 
         assertEquals(expected, formattedGraph );
