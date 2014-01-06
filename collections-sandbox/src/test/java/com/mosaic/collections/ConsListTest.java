@@ -291,6 +291,22 @@ public class ConsListTest {
     }
 
 
+//  TOARRAY
+
+    @Test
+    public void givenThreeElementList_toArray_expectArrayWithThreeElements() {
+        ConsList a = ConsList.Nil.cons('a').cons('b').cons('c');
+
+        assertArrayEquals( new Object[] {'c','b','a'}, a.toArray() );
+    }
+
+    @Test
+    public void givenEmptyList_toArray_expectEmptyArray() {
+        ConsList a = ConsList.Nil;
+
+        assertArrayEquals( new Object[] {}, a.toArray() );
+    }
+
 
     private <T> void assertConsListEquals( ConsList<T> list, T...expectedValues ) {
         ConsList<T> listSoFar = list;

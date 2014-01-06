@@ -117,6 +117,9 @@ public abstract class ConsList<T> implements Iterable<T> {
         return buf.toString();
     }
 
+    /**
+     * Iterate over each element in this list, starting from the head.
+     */
     public Iterator<T> iterator() {
         return new Iterator<T>() {
             private ConsList<T> pos = ConsList.this;
@@ -147,6 +150,27 @@ public abstract class ConsList<T> implements Iterable<T> {
         }
 
         return l;
+    }
+
+
+
+    private Object[] toArray( ConsList<T> list, int i ) {
+        if ( list.isEmpty() ) {
+            return new Object[i];
+        }
+
+        Object[] array = toArray(list.tail(), i+1);
+
+        array[i] = list.head();
+
+        return array;
+    }
+
+    /**
+     * Creates an array, with index 0 behind the head.
+     */
+    public Object[] toArray() {
+        return toArray( this, 0 );
     }
 
     private static class NilNode<T> extends ConsList<T> {

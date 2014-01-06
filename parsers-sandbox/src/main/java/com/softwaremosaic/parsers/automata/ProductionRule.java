@@ -4,8 +4,6 @@ import com.mosaic.collections.ConsList;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.reflect.MethodRef;
 
-import java.util.List;
-
 
 /**
  * Describes how to map a stream of inputs to an output.
@@ -29,12 +27,11 @@ public abstract class ProductionRule<I extends Comparable<I>, O extends Comparab
 
     private String               label;
 
-    private Function1<I,I>       prefilter   = Function1.PASSTHROUGH;
-    private Function1<List<I>,O> postProcess = Function1.PASSTHROUGH;
+    private Function1<ConsList<I>,ConsList<O>> postProcess = Function1.PASSTHROUGH;
 
 
     /**
-     * Terminals capture their input, NonTerminals capture their childrens output.
+     * Terminals capture their input, NonTerminals capture their children's output.
      */
     private boolean capture = false;
 
@@ -48,22 +45,14 @@ public abstract class ProductionRule<I extends Comparable<I>, O extends Comparab
 
 
 
-    public ProductionRule withPrefilter( Function1<I, I> prefilter ) {
-        this.prefilter = prefilter;
-
-        return this;
-    }
-
-    public ProductionRule withPostProcess( Function1<List<I>, O> postProcess ) {
+    public ProductionRule withPostProcess( Function1<ConsList<I>, ConsList<O>> postProcess ) {
         this.postProcess = postProcess;
 
         return this;
     }
 
     public ProductionRule withCallback( Class listenerClass, String methodName, Class expectedArgType ) {
-        this.listenerCallback = MethodRef.create( listenerClass, methodName, Integer.TYPE, Integer.TYPE, expectedArgType );
-
-        return this;
+        return withCallback( MethodRef.create(listenerClass, methodName, Integer.TYPE, Integer.TYPE, expectedArgType) );
     }
 
     public ProductionRule withCallback( MethodRef listenerCallback ) {
@@ -78,11 +67,7 @@ public abstract class ProductionRule<I extends Comparable<I>, O extends Comparab
         return this;
     }
 
-    public Function1<I, I> getPrefilter() {
-        return prefilter;
-    }
-
-    public Function1<List<I>, O> getPostProcess() {
+    public Function1<ConsList<I>, ConsList<O>> getPostProcess() {
         return postProcess;
     }
 

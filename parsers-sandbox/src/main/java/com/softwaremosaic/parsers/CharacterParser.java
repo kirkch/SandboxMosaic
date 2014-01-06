@@ -11,6 +11,20 @@ public class CharacterParser extends Parser<Character> {
         super( start, listener );
     }
 
+    public int consume( String input ) {
+        int count = 0;
+
+        for ( char c : input.toCharArray() ) {
+            if ( consume(c) ) {
+                count++;
+            } else {
+                return count;
+            }
+        }
+
+        return count;
+    }
+
     protected void incrementColumnAndLinePositionsGiven( Character input ) {
         switch (input.charValue()) {
             case '\n':

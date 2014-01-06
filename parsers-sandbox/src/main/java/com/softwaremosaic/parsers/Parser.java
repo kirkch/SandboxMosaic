@@ -2,6 +2,7 @@ package com.softwaremosaic.parsers;
 
 import com.mosaic.collections.ConsList;
 import com.mosaic.lang.Validate;
+import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.reflect.MethodCall;
 import com.mosaic.lang.reflect.MethodRef;
 import com.softwaremosaic.parsers.automata.Label;
@@ -29,7 +30,7 @@ import java.util.List;
 public abstract class Parser<T extends Comparable<T>> {
 
     @SuppressWarnings("FieldCanBeLocal")
-    private static boolean DEBUG = false;
+    private static boolean DEBUG = true;
 
 
     private ParserListener listener;
@@ -76,6 +77,20 @@ public abstract class Parser<T extends Comparable<T>> {
         debug( "Consumed '"+input+"': " + currentStates );
 
         return wasSuccessfullyParsed;
+    }
+
+    public int consume( Iterable<T> input ) {
+        int count = 0;
+
+        for ( T v : input ) {
+            if ( this.consume(v) ) {
+                count++;
+            } else {
+                return count;
+            }
+        }
+
+        return count;
     }
 
     /**
@@ -294,7 +309,15 @@ public abstract class Parser<T extends Comparable<T>> {
         public StackFrame consume( StackFrame oldFrameBeingPopped, ParserListener listener ) {
             ConsList<MethodCall> mergedActions = this.actions.append( oldFrameBeingPopped.getActions(listener) );
 
-            return new StackFrame( this, oldFrameBeingPopped.returnValueCollectedSoFar, this.currentNode, mergedActions );
+            ConsList v = oldFrameBeingPopped.getValue();
+
+            return new StackFrame( this, v, this.currentNode, mergedActions );
+        }
+
+        private ConsList getValue() {
+            Function1<ConsList,ConsList> postProcess = rule.getPostProcess();
+
+            return postProcess.invoke( returnValueCollectedSoFar );
         }
 
         public ConsList<MethodCall> getActions( ParserListener listener ) {
@@ -302,12 +325,27 @@ public abstract class Parser<T extends Comparable<T>> {
 
             MethodRef callback = rule.getListenerCallback();
             if ( callback != null ) {
-                Object v = rule.getPostProcess().invoke( this.returnValueCollectedSoFar );
+                Object[] args = createCallbackArgs();
 
-                actions = actions.cons( new MethodCall(callback, listener, startedAtLine, startedAtColumn, v ) );
+                actions = actions.cons( new MethodCall(callback, listener, args ) );
             }
 
             return actions;
+        }
+
+        private Object[] createCallbackArgs() {
+            ConsList argsList = getValue();
+            List     result   = new ArrayList();
+
+
+            result.add( startedAtLine );
+            result.add( startedAtColumn );
+
+            for ( Object v : argsList ) {
+                result.add( v );
+            }
+
+            return result.toArray();
         }
     }
 

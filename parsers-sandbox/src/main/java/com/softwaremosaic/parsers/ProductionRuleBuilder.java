@@ -32,7 +32,7 @@ public class ProductionRuleBuilder {
 
             append( buf, l );
 
-            return buf.toString();
+            return ConsList.newConsList(buf.toString());
         }
 
 

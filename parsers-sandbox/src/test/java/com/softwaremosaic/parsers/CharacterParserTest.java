@@ -28,8 +28,8 @@ public class CharacterParserTest {
 
     @Test
     public void givenBlankAutomata_matchA_expectErrorCallback() {
-        ProductionRule    rule1  = ProductionRule.terminal( new LabelNode() );
-        Parser<Character> parser = new CharacterParser(rule1, l);
+        ProductionRule  rule1  = ProductionRule.terminal( new LabelNode() );
+        CharacterParser parser = new CharacterParser(rule1, l);
 
 
         parser.consume( 'a' );
@@ -44,10 +44,10 @@ public class CharacterParserTest {
 
     @Test
     public void givenBlankAutomata_matchB_expectErrorCallback() {
-        ProductionRule    rule1  = ProductionRule.terminal( new LabelNode() );
-        Parser<Character> parser = new CharacterParser(rule1, l);
+        ProductionRule  rule1  = ProductionRule.terminal( new LabelNode() );
+        CharacterParser parser = new CharacterParser(rule1, l);
 
-        int numCharactersConsumed = consume(parser, "b");
+        int numCharactersConsumed = parser.consume("b");
 
         List<String> expectedAudit = Arrays.asList(
             "started",
@@ -60,10 +60,10 @@ public class CharacterParserTest {
 
     @Test
     public void givenBlankAutomata_matchAB_expectErrorCallback() {
-        ProductionRule    rule1  = ProductionRule.terminal( new LabelNode() );
-        Parser<Character> parser = new CharacterParser(rule1, l);
+        ProductionRule  rule1  = ProductionRule.terminal( new LabelNode() );
+        CharacterParser parser = new CharacterParser(rule1, l);
 
-        int numCharactersConsumed = consume(parser, "ab");
+        int numCharactersConsumed = parser.consume("ab");
 
         List<String> expectedAudit = Arrays.asList(
             "started",
@@ -80,12 +80,12 @@ public class CharacterParserTest {
         n.append( 'a' );
 
 
-        ProductionRule    rule1  = ProductionRule.terminal( n );
-        Parser<Character> parser = new CharacterParser(rule1, l);
+        ProductionRule  rule1  = ProductionRule.terminal( n );
+        CharacterParser parser = new CharacterParser(rule1, l);
 
 
 
-        int numCharactersConsumed = consume( parser, "b" );
+        int numCharactersConsumed = parser.consume( "b" );
 
         List<String> expectedAudit = Arrays.asList(
             "started",
@@ -102,12 +102,12 @@ public class CharacterParserTest {
         n.append( 'b' );
 
 
-        ProductionRule    rule1  = ProductionRule.terminal( n );
-        Parser<Character> parser = new CharacterParser(rule1, l);
+        ProductionRule  rule1  = ProductionRule.terminal( n );
+        CharacterParser parser = new CharacterParser(rule1, l);
 
 
 
-        int numCharactersConsumed = consume(parser, "a");
+        int numCharactersConsumed = parser.consume("a");
 
         List<String> expectedAudit = Arrays.asList(
             "started",
@@ -125,11 +125,11 @@ public class CharacterParserTest {
         n.append( 'b' );
 
 
-        ProductionRule    rule1  = ProductionRule.terminal( n );
-        Parser<Character> parser = new CharacterParser(rule1, l);
+        ProductionRule  rule1  = ProductionRule.terminal( n );
+        CharacterParser parser = new CharacterParser(rule1, l);
 
 
-        int numCharactersConsumed = consume(parser, "c");
+        int numCharactersConsumed = parser.consume("c");
 
         List<String> expectedAudit = Arrays.asList(
             "started",
@@ -147,11 +147,11 @@ public class CharacterParserTest {
         n2.append('b');
 
 
-        ProductionRule    rule1  = ProductionRule.terminal( n1 );
-        Parser<Character> parser = new CharacterParser(rule1, l);
+        ProductionRule  rule1  = ProductionRule.terminal( n1 );
+        CharacterParser parser = new CharacterParser(rule1, l);
 
 
-        int numCharactersConsumed = consume(parser,"ac");
+        int numCharactersConsumed = parser.consume("ac");
 
         List<String> expectedAudit = Arrays.asList(
             "started",
@@ -168,11 +168,11 @@ public class CharacterParserTest {
         new StringOp( "a\nb", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
-        ProductionRule    rule1  = ProductionRule.terminal( n1 );
-        Parser<Character> parser = new CharacterParser(rule1, l);
+        ProductionRule  rule1  = ProductionRule.terminal( n1 );
+        CharacterParser parser = new CharacterParser(rule1, l);
 
 
-        int numCharactersConsumed = consume(parser,"a\nc");
+        int numCharactersConsumed = parser.consume("a\nc");
 
         List<String> expectedAudit = Arrays.asList(
             "started",
@@ -189,11 +189,11 @@ public class CharacterParserTest {
         new StringOp( "ab", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
-        ProductionRule    rule1  = ProductionRule.terminal( n1 );
-        Parser<Character> parser = new CharacterParser(rule1, l);
+        ProductionRule  rule1  = ProductionRule.terminal( n1 );
+        CharacterParser parser = new CharacterParser(rule1, l);
 
 
-        int numCharactersConsumed = consume(parser,"ab");
+        int numCharactersConsumed = parser.consume("ab");
 
         parser.appendEOS();
 
@@ -212,11 +212,11 @@ public class CharacterParserTest {
         new StringOp( "ab", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
-        ProductionRule    rule1  = ProductionRule.terminal( n1 );
-        Parser<Character> parser = new CharacterParser(rule1, l);
+        ProductionRule  rule1  = ProductionRule.terminal( n1 );
+        CharacterParser parser = new CharacterParser(rule1, l);
 
 
-        int numCharactersConsumed = consume(parser,"a") + consume(parser,"b");
+        int numCharactersConsumed = parser.consume("a") + parser.consume("b");
 
         List<String> expectedAudit = Arrays.asList(
                 "started"
@@ -232,8 +232,8 @@ public class CharacterParserTest {
         new StringOp( "ab", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
-        ProductionRule    rule1  = ProductionRule.terminal( n1 );
-        Parser<Character> parser = new CharacterParser(rule1, l);
+        ProductionRule  rule1  = ProductionRule.terminal( n1 );
+        CharacterParser parser = new CharacterParser(rule1, l);
 
 
 
@@ -253,8 +253,8 @@ public class CharacterParserTest {
         new StringOp( "ab", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
-        ProductionRule    rule1  = ProductionRule.terminal( n1 );
-        Parser<Character> parser = new CharacterParser(rule1, l);
+        ProductionRule  rule1  = ProductionRule.terminal( n1 );
+        CharacterParser parser = new CharacterParser(rule1, l);
 
 
         parser.appendEOS();
@@ -275,15 +275,15 @@ public class CharacterParserTest {
         new StringOp( "a\nb", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
-        ProductionRule    rule1  = ProductionRule.terminal( n1 );
-        Parser<Character> parser = new CharacterParser(rule1, l);
+        ProductionRule  rule1  = ProductionRule.terminal( n1 );
+        CharacterParser parser = new CharacterParser(rule1, l);
 
 
         parser.appendEOS();
 
 
         try {
-            consume(parser,"a");
+            parser.consume("a");
 
             Assert.fail("expected IllegalStateException");
         } catch (IllegalStateException e) {
@@ -297,16 +297,16 @@ public class CharacterParserTest {
         new StringOp( "ab", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
-        ProductionRule    rule1  = ProductionRule.terminal( n1 );
-        Parser<Character> parser = new CharacterParser(rule1, l);
+        ProductionRule  rule1  = ProductionRule.terminal( n1 );
+        CharacterParser parser = new CharacterParser(rule1, l);
 
 
-        consume(parser,"a");
+        parser.consume("a");
         parser.reset();
         l.audit.clear();
 
 
-        int numCharactersConsumed = consume(parser,"b");
+        int numCharactersConsumed = parser.consume("b");
 
         parser.appendEOS();
 
@@ -328,12 +328,12 @@ public class CharacterParserTest {
         n1.append( label );
 
 
-        ProductionRule    rule1  = ProductionRule.terminal( n1 );
-        Parser<Character> parser = new CharacterParser(rule1, l);
+        ProductionRule  rule1  = ProductionRule.terminal( n1 );
+        CharacterParser parser = new CharacterParser(rule1, l);
 
 
 
-        int numCharactersConsumed = consume(parser,"e");
+        int numCharactersConsumed = parser.consume("e");
 
         List<String> expectedAudit = Arrays.asList(
                 "started",
@@ -360,12 +360,12 @@ public class CharacterParserTest {
         ProductionRule rootRule = ProductionRule.nonTerminal( rule1, rule2, rule3 );
 
 
-        Parser<Character> parser = new CharacterParser( rootRule, l );
+        CharacterParser parser = new CharacterParser( rootRule, l );
 
 
 
 
-        int numCharactersConsumed = consume(parser,"life rocks");
+        int numCharactersConsumed = parser.consume("life rocks");
         parser.appendEOS();
 
         List<String> expectedAudit = Arrays.asList(
@@ -396,24 +396,10 @@ public class CharacterParserTest {
         ProductionRule rootRule = ProductionRule.nonTerminal( rule1, rule2, rule3 ).withLabel( "RootLabel" );
 
 
-//        ProductionRule nameRule = new ProductionRuleBuilder()
-//            .appendRegexp("[a-zA-Z]+")
-//            .build();
-//
-//        ProductionRule helloNameRule = new ProductionRuleBuilder()
-//            .appendConstant("Hello")
-//            .skipWhitespace()
-//            .appendRef( "NAME" )
-//            .withCallback( RecordingParserListener.class, "hello" )
-//            .build();
+        CharacterParser parser = new CharacterParser(rootRule, l);
 
 
-        Parser<Character> parser = new CharacterParser(rootRule, l);
-
-
-
-
-        int numCharactersConsumed = consume(parser,"Hello Jim");
+        int numCharactersConsumed = parser.consume("Hello Jim");
         parser.appendEOS();
 
         List<String> expectedAudit = Arrays.asList(
@@ -427,26 +413,40 @@ public class CharacterParserTest {
     }
 
 
+//    @Test
+    public void givenNestedCapturingRules_expectResultToFilterUp() {
+        ProductionRule nameRule = ProductionRuleBuilder.terminalRegexp( "[a-zA-Z]+" ).withLabel( "NameRule" )
+            .withCapture( true );
+
+
+        ProductionRule rootRule = ProductionRule.nonTerminal( nameRule ).withLabel( "RootRule" )
+            .withCapture( true )
+            .withCallback( RecordingParserListener.class, "list", List.class );
+
+
+        CharacterParser parser = new CharacterParser( rootRule, l );
+
+
+
+
+        int numCharactersConsumed = parser.consume("Jim");
+        parser.appendEOS();
+
+        List<String> expectedAudit = Arrays.asList(
+            "started",
+            "(1,1): list=[Jim]",
+            "finished"
+        );
+
+        assertEquals( expectedAudit, l.audit );
+        assertEquals( 10, numCharactersConsumed );
+    }
+
 
     // custom error messages
     // recoveries
-    // custom events
 
-
-
-    private int consume( Parser parser, String input ) {
-        int count = 0;
-
-        for ( char c : input.toCharArray() ) {
-            if ( parser.consume(c) ) {
-                count++;
-            } else {
-                return count;
-            }
-        }
-
-        return count;
-    }
+    
 
     @SuppressWarnings({"unchecked", "UnusedDeclaration"})
     public static class RecordingParserListener implements ParserListener {
@@ -462,6 +462,10 @@ public class CharacterParserTest {
 
         public void hello( int line, int col, String name ) {
             audit.add(  String.format("(%d,%d): Welcome '%s'", line, col, name) );
+        }
+
+        public void list( int line, int col, List<String> l ) {
+            audit.add(  String.format("(%d,%d): list=%s", line, col, l) );
         }
 
         public void finished() {
