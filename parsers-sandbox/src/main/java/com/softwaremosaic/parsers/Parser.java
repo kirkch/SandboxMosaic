@@ -219,6 +219,142 @@ public abstract class Parser<T extends Comparable<T>> {
         }
     }
 
+
+
+
+
+    private class ParserState {
+
+        private final ConsList<StackFrame> stack;
+
+
+
+        // constructor used when starting out
+        public ParserState( ProductionRule firstRule ) {
+            this( ConsList.Nil.cons( new StackFrame( line, col, firstRule ) ) );
+        }
+
+        private ParserState( ConsList<StackFrame> stack ) {
+            this.stack = stack;
+        }
+
+
+        public void consume( List<ParserState> nextStatesOutput, T input ) {
+            StackFrame currentFrame = stack.head();
+
+            if ( currentFrame.currentNode != null) {
+                traverseNextEdgeInGraph( nextStatesOutput, input, currentFrame );
+            } else if ( currentFrame.nextRules.hasContents() ) {
+                ParserState newState = pushNextRule();
+
+                newState.consume( nextStatesOutput, input );
+            } else if ( stack.tail().isEmpty() ) {
+                // skip
+            } else { // pass value back up the stack
+                ParserState newState = popCurrentRule();
+
+                newState.consume( nextStatesOutput, input );
+            }
+        }
+
+        public void consumeEOS( List<ParserState> nextStatesOutput ) {
+            ConsList<StackFrame> s = this.stack;
+
+            // while each stack frame is at a valid end node, pop its value and roll it up the stack
+            while ( s.hasContents() && s.head().currentNode != null && s.head().currentNode.isValidEndNode() ) {
+                s = popHeadRule(s);
+            }
+
+
+            if ( s.hasContents() && s.tail().isEmpty() && s.head().currentNode == null ) {
+                nextStatesOutput.add( new ParserState( s ) );   // return the current value (parse was successful)
+            }
+        }
+
+        /**
+         * Retrieves the candidate next nodes given the current position.  Used
+         * for error reporting.
+         */
+        public Collection<? extends Label> getNextCandidateLabels() {
+            return stack.head().currentNode.getOutLabels();
+        }
+
+        public ParserState fireActions() {
+            for ( MethodCall m : stack.head().actions ) {
+                debug( "FIRE on: " + m );
+
+                m.invoke();
+            }
+
+            return this;  // todo return a version that has the actions removed!
+        }
+
+        private void traverseNextEdgeInGraph( List<ParserState> nextStatesOutput, T input, StackFrame currentFrame ) {
+            Nodes nextNodes = currentFrame.currentNode.walk( input );
+
+            if ( nextNodes.isEmpty() && currentFrame.currentNode.isValidEndNode() ) {
+                ParserState poppedState = this.popCurrentRule();
+
+                poppedState.consume( nextStatesOutput, input );
+            } else {
+                appendNextNodes( nextStatesOutput, input, currentFrame, nextNodes );
+            }
+        }
+
+        private void appendNextNodes( List<ParserState> nextStatesOutput, T input, StackFrame currentFrame, Nodes nextNodes ) {
+            Iterator it = nextNodes.iterator();
+            while ( it.hasNext() ) {
+                Node n = (Node) it.next();
+
+                StackFrame updatedFrame = currentFrame.consumedValue( input, n );
+
+                ParserState newState = this.replaceHeadWith( updatedFrame );
+
+//                if ( n.hasOutEdges() ) {
+                nextStatesOutput.add( newState );
+//                }
+            }
+        }
+
+        private ParserState pushNextRule() {
+            ConsList<StackFrame> tail = stack.tail();
+            StackFrame updatedOldHead = stack.head().popNextRule();
+            StackFrame newHead = new StackFrame( line, col, stack.head().nextRules.head() );
+
+            return new ParserState( tail.cons(updatedOldHead).cons(newHead) );
+        }
+
+        private ParserState popCurrentRule() {
+            return new ParserState( popHeadRule(this.stack) );
+        }
+
+        private ConsList<StackFrame> popHeadRule( ConsList<StackFrame> s ) {
+            ConsList<StackFrame> tail = s.tail();
+            StackFrame           head = s.head();
+
+            if ( tail.isEmpty() ) {
+                ConsList<MethodCall> actions = head.getActions( listener );
+
+                StackFrame newStackFrame = new StackFrame( head.returnValueCollectedSoFar, actions );
+
+                return ConsList.newConsList( newStackFrame );
+            } else {
+                StackFrame newHead = tail.head().consume( head, listener );
+
+                return tail.tail().cons(newHead);
+            }
+        }
+
+        private ParserState replaceHeadWith( StackFrame updatedFrame ) {
+            return new ParserState( this.stack.tail().cons( updatedFrame ) );
+        }
+
+        public String toString() {
+            return stack.toString();
+        }
+    }
+
+
     private static class StackFrame {
         public final ProductionRule rule;
         public final Node           currentNode;
@@ -350,135 +486,5 @@ public abstract class Parser<T extends Comparable<T>> {
     }
 
 
-    private class ParserState {
-
-        private final ConsList<StackFrame> stack;
-
-
-
-        // constructor used when starting out
-        public ParserState( ProductionRule firstRule ) {
-            this( ConsList.Nil.cons( new StackFrame( line, col, firstRule ) ) );
-        }
-
-        private ParserState( ConsList<StackFrame> stack ) {
-            this.stack = stack;
-        }
-
-
-        public void consume( List<ParserState> nextStatesOutput, T input ) {
-            StackFrame currentFrame = stack.head();
-
-            if ( currentFrame.currentNode != null) {
-                traverseNextEdgeInGraph( nextStatesOutput, input, currentFrame );
-            } else if ( currentFrame.nextRules.hasContents() ) {
-                ParserState newState = pushNextRule();
-
-                newState.consume( nextStatesOutput, input );
-            } else if ( stack.tail().isEmpty() ) {
-                // skip
-            } else { // pass value back up the stack
-                ParserState newState = popCurrentRule();
-
-                newState.consume( nextStatesOutput, input );
-            }
-        }
-
-        public void consumeEOS( List<ParserState> nextStatesOutput ) {
-            ConsList<StackFrame> s = this.stack;
-
-            // while each stack frame is at a valid end node, pop its value and roll it up the stack
-            while ( s.hasContents() && s.head().currentNode != null && s.head().currentNode.isValidEndNode() ) {
-                s = popHeadRule(s);
-            }
-
-
-            if ( s.hasContents() && s.tail().isEmpty() && s.head().currentNode == null ) {
-                nextStatesOutput.add( new ParserState( s ) );   // return the current value (parse was successful)
-            }
-        }
-
-        private void traverseNextEdgeInGraph( List<ParserState> nextStatesOutput, T input, StackFrame currentFrame ) {
-            Nodes nextNodes = currentFrame.currentNode.walk( input );
-
-            if ( nextNodes.isEmpty() && currentFrame.currentNode.isValidEndNode() ) {
-                ParserState poppedState = this.popCurrentRule();
-
-                poppedState.consume( nextStatesOutput, input );
-            } else {
-                appendNextNodes( nextStatesOutput, input, currentFrame, nextNodes );
-            }
-        }
-
-        private void appendNextNodes( List<ParserState> nextStatesOutput, T input, StackFrame currentFrame, Nodes nextNodes ) {
-            Iterator it = nextNodes.iterator();
-            while ( it.hasNext() ) {
-                Node n = (Node) it.next();
-
-                StackFrame updatedFrame = currentFrame.consumedValue( input, n );
-
-                ParserState newState = this.replaceHeadWith( updatedFrame );
-
-//                if ( n.hasOutEdges() ) {
-                    nextStatesOutput.add( newState );
-//                }
-            }
-        }
-
-        private ParserState pushNextRule() {
-            ConsList<StackFrame> tail = stack.tail();
-            StackFrame updatedOldHead = stack.head().popNextRule();
-            StackFrame newHead = new StackFrame( line, col, stack.head().nextRules.head() );
-
-            return new ParserState( tail.cons(updatedOldHead).cons(newHead) );
-        }
-
-        private ParserState popCurrentRule() {
-            return new ParserState( popHeadRule(this.stack) );
-        }
-
-        private ConsList<StackFrame> popHeadRule( ConsList<StackFrame> s ) {
-            ConsList<StackFrame> tail = s.tail();
-            StackFrame           head = s.head();
-
-            if ( tail.isEmpty() ) {
-                ConsList<MethodCall> actions = head.getActions( listener );
-
-                StackFrame newStackFrame = new StackFrame( head.returnValueCollectedSoFar, actions );
-
-                return ConsList.newConsList( newStackFrame );
-            } else {
-                StackFrame newHead = tail.head().consume( head, listener );
-
-                return tail.tail().cons(newHead);
-            }
-        }
-
-        private ParserState replaceHeadWith( StackFrame updatedFrame ) {
-            return new ParserState( this.stack.tail().cons( updatedFrame ) );
-        }
-
-        /**
-         * Retrieves the candidate next nodes given the current position.  Used
-         * for error reporting.
-         */
-        public Collection<? extends Label> getNextCandidateLabels() {
-            return stack.head().currentNode.getOutLabels();
-        }
-
-        public ParserState fireActions() {
-            for ( MethodCall m : stack.head().actions ) {
-                debug( "FIRE on: " + m );
-
-                m.invoke();
-            }
-
-            return this;
-        }
-
-        public String toString() {
-            return stack.toString();
-        }
-    }
 
 }
