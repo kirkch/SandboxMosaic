@@ -27,7 +27,7 @@
 //    public void givenBlankAutomata_fetchStartingNode_expectNoLabel() {
 //        ObjectNode startingNode = automata.getStartingNode();
 //
-//        assertNull( startingNode.getLabel() );
+//        assertNull( startingNode.getPredicate() );
 //    }
 //
 //    @Test
@@ -57,7 +57,7 @@
 //        assertEquals( 1, edges.size() );
 //        assertNotSame( startingNode, nextNode );
 //        assertTrue( nextNode.isTerminal() );
-//        assertNull( nextNode.getLabel() );
+//        assertNull( nextNode.getPredicate() );
 //    }
 //
 //}

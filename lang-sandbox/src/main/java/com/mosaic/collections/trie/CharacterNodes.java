@@ -16,7 +16,11 @@ public class CharacterNodes<T> extends AbstractList<CharacterNode<T>> {
 
     private List<CharacterNode<T>> nodes;
 
-    
+
+    public CharacterNodes() {
+        this( new ArrayList() );
+    }
+
     public CharacterNodes( List<CharacterNode<T>> nodes ) {
         this.nodes = nodes;
     }

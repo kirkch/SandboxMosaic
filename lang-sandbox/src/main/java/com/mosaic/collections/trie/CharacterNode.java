@@ -107,7 +107,7 @@ public class CharacterNode<T> implements Iterable<Pair<CharacterPredicate,Charac
         append( CharacterPredicates.constant( c ), nodes );
     }
 
-    public CharacterNodes append( CharacterPredicate predicate ) {
+    public CharacterNodes<T> append( CharacterPredicate predicate ) {
         CharacterNode<T> newNode = new CharacterNode();
 
         append( predicate, newNode );

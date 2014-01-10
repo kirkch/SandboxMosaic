@@ -54,7 +54,7 @@ public class CharacterPredicates {
     }
 
 
-    private static char[] SPECIAL_CHARS = new char[] {'*',')','+','?','|','[',']','~','(','^','-', '.'};
+    private static char[] SPECIAL_CHARS = new char[] {'^','[', ']', '-'};
 
     private static String escape( char c ) {
         if ( isSpecialChar(c) ) {
@@ -312,7 +312,7 @@ public class CharacterPredicates {
 
 
     private static void conditionalEscapeAndAppendToBuffer( StringBuilder buf, char c ) {
-        if ( c == '^' || c == ']' || c == '-' ) {
+        if ( isSpecialChar(c) ) {
             buf.append( '\\' );
         }
 
