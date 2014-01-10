@@ -1,10 +1,6 @@
-package com.softwaremosaic.parsers.trie.regexp;
+package com.mosaic.lang;
 
-import com.mosaic.io.CharPredicate;
-import com.mosaic.lang.Validate;
 import com.mosaic.utils.StringUtils;
-import com.softwaremosaic.parsers.automata.regexp.GraphBuilder;
-import com.softwaremosaic.parsers.automata.regexp.RegExpCharacterUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,45 +11,38 @@ import java.util.Objects;
 /**
  *
  */
-public class CharPredicates {
+@SuppressWarnings("unchecked")
+public class CharacterPredicates {
 
-    public static CharPredicate constant( char c ) {
-        return new SingleCharPredicate(c);
+    public static CharacterPredicate constant( char c ) {
+        return new SingleCharacterPredicate(c);
     }
 
-    public static CharPredicate notValue( char c ) {
-        return new NotCharPredicate(c);
+    public static CharacterPredicate notValue( char c ) {
+        return new NotCharacterPredicate(c);
     }
 
-//    public static CharPredicate orValues( Iterable<T> values ) {
-//        return new OrValuesPredicate( values );
-//    }
-//
-//    public static CharPredicate orValues( T...values ) {
-//        return new OrValuesPredicate( Arrays.asList( values ) );
-//    }
-
-    public static CharPredicate orPredicates( Iterable<CharPredicate> Predicates ) {
+    public static CharacterPredicate orPredicates( Iterable<CharacterPredicate> Predicates ) {
         return new OrPredicate( Predicates );
     }
 
-    public static CharPredicate orPredicates( CharPredicate...Predicates ) {
+    public static CharacterPredicate orPredicates( CharacterPredicate...Predicates ) {
         return new OrPredicate( Arrays.asList(Predicates) );
     }
 
-    public static CharPredicate caseInsensitive( char c ) {
+    public static CharacterPredicate caseInsensitive( char c ) {
         return new CaseInsensitivePredicate(c);
     }
 
-    public static CharPredicate characterRange( char minInc, char maxInc ) {
+    public static CharacterPredicate characterRange( char minInc, char maxInc ) {
         return new CharacterRangePredicate( minInc, maxInc );
     }
 
-    public static CharPredicate characterPredicate( char c, GraphBuilder.CaseSensitivity caseSensitivity ) {
+    public static CharacterPredicate characterPredicate( char c, CaseSensitivity caseSensitivity ) {
         return caseSensitivity.ignoreCase() ? caseInsensitive(c) : constant( c );
     }
 
-    public static CharPredicate appendAnyCharacter() {
+    public static CharacterPredicate appendAnyCharacter() {
         return AnyCharacterPredicate.INSTANCE;
     }
 
@@ -65,10 +54,31 @@ public class CharPredicates {
     }
 
 
-    private static class SingleCharPredicate implements CharPredicate {
+    private static char[] SPECIAL_CHARS = new char[] {'*',')','+','?','|','[',']','~','(','^','-', '.'};
+
+    private static String escape( char c ) {
+        if ( isSpecialChar(c) ) {
+            return "\\"+c;
+        } else {
+            return Character.toString(c);
+        }
+    }
+
+    public static boolean isSpecialChar( char c ) {
+        for ( char s : SPECIAL_CHARS ) {
+            if ( c == s ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    private static class SingleCharacterPredicate implements CharacterPredicate {
         private final char c;
 
-        public SingleCharPredicate( char c ) {
+        public SingleCharacterPredicate( char c ) {
             this.c = c;
         }
 
@@ -77,23 +87,23 @@ public class CharPredicates {
         }
 
         public String toString() {
-            return RegExpCharacterUtils.escape( c );
+            return escape( c );
         }
 
-        public int compareTo( CharPredicate o ) {
-            if ( !(o instanceof SingleCharPredicate) ) {
+        public int compareTo( CharacterPredicate o ) {
+            if ( !(o instanceof SingleCharacterPredicate) ) {
                 return -1;
             }
 
-            SingleCharPredicate other = (SingleCharPredicate) o;
+            SingleCharacterPredicate other = (SingleCharacterPredicate) o;
             return this.c - other.c;
         }
     }
 
-    private static class NotCharPredicate implements CharPredicate {
+    private static class NotCharacterPredicate implements CharacterPredicate {
         private char c;
 
-        public NotCharPredicate( char c ) {
+        public NotCharacterPredicate( char c ) {
             this.c = c;
         }
 
@@ -102,20 +112,20 @@ public class CharPredicates {
         }
 
         public String toString() {
-            return "[^" + RegExpCharacterUtils.escape(c) + "]";
+            return "[^" + escape(c) + "]";
         }
 
-        public int compareTo( CharPredicate o ) {
-            if ( !(o instanceof NotCharPredicate) ) {
+        public int compareTo( CharacterPredicate o ) {
+            if ( !(o instanceof NotCharacterPredicate) ) {
                 return -1;
             }
 
-            NotCharPredicate other = (NotCharPredicate) o;
+            NotCharacterPredicate other = (NotCharacterPredicate) o;
             return this.c - other.c;
         }
     }
 
-    private static class AnyCharacterPredicate implements CharPredicate {
+    private static class AnyCharacterPredicate implements CharacterPredicate {
         public static AnyCharacterPredicate INSTANCE = new AnyCharacterPredicate();
 
         public boolean matches( char input ) {
@@ -126,7 +136,7 @@ public class CharPredicates {
             return ".";
         }
 
-        public int compareTo( CharPredicate o ) {
+        public int compareTo( CharacterPredicate o ) {
             if ( !(o instanceof AnyCharacterPredicate) ) {
                 return -1;
             }
@@ -135,15 +145,15 @@ public class CharPredicates {
         }
     }
 
-    private static class OrPredicate implements CharPredicate {
-        private Iterable<CharPredicate> predicates;
+    private static class OrPredicate implements CharacterPredicate {
+        private Iterable<CharacterPredicate> predicates;
 
-        public OrPredicate( Iterable<CharPredicate> predicates ) {
+        public OrPredicate( Iterable<CharacterPredicate> predicates ) {
             this.predicates = predicates;
         }
 
         public boolean matches( char input ) {
-            for ( CharPredicate p : predicates ) {
+            for ( CharacterPredicate p : predicates ) {
                 if ( p.matches(input) ) {
                     return true;
                 }
@@ -156,7 +166,7 @@ public class CharPredicates {
             return StringUtils.join( predicates, "|" );
         }
 
-        public int compareTo( CharPredicate o ) {
+        public int compareTo( CharacterPredicate o ) {
             if ( !(o instanceof OrPredicate) ) {
                 return -1;
             }
@@ -166,7 +176,7 @@ public class CharPredicates {
         }
     }
 
-    private static class CaseInsensitivePredicate implements CharPredicate {
+    private static class CaseInsensitivePredicate implements CharacterPredicate {
         private char lc;
         private char uc;
 
@@ -183,7 +193,7 @@ public class CharPredicates {
             return "["+uc+lc+"]";
         }
 
-        public int compareTo( CharPredicate o ) {
+        public int compareTo( CharacterPredicate o ) {
             if ( !(o instanceof CaseInsensitivePredicate) ) {
                 return -1;
             }
@@ -193,7 +203,7 @@ public class CharPredicates {
         }
     }
 
-    private static class CharacterRangePredicate implements CharPredicate {
+    private static class CharacterRangePredicate implements CharacterPredicate {
         private char minInc;
         private char maxInc;
 
@@ -218,7 +228,7 @@ public class CharPredicates {
             return buf.toString();
         }
 
-        public int compareTo( CharPredicate o ) {
+        public int compareTo( CharacterPredicate o ) {
             if ( !(o instanceof CharacterRangePredicate) ) {
                 return -1;
             }
@@ -231,14 +241,15 @@ public class CharPredicates {
         }
     }
 
-    public static class CharacterSelectionPredicate implements CharPredicate {
+
+    public static class CharacterSelectionPredicate implements CharacterPredicate {
 
         private boolean invert;
-        private List<CharPredicate> candidates = new ArrayList();
+        private List<CharacterPredicate> candidates = new ArrayList();
 
 
         public boolean matches( char input ) {
-            for ( CharPredicate predicate : candidates ) {
+            for ( CharacterPredicate predicate : candidates ) {
                 if ( predicate.matches(input) ) {
                     return !invert;
                 }
@@ -280,7 +291,7 @@ public class CharPredicates {
                 buf.append( '^' );
             }
 
-            for ( CharPredicate candidate : candidates ) {
+            for ( CharacterPredicate candidate : candidates ) {
                 buf.append( candidate.toString() );
             }
 
@@ -289,7 +300,7 @@ public class CharPredicates {
             return buf.toString();
         }
 
-        public int compareTo( CharPredicate o ) {
+        public int compareTo( CharacterPredicate o ) {
             if ( !(o instanceof CharacterSelectionPredicate) ) {
                 return -1;
             }

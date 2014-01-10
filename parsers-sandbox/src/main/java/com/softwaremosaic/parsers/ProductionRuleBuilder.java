@@ -15,8 +15,8 @@ import com.softwaremosaic.parsers.automata.regexp.StringOp;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseInsensitive;
-import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseSensitive;
+import static com.mosaic.lang.CaseSensitivity.CaseInsensitive;
+import static com.mosaic.lang.CaseSensitivity.CaseSensitive;
 
 /**
  *
@@ -58,14 +58,14 @@ public class ProductionRuleBuilder {
     }
 
     public static ProductionRule terminalConstant( String str ) {
-        Node n = build( new StringOp(str, CaseSensitive) );
+        Node n = build( new StringOp( str, CaseSensitive ) );
 
         return ProductionRule.terminal( n )
             .withPostProcess( CONSLIST_TOSTRING );
     }
 
     public static ProductionRule terminalRegexp( String str ) {
-        Node n = build( RegexpParser.compile(str) );
+        Node n = build( RegexpParser.compile( str ) );
 
         return ProductionRule.terminal( n )
             .withPostProcess( CONSLIST_TOSTRING );

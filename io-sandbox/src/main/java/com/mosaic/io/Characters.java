@@ -1,5 +1,6 @@
 package com.mosaic.io;
 
+import com.mosaic.lang.CharacterPredicate;
 import com.mosaic.lang.Validate;
 
 import java.nio.CharBuffer;
@@ -201,7 +202,7 @@ public abstract class Characters implements CharSequence {
         return buf.toString();
     }
 
-    public Characters skipWhile( CharPredicate predicate ) {
+    public Characters skipWhile( CharacterPredicate predicate ) {
         int length = length();
         int i      = 0;
 

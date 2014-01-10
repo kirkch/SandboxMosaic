@@ -1,8 +1,7 @@
-package com.softwaremosaic.parsers.trie;
+package com.mosaic.collections.trie;
 
-import com.mosaic.io.CharPredicate;
-import com.softwaremosaic.parsers.automata.Nodes;
-import com.softwaremosaic.parsers.trie.regexp.CharPredicates;
+import com.mosaic.lang.CharacterPredicate;
+import com.mosaic.lang.CharacterPredicates;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -46,14 +45,14 @@ public class CharacterNodes<T> extends AbstractList<CharacterNode<T>> {
 
 
 
-    public Nodes fetch( char c ) {
+    public CharacterNodes<T> fetch( char c ) {
         List<CharacterNode<T>> endNodes = new ArrayList();
 
         for ( CharacterNode<T> n : nodes ) {
             endNodes.addAll( n.fetch( c ) );
         }
 
-        return new Nodes( endNodes );
+        return new CharacterNodes<T>( endNodes );
     }
 
 //    public Nodes walk( T...path ) {
@@ -71,10 +70,10 @@ public class CharacterNodes<T> extends AbstractList<CharacterNode<T>> {
 //    }
 
     public CharacterNodes<T> append( char c ) {
-        return append( CharPredicates.constant( c ) );
+        return append( CharacterPredicates.constant( c ) );
     }
 
-    public CharacterNodes<T> append( CharPredicate predicate ) {
+    public CharacterNodes<T> append( CharacterPredicate predicate ) {
         List<CharacterNode<T>> endNodes = new ArrayList();
 
         for ( CharacterNode<T> n : nodes ) {
@@ -84,11 +83,11 @@ public class CharacterNodes<T> extends AbstractList<CharacterNode<T>> {
         return new CharacterNodes( endNodes );
     }
 
-    public void append( CharPredicate predicate, CharacterNode<T> next ) {
+    public void append( CharacterPredicate predicate, CharacterNode<T> next ) {
         append( predicate, next );
     }
 
-    public void append( CharPredicate predicate, CharacterNodes<T> next ) {
+    public void append( CharacterPredicate predicate, CharacterNodes<T> next ) {
         for ( CharacterNode<T> n : nodes ) {
             n.append( predicate, next );
         }

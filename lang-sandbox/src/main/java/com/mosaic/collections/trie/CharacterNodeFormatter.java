@@ -1,15 +1,15 @@
-package com.softwaremosaic.parsers.trie;
+package com.mosaic.collections.trie;
 
 import com.mosaic.collections.ConsList;
 import com.mosaic.collections.KV;
-import com.mosaic.io.CharPredicate;
+import com.mosaic.lang.CharacterPredicate;
 import com.mosaic.lang.Validate;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.Function2;
 import com.mosaic.lang.functional.VoidFunction2;
 import com.mosaic.utils.ListUtils;
 import com.mosaic.utils.StringUtils;
-import com.softwaremosaic.parsers.trie.regexp.CharPredicates;
+import com.mosaic.lang.CharacterPredicates;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -53,8 +53,8 @@ public class CharacterNodeFormatter<T> {
         final List<String> formattedGraph = new ArrayList();
 
         startingNode.depthFirstPrefixTraversal(
-            new VoidFunction2<ConsList<KV<Set<CharPredicate>, CharacterNode<T>>>,Boolean>() {
-                public void invoke( ConsList<KV<Set<CharPredicate>, CharacterNode<T>>> path, Boolean isCompletePath ) {
+            new VoidFunction2<ConsList<KV<Set<CharacterPredicate>, CharacterNode<T>>>,Boolean>() {
+                public void invoke( ConsList<KV<Set<CharacterPredicate>, CharacterNode<T>>> path, Boolean isCompletePath ) {
                     if ( isCompletePath ) {
                         appendPath( path.reverse(), formattedGraph, plugin );
                     }
@@ -142,11 +142,11 @@ public class CharacterNodeFormatter<T> {
         }
     };
 
-    private void appendPath( ConsList<KV<Set<CharPredicate>, CharacterNode<T>>> path, List<String> formattedGraph, NodeFormatPlugin plugin ) {
+    private void appendPath( ConsList<KV<Set<CharacterPredicate>, CharacterNode<T>>> path, List<String> formattedGraph, NodeFormatPlugin plugin ) {
         StringBuilder buf = new StringBuilder();
 
-        for ( KV<Set<CharPredicate>,CharacterNode<T>> step : path ) {
-            Set<CharPredicate>  labels = step.getKey();
+        for ( KV<Set<CharacterPredicate>,CharacterNode<T>> step : path ) {
+            Set<CharacterPredicate>  labels = step.getKey();
             CharacterNode<T>    node   = step.getValue();
 
             if ( !labels.isEmpty() ) {
@@ -163,11 +163,11 @@ public class CharacterNodeFormatter<T> {
         formattedGraph.add( buf.toString() );
     }
 
-    private void appendLabels( StringBuilder buf, Set<CharPredicate> predicates ) {
+    private void appendLabels( StringBuilder buf, Set<CharacterPredicate> predicates ) {
         if ( predicates.size() == 1 ) {
             buf.append( predicates.iterator().next() );
         } else {
-            buf.append( CharPredicates.orPredicates(predicates) );
+            buf.append( CharacterPredicates.orPredicates( predicates ) );
         }
     }
 

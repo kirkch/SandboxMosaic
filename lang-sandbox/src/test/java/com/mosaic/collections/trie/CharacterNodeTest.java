@@ -1,8 +1,7 @@
-package com.softwaremosaic.parsers.trie;
+package com.mosaic.collections.trie;
 
-import com.mosaic.io.CharPredicate;
-import com.softwaremosaic.parsers.automata.GraphAssertions;
-import com.softwaremosaic.parsers.trie.regexp.CharPredicates;
+import com.mosaic.lang.CharacterPredicate;
+import com.mosaic.lang.CharacterPredicates;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -51,7 +50,7 @@ public class CharacterNodeTest {
 
 // replaceNode
 
-    private CharPredicate a = CharPredicates.constant( 'a' );
+    private CharacterPredicate a = CharacterPredicates.constant( 'a' );
 
     @Test
     public void givenBlankNode_replaceNode_expectNoChange() {
@@ -139,7 +138,7 @@ public class CharacterNodeTest {
 
         assertEquals(0, numEdgesRemoved);
 
-        GraphAssertions.assertGraphEquals( n1, "1" );
+        TrieAssertions.assertGraphEquals( n1, "1" );
     }
 
     @Test
@@ -155,7 +154,7 @@ public class CharacterNodeTest {
 
         assertEquals(1, numEdgesRemoved);
 
-        GraphAssertions.assertGraphEquals( n1, "1 -a-> 2" );
+        TrieAssertions.assertGraphEquals( n1, "1 -a-> 2" );
 
         assertSame( n3, n1.getOutNodes().get(0) );
     }

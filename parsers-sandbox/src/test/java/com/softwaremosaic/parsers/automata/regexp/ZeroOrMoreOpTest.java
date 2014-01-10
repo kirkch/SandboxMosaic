@@ -6,9 +6,8 @@ import com.softwaremosaic.parsers.automata.Labels;
 import com.softwaremosaic.parsers.automata.Node;
 import org.junit.Test;
 
+import static com.mosaic.lang.CaseSensitivity.*;
 import static com.softwaremosaic.parsers.automata.GraphAssertions.assertGraphEquals;
-import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseInsensitive;
-import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseSensitive;
 import static org.junit.Assert.assertEquals;
 
 /**

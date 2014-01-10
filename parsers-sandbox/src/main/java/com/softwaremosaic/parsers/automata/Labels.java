@@ -1,8 +1,8 @@
 package com.softwaremosaic.parsers.automata;
 
+import com.mosaic.lang.CaseSensitivity;
 import com.mosaic.lang.Validate;
 import com.mosaic.utils.StringUtils;
-import com.softwaremosaic.parsers.automata.regexp.GraphBuilder;
 import com.softwaremosaic.parsers.automata.regexp.RegExpCharacterUtils;
 
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class Labels {
       return new CharacterRangeLabel( minInc, maxInc );
     }
 
-    public static Label<Character> characterLabel( char c, GraphBuilder.CaseSensitivity caseSensitivity ) {
+    public static Label<Character> characterLabel( char c, CaseSensitivity caseSensitivity ) {
         return caseSensitivity.ignoreCase() ? caseInsensitive(c) : singleValue(c);
     }
 

@@ -1,7 +1,7 @@
 package com.mosaic.parsers;
 
 import com.mosaic.io.CharPosition;
-import com.mosaic.io.CharPredicate;
+import com.mosaic.lang.CharacterPredicate;
 import com.mosaic.io.Characters;
 
 /**
@@ -52,7 +52,7 @@ public class Tokenizer implements CharSequence {
 
     }
 
-    public void skipAll( CharPredicate predicate ) {
+    public void skipAll( CharacterPredicate predicate ) {
 
     }
 
@@ -68,7 +68,7 @@ public class Tokenizer implements CharSequence {
         return null;
     }
 
-    public CharSequence consumeAll( CharPredicate predicate ) {
+    public CharSequence consumeAll( CharacterPredicate predicate ) {
         return null;
     }
 

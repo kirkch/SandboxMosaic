@@ -1,11 +1,11 @@
 package com.softwaremosaic.parsers;
 
+import com.mosaic.lang.CaseSensitivity;
 import com.softwaremosaic.parsers.automata.Label;
 import com.softwaremosaic.parsers.automata.LabelNode;
 import com.softwaremosaic.parsers.automata.Labels;
 import com.softwaremosaic.parsers.automata.Nodes;
 import com.softwaremosaic.parsers.automata.ProductionRule;
-import com.softwaremosaic.parsers.automata.regexp.GraphBuilder;
 import com.softwaremosaic.parsers.automata.regexp.StringOp;
 import org.junit.Assert;
 import org.junit.Test;
@@ -165,7 +165,7 @@ public class CharacterParserTest {
     @Test
     public void givenAutomataExpectingAnewlineB_parseAnewlineC_expectErrorAtLine2Col1() {
         LabelNode<Character> n1 = new LabelNode();
-        new StringOp( "a\nb", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
+        new StringOp( "a\nb", CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
         ProductionRule  rule1  = ProductionRule.terminal( n1 );
@@ -186,7 +186,7 @@ public class CharacterParserTest {
     @Test
     public void givenAutomataExpectingAB_parseAB_expectSuccessfulParsingAndEndOfParsingEvent() {
         LabelNode<Character> n1 = new LabelNode();
-        new StringOp( "ab", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
+        new StringOp( "ab", CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
         ProductionRule  rule1  = ProductionRule.terminal( n1 );
@@ -209,7 +209,7 @@ public class CharacterParserTest {
     @Test
     public void givenAutomataExpectingAB_parseAThenB_expectStartedParsingEventOnlyOnce() {
         LabelNode<Character> n1 = new LabelNode();
-        new StringOp( "ab", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
+        new StringOp( "ab", CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
         ProductionRule  rule1  = ProductionRule.terminal( n1 );
@@ -229,7 +229,7 @@ public class CharacterParserTest {
     @Test
     public void givenAutomataExpectingAB_appendEOS_expectStartFinishEvents() {
         LabelNode<Character> n1 = new LabelNode();
-        new StringOp( "ab", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
+        new StringOp( "ab", CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
         ProductionRule  rule1  = ProductionRule.terminal( n1 );
@@ -250,7 +250,7 @@ public class CharacterParserTest {
     @Test
     public void givenAutomataExpectingAB_appendEOSTwice_expectException() {
         LabelNode<Character> n1 = new LabelNode();
-        new StringOp( "ab", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
+        new StringOp( "ab", CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
         ProductionRule  rule1  = ProductionRule.terminal( n1 );
@@ -272,7 +272,7 @@ public class CharacterParserTest {
     @Test
     public void givenAutomataExpectingAB_appendEOSThenA_expectException() {
         LabelNode<Character> n1 = new LabelNode();
-        new StringOp( "a\nb", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
+        new StringOp( "a\nb", CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
         ProductionRule  rule1  = ProductionRule.terminal( n1 );
@@ -294,7 +294,7 @@ public class CharacterParserTest {
     @Test
     public void givenParserABThatHasAlreadyParsedA_resetThenAppendB_expectSuccessfulReset() {
         LabelNode<Character> n1 = new LabelNode();
-        new StringOp( "ab", GraphBuilder.CaseSensitivity.CaseSensitive ).appendTo( n1 );
+        new StringOp( "ab", CaseSensitivity.CaseSensitive ).appendTo( n1 );
 
 
         ProductionRule  rule1  = ProductionRule.terminal( n1 );

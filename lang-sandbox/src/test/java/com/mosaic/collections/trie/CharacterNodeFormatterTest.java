@@ -1,4 +1,4 @@
-package com.softwaremosaic.parsers.trie;
+package com.mosaic.collections.trie;
 
 import org.junit.Assert;
 import org.junit.Test;

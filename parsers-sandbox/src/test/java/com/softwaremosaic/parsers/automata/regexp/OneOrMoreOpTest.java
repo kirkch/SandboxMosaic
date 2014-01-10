@@ -1,14 +1,15 @@
 package com.softwaremosaic.parsers.automata.regexp;
 
+import com.mosaic.lang.CaseSensitivity;
 import com.softwaremosaic.parsers.automata.LabelNode;
 import com.softwaremosaic.parsers.automata.Node;
 import com.softwaremosaic.parsers.automata.Nodes;
 import org.junit.Test;
 
 import static com.softwaremosaic.parsers.automata.GraphAssertions.assertGraphEquals;
-import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseSensitive;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
+
 
 /**
 *
@@ -19,7 +20,7 @@ public class OneOrMoreOpTest {
     @Test
     public void givenBlankStartingNode_appendACaseSensitive_expectOneTransitionThenLoopBack() {
         Node s  = new LabelNode();
-        GraphBuilder op = new OneOrMoreOp( new StringOp("a", CaseSensitive) );
+        GraphBuilder op = new OneOrMoreOp( new StringOp("a", CaseSensitivity.CaseSensitive) );
 
         Nodes endNodes = op.appendTo( s );
 

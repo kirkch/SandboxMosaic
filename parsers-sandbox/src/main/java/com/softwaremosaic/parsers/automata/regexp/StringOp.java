@@ -1,5 +1,6 @@
 package com.softwaremosaic.parsers.automata.regexp;
 
+import com.mosaic.lang.CaseSensitivity;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.utils.ListUtils;
 import com.softwaremosaic.parsers.automata.Label;
@@ -9,9 +10,10 @@ import com.softwaremosaic.parsers.automata.Nodes;
 
 import java.util.List;
 
-import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseInsensitive;
-import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseSensitive;
+import static com.mosaic.lang.CaseSensitivity.CaseInsensitive;
+import static com.mosaic.lang.CaseSensitivity.CaseSensitive;
 import static com.softwaremosaic.parsers.automata.regexp.RegExpCharacterUtils.escape;
+
 
 /**
  * Append the transitions required to match a constant onto the automata.
@@ -20,7 +22,7 @@ import static com.softwaremosaic.parsers.automata.regexp.RegExpCharacterUtils.es
 public class StringOp extends GraphBuilder<Character> {
 
     private String                 constant;
-    private CaseSensitivity        caseSensitivity;
+    private CaseSensitivity caseSensitivity;
 
     private List<Label<Character>> labels;
 

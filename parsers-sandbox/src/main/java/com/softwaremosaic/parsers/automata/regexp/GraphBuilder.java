@@ -11,14 +11,6 @@ import com.softwaremosaic.parsers.automata.Nodes;
  */
 public abstract class GraphBuilder<T extends Comparable<T>> {
 
-    public static enum CaseSensitivity {
-        CaseSensitive, CaseInsensitive;
-
-        public boolean ignoreCase() {
-            return this == CaseInsensitive;
-        }
-    }
-
     /**
      * Append this op to the specified node.
      *

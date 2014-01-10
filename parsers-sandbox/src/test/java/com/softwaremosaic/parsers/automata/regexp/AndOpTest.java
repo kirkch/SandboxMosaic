@@ -6,7 +6,7 @@ import com.softwaremosaic.parsers.automata.LabelNode;
 import org.junit.Test;
 
 import static com.softwaremosaic.parsers.automata.GraphAssertions.assertGraphEquals;
-import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseSensitive;
+import static com.mosaic.lang.CaseSensitivity.CaseSensitive;
 import static org.junit.Assert.assertEquals;
 
 /**

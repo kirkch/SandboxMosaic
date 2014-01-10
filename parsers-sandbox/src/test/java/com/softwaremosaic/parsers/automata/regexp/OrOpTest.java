@@ -5,7 +5,7 @@ import com.softwaremosaic.parsers.automata.Nodes;
 import org.junit.Test;
 
 import static com.softwaremosaic.parsers.automata.GraphAssertions.assertGraphEquals;
-import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.*;
+import static com.mosaic.lang.CaseSensitivity.*;
 import static org.junit.Assert.assertEquals;
 
 /**

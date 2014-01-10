@@ -1,12 +1,12 @@
 package com.softwaremosaic.parsers.automata.regexp;
 
 import com.mosaic.collections.FastStack;
+import com.mosaic.lang.CaseSensitivity;
 import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.functional.Stream;
 import com.mosaic.utils.StringUtils;
 import com.softwaremosaic.parsers.automata.Labels;
 
-import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseSensitive;
 
 
 /**
@@ -211,7 +211,7 @@ public class RegexpParser {
             pos = pos.tail();
         }
 
-        opStack.push( new StringOp(buf.toString(), CaseSensitive) );
+        opStack.push( new StringOp(buf.toString(), CaseSensitivity.CaseSensitive) );
 
         return pos;
     }

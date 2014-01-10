@@ -7,12 +7,9 @@ import com.softwaremosaic.parsers.automata.Node;
 import com.softwaremosaic.parsers.automata.Nodes;
 import org.junit.Test;
 
+import static com.mosaic.lang.CaseSensitivity.*;
 import static com.softwaremosaic.parsers.automata.GraphAssertions.assertGraphEquals;
-import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseInsensitive;
-import static com.softwaremosaic.parsers.automata.regexp.GraphBuilder.CaseSensitivity.CaseSensitive;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  *
