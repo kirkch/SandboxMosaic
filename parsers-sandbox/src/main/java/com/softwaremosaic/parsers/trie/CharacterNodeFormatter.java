@@ -5,6 +5,7 @@ import com.mosaic.collections.KV;
 import com.mosaic.io.CharPredicate;
 import com.mosaic.lang.Validate;
 import com.mosaic.lang.functional.Function1;
+import com.mosaic.lang.functional.Function2;
 import com.mosaic.lang.functional.VoidFunction2;
 import com.mosaic.utils.ListUtils;
 import com.mosaic.utils.StringUtils;
@@ -30,7 +31,23 @@ import java.util.Set;
 @SuppressWarnings("unchecked")
 public class CharacterNodeFormatter<T> {
 
+    public static interface NodeFormatPlugin<T> {
+        public String getNodeLabelFor( long nodeId, CharacterNode<T> node );
+    }
+
+    private static final NodeFormatPlugin DEFAULT_PLUGIN = new NodeFormatPlugin() {
+        public String getNodeLabelFor( long nodeId, CharacterNode node ) {
+            return Long.toString(nodeId);
+        }
+    };
+
+
+
     public List<String> format( CharacterNode<T> startingNode ) {
+        return format( startingNode, DEFAULT_PLUGIN );
+    }
+
+    public List<String> format( CharacterNode <T> startingNode, final NodeFormatPlugin plugin  ) {
         Validate.notNull( startingNode, "startingNode" );
 
         final List<String> formattedGraph = new ArrayList();
@@ -38,8 +55,8 @@ public class CharacterNodeFormatter<T> {
         startingNode.depthFirstPrefixTraversal(
             new VoidFunction2<ConsList<KV<Set<CharPredicate>, CharacterNode<T>>>,Boolean>() {
                 public void invoke( ConsList<KV<Set<CharPredicate>, CharacterNode<T>>> path, Boolean isCompletePath ) {
-                    if ( isCompletePath ) { //!path.head().getValue().hasOutEdges() ) {// isLeaf ) {
-                        appendPath( path.reverse(), formattedGraph );
+                    if ( isCompletePath ) {
+                        appendPath( path.reverse(), formattedGraph, plugin );
                     }
                 }
             }
@@ -105,14 +122,14 @@ public class CharacterNodeFormatter<T> {
     }
 
 
-    private Function1<CharacterNode<T>,String> nodeLabeler = new Function1<CharacterNode<T>, String>() {
+    private Function2<CharacterNode<T>,NodeFormatPlugin,String> nodeLabeler = new Function2<CharacterNode<T>, NodeFormatPlugin, String>() {
         private Map<CharacterNode<T>,String> existingLabels = new IdentityHashMap<>();
         private long             nextLabel      = 1;
 
-        public String invoke( CharacterNode<T> node ) {
+        public String invoke( CharacterNode<T> node, NodeFormatPlugin plugin ) {
             String label = existingLabels.get(node);
             if ( label == null ) {
-                label = Long.toString(nextLabel++);
+                label = plugin.getNodeLabelFor(nextLabel++, node);
 
 //                if ( node.isValidEndNode() ) {
 //                    label += "e";
@@ -125,7 +142,7 @@ public class CharacterNodeFormatter<T> {
         }
     };
 
-    private void appendPath( ConsList<KV<Set<CharPredicate>, CharacterNode<T>>> path, List<String> formattedGraph ) {
+    private void appendPath( ConsList<KV<Set<CharPredicate>, CharacterNode<T>>> path, List<String> formattedGraph, NodeFormatPlugin plugin ) {
         StringBuilder buf = new StringBuilder();
 
         for ( KV<Set<CharPredicate>,CharacterNode<T>> step : path ) {
@@ -140,7 +157,7 @@ public class CharacterNodeFormatter<T> {
                 buf.append( "-> " );
             }
 
-            buf.append(nodeLabeler.invoke(node));
+            buf.append(nodeLabeler.invoke(node, plugin));
         }
 
         formattedGraph.add( buf.toString() );

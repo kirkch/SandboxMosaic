@@ -123,6 +123,8 @@ public class NodeFormatterTest {
         assertEquals(expected, formattedGraph );
     }
 
+    // cycles
+
     @Test
     public void formatNodeThatLoopsBackToItself() {
         LabelNode startingNode = new LabelNode();
@@ -157,5 +159,4 @@ public class NodeFormatterTest {
     }
 
 
-    // cycles
 }

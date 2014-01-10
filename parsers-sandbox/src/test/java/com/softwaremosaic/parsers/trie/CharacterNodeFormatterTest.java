@@ -121,6 +121,9 @@ public class CharacterNodeFormatterTest {
         assertEquals(expected, formattedGraph );
     }
 
+
+// cycles
+
     @Test
     public void formatNodeThatLoopsBackToItself() {
         CharacterNode startingNode = new CharacterNode();
@@ -137,24 +140,21 @@ public class CharacterNodeFormatterTest {
         assertEquals(expected, formattedGraph );
     }
 
-//    @Test
-//    public void formatNodeThatLoopsBackToItselfAndIsValidEndNode() {
-//        CharacterNode startingNode = new CharacterNode();
-//
-//        startingNode.append('a', startingNode);
-//        startingNode.isValidEndNode( true );
-//
-//        List<String> formattedGraph = formatter.format(startingNode);
-//
-//        List<String> expected = Arrays.asList(
-//            "1e",
-//            "   -a-> 1e"
-//        );
-//
-//        assertEquals(expected, formattedGraph );
-//    }
 
+// custom node formatting
 
-    // cycles
+    @Test
+    public void relabelTheNodeNamesViaAPlugin() {
+        CharacterNode startingNode = new CharacterNode();
+        startingNode.append('a');
+
+        List<String> formattedGraph = formatter.format(startingNode, new CharacterNodeFormatter.NodeFormatPlugin() {
+            public String getNodeLabelFor( long nodeId, CharacterNode node ) {
+                return "'"+nodeId+"'";
+            }
+        });
+
+        assertEquals( Arrays.asList("'1' -a-> '2'"), formattedGraph );
+    }
 
 }
