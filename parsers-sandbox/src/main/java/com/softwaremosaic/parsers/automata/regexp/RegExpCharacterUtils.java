@@ -112,6 +112,14 @@ public class RegExpCharacterUtils {
         return buf.toString();
     }
 
+    public static String escape( char c ) {
+        StringBuilder buf = new StringBuilder();
+
+        escape( buf, Character.toString(c) );
+
+        return buf.toString();
+    }
+
     public static void escape( StringBuilder buf, String s ) {
         int max = s.length();
 

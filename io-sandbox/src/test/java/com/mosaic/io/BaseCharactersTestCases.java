@@ -475,6 +475,11 @@ public abstract class BaseCharactersTestCases {
             public boolean matches( char c ) {
                 return false;
             }
+
+            @Override
+            public int compareTo( CharPredicate o ) {
+                return 0;
+            }
         } );
 
         assertTrue( result == chars );
@@ -487,6 +492,11 @@ public abstract class BaseCharactersTestCases {
         Characters result = chars.skipWhile( new CharPredicate() {
             public boolean matches( char c ) {
                 return c == '0';
+            }
+
+            @Override
+            public int compareTo( CharPredicate o ) {
+                return 0;
             }
         } );
 
@@ -502,6 +512,11 @@ public abstract class BaseCharactersTestCases {
             public boolean matches( char c ) {
                 return c == '0' || c == '1';
             }
+
+            @Override
+            public int compareTo( CharPredicate o ) {
+                return 0;
+            }
         } );
 
         assertEquals( 2, result.getColumnNumber() );
@@ -515,6 +530,11 @@ public abstract class BaseCharactersTestCases {
         Characters result = chars.skipWhile( new CharPredicate() {
             public boolean matches( char c ) {
                 return true;
+            }
+
+            @Override
+            public int compareTo( CharPredicate o ) {
+                return 0;
             }
         } );
 
