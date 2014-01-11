@@ -18,7 +18,7 @@ public class StringOpTest {
     @Test
     public void givenBlankStartingNode_appendACaseSensitive_expectSingleTransition() {
         CharacterNode s  = new CharacterNode();
-        TrieBuilder   op = new StringOp( "a", CaseSensitive );
+        TrieBuilderOp op = new StringOp( "a", CaseSensitive );
 
         op.appendTo( s );
 
@@ -29,7 +29,7 @@ public class StringOpTest {
     @Test
     public void givenBlankStartingNode_appendACaseInsensitive_expectTwoTransitionsToOneNode() {
         CharacterNode s  = new CharacterNode();
-        TrieBuilder op = new StringOp( "a", CaseInsensitive );
+        TrieBuilderOp op = new StringOp( "a", CaseInsensitive );
 
         op.appendTo( s );
 
@@ -39,7 +39,7 @@ public class StringOpTest {
     @Test
     public void givenBlankStartingNode_appendABCaseSensitive() {
         CharacterNode s  = new CharacterNode();
-        TrieBuilder op = new StringOp( "ab", CaseSensitive );
+        TrieBuilderOp op = new StringOp( "ab", CaseSensitive );
 
         op.appendTo( s );
 
@@ -50,7 +50,7 @@ public class StringOpTest {
     @Test
     public void givenBlankStartingNode_appendABCaseInsensitive() {
         CharacterNode s  = new CharacterNode();
-        TrieBuilder op = new StringOp( "ab", CaseInsensitive );
+        TrieBuilderOp op = new StringOp( "ab", CaseInsensitive );
 
         op.appendTo( s );
 
@@ -64,21 +64,21 @@ public class StringOpTest {
 
     @Test
     public void givenCaseSensitive_toString_expectLowercaseString() {
-        TrieBuilder op = new StringOp( "aB", CaseSensitive );
+        TrieBuilderOp op = new StringOp( "aB", CaseSensitive );
 
         assertEquals( "aB", op.toString() );
     }
 
     @Test
     public void givenCaseInsensitive_toString_expectLowerAndUppercaseString() {
-        TrieBuilder op = new StringOp( "aB", CaseInsensitive );
+        TrieBuilderOp op = new StringOp( "aB", CaseInsensitive );
 
         assertEquals( "~ab", op.toString() );
     }
 
     @Test
     public void givenSpecialCharsInString_toString_escapedString() {
-        TrieBuilder op = new StringOp( "~a*B", CaseSensitive );
+        TrieBuilderOp op = new StringOp( "~a*B", CaseSensitive );
 
         assertEquals( "\\~a\\*B", op.toString() );
     }

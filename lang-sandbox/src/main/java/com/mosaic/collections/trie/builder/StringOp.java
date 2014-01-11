@@ -19,7 +19,7 @@ import static com.mosaic.lang.CaseSensitivity.CaseSensitive;
  * Append the transitions required to match a constant onto the automata.
  */
 @SuppressWarnings("unchecked")
-public class StringOp<T> extends TrieBuilder<T> {
+public class StringOp<T> extends TrieBuilderOp<T> {
 
     private String          constant;
     private CaseSensitivity caseSensitivity;

@@ -12,26 +12,26 @@ import java.util.List;
  *
  */
 @SuppressWarnings("unchecked")
-public class AndOp<T> extends TrieBuilder<T> {
+public class AndOp<T> extends TrieBuilderOp<T> {
 
-    private List<TrieBuilder<T>> childOps;
+    private List<TrieBuilderOp<T>> childOps;
 
-    public AndOp( Iterable<TrieBuilder<T>> childOps ) {
+    public AndOp( Iterable<TrieBuilderOp<T>> childOps ) {
         this.childOps = new ArrayList();
 
-        for ( TrieBuilder<T> op : childOps ) {
+        for ( TrieBuilderOp<T> op : childOps ) {
             this.childOps.add( op );
         }
     }
 
-    public AndOp( TrieBuilder<T>...childOps ) {
+    public AndOp( TrieBuilderOp<T>...childOps ) {
         this.childOps = Arrays.asList(childOps);
     }
 
     public CharacterNodes<T> appendTo( CharacterNode<T> startNode ) {
         CharacterNodes<T> pos = new CharacterNodes(startNode);
 
-        for ( TrieBuilder op : childOps ) {
+        for ( TrieBuilderOp op : childOps ) {
             pos = op.appendTo(pos);
         }
 
@@ -41,7 +41,7 @@ public class AndOp<T> extends TrieBuilder<T> {
     public String toString() {
         StringBuilder buf = new StringBuilder();
 
-        for ( TrieBuilder<T> op : childOps ) {
+        for ( TrieBuilderOp<T> op : childOps ) {
             buf.append( op );
         }
 

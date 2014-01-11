@@ -19,7 +19,7 @@ public class OneOrMoreOpTest {
     @Test
     public void givenBlankStartingNode_appendACaseSensitive_expectOneTransitionThenLoopBack() {
         CharacterNode s  = new CharacterNode();
-        TrieBuilder op = new OneOrMoreOp( new StringOp("a", CaseSensitivity.CaseSensitive) );
+        TrieBuilderOp op = new OneOrMoreOp( new StringOp("a", CaseSensitivity.CaseSensitive) );
 
         CharacterNodes endNodes = op.appendTo( s );
 

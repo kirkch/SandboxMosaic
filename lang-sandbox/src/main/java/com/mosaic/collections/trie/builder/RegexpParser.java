@@ -42,16 +42,16 @@ public class RegexpParser {
     private static final PredicateOp ANY_CHARACTER = new PredicateOp( CharacterPredicates.appendAnyCharacter() );
 
 
-    public static TrieBuilder compile( String regexp ) {
+    public static TrieBuilderOp compile( String regexp ) {
         return new RegexpParser().parse( regexp );
     }
 
 
 
-    private FastStack<TrieBuilder> opStack = new FastStack();
+    private FastStack<TrieBuilderOp> opStack = new FastStack();
 
 
-    public TrieBuilder parse( String regexpString ) {
+    public TrieBuilderOp parse( String regexpString ) {
         Stream<Token> tokens = unescape( 0, regexpString );
 
         while ( tokens.notEmpty() ) {
@@ -183,8 +183,8 @@ public class RegexpParser {
     }
 
     private void orTopTwoOpsOnStack() {
-        TrieBuilder b = opStack.pop();
-        TrieBuilder a = opStack.pop();
+        TrieBuilderOp b = opStack.pop();
+        TrieBuilderOp a = opStack.pop();
 
         if ( a.getClass() == OrOp.class ) {
             OrOp op = (OrOp) a;

@@ -21,14 +21,14 @@ public class RegexpParserTest {
 
     @Test
     public void givenA_expectConstantAOpBack() {
-        TrieBuilder op = parser.parse( "a" );
+        TrieBuilderOp op = parser.parse( "a" );
 
         assertEquals( "a", op.toString() );
     }
 
     @Test
     public void givenAIgnoreCase_expectConstantAOpBack() {
-        TrieBuilder op = parser.parse( "~a" );
+        TrieBuilderOp op = parser.parse( "~a" );
 
         assertEquals( "~a", op.toString() );
         assertEquals( false, ((StringOp) op).isCaseSensitive() );
@@ -37,7 +37,7 @@ public class RegexpParserTest {
 
     @Test
     public void givenAEscapedIgnoreCase_expectConstantTildaAOpBack() {
-        TrieBuilder op = parser.parse( "\\~a" );
+        TrieBuilderOp op = parser.parse( "\\~a" );
 
         assertEquals( "\\~a", op.toString() );
         assertEquals( true, ((StringOp) op).isCaseSensitive() );
@@ -46,7 +46,7 @@ public class RegexpParserTest {
 
     @Test
     public void givenABC_expectConstantABCOpBack() {
-        TrieBuilder op = parser.parse( "abc" );
+        TrieBuilderOp op = parser.parse( "abc" );
 
         assertEquals( "abc", op.toString() );
     }
@@ -158,7 +158,7 @@ public class RegexpParserTest {
 
     @Test
     public void nestedBrackets() {
-        TrieBuilder op = parser.parse( "((abc|0123)?|[a-z])" );
+        TrieBuilderOp op = parser.parse( "((abc|0123)?|[a-z])" );
 
         assertEquals( "(abc|0123)?|[a-z]", op.toString() );
     }
@@ -176,7 +176,7 @@ public class RegexpParserTest {
 
     @Test
     public void anyChar() {
-        TrieBuilder op = parser.parse( "a.c" );
+        TrieBuilderOp op = parser.parse( "a.c" );
 
         assertEquals( "a.c", op.toString() );
 
@@ -199,7 +199,7 @@ public class RegexpParserTest {
 
     @Test
     public void whiteSpace() {
-        TrieBuilder op = parser.parse( "[ \n\t\r]*" );
+        TrieBuilderOp op = parser.parse( "[ \n\t\r]*" );
 
         assertEquals( "([ \n\t\r])*", op.toString() );
 
@@ -229,7 +229,7 @@ public class RegexpParserTest {
         return true;
     }
 
-    private CharacterNode createGraph( TrieBuilder op ) {
+    private CharacterNode createGraph( TrieBuilderOp op ) {
         CharacterNode n = new CharacterNode();
 
         op.appendTo( n );

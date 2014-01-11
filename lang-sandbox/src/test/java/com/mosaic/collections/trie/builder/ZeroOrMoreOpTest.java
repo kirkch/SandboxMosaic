@@ -23,7 +23,7 @@ public class ZeroOrMoreOpTest {
     @Test
     public void givenBlankStartingNode_appendACaseSensitive_expectSingleTransition() {
         CharacterNode s  = new CharacterNode();
-        TrieBuilder   op = new ZeroOrMoreOp( new StringOp("a", CaseSensitive) );
+        TrieBuilderOp op = new ZeroOrMoreOp( new StringOp("a", CaseSensitive) );
 
         op.appendTo( s );
 
@@ -38,7 +38,7 @@ public class ZeroOrMoreOpTest {
     @Test
     public void givenBlankStartingNode_appendACaseInsensitive_expectSingleTransition() {
         CharacterNode s  = new CharacterNode();
-        TrieBuilder   op = new ZeroOrMoreOp( new StringOp("a", CaseInsensitive) );
+        TrieBuilderOp op = new ZeroOrMoreOp( new StringOp("a", CaseInsensitive) );
 
         op.appendTo( s );
 
@@ -56,7 +56,7 @@ public class ZeroOrMoreOpTest {
     public void givenSingleExistingTransition_appendACaseInsensitive_expectSingleTransitionThenLoopBack() {
         CharacterNode n1  = new CharacterNode();
         CharacterNode n2  = new CharacterNode();
-        TrieBuilder op = new ZeroOrMoreOp( new StringOp("b", CaseSensitive) );
+        TrieBuilderOp op = new ZeroOrMoreOp( new StringOp("b", CaseSensitive) );
 
         n1.append( a, n2 );
         op.appendTo( n2 );
@@ -73,7 +73,7 @@ public class ZeroOrMoreOpTest {
     public void givenBlankStartingNode_appendAorBWithDifferentEdges_expectBothAAndBToLoopBack() {
         CharacterNode n1  = new CharacterNode();
         CharacterNode n2  = new CharacterNode();
-        TrieBuilder op = new ZeroOrMoreOp( new OrOp(new StringOp("a", CaseSensitive), new StringOp("b", CaseSensitive)) );
+        TrieBuilderOp op = new ZeroOrMoreOp( new OrOp(new StringOp("a", CaseSensitive), new StringOp("b", CaseSensitive)) );
 
         n1.append( a, n2 );
         op.appendTo( n2 );
@@ -96,14 +96,14 @@ public class ZeroOrMoreOpTest {
 
     @Test
     public void givenConstantA_toString() {
-        TrieBuilder op = new ZeroOrMoreOp( new StringOp("a", CaseSensitive) );
+        TrieBuilderOp op = new ZeroOrMoreOp( new StringOp("a", CaseSensitive) );
 
         assertEquals( "(a)*", op.toString() );
     }
 
     @Test
     public void givenAorBWithDifferentEdges_toString() {
-        TrieBuilder op = new ZeroOrMoreOp( new OrOp(new StringOp("a", CaseSensitive), new StringOp("b", CaseSensitive)) );
+        TrieBuilderOp op = new ZeroOrMoreOp( new OrOp(new StringOp("a", CaseSensitive), new StringOp("b", CaseSensitive)) );
 
         assertEquals( "(a|b)*", op.toString() );
     }

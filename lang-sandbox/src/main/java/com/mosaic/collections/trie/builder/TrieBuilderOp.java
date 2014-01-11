@@ -12,7 +12,7 @@ import com.mosaic.collections.trie.CharacterNodes;
  * demand.
  */
 @SuppressWarnings("unchecked")
-public abstract class TrieBuilder<T> {
+public abstract class TrieBuilderOp<T> {
 
     /**
      * Append this op to the specified node.

@@ -14,16 +14,16 @@ import java.util.Set;
  *
  */
 @SuppressWarnings("unchecked")
-public class ZeroOrMoreOp<T> extends TrieBuilder<T> {
+public class ZeroOrMoreOp<T> extends TrieBuilderOp<T> {
 
-    private TrieBuilder<T> opToRepeat;
+    private TrieBuilderOp<T> opToRepeat;
 
     
     /**
      *
      * @param op the op to repeat
      */
-    public ZeroOrMoreOp( TrieBuilder<T> op ) {
+    public ZeroOrMoreOp( TrieBuilderOp<T> op ) {
         opToRepeat = op;
     }
 

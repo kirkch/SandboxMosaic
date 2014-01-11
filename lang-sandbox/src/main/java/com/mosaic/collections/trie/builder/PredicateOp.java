@@ -7,7 +7,7 @@ import com.mosaic.lang.CharacterPredicate;
 /**
  *
  */
-public class PredicateOp<T> extends TrieBuilder<T> {
+public class PredicateOp<T> extends TrieBuilderOp<T> {
 
     private CharacterPredicate predicate;
 
