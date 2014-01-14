@@ -97,6 +97,12 @@ public class CharacterNodes<T> extends AbstractList<CharacterNode<T>> {
         }
     }
 
+    public void setPayloads( T payload ) {
+        for ( CharacterNode<T> n : nodes ) {
+            n.setPayload( payload );
+        }
+    }
+
 //    /**
 //     * Returns all of the nodes that can be transitioned to from this set of nodes.
 //     */

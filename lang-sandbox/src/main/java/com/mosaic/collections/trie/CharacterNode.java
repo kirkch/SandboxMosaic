@@ -47,7 +47,7 @@ public class CharacterNode<T> implements Iterable<Pair<CharacterPredicate,Charac
     /**
      * Custom data stored with this node.
      */
-    public void setPayload() {
+    public void setPayload( T payload ) {
         this.payload = payload;
     }
 
@@ -75,6 +75,14 @@ public class CharacterNode<T> implements Iterable<Pair<CharacterPredicate,Charac
 
     public List<Pair<CharacterPredicate,CharacterNode<T>>> getOutEdges() {
         return Collections.unmodifiableList( edges );
+    }
+
+    public List<CharacterPredicate> getOutPredicates() {
+        return ListUtils.map(edges, new Function1<Pair<CharacterPredicate, CharacterNode<T>>, CharacterPredicate>() {
+            public CharacterPredicate invoke( Pair<CharacterPredicate, CharacterNode<T>> edge ) {
+                return edge.getFirst();
+            }
+        });
     }
 
     public CharacterNodes<T> getOutNodes() {

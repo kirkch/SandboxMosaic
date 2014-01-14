@@ -1,7 +1,10 @@
 package com.mosaic.utils;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import static java.util.Collections.unmodifiableSet;
@@ -38,4 +41,12 @@ public class SetUtils {
     }
 
 
+    public static <T extends Comparable<T>> List<T> sort( Set<T> set ) {
+        List<T> l = new ArrayList<T>( set.size() );
+
+        l.addAll( set );
+        Collections.sort(l);
+
+        return l;
+    }
 }

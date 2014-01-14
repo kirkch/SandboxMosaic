@@ -14,8 +14,19 @@ import java.util.Objects;
 @SuppressWarnings("unchecked")
 public class CharacterPredicates {
 
+    private static final CharacterPredicate NullCharacterPredicate = constant( (char) 0 );
+
+
     public static CharacterPredicate constant( char c ) {
         return new SingleCharacterPredicate(c);
+    }
+
+    public static CharacterPredicate alwaysTrue() {
+        return AlwaysTrueCharacterPredicate.INSTANCE;
+    }
+
+    public static CharacterPredicate eos() {
+        return NullCharacterPredicate;
     }
 
     public static CharacterPredicate notValue( char c ) {
@@ -74,6 +85,22 @@ public class CharacterPredicates {
         return false;
     }
 
+
+    private static class AlwaysTrueCharacterPredicate implements CharacterPredicate {
+        public static CharacterPredicate INSTANCE = new AlwaysTrueCharacterPredicate();
+
+        public boolean matches( char input ) {
+            return true;
+        }
+
+        public String toString() {
+            return "$AlwaysTrue$";
+        }
+
+        public int compareTo( CharacterPredicate o ) {
+            return o == this ? 0 : -1;
+        }
+    }
 
     private static class SingleCharacterPredicate implements CharacterPredicate {
         private final char c;

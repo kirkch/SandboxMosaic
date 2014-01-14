@@ -4,7 +4,9 @@ import com.mosaic.lang.Validate;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.Nullable;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -171,6 +173,16 @@ public abstract class ConsList<T> implements Iterable<T> {
      */
     public Object[] toArray() {
         return toArray( this, 0 );
+    }
+
+    public List<T> toList() {
+        List<T> r = new ArrayList();
+
+        for ( T v : this.reverse() ) {
+            r.add( v );
+        }
+
+        return r;
     }
 
     private static class NilNode<T> extends ConsList<T> {
