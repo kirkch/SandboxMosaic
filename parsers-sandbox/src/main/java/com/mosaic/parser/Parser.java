@@ -6,6 +6,8 @@ import com.mosaic.collections.trie.CharacterNodes;
 import com.mosaic.lang.CharacterPredicate;
 import com.mosaic.lang.Validate;
 import com.mosaic.lang.functional.Function1;
+import com.mosaic.lang.reflect.MethodCall;
+import com.mosaic.lang.reflect.MethodRef;
 import com.mosaic.lang.reflect.ReflectionException;
 import com.mosaic.utils.ListUtils;
 import com.mosaic.utils.SetUtils;
@@ -61,7 +63,7 @@ public class Parser {
         hasStarted  = false;
         hasFinished = false;
 
-        currentCandidateContexts = Nil.cons( new ParserContext(rootRule) );
+        currentCandidateContexts = Nil.cons( new ParserContext(rootRule, listener) );
     }
 
     public boolean parse( char input ) {
@@ -114,6 +116,10 @@ public class Parser {
             listener.error( lineNumber, columnNumber, "end of stream reached when expecting '"+formattedExpectation+"'" );
         } else {
             currentCandidateContexts = nextContexts;
+
+            for ( MethodCall action : nextContexts.head().actions ) {
+                action.invoke();
+            }
 
             listener.finished();
         }
@@ -191,6 +197,10 @@ public class Parser {
 
         public void justConsumed( char c, ParserContext mutableNextState );
 
+        /**
+         *
+         * @return returns true when this is a valid place to finish the rule
+         */
         public boolean productionRuleFinished( ParserContext mutableNextState );
 
     }
@@ -199,13 +209,20 @@ public class Parser {
     static class ParserContext implements Cloneable {
         private CharacterNode<ParserContextOp> currentNode;
         private ConsList                       currentValue = Nil;
+        private ConsList<MethodCall>           actions      = Nil;
+        private ParserListener                 listener;
 
-        public ParserContext( ProductionRule rule ) {
-            this( rule.startingNode() );
+        private int line = 1;
+        private int col  = 1;
+
+
+        public ParserContext( ProductionRule rule, ParserListener listener ) {
+            this( rule.startingNode(), listener );
         }
 
-        public ParserContext( CharacterNode node ) {
+        public ParserContext( CharacterNode node, ParserListener listener ) {
             this.currentNode = node;
+            this.listener    = listener;
         }
 
         public ConsList getValue() {
@@ -261,6 +278,10 @@ public class Parser {
 
         public void appendInputValue( char c ) {
             currentValue = currentValue.cons(c);
+        }
+
+        public void appendAction( MethodRef callbackMethodRef ) {
+            actions = actions.cons( new MethodCall(callbackMethodRef, listener, line, col, currentValue.head()) );
         }
     }
 

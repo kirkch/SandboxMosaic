@@ -2,6 +2,7 @@ package com.mosaic.collections.trie;
 
 import com.mosaic.lang.CharacterPredicate;
 import com.mosaic.lang.CharacterPredicates;
+import com.mosaic.lang.functional.Function1;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -100,6 +101,14 @@ public class CharacterNodes<T> extends AbstractList<CharacterNode<T>> {
     public void setPayloads( T payload ) {
         for ( CharacterNode<T> n : nodes ) {
             n.setPayload( payload );
+        }
+    }
+
+    public void mapPayloads( Function1<T,T> mappingFunction) {
+        for ( CharacterNode<T> n : nodes ) {
+            T newPayload = mappingFunction.invoke( n.getPayload() );
+
+            n.setPayload( newPayload );
         }
     }
 

@@ -300,7 +300,38 @@ public class ParserTest {
         assertEquals( Arrays.asList("bOb"), parser.getParsedValue() );
     }
 
-    // parseValueButNotEOS_expectCharactersToBeConsumedButNoParsedValueYet
+    @Test
+    public void parseValueButNotEOS_expectCharactersToBeConsumedButParseValueIsYetToBeTurnedIntoAString() {
+        ProductionRule rootRule = ProductionRule.capturingTerminalConstant( "rule1", "bob", CaseInsensitive );
+        Parser         parser   = new Parser( rootRule, l );
+
+        int numCharactersParsed = parser.parse( "bOb" );
+
+        assertEquals( 3, numCharactersParsed );
+        assertEquals( Arrays.asList('b','O','b'), parser.getParsedValue() );
+    }
+
+    @Test
+    public void givenRuleWithCallback_parseRuleSuccessfully_expectCallback() {
+        ProductionRule rootRule = ProductionRule.capturingTerminalRegExp( "rule1", "[a-zA-Z]+" )
+            .withCallback(RecordingParserListener.class, "hello");
+
+        Parser parser = new Parser( rootRule, l );
+
+        int numCharactersParsed = parser.parse( "Bob" );
+        parser.endOfStream();
+
+        assertEquals( 3, numCharactersParsed );
+        assertEquals( Arrays.asList("Bob"), parser.getParsedValue() );
+
+        List<String> expectedAudit = Arrays.asList(
+            "started",
+            "(1,1): Welcome 'Bob'",
+            "finished"
+        );
+
+        assertEquals( expectedAudit, l.audit );
+    }
 
 
 
@@ -316,10 +347,10 @@ public class ParserTest {
             audit.add( String.format("(%d,%d): %s", line, col, message) );
         }
 
-//        public void hello( int line, int col, String name ) {
-//            audit.add(  String.format("(%d,%d): Welcome '%s'", line, col, name) );
-//        }
-//
+        public void hello( int line, int col, String name ) {
+            audit.add(  String.format("(%d,%d): Welcome '%s'", line, col, name) );
+        }
+
 //        public void list( int line, int col, List<String> l ) {
 //            audit.add(  String.format("(%d,%d): list=%s", line, col, l) );
 //        }

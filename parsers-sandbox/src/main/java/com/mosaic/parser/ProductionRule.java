@@ -8,7 +8,11 @@ import com.mosaic.collections.trie.builder.TrieBuilderOp;
 import com.mosaic.collections.trie.builder.TrieBuilders;
 import com.mosaic.lang.CaseSensitivity;
 import com.mosaic.lang.CharacterPredicate;
+import com.mosaic.lang.Validate;
+import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.VoidFunction2;
+import com.mosaic.lang.reflect.MethodRef;
+import com.mosaic.lang.reflect.ReflectionException;
 
 import java.util.Set;
 
@@ -189,5 +193,53 @@ public class ProductionRule<T> {
 
     public String toString() {
         return "$"+name;
+    }
+
+    public ProductionRule withCallback( Class listenerClass, String methodName ) {
+        final MethodRef action = MethodRef.create( listenerClass, methodName, Integer.TYPE, Integer.TYPE, String.class );
+
+        endNodes.mapPayloads( new Function1<ParserContextOp,ParserContextOp>() {
+            public ParserContextOp invoke( ParserContextOp currentOp ) {
+                return new CallbackParserContextOp( currentOp, action );
+            }
+        });
+
+
+        return this;
+    }
+
+    protected ProductionRule clone() {
+        try {
+            return (ProductionRule) super.clone();
+        } catch ( CloneNotSupportedException e ) {
+            throw ReflectionException.recast(e);
+        }
+    }
+
+
+    private static class CallbackParserContextOp implements ParserContextOp {
+        private ParserContextOp wrappedOp;
+        private MethodRef       callbackMethodRef;
+
+        public CallbackParserContextOp( ParserContextOp wrappedOp, MethodRef action ) {
+            Validate.notNull( wrappedOp, "wrappedOp" );
+
+            this.wrappedOp         = wrappedOp;
+            this.callbackMethodRef = action;
+        }
+
+        public void justConsumed( char c, ParserContext mutableNextState ) {
+            wrappedOp.justConsumed( c, mutableNextState );
+        }
+
+        public boolean productionRuleFinished( ParserContext mutableNextState ) {
+            boolean isValidEndPoint = wrappedOp.productionRuleFinished( mutableNextState );
+
+            if ( isValidEndPoint ) {
+                mutableNextState.appendAction( callbackMethodRef );
+            }
+
+            return isValidEndPoint;
+        }
     }
 }
