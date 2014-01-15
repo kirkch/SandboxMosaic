@@ -195,13 +195,19 @@ public class Parser {
 
     static interface ParserContextOp {
 
-        public void justConsumed( char c, ParserContext mutableNextState );
+        public ParserContext justArrived( ParserContext nextState );
+
+        /**
+         * Invoked as the parser arrives at a node, as the result of consuming
+         * a character.
+         */
+        public ParserContext consumed( char c, ParserContext nextState );
 
         /**
          *
          * @return returns true when this is a valid place to finish the rule
          */
-        public boolean productionRuleFinished( ParserContext mutableNextState );
+        public ParserContext productionRuleFinished( ParserContext nextState );
 
     }
 
@@ -229,18 +235,28 @@ public class Parser {
             return currentValue;
         }
 
-        public void setValue( ConsList newValue ) {
-            this.currentValue = newValue;
+        public ParserContext setValue( ConsList newValue ) {
+            ParserContext clone = this.clone();
+
+            clone.currentValue = newValue;
+
+            return clone;
         }
 
-        public Iterable<ParserContext> parse( final char input ) {
-            CharacterNodes<ParserContextOp> nextNodes =  currentNode.fetch( input );
+        public Iterable<ParserContext> parse( final char c ) {
+            CharacterNodes<ParserContextOp> nextNodes =  currentNode.fetch( c );
 
+            ParserContext parserState = this;
+            if ( nextNodes.hasContents() ) {
+                parserState = currentNode.getPayload().consumed( c, parserState );
+            }
+
+            final ParserContext stateBeforeNotifyingNextNode = parserState;
             return ListUtils.map( nextNodes, new Function1<CharacterNode<ParserContextOp>, ParserContext>() {
                 public ParserContext invoke( CharacterNode<ParserContextOp> nextNode ) {
-                    ParserContext nextContext = ParserContext.this.clone().withNextNode( nextNode );
+                    ParserContext nextContext = stateBeforeNotifyingNextNode.withNextNode( nextNode );
 
-                    nextNode.getPayload().justConsumed( input, nextContext );
+                    nextContext = nextNode.getPayload().justArrived( nextContext );
 
 //                    if ( !nextNode.hasOutEdges() ) {
 //                        nextNode.getPayload().productionRuleFinished( nextContext );
@@ -252,9 +268,9 @@ public class Parser {
         }
 
         public Iterable<ParserContext> endOfStream() {
-            ParserContext nextContext = ParserContext.this.clone();
+            ParserContext nextContext = currentNode.getPayload().productionRuleFinished(this);
 
-            if ( currentNode.getPayload().productionRuleFinished(nextContext) ) {
+            if ( nextContext != null ) {
                 return Arrays.asList( nextContext );
             } else {
                 return Collections.EMPTY_LIST;
@@ -263,12 +279,14 @@ public class Parser {
 
 
         private ParserContext withNextNode( CharacterNode <ParserContextOp> nextNode ) {
-            this.currentNode = nextNode;
+            ParserContext clone = this.clone();
 
-            return this;
+            clone.currentNode = nextNode;
+
+            return clone;
         }
 
-        public ParserContext clone() {
+        protected ParserContext clone() {
             try {
                 return (ParserContext) super.clone();
             } catch ( CloneNotSupportedException e ) {
@@ -276,12 +294,20 @@ public class Parser {
             }
         }
 
-        public void appendInputValue( char c ) {
-            currentValue = currentValue.cons(c);
+        public ParserContext appendInputValue( char c ) {
+            ParserContext clone = this.clone();
+
+            clone.currentValue = this.currentValue.cons(c);
+
+            return clone;
         }
 
-        public void appendAction( MethodRef callbackMethodRef ) {
-            actions = actions.cons( new MethodCall(callbackMethodRef, listener, line, col, currentValue.head()) );
+        public ParserContext appendAction( MethodRef callbackMethodRef ) {
+            ParserContext clone = this.clone();
+
+            clone.actions = this.actions.cons( new MethodCall(callbackMethodRef, listener, line, col, currentValue.head()) );
+
+            return clone;
         }
     }
 

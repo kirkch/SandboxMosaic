@@ -28,30 +28,44 @@ import static com.mosaic.parser.Parser.ParserContextOp;
 public class ProductionRule<T> {
 
     private static ParserContextOp NULL_OP = new ParserContextOp() {
-        public void justConsumed( char c, ParserContext mutableNextState ) {}
+        public ParserContext justArrived( ParserContext nextState ) {
+            return nextState;
+        }
 
+        public ParserContext consumed( char c, ParserContext nextState ) {
+            return nextState;
+        }
 
-        public boolean productionRuleFinished( ParserContext mutableNextState ) {
-            return false;
+        public ParserContext productionRuleFinished( ParserContext nextState ) {
+            return null;
         }
     };
 
     private static ParserContextOp END_NULL_OP = new ParserContextOp() {
-        public void justConsumed( char c, ParserContext mutableNextState ) {}
+        public ParserContext justArrived( ParserContext nextState ) {
+            return nextState;
+        }
 
+        public ParserContext consumed( char c, ParserContext nextState ) {
+            return nextState;
+        }
 
-        public boolean productionRuleFinished( ParserContext mutableNextState ) {
-            return true;
+        public ParserContext productionRuleFinished( ParserContext nextState ) {
+            return nextState;
         }
     };
 
     private static ParserContextOp CAPTURE_INPUT_OP = new ParserContextOp() {
-        public void justConsumed( char c, ParserContext mutableNextState ) {
-            mutableNextState.appendInputValue(c);
+        public ParserContext justArrived( ParserContext nextState ) {
+            return nextState;
         }
 
-        public boolean productionRuleFinished( ParserContext mutableNextState ) {
-            return false;
+        public ParserContext consumed( char c, ParserContext nextState ) {
+            return nextState.appendInputValue( c );
+        }
+
+        public ParserContext productionRuleFinished( ParserContext nextState ) {
+            return null;
         }
 
         public String toString() {
@@ -60,23 +74,24 @@ public class ProductionRule<T> {
     };
 
     private static ParserContextOp CHARS2STRING_OP = new ParserContextOp() {
-        public void justConsumed( char c, ParserContext mutableNextState ) {
-            mutableNextState.appendInputValue(c);
+        public ParserContext justArrived( ParserContext nextState ) {
+            return nextState;
         }
 
-        public boolean productionRuleFinished( ParserContext mutableNextState ) {
-            String str = mutableNextState.getValue().reverse().join( "" );
+        public ParserContext consumed( char c, ParserContext nextState ) {
+            return nextState.appendInputValue( c );
+        }
 
-            mutableNextState.setValue( Nil.cons(str) );
+        public ParserContext productionRuleFinished( ParserContext nextState ) {
+            String str = nextState.getValue().reverse().join( "" );
 
-            return true;
+            return nextState.setValue( Nil.cons(str) );
         }
 
         public String toString() {
             return "CHARS2STRING_OP";
         }
     };
-
 
 
     public static ProductionRule terminalConstant( String name, String constant ) {
@@ -113,7 +128,11 @@ public class ProductionRule<T> {
 
 
 
-    public static ProductionRule nonTerminal( ProductionRule...rules ) {
+    public static ProductionRule nonTerminal( String name, ProductionRule...rules ) {
+//        CharacterNode endNode   = new CharacterNode();
+//        CharacterNode firstNode = new CharacterNode( new NonTerminalParserContextOp(rules, endNode) );
+//
+//        return new ProductionRule( name, firstNode, endNode );
         return null;
     }
 
@@ -176,6 +195,10 @@ public class ProductionRule<T> {
     private CharacterNodes endNodes;
 
 
+    public ProductionRule( String name, CharacterNode firstNode, CharacterNode endNode ) {
+        this( name, firstNode, new CharacterNodes(endNode) );
+    }
+
     public ProductionRule( String name, CharacterNode startingNode, CharacterNodes endNodes ) {
         this.name         = name;
         this.startingNode = startingNode;
@@ -228,18 +251,36 @@ public class ProductionRule<T> {
             this.callbackMethodRef = action;
         }
 
-        public void justConsumed( char c, ParserContext mutableNextState ) {
-            wrappedOp.justConsumed( c, mutableNextState );
+        public ParserContext justArrived( ParserContext nextState ) {
+            return wrappedOp.justArrived( nextState );
         }
 
-        public boolean productionRuleFinished( ParserContext mutableNextState ) {
-            boolean isValidEndPoint = wrappedOp.productionRuleFinished( mutableNextState );
+        public ParserContext consumed( char c, ParserContext nextState ) {
+            return wrappedOp.consumed( c, nextState );
+        }
 
-            if ( isValidEndPoint ) {
-                mutableNextState.appendAction( callbackMethodRef );
+        public ParserContext productionRuleFinished( ParserContext nextState ) {
+            nextState = wrappedOp.productionRuleFinished( nextState );
+
+            if ( nextState != null ) {
+                nextState = nextState.appendAction( callbackMethodRef );
             }
 
-            return isValidEndPoint;
+            return nextState;
+        }
+    }
+
+    private static class NonTerminalParserContextOp implements ParserContextOp {
+        public ParserContext justArrived( ParserContext nextState ) {
+            return null;
+        }
+
+        public ParserContext consumed( char c, ParserContext nextState ) {
+            return null;
+        }
+
+        public ParserContext productionRuleFinished( ParserContext nextState ) {
+            return nextState;
         }
     }
 }

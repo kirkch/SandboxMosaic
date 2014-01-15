@@ -54,10 +54,10 @@ public class CharacterNodes<T> extends AbstractList<CharacterNode<T>> {
         List<CharacterNode<T>> endNodes = new ArrayList();
 
         for ( CharacterNode<T> n : nodes ) {
-            endNodes.addAll( n.fetch( c ) );
+            n.fetchInto( endNodes, c );
         }
 
-        return new CharacterNodes<T>( endNodes );
+        return new CharacterNodes( endNodes );
     }
 
 //    public Nodes walk( T...path ) {
@@ -110,6 +110,10 @@ public class CharacterNodes<T> extends AbstractList<CharacterNode<T>> {
 
             n.setPayload( newPayload );
         }
+    }
+
+    public boolean hasContents() {
+        return !isEmpty();
     }
 
 //    /**

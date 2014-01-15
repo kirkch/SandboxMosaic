@@ -335,6 +335,33 @@ public class ParserTest {
 
 
 
+// NON TERMINALS
+
+    @Test
+    public void givenNonTerminalFollowedByAnotherRule_parseMatchingText_expectSuccess() {
+        ProductionRule helloRule      = ProductionRule.terminalConstant( "HelloRule", "Hello" );
+        ProductionRule whitespaceRule = ProductionRule.terminalRegExp( "WhitespaceRule", "[ \t]+" );
+        ProductionRule nameRule       = ProductionRule.terminalRegExp( "NameRule", "[a-zA-Z]+" );
+        ProductionRule rootRule       = ProductionRule.nonTerminal( "NameRule", helloRule, whitespaceRule, nameRule );
+
+        Parser parser = new Parser( rootRule, l );
+
+        int numCharactersParsed = parser.parse( "Hello Bob" );
+        parser.endOfStream();
+
+        assertEquals( 9, numCharactersParsed );
+        assertEquals( Arrays.asList(), parser.getParsedValue() );
+
+        List<String> expectedAudit = Arrays.asList(
+            "started",
+            "finished"
+        );
+
+        assertEquals( expectedAudit, l.audit );
+    }
+
+
+
     @SuppressWarnings({"unchecked", "UnusedDeclaration"})
     public static class RecordingParserListener implements ParserListener {
         public final List<String> audit = new ArrayList();

@@ -57,8 +57,12 @@ public class CharacterNode<T> implements Iterable<Pair<CharacterPredicate,Charac
      * character.  If there are no edges, then an empty list will be returned.
      */
     public CharacterNodes<T> fetch( char c ) {
-        List<CharacterNode<T>> nextNodes = new ArrayList();
+        List<CharacterNode<T>> nextNodes = new ArrayList(edges.size());
 
+        return fetchInto( nextNodes, c );
+    }
+
+    CharacterNodes<T> fetchInto( List<CharacterNode<T>> nextNodes, char c ) {
         for ( Pair<CharacterPredicate,CharacterNode<T>> edge : edges ) {
             if ( edge.getFirst().matches(c) ) {
                 nextNodes.add( edge.getSecond() );
