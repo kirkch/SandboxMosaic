@@ -112,6 +112,12 @@ public class CharacterNodes<T> extends AbstractList<CharacterNode<T>> {
         }
     }
 
+    public void isEndNode( boolean isEndNode ) {
+        for ( CharacterNode<T> n : nodes ) {
+            n.isEndNode( isEndNode );
+        }
+    }
+
     public boolean hasContents() {
         return !isEmpty();
     }

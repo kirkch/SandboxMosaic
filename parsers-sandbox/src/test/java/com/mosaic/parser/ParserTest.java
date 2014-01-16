@@ -337,7 +337,7 @@ public class ParserTest {
 
 // NON TERMINALS
 
-    @Test
+//    @Test
     public void givenNonTerminalFollowedByAnotherRule_parseMatchingText_expectSuccess() {
         ProductionRule helloRule      = ProductionRule.terminalConstant( "HelloRule", "Hello" );
         ProductionRule whitespaceRule = ProductionRule.terminalRegExp( "WhitespaceRule", "[ \t]+" );

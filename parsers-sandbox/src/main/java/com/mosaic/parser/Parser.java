@@ -63,7 +63,10 @@ public class Parser {
         hasStarted  = false;
         hasFinished = false;
 
-        currentCandidateContexts = Nil.cons( new ParserContext(rootRule, listener) );
+        ParserContext initialFrame = new ParserContext( rootRule, listener );
+        initialFrame = initialFrame.currentNode.getPayload().justArrived( initialFrame );
+
+        currentCandidateContexts = Nil.cons( initialFrame );
     }
 
     public boolean parse( char input ) {
@@ -72,7 +75,7 @@ public class Parser {
         ConsList<ParserContext> nextContexts = Nil;
 
         for ( ParserContext ctx : currentCandidateContexts ) {
-            nextContexts = nextContexts.append( ctx.parse(input) );
+            nextContexts = nextContexts.append( ctx.parse(lineNumber, columnNumber, input) );
         }
 
         if ( nextContexts.isEmpty() ) {
@@ -213,22 +216,32 @@ public class Parser {
 
 
     static class ParserContext implements Cloneable {
+        private String                         productionRuleName;
+
         private CharacterNode<ParserContextOp> currentNode;
         private ConsList                       currentValue = Nil;
         private ConsList<MethodCall>           actions      = Nil;
         private ParserListener                 listener;
 
-        private int line = 1;
-        private int col  = 1;
+
+        private int frameStartedAtLineNumber   = 1;
+        private int frameStartedAtColumnNumber = 1;
+
+        private int currentLineNumber   = 1;
+        private int currentColumnNumber = 1;
+
+
+        private ParserContext parentContext;
 
 
         public ParserContext( ProductionRule rule, ParserListener listener ) {
-            this( rule.startingNode(), listener );
+            this( rule.name(), rule.startingNode(), listener );
         }
 
-        public ParserContext( CharacterNode node, ParserListener listener ) {
-            this.currentNode = node;
-            this.listener    = listener;
+        public ParserContext( String name, CharacterNode<ParserContextOp> node, ParserListener listener ) {
+            this.productionRuleName = name;
+            this.currentNode        = node;
+            this.listener           = listener;
         }
 
         public ConsList getValue() {
@@ -243,10 +256,14 @@ public class Parser {
             return clone;
         }
 
-        public Iterable<ParserContext> parse( final char c ) {
+        public Iterable<ParserContext> parse( int line, int col, final char c ) {
             CharacterNodes<ParserContextOp> nextNodes =  currentNode.fetch( c );
 
-            ParserContext parserState = this;
+            ParserContext parserState = this.clone();
+
+            parserState.currentLineNumber = line;
+            parserState.currentColumnNumber = col;
+
             if ( nextNodes.hasContents() ) {
                 parserState = currentNode.getPayload().consumed( c, parserState );
             }
@@ -303,11 +320,44 @@ public class Parser {
         }
 
         public ParserContext appendAction( MethodRef callbackMethodRef ) {
-            ParserContext clone = this.clone();
+            ParserContext clone  = this.clone();
+            MethodCall    action = new MethodCall( callbackMethodRef, listener, frameStartedAtLineNumber, frameStartedAtColumnNumber, currentValue.head() );
 
-            clone.actions = this.actions.cons( new MethodCall(callbackMethodRef, listener, line, col, currentValue.head()) );
+            clone.actions = this.actions.cons( action );
 
             return clone;
+        }
+
+        public ParserContext push( String targetRuleName, CharacterNode<ParserContextOp> nextNode, CharacterNode<ParserContextOp> returnNode ) {
+            ParserContext returnFrame = this.withNextNode( returnNode );
+
+            ParserContext newFrame = this.clone();
+
+            newFrame.productionRuleName         = targetRuleName;
+            newFrame.frameStartedAtLineNumber   = this.currentLineNumber;
+            newFrame.frameStartedAtColumnNumber = this.currentColumnNumber;
+            newFrame.currentNode                = nextNode;
+            newFrame.currentValue               = Nil;
+            newFrame.actions                    = Nil;
+            newFrame.parentContext              = returnFrame;
+
+
+            return newFrame;
+        }
+
+        public ParserContext pop() {
+            if ( this.parentContext == null ) {
+                return this;
+            }
+
+            ParserContext returnFrame = this.parentContext.clone();
+
+            returnFrame.currentLineNumber = this.currentLineNumber;
+            returnFrame.currentLineNumber = this.currentColumnNumber;
+            returnFrame.currentValue      = returnFrame.currentValue.append( this.currentValue );
+            returnFrame.actions           = returnFrame.actions.append( this.actions );
+
+            return returnFrame;
         }
     }
 

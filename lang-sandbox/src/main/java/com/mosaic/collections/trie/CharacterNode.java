@@ -36,6 +36,16 @@ public class CharacterNode<T> implements Iterable<Pair<CharacterPredicate,Charac
 
     private List<Pair<CharacterPredicate,CharacterNode<T>>> edges = new ArrayList();
 
+    private boolean isEndNode;
+
+
+    public boolean isEndNode() {
+        return isEndNode;
+    }
+
+    public void isEndNode( boolean endNode ) {
+        isEndNode = endNode;
+    }
 
     /**
      * Custom data stored with this node.

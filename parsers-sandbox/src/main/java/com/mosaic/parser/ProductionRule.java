@@ -10,9 +10,11 @@ import com.mosaic.lang.CaseSensitivity;
 import com.mosaic.lang.CharacterPredicate;
 import com.mosaic.lang.Validate;
 import com.mosaic.lang.functional.Function1;
+import com.mosaic.lang.functional.Function2;
 import com.mosaic.lang.functional.VoidFunction2;
 import com.mosaic.lang.reflect.MethodRef;
 import com.mosaic.lang.reflect.ReflectionException;
+import com.mosaic.utils.ListUtils;
 
 import java.util.Set;
 
@@ -25,7 +27,7 @@ import static com.mosaic.parser.Parser.ParserContextOp;
  *
  */
 @SuppressWarnings("unchecked")
-public class ProductionRule<T> {
+public class ProductionRule {
 
     private static ParserContextOp NULL_OP = new ParserContextOp() {
         public ParserContext justArrived( ParserContext nextState ) {
@@ -98,7 +100,7 @@ public class ProductionRule<T> {
         return terminalConstant( name, constant, CaseSensitive );
     }
 
-    public static ProductionRule<ParserContextOp> terminalConstant( String name, String constant, CaseSensitivity caseSensitivity ) {
+    public static ProductionRule terminalConstant( String name, String constant, CaseSensitivity caseSensitivity ) {
         TrieBuilderOp builder = TrieBuilders.constant( constant, caseSensitivity );
 
         return makeRule( name, builder, NULL_OP, END_NULL_OP );
@@ -129,32 +131,43 @@ public class ProductionRule<T> {
 
 
     public static ProductionRule nonTerminal( String name, ProductionRule...rules ) {
-//        CharacterNode endNode   = new CharacterNode();
-//        CharacterNode firstNode = new CharacterNode( new NonTerminalParserContextOp(rules, endNode) );
+        CharacterNode<ParserContextOp> firstNode = new CharacterNode();
+
+        CharacterNode<ParserContextOp> lastNode = ListUtils.fold( rules, firstNode, new Function2 <CharacterNode<ParserContextOp>,ProductionRule,CharacterNode<ParserContextOp>>() {
+            public CharacterNode<ParserContextOp> invoke( CharacterNode<ParserContextOp> previousNode, ProductionRule nextRule ) {
+                assert !previousNode.hasOutEdges() : "When embedding a rule, the node that we are pushing from must have no out edges";
+
+                CharacterNode <ParserContextOp> returnNode = new CharacterNode<>();
+
+                previousNode.setPayload( new PushRuleParserContextOp(nextRule,previousNode.getPayload(), returnNode) );
+
+                return returnNode;
+            }
+        });
+
+
+        return new ProductionRule( name, firstNode, new CharacterNodes(lastNode) );
+    }
+
+//    public static ProductionRule capturingNonTerminal( ProductionRule...rules ) {
+//        return null;
+//    }
 //
-//        return new ProductionRule( name, firstNode, endNode );
-        return null;
-    }
-
-    public static ProductionRule capturingNonTerminal( ProductionRule...rules ) {
-        return null;
-    }
-
-    public static ProductionRule nonTerminalOr( ProductionRule...rules ) {
-        return null;
-    }
-
-    public static ProductionRule capturingNonTerminalOr( ProductionRule...rules ) {
-        return null;
-    }
-
-    public static ProductionRule nonTerminalOptional( ProductionRule...rules ) {
-        return null;
-    }
-
-    public static ProductionRule capturingNonTerminalOptional( ProductionRule...rules ) {
-        return null;
-    }
+//    public static ProductionRule nonTerminalOr( ProductionRule...rules ) {
+//        return null;
+//    }
+//
+//    public static ProductionRule capturingNonTerminalOr( ProductionRule...rules ) {
+//        return null;
+//    }
+//
+//    public static ProductionRule nonTerminalOptional( ProductionRule...rules ) {
+//        return null;
+//    }
+//
+//    public static ProductionRule capturingNonTerminalOptional( ProductionRule...rules ) {
+//        return null;
+//    }
 
 
 
@@ -174,8 +187,9 @@ public class ProductionRule<T> {
         setOp( firstNode, innerNodeOp );
         endNodes.setPayloads( endNodeOp );
         firstNode.setPayload( firstNodeOp );
+        endNodes.isEndNode( true );
 
-        return new ProductionRule<>( name, firstNode, endNodes );
+        return new ProductionRule( name, firstNode, endNodes );
     }
 
     private static void setOp( CharacterNode<ParserContextOp> firstNode, final ParserContextOp op ) {
@@ -190,19 +204,15 @@ public class ProductionRule<T> {
 
 
 
-    private String         name;
-    private CharacterNode  startingNode;
-    private CharacterNodes endNodes;
+    private String                          name;
+    private CharacterNode<ParserContextOp>  startingNode;
+    private CharacterNodes<ParserContextOp> endNodes;
 
 
-    public ProductionRule( String name, CharacterNode firstNode, CharacterNode endNode ) {
-        this( name, firstNode, new CharacterNodes(endNode) );
-    }
-
-    public ProductionRule( String name, CharacterNode startingNode, CharacterNodes endNodes ) {
+    public ProductionRule( String name, CharacterNode<ParserContextOp> startingNode, CharacterNodes<ParserContextOp> endNodes ) {
         this.name         = name;
         this.startingNode = startingNode;
-        this.endNodes     = endNodes;
+        this.endNodes      = endNodes;
     }
 
 
@@ -210,7 +220,7 @@ public class ProductionRule<T> {
         return name;
     }
 
-    public CharacterNode startingNode() {
+    public CharacterNode<ParserContextOp> startingNode() {
         return startingNode;
     }
 
@@ -221,12 +231,11 @@ public class ProductionRule<T> {
     public ProductionRule withCallback( Class listenerClass, String methodName ) {
         final MethodRef action = MethodRef.create( listenerClass, methodName, Integer.TYPE, Integer.TYPE, String.class );
 
-        endNodes.mapPayloads( new Function1<ParserContextOp,ParserContextOp>() {
+        endNodes.mapPayloads( new Function1<ParserContextOp, ParserContextOp>() {
             public ParserContextOp invoke( ParserContextOp currentOp ) {
                 return new CallbackParserContextOp( currentOp, action );
             }
-        });
-
+        } );
 
         return this;
     }
@@ -240,27 +249,17 @@ public class ProductionRule<T> {
     }
 
 
-    private static class CallbackParserContextOp implements ParserContextOp {
-        private ParserContextOp wrappedOp;
+    private static class CallbackParserContextOp extends WrappedParserContextOp {
         private MethodRef       callbackMethodRef;
 
         public CallbackParserContextOp( ParserContextOp wrappedOp, MethodRef action ) {
-            Validate.notNull( wrappedOp, "wrappedOp" );
+            super( wrappedOp );
 
-            this.wrappedOp         = wrappedOp;
             this.callbackMethodRef = action;
         }
 
-        public ParserContext justArrived( ParserContext nextState ) {
-            return wrappedOp.justArrived( nextState );
-        }
-
-        public ParserContext consumed( char c, ParserContext nextState ) {
-            return wrappedOp.consumed( c, nextState );
-        }
-
         public ParserContext productionRuleFinished( ParserContext nextState ) {
-            nextState = wrappedOp.productionRuleFinished( nextState );
+            nextState = super.productionRuleFinished( nextState );
 
             if ( nextState != null ) {
                 nextState = nextState.appendAction( callbackMethodRef );
@@ -270,17 +269,56 @@ public class ProductionRule<T> {
         }
     }
 
-    private static class NonTerminalParserContextOp implements ParserContextOp {
+    private static class WrappedParserContextOp implements ParserContextOp {
+        private ParserContextOp wrappedOpNbl;
+
+        public WrappedParserContextOp( ParserContextOp wrappedOpNbl ) {
+            this.wrappedOpNbl = wrappedOpNbl;
+        }
+
         public ParserContext justArrived( ParserContext nextState ) {
-            return null;
+            return wrappedOpNbl == null ? nextState : wrappedOpNbl.justArrived( nextState );
         }
 
         public ParserContext consumed( char c, ParserContext nextState ) {
-            return null;
+            return wrappedOpNbl == null ? nextState : wrappedOpNbl.consumed( c, nextState );
         }
 
         public ParserContext productionRuleFinished( ParserContext nextState ) {
-            return nextState;
+            return wrappedOpNbl == null ? nextState : wrappedOpNbl.productionRuleFinished( nextState );
+        }
+
+    }
+
+    private static class PushRuleParserContextOp extends WrappedParserContextOp {
+        private ProductionRule                 nextRule;
+        private CharacterNode<ParserContextOp> returnNode;
+
+        public PushRuleParserContextOp( ProductionRule nextRule, ParserContextOp wrappedOp, CharacterNode<ParserContextOp> returnNode ) {
+            super( wrappedOp );
+
+            Validate.notNull( nextRule,   "nextRule" );
+            Validate.notNull( returnNode, "returnNode" );
+
+            this.nextRule   = nextRule;
+            this.returnNode = returnNode;
+        }
+
+        public ParserContext justArrived( ParserContext nextState ) {
+            return super.justArrived(nextState).push( nextRule.name(), nextRule.startingNode(), returnNode );
+        }
+    }
+
+    private static class PopFrameOp extends WrappedParserContextOp {
+        private ProductionRule                 nextRule;
+        private CharacterNode<ParserContextOp> returnNode;
+
+        public PopFrameOp(ParserContextOp wrappedOp ) {
+            super( wrappedOp );
+        }
+
+        public ParserContext justArrived( ParserContext nextState ) {
+            return super.justArrived(nextState).pop();
         }
     }
 }

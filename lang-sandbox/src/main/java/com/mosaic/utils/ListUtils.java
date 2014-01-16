@@ -129,7 +129,7 @@ public class ListUtils {
      * the result would be: 0 op 1 op 2 op 3.  If the list was [], then the result
      * would be the first value, which is 0 in this example.
      */
-    public static <T,V> V fold( List<T> list, V firstValue, Function2<V, T, V> op ) {
+    public static <T,V> V fold( Iterable<T> list, V firstValue, Function2<V, T, V> op ) {
         V valueSoFar = firstValue;
 
         for ( T e : list ) {
@@ -137,6 +137,10 @@ public class ListUtils {
         }
 
         return valueSoFar;
+    }
+
+    public static <T,V> V fold( T[] array, V firstValue, Function2<V, T, V> op ) {
+        return fold( Arrays.asList(array), firstValue, op );
     }
 
     public static <T,G> Map<G,List<T>> groupBy( List<T> list, Function1<T,G> groupByValueFunction ) {
