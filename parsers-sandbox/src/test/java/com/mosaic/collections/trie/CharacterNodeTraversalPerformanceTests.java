@@ -1,17 +1,20 @@
 package com.mosaic.collections.trie;
 
 import com.mosaic.parser.ProductionRule;
+import com.mosaic.parser.ProductionRuleBuilder;
 import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Benchmark;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 /**
  *
  */
+@Ignore
 @RunWith(JUnitMosaicRunner.class)
 public class CharacterNodeTraversalPerformanceTests {
 
-    private ProductionRule rootRule = ProductionRule.terminalRegExp( "NameRule", "[a-zA-Z]+" );
+    private ProductionRule rootRule = new ProductionRuleBuilder().regexp( "NameRule", "[a-zA-Z]+" );
     private CharacterNode rootNode  = rootRule.startingNode();
 
 

@@ -10,6 +10,7 @@ import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.Pair;
 import com.mosaic.lang.functional.VoidFunction2;
 import com.mosaic.utils.ListUtils;
+import com.mosaic.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -215,6 +216,23 @@ public class CharacterNode<T> implements Iterable<Pair<CharacterPredicate,Charac
         for ( Path path : t ) {
             callbackFunction.invoke( path.edges, path.isEndOfPath );
         }
+    }
+
+    public String toString() {
+        StringBuilder buf = new StringBuilder();
+
+
+        if (isEndNode()) {
+            buf.append("EndNode(");
+        } else {
+            buf.append("Node(");
+        }
+
+        buf.append( "outEdges='" );
+        StringUtils.join( buf, getOutPredicates(), "|" );
+        buf.append( "')" );
+
+        return buf.toString();
     }
 
 

@@ -17,12 +17,13 @@ import static org.junit.Assert.fail;
  */
 public class ParserTest {
 
+    private ProductionRuleBuilder   b = new ProductionRuleBuilder();
     private RecordingParserListener l = new RecordingParserListener();
 
 
     @Test
     public void givenBlankAutomata_matchA_expectErrorCallback() {
-        ProductionRule rule1  = ProductionRule.terminalConstant( "rule1", "" );
+        ProductionRule rule1  = b.constant( "rule1", "" );
         Parser parser = new Parser(rule1, l);
 
 
@@ -38,7 +39,7 @@ public class ParserTest {
 
     @Test
     public void givenBlankAutomata_matchB_expectErrorCallback() {
-        ProductionRule rule1  = ProductionRule.terminalConstant( "rule1", "" );
+        ProductionRule rule1  = b.constant( "rule1", "" );
         Parser parser = new Parser(rule1, l);
 
         int numCharactersConsumed = parser.parse("b");
@@ -54,7 +55,7 @@ public class ParserTest {
 
     @Test
     public void givenBlankAutomata_matchAB_expectErrorCallback() {
-        ProductionRule rule1  = ProductionRule.terminalConstant( "rule1", "" );
+        ProductionRule rule1  = b.constant( "rule1", "" );
         Parser parser = new Parser(rule1, l);
 
         int numCharactersConsumed = parser.parse("ab");
@@ -70,7 +71,7 @@ public class ParserTest {
 
     @Test
     public void givenAutomataExpectingA_parseB_expectError() {
-        ProductionRule rule1  = ProductionRule.terminalConstant( "rule1", "a", CaseSensitive );
+        ProductionRule rule1  = b.constant( "rule1", "a", CaseSensitive );
         Parser parser = new Parser(rule1, l);
 
 
@@ -88,7 +89,7 @@ public class ParserTest {
 
     @Test
     public void givenAutomataExpectingB_parseA_expectError() {
-        ProductionRule rule1  = ProductionRule.terminalConstant( "rule1", "b", CaseSensitive );
+        ProductionRule rule1  = b.constant( "rule1", "b", CaseSensitive );
         Parser parser = new Parser(rule1, l);
 
 
@@ -105,7 +106,7 @@ public class ParserTest {
 
     @Test
     public void givenAutomataExpectingAorB_parseC_expectError() {
-        ProductionRule rule1  = ProductionRule.terminalRegExp( "rule1", "a|b" );
+        ProductionRule rule1  = b.regexp( "rule1", "a|b" );
         Parser parser = new Parser(rule1, l);
 
 
@@ -122,7 +123,7 @@ public class ParserTest {
 
     @Test
     public void givenAutomataExpectingAB_parseAC_expectErrorAtCol2() {
-        ProductionRule rule1  = ProductionRule.terminalConstant( "rule1", "ab", CaseSensitive );
+        ProductionRule rule1  = b.constant( "rule1", "ab", CaseSensitive );
         Parser parser = new Parser(rule1, l);
 
 
@@ -139,7 +140,7 @@ public class ParserTest {
 
     @Test
     public void givenAutomataExpectingAnewlineB_parseAnewlineC_expectErrorAtLine2Col1() {
-        ProductionRule rule1  = ProductionRule.terminalConstant( "rule1", "a\nb" );
+        ProductionRule rule1  = b.constant( "rule1", "a\nb" );
         Parser parser = new Parser(rule1, l);
 
 
@@ -156,7 +157,7 @@ public class ParserTest {
 
     @Test
     public void givenAutomataExpectingAB_parseAB_expectSuccessfulParsingAndEndOfParsingEvent() {
-        ProductionRule rule1  = ProductionRule.terminalConstant( "rule1", "ab", CaseSensitive );
+        ProductionRule rule1  = b.constant( "rule1", "ab", CaseSensitive );
         Parser parser = new Parser(rule1, l);
 
 
@@ -174,7 +175,7 @@ public class ParserTest {
 
     @Test
     public void givenAutomataExpectingAB_parseAThenB_expectStartedParsingEventOnlyOnce() {
-        ProductionRule rule1  = ProductionRule.terminalConstant( "rule1", "ab", CaseSensitive );
+        ProductionRule rule1  = b.constant( "rule1", "ab", CaseSensitive );
         Parser parser = new Parser(rule1, l);
 
 
@@ -190,7 +191,7 @@ public class ParserTest {
 
     @Test
     public void givenAutomataExpectingAB_appendEOS_expectError() {
-        ProductionRule rule1  = ProductionRule.terminalConstant( "rule1", "ab", CaseSensitive );
+        ProductionRule rule1  = b.constant( "rule1", "ab", CaseSensitive );
         Parser parser = new Parser(rule1, l);
 
 
@@ -207,7 +208,7 @@ public class ParserTest {
 
     @Test
     public void givenAutomataExpectingAB_appendEOSTwice_expectException() {
-        ProductionRule rule1  = ProductionRule.terminalConstant( "rule1", "ab", CaseSensitive );
+        ProductionRule rule1  = b.constant( "rule1", "ab", CaseSensitive );
         Parser parser = new Parser(rule1, l);
 
 
@@ -226,7 +227,7 @@ public class ParserTest {
 
     @Test
     public void givenAutomataExpectingAB_appendEOSThenA_expectException() {
-        ProductionRule rule1  = ProductionRule.terminalConstant( "rule1", "ab", CaseSensitive );
+        ProductionRule rule1  = b.constant( "rule1", "ab", CaseSensitive );
         Parser parser = new Parser(rule1, l);
 
 
@@ -244,7 +245,7 @@ public class ParserTest {
 
     @Test
     public void givenParserABThatHasAlreadyParsedA_resetThenAppendB_expectSuccessfulReset() {
-        ProductionRule rule1  = ProductionRule.terminalConstant( "rule1", "ab", CaseSensitive );
+        ProductionRule rule1  = b.constant( "rule1", "ab", CaseSensitive );
         Parser parser = new Parser(rule1, l);
 
 
@@ -266,7 +267,7 @@ public class ParserTest {
 
     @Test
     public void givenSingleConstantGrammar_parseValue_expectParseWithNoValue() {
-        ProductionRule rootRule = ProductionRule.terminalConstant( "rule1", "hello" );
+        ProductionRule rootRule = b.constant( "rule1", "hello" );
         Parser         parser   = new Parser( rootRule, l );
 
         int numCharactersParsed = parser.parse( "hello" );
@@ -278,7 +279,7 @@ public class ParserTest {
 
     @Test
     public void givenSingleConstantGrammarCI_parseValue_expectParseWithNoValue() {
-        ProductionRule rootRule = ProductionRule.terminalConstant( "rule1", "bob", CaseInsensitive );
+        ProductionRule rootRule = b.constant( "rule1", "bob", CaseInsensitive );
         Parser         parser   = new Parser( rootRule, l );
 
         int numCharactersParsed = parser.parse( "bOb" );
@@ -290,7 +291,7 @@ public class ParserTest {
 
     @Test
     public void givenSingleConstantCapturingGrammarCI_parseValue_expectParseWithValue() {
-        ProductionRule rootRule = ProductionRule.capturingTerminalConstant( "rule1", "bob", CaseInsensitive );
+        ProductionRule rootRule = b.capturingConstant( "rule1", "bob", CaseInsensitive );
         Parser         parser   = new Parser( rootRule, l );
 
         int numCharactersParsed = parser.parse( "bOb" );
@@ -302,7 +303,7 @@ public class ParserTest {
 
     @Test
     public void parseValueButNotEOS_expectCharactersToBeConsumedButParseValueIsYetToBeTurnedIntoAString() {
-        ProductionRule rootRule = ProductionRule.capturingTerminalConstant( "rule1", "bob", CaseInsensitive );
+        ProductionRule rootRule = b.capturingConstant( "rule1", "bob", CaseInsensitive );
         Parser         parser   = new Parser( rootRule, l );
 
         int numCharactersParsed = parser.parse( "bOb" );
@@ -313,7 +314,7 @@ public class ParserTest {
 
     @Test
     public void givenRuleWithCallback_parseRuleSuccessfully_expectCallback() {
-        ProductionRule rootRule = ProductionRule.capturingTerminalRegExp( "rule1", "[a-zA-Z]+" )
+        ProductionRule rootRule = b.capturingRegexp( "rule1", "[a-zA-Z]+" )
             .withCallback(RecordingParserListener.class, "hello");
 
         Parser parser = new Parser( rootRule, l );
@@ -335,31 +336,31 @@ public class ParserTest {
 
 
 
-// NON TERMINALS
-
-//    @Test
-    public void givenNonTerminalFollowedByAnotherRule_parseMatchingText_expectSuccess() {
-        ProductionRule helloRule      = ProductionRule.terminalConstant( "HelloRule", "Hello" );
-        ProductionRule whitespaceRule = ProductionRule.terminalRegExp( "WhitespaceRule", "[ \t]+" );
-        ProductionRule nameRule       = ProductionRule.terminalRegExp( "NameRule", "[a-zA-Z]+" );
-        ProductionRule rootRule       = ProductionRule.nonTerminal( "NameRule", helloRule, whitespaceRule, nameRule );
-
-        Parser parser = new Parser( rootRule, l );
-
-        int numCharactersParsed = parser.parse( "Hello Bob" );
-        parser.endOfStream();
-
-        assertEquals( 9, numCharactersParsed );
-        assertEquals( Arrays.asList(), parser.getParsedValue() );
-
-        List<String> expectedAudit = Arrays.asList(
-            "started",
-            "finished"
-        );
-
-        assertEquals( expectedAudit, l.audit );
-    }
-
+//// NON TERMINALS
+//
+////    @Test
+//    public void givenNonTerminalFollowedByAnotherRule_parseMatchingText_expectSuccess() {
+//        ProductionRule helloRule      = b.constant( "HelloRule", "Hello" );
+//        ProductionRule whitespaceRule = b.regexp( "WhitespaceRule", "[ \t]+" );
+//        ProductionRule nameRule       = b.regexp( "NameRule", "[a-zA-Z]+" );
+//        ProductionRule rootRule       = b.nonTerminal( "NameRule", helloRule, whitespaceRule, nameRule );
+//
+//        Parser parser = new Parser( rootRule, l );
+////erroring because the payload of the last node that NameRule returns to is null
+//        int numCharactersParsed = parser.parse( "Hello Bob" );
+//        parser.endOfStream();
+//
+//        assertEquals( 9, numCharactersParsed );
+//        assertEquals( Arrays.asList(), parser.getParsedValue() );
+//
+//        List<String> expectedAudit = Arrays.asList(
+//            "started",
+//            "finished"
+//        );
+//
+//        assertEquals( expectedAudit, l.audit );
+//    }
+//
 
 
     @SuppressWarnings({"unchecked", "UnusedDeclaration"})
