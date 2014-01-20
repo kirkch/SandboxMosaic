@@ -2,6 +2,7 @@ package com.mosaic.parser;
 
 import com.mosaic.collections.trie.CharacterNode;
 import com.mosaic.collections.trie.CharacterNodeFormatter;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -11,7 +12,6 @@ import static com.mosaic.collections.trie.CharacterNodeFormatter.NodeFormatPlugi
 import static com.mosaic.lang.CaseSensitivity.CaseInsensitive;
 import static com.mosaic.parser.Parser.ParserFrameOp;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  *
@@ -67,21 +67,6 @@ public class ProductionRuleBuilderTest {
     }
 
     @Test
-    public void givenHelloRule_declareAnotherRuleWithTheSameName_expectError() {
-        ProductionRule helloRule = b.constant( "rule1", "Hello", CaseInsensitive );
-
-        assertEquals( "rule1", helloRule.name() );
-
-        try {
-            b.constant( "rule1", "Hello", CaseInsensitive );
-            fail( "expected IllegalArgumentException" );
-        } catch ( IllegalArgumentException e ) {
-            assertEquals( "'rule1' has already been declared", e.getMessage() );
-        }
-    }
-
-
-    @Test
     public void givenEmptyBuilder_createCapturingConstantRule_expectConstantMatcher() {
         ProductionRule helloRule = b.capturingConstant( "rule1", "Hello" );
 
@@ -105,6 +90,16 @@ public class ProductionRuleBuilderTest {
 // RegExp
 
     @Test
+    public void givenEmptyBuilder_createRegexpConstant() {
+        ProductionRule rule1 = b.regexp( "rule1", "Hello" );
+
+        assertEquals( "rule1", rule1.name() );
+
+        List<String> expectedGraph = Arrays.asList("1:NoOp -H-> 2:NoOp -e-> 3:NoOp -l-> 4:NoOp -l-> 5:NoOp -o-> 6e:Pop");
+        assertEquals( expectedGraph, nodeFormatter.format(rule1.startingNode(),plugin) );
+    }
+
+    @Test
     public void givenEmptyBuilder_createRegexp() {
         ProductionRule rule1 = b.regexp( "rule1", "[a-z]+" );
 
@@ -123,5 +118,44 @@ public class ProductionRuleBuilderTest {
         List<String> expectedGraph = Arrays.asList("1:Cap -[a-z]-> 2e:CapToStrPop -[a-z]-> 2e:CapToStrPop");
         assertEquals( expectedGraph, nodeFormatter.format(rule1.startingNode(),plugin) );
     }
+
+
+// EMBEDDED PRODUCTION RULES
+
+
+
+    @Test
+    public void givenBuilderWithRule1_declareAnotherRule1_expectError() {
+        b.capturingRegexp( "rule1", "[a-z]+" );
+
+        try {
+            b.capturingRegexp( "rule1", "[0-9]+" );
+
+            Assert.fail( "expected IllegalArgumentException" );
+        } catch ( IllegalArgumentException e ) {
+            Assert.assertEquals( "'rule1' has already been declared", e.getMessage() );
+        }
+    }
+
+//    @Test
+    public void givenEmptyBuilder_declareRuleWithSingleEmbeddedRuleThatDoesNotExist_expectError() {
+        try {
+            b.capturingRegexp( "rule1", "$rule2" );
+
+            Assert.fail( "expected IllegalArgumentException" );
+        } catch ( IllegalArgumentException e ) {
+            Assert.assertEquals( "'rule1' references 'rule2' which has not been declared yet; forward references are not supported", e.getMessage() );
+        }
+    }
+
+//    @Test
+//    public void givenEmptyBuilder_declareRuleWithSingleEmbeddedRuleThatDoesNotExist_expectError() {
+//        ProductionRule rule1 = b.capturingRegexp( "rule1", "[a-z]+" );
+//
+//        assertEquals( "rule1", rule1.name() );
+//
+//        List<String> expectedGraph = Arrays.asList("1:Cap -[a-z]-> 2e:CapToStrPop -[a-z]-> 2e:CapToStrPop");
+//        assertEquals( expectedGraph, nodeFormatter.format(rule1.startingNode(),plugin) );
+//    }
 
 }

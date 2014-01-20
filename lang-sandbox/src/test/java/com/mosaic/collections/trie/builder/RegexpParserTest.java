@@ -3,10 +3,13 @@ package com.mosaic.collections.trie.builder;
 import com.mosaic.collections.trie.CharacterNode;
 import com.mosaic.collections.trie.CharacterNodeFormatter;
 import com.mosaic.collections.trie.CharacterNodes;
+import com.mosaic.utils.MapUtils;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -214,6 +217,50 @@ public class RegexpParserTest {
         assertFalse( walk( n, Arrays.asList('b', 'f', 'c') ) );
         assertFalse( walk( n, Arrays.asList( 'a', 'f', 'd' ) ) );
     }
+
+
+// EMBEDDED REFERENCES
+
+    @Test
+    public void givenEmptyBuilder_declareRuleWithSingleEmbeddedRuleThatDoesNotExist_expectError() {
+        try {
+            parser.parse( "$rule2*" );
+
+            Assert.fail( "expected IllegalArgumentException" );
+        } catch ( IllegalArgumentException e ) {
+            Assert.assertEquals( "'rule2' has not been declared yet; forward references are not supported", e.getMessage() );
+        }
+    }
+
+    @Test
+    public void givenRule1_declarePatternWithSingleReference_expectParse() {
+        Map<String,TrieBuilderOp> ops = MapUtils.asMap(
+            "op1", parser.parse( "abc" )
+        );
+
+        TrieBuilderOp op2 = parser.parse( "$op1", ops );
+
+        assertEquals( "$op1", op2.toString() );
+
+
+        CharacterNode n = createGraph( op2 );
+
+        assertEquals( Arrays.asList("1 -a-> 2 -b-> 3 -c-> 4"), new CharacterNodeFormatter().format( n ) );
+
+//        assertTrue( walk( n, Arrays.asList('a', 'b', 'c') ) );
+//        assertTrue( walk( n, Arrays.asList('a', 'a', 'c') ) );
+//        assertTrue( walk( n, Arrays.asList('a', 'c', 'c') ) );
+//        assertTrue( walk( n, Arrays.asList('a', '|', 'c') ) );
+//        assertTrue( walk( n, Arrays.asList('a', '\"', 'c') ) );
+//        assertTrue( walk( n, Arrays.asList('a', '!', 'c') ) );
+//        assertTrue( walk( n, Arrays.asList('a', 'f', 'c') ) );
+//
+//        assertFalse( walk( n, Arrays.asList('b', 'f', 'c') ) );
+//        assertFalse( walk( n, Arrays.asList( 'a', 'f', 'd' ) ) );
+    }
+
+
+
 
     private boolean walk( CharacterNode n, List<Character> input ) {
         CharacterNodes pos = new CharacterNodes(n);

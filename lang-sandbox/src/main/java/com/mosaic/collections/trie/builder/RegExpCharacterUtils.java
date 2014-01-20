@@ -136,7 +136,7 @@ public class RegExpCharacterUtils {
     }
 
 
-    private static char[] SPECIAL_CHARS = new char[] {'*',')','+','?','|','[',']','~','(','^','-', '.'};
+    private static char[] SPECIAL_CHARS = new char[] {'*',')','+','?','|','[',']','~','(','^','-', '.','$'};
 
     public static boolean isSpecialChar( char c ) {
         for ( char s : SPECIAL_CHARS ) {

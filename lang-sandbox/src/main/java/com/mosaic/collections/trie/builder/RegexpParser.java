@@ -7,6 +7,9 @@ import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.functional.Stream;
 import com.mosaic.utils.StringUtils;
 
+import java.util.Collections;
+import java.util.Map;
+
 
 /**
  * Converts a text definition of a regular expression into an instance of
@@ -52,10 +55,14 @@ public class RegexpParser {
 
 
     public TrieBuilderOp parse( String regexpString ) {
-        Stream<Token> tokens = unescape( 0, regexpString );
+        return parse( regexpString, Collections.EMPTY_MAP );
+    }
+
+    public TrieBuilderOp parse( String regexpString, Map<String, TrieBuilderOp> ops ) {
+        Stream<Token> tokens = toTokenStream( 0, regexpString );
 
         while ( tokens.notEmpty() ) {
-            tokens = parseNextFragment( tokens );
+            tokens = parseNextFragment( tokens, ops );
         }
 
         assert opStack.size() > 0 : "op stack should not be empty";
@@ -70,23 +77,23 @@ public class RegexpParser {
     }
 
 
-    private Stream<Token> parseNextFragment( Stream<Token> in ) {
+    private Stream<Token> parseNextFragment( Stream<Token> in, Map<String,TrieBuilderOp> ops ) {
         Token next = in.head();
 
         if ( next.isSpecial ) {
-            return parseSpecial( in );
+            return parseSpecial( in, ops );
         } else {
             return parseConstant( in );
         }
     }
 
-    private Stream<Token> parseSpecial( Stream<Token> in ) {
-        char c = in.head().c;
+    private Stream<Token> parseSpecial( Stream<Token> token, Map<String,TrieBuilderOp> ops ) {
+        char c = token.head().c;
 
         switch ( c ) {
             case '~':
             {
-                Stream<Token> next = parseNextFragment( in.tail() );
+                Stream<Token> next = parseNextFragment( token.tail(), ops );
 
                 opStack.peek().insensitive(true);
 
@@ -95,35 +102,35 @@ public class RegexpParser {
             case '*':
                 opStack.push( new ZeroOrMoreOp(opStack.pop()) );
 
-                return in.tail();
+                return token.tail();
             case '.':
                 opStack.push( ANY_CHARACTER );
 
-                return in.tail();
+                return token.tail();
             case '+':
                 opStack.push( new OneOrMoreOp(opStack.pop()) );
 
-                return in.tail();
+                return token.tail();
             case '?':
                 opStack.push( new OptionalOp(opStack.pop()) );
 
-                return in.tail();
+                return token.tail();
             case '|':
             {
-                Stream<Token> next = parseNextFragment( in.tail() );
+                Stream<Token> next = parseNextFragment( token.tail(), ops );
 
                 orTopTwoOpsOnStack();
 
                 return next;
             }
             case '[':
-                return parseCharacterSelection(in);
+                return parseCharacterSelection(token);
             case '(':
             {
-                Stream<Token> next = parseNextFragment( in.tail() );
+                Stream<Token> next = parseNextFragment( token.tail(), ops );
 
                 while ( next.notEmpty() && next.head().c != ')' ) {
-                    next = parseNextFragment( next );
+                    next = parseNextFragment( next, ops );
                 }
 
                 if ( next.isEmpty() || !next.head().isSpecial || next.head().c != ')' ) {
@@ -132,8 +139,10 @@ public class RegexpParser {
 
                 return next.tail();
             }
+            case '$':
+                return parseEmbeddedRuleReference( token.tail(), ops );
             default:
-                throw new IllegalStateException( "Unrecognised special char '"+c+"' with remaining chars '"+ StringUtils.join(in,"")+"'");
+                throw new IllegalStateException( "Unrecognised special char '"+c+"' with remaining chars '"+ StringUtils.join(token,"")+"'");
         }
     }
 
@@ -218,6 +227,36 @@ public class RegexpParser {
         return pos;
     }
 
+    private Stream<Token> parseEmbeddedRuleReference( Stream<Token> tokens, Map<String,TrieBuilderOp> ops ) {
+        StringBuilder buf = new StringBuilder();
+
+        Stream<Token> pos = tokens;
+        while ( pos.notEmpty() ) {
+            Token token = pos.head();
+
+            if ( token.isSpecial ) {
+                break;
+            } else {
+                buf.append( token.c );
+            }
+
+            pos = pos.tail();
+        }
+
+        String opName = buf.toString();
+        TrieBuilderOp op = ops.get(opName);
+
+        if ( op == null ) {
+            throw new IllegalArgumentException( "'"+opName+"' has not been declared yet; forward references are not supported" );
+        }
+
+        opStack.push( new EmbeddedOp(opName, op) );
+
+        return pos;
+    }
+
+
+
 
     private static class Token {
         public final char    c;
@@ -233,7 +272,7 @@ public class RegexpParser {
         }
     }
 
-    private static Stream<Token> unescape( int i, final String str ) {
+    private static Stream<Token> toTokenStream( int i, final String str ) {
         if ( i >= str.length() ) {
             return Stream.EMPTY;
         }
@@ -254,7 +293,7 @@ public class RegexpParser {
         Token token = new Token( c,isSpecial );
         return Stream.create( token, new Function0<Stream<Token>>() {
             public Stream<Token> invoke() {
-                return unescape( nextIndex, str );
+                return toTokenStream( nextIndex, str );
             }
         } );
     }

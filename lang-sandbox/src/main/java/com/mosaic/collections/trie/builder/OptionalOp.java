@@ -7,7 +7,7 @@ import com.mosaic.collections.trie.CharacterNodes;
  *
  */
 @SuppressWarnings("unchecked")
-public class OptionalOp <T> extends TrieBuilderOp<T> {
+public class OptionalOp<T> extends TrieBuilderOp<T> {
 
     private TrieBuilderOp<T> opToRepeat;
 

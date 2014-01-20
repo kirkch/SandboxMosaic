@@ -25,6 +25,10 @@ public class CharacterPredicates {
         return AlwaysTrueCharacterPredicate.INSTANCE;
     }
 
+    public static CharacterPredicate alwaysFalse() {
+        return AlwaysFalseCharacterPredicate.INSTANCE;
+    }
+
     public static CharacterPredicate eos() {
         return NullCharacterPredicate;
     }
@@ -95,6 +99,22 @@ public class CharacterPredicates {
 
         public String toString() {
             return "$AlwaysTrue$";
+        }
+
+        public int compareTo( CharacterPredicate o ) {
+            return o == this ? 0 : -1;
+        }
+    }
+
+    private static class AlwaysFalseCharacterPredicate implements CharacterPredicate {
+        public static CharacterPredicate INSTANCE = new AlwaysFalseCharacterPredicate();
+
+        public boolean matches( char input ) {
+            return false;
+        }
+
+        public String toString() {
+            return "$AlwaysFalse$";
         }
 
         public int compareTo( CharacterPredicate o ) {
