@@ -23,8 +23,8 @@ public class ProductionRuleBuilderTest {
     private ProductionRuleBuilder b = new ProductionRuleBuilder();
     private NodeFormatter nodeFormatter = new NodeFormatter();
 
-    private NodeFormatPlugin<ParserFrameOp> plugin = new NodeFormatPlugin<ParserFrameOp>() {
-        public String getNodeLabelFor( long nodeId, Node<ParserFrameOp> node ) {
+    private NodeFormatPlugin plugin = new NodeFormatPlugin() {
+        public String getNodeLabelFor( long nodeId, Node node ) {
             StringBuilder buf = new StringBuilder();
 
             buf.append( nodeId );
@@ -33,7 +33,7 @@ public class ProductionRuleBuilderTest {
                 buf.append( 'e' );
             }
 
-            ParserFrameOp op = node.getPayload();
+            ParserFrameOp op = node.getActions();
             if ( op != null ) {
                 buf.append( ':' );
 

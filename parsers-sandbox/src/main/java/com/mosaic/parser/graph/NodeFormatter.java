@@ -29,10 +29,10 @@ import java.util.Set;
  * edge.
  */
 @SuppressWarnings("unchecked")
-public class NodeFormatter<T> {
+public class NodeFormatter {
 
-    public static interface NodeFormatPlugin<T> {
-        public String getNodeLabelFor( long nodeId, Node<T> node );
+    public static interface NodeFormatPlugin {
+        public String getNodeLabelFor( long nodeId, Node node );
     }
 
     private static final NodeFormatPlugin DEFAULT_PLUGIN = new NodeFormatPlugin() {
@@ -43,18 +43,18 @@ public class NodeFormatter<T> {
 
 
 
-    public List<String> format( Node<T> startingNode ) {
+    public List<String> format( Node startingNode ) {
         return format( startingNode, DEFAULT_PLUGIN );
     }
 
-    public List<String> format( Node<T> startingNode, final NodeFormatPlugin plugin  ) {
+    public List<String> format( Node startingNode, final NodeFormatPlugin plugin  ) {
         Validate.notNull( startingNode, "startingNode" );
 
         final List<String> formattedGraph = new ArrayList();
 
         startingNode.depthFirstPrefixTraversal(
-            new VoidFunction2<ConsList<KV<Set<CharacterPredicate>, Node<T>>>,Boolean>() {
-                public void invoke( ConsList<KV<Set<CharacterPredicate>, Node<T>>> path, Boolean isCompletePath ) {
+            new VoidFunction2<ConsList<KV<Set<CharacterPredicate>, Node>>,Boolean>() {
+                public void invoke( ConsList<KV<Set<CharacterPredicate>, Node>> path, Boolean isCompletePath ) {
                     if ( isCompletePath ) {
                         appendPath( path.reverse(), formattedGraph, plugin );
                     }
@@ -122,11 +122,11 @@ public class NodeFormatter<T> {
     }
 
 
-    private Function2<Node<T>,NodeFormatPlugin,String> nodeLabeler = new Function2<Node<T>, NodeFormatPlugin, String>() {
-        private Map<Node<T>,String> existingLabels = new IdentityHashMap<>();
+    private Function2<Node,NodeFormatPlugin,String> nodeLabeler = new Function2<Node, NodeFormatPlugin, String>() {
+        private Map<Node,String> existingLabels = new IdentityHashMap<>();
         private long             nextLabel      = 1;
 
-        public String invoke( Node<T> node, NodeFormatPlugin plugin ) {
+        public String invoke( Node node, NodeFormatPlugin plugin ) {
             String label = existingLabels.get(node);
             if ( label == null ) {
                 label = plugin.getNodeLabelFor(nextLabel++, node);
@@ -142,12 +142,12 @@ public class NodeFormatter<T> {
         }
     };
 
-    private void appendPath( ConsList<KV<Set<CharacterPredicate>, Node<T>>> path, List<String> formattedGraph, NodeFormatPlugin plugin ) {
+    private void appendPath( ConsList<KV<Set<CharacterPredicate>, Node>> path, List<String> formattedGraph, NodeFormatPlugin plugin ) {
         StringBuilder buf = new StringBuilder();
 
-        for ( KV<Set<CharacterPredicate>,Node<T>> step : path ) {
+        for ( KV<Set<CharacterPredicate>,Node> step : path ) {
             Set<CharacterPredicate>  labels = step.getKey();
-            Node<T> node   = step.getValue();
+            Node node   = step.getValue();
 
             if ( !labels.isEmpty() ) {
                 buf.append( " -" );

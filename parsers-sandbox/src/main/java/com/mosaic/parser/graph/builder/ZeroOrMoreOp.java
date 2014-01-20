@@ -14,30 +14,30 @@ import java.util.Set;
  *
  */
 @SuppressWarnings("unchecked")
-public class ZeroOrMoreOp<T> extends TrieBuilderOp<T> {
+public class ZeroOrMoreOp extends TrieBuilderOp {
 
-    private TrieBuilderOp<T> opToRepeat;
+    private TrieBuilderOp opToRepeat;
 
     
     /**
      *
      * @param op the op to repeat
      */
-    public ZeroOrMoreOp( TrieBuilderOp<T> op ) {
+    public ZeroOrMoreOp( TrieBuilderOp op ) {
         opToRepeat = op;
     }
 
 
 
-    public Nodes<T> appendTo( final Node<T> startNode ) {
+    public Nodes appendTo( final Node startNode ) {
         final Nodes endNodes = opToRepeat.appendTo( startNode );
 
-        startNode.depthFirstPrefixTraversal(new VoidFunction2<ConsList<KV<Set<CharacterPredicate>,Node<T>>>, Boolean>() {
-            public void invoke( ConsList<KV<Set<CharacterPredicate>, Node<T>>> path, Boolean isEndOfPath ) {
-                Node<T> visiting = path.head().getValue();
+        startNode.depthFirstPrefixTraversal(new VoidFunction2<ConsList<KV<Set<CharacterPredicate>,Node>>, Boolean>() {
+            public void invoke( ConsList<KV<Set<CharacterPredicate>, Node>> path, Boolean isEndOfPath ) {
+                Node visiting = path.head().getValue();
                 if ( isEndOfPath && endNodes.contains(visiting) ) {
                     for ( CharacterPredicate c : path.head().getKey() ) {
-                        Node<T> sourceNode = path.tail().head().getValue();
+                        Node sourceNode = path.tail().head().getValue();
 
                         sourceNode.replace( c, visiting, startNode );
                     }

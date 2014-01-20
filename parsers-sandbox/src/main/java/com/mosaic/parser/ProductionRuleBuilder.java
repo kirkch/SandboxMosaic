@@ -81,13 +81,13 @@ public class ProductionRuleBuilder {
             throw new IllegalArgumentException( "'"+name+"' has already been declared" );
         }
 
-        Node<ParserFrameOp> firstNode = new Node();
-        Nodes<ParserFrameOp> endNodes  = builder.appendTo( firstNode );
+        Node firstNode = new Node();
+        Nodes endNodes  = builder.appendTo( firstNode );
 
 
         setOp( firstNode, innerNodeOp );
         endNodes.setPayloads( endNodeOp );
-        firstNode.setPayload( firstNodeOp );
+        firstNode.setActions( firstNodeOp );
         endNodes.isEndNode( true );
 
         ProductionRule productionRule = new ProductionRule( name, firstNode, endNodes );
@@ -97,12 +97,12 @@ public class ProductionRuleBuilder {
         return productionRule;
     }
 
-    private void setOp( Node<ParserFrameOp> firstNode, final ParserFrameOp op ) {
-        firstNode.depthFirstPrefixTraversal( new VoidFunction2<ConsList<KV<Set<CharacterPredicate>, Node<ParserFrameOp>>>, Boolean>() {
-            public void invoke( ConsList<KV<Set<CharacterPredicate>, Node<ParserFrameOp>>> path, Boolean isEndOfPath ) {
-                Node<ParserFrameOp> node = path.head().getValue();
+    private void setOp( Node firstNode, final ParserFrameOp op ) {
+        firstNode.depthFirstPrefixTraversal( new VoidFunction2<ConsList<KV<Set<CharacterPredicate>, Node>>, Boolean>() {
+            public void invoke( ConsList<KV<Set<CharacterPredicate>, Node>> path, Boolean isEndOfPath ) {
+                Node node = path.head().getValue();
 
-                node.setPayload( op );
+                node.setActions( op );
             }
         } );
     }
@@ -162,9 +162,9 @@ public class ProductionRuleBuilder {
 
     private static class PushRuleParserFrameOp extends WrappedParserFrameOp {
         private ProductionRule                 nextRule;
-        private Node<ParserFrameOp> returnNode;
+        private Node returnNode;
 
-        public PushRuleParserFrameOp( ProductionRule nextRule, ParserFrameOp wrappedOp, Node<ParserFrameOp> returnNode ) {
+        public PushRuleParserFrameOp( ProductionRule nextRule, ParserFrameOp wrappedOp, Node returnNode ) {
             super( wrappedOp, "Psh" );
 
             Validate.notNull( nextRule, "nextRule" );
@@ -181,7 +181,7 @@ public class ProductionRuleBuilder {
 
     private static class PopFrameOp extends WrappedParserFrameOp {
         private ProductionRule                 nextRule;
-        private Node<ParserFrameOp> returnNode;
+        private Node returnNode;
 
         public PopFrameOp() {
             super( null, "Pop" );

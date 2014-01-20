@@ -38,7 +38,7 @@ public class ProductionRule {
 //
 //                CharacterNode <Parser.ParserFrameOp> returnNode = new CharacterNode<>();
 //
-//                previousNode.setPayload( new PushRuleParserFrameOp(nextRule,previousNode.getPayload(), returnNode) );
+//                previousNode.setActions( new PushRuleParserFrameOp(nextRule,previousNode.getActions(), returnNode) );
 //
 //                return returnNode;
 //            }
@@ -49,11 +49,11 @@ public class ProductionRule {
 //    }
 
     private String                        name;
-    private Node<ParserFrameOp> startingNode;
-    private Nodes<ParserFrameOp> endNodes;
+    private Node startingNode;
+    private Nodes endNodes;
 
 
-    public ProductionRule( String name, Node<ParserFrameOp> startingNode, Nodes<ParserFrameOp> endNodes ) {
+    public ProductionRule( String name, Node startingNode, Nodes endNodes ) {
         this.name         = name;
         this.startingNode = startingNode;
         this.endNodes      = endNodes;
@@ -64,7 +64,7 @@ public class ProductionRule {
         return name;
     }
 
-    public Node<ParserFrameOp> startingNode() {
+    public Node startingNode() {
         return startingNode;
     }
 

@@ -13,30 +13,30 @@ import java.util.Set;
  *
  */
 @SuppressWarnings("unchecked")
-public class OneOrMoreOp<T> extends TrieBuilderOp<T> {
+public class OneOrMoreOp extends TrieBuilderOp {
 
-    private TrieBuilderOp<T> opToRepeat;
+    private TrieBuilderOp opToRepeat;
 
 
     /**
      *
      * @param op the op to repeat
      */
-    public OneOrMoreOp( TrieBuilderOp<T> op ) {
+    public OneOrMoreOp( TrieBuilderOp op ) {
         opToRepeat = op;
     }
 
 
 
-    public Nodes<T> appendTo( Node<T> startNode ) {
-        final Nodes<T> afterFirstStepNodes = opToRepeat.appendTo( startNode );
+    public Nodes appendTo( Node startNode ) {
+        final Nodes afterFirstStepNodes = opToRepeat.appendTo( startNode );
 
 
         final Nodes endNodes = opToRepeat.appendTo( afterFirstStepNodes );
 
-        startNode.depthFirstPrefixTraversal(new VoidFunction2<ConsList<KV<Set<CharacterPredicate>,Node<T>>>, Boolean>() {
-            public void invoke( ConsList<KV<Set<CharacterPredicate>, Node<T>>> path, Boolean isEndOfPath ) {
-                Node<T> visiting = path.head().getValue();
+        startNode.depthFirstPrefixTraversal(new VoidFunction2<ConsList<KV<Set<CharacterPredicate>,Node>>, Boolean>() {
+            public void invoke( ConsList<KV<Set<CharacterPredicate>, Node>> path, Boolean isEndOfPath ) {
+                Node visiting = path.head().getValue();
                 if ( isEndOfPath && endNodes.contains(visiting) ) {
                     for ( CharacterPredicate label : path.head().getKey() ) {
                         Node sourceNode = path.tail().head().getValue();

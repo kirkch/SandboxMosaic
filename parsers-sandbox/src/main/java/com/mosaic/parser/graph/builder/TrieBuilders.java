@@ -9,43 +9,43 @@ import com.mosaic.lang.CharacterPredicate;
 @SuppressWarnings("unchecked")
 public class TrieBuilders {
 
-    public static <T> TrieBuilderOp<T> and( Iterable<TrieBuilderOp<T>> childOps ) {
+    public static  TrieBuilderOp and( Iterable<TrieBuilderOp> childOps ) {
         return new AndOp( childOps );
     }
 
-    public static <T> TrieBuilderOp<T> and( TrieBuilderOp<T>...childOps ) {
+    public static  TrieBuilderOp and( TrieBuilderOp...childOps ) {
         return new AndOp( childOps );
     }
 
-    public static <T> TrieBuilderOp<T> or( Iterable<TrieBuilderOp<T>> childOps ) {
+    public static  TrieBuilderOp or( Iterable<TrieBuilderOp> childOps ) {
         return new OrOp( childOps );
     }
 
-    public static <T> TrieBuilderOp<T> or( TrieBuilderOp<T>...childOps ) {
+    public static  TrieBuilderOp or( TrieBuilderOp...childOps ) {
         return new OrOp( childOps );
     }
 
-    public static <T> TrieBuilderOp<T> oneOrMore( TrieBuilderOp<T> childOp ) {
+    public static  TrieBuilderOp oneOrMore( TrieBuilderOp childOp ) {
         return new OneOrMoreOp( childOp );
     }
 
-    public static <T> TrieBuilderOp<T> zeroOrMore( TrieBuilderOp<T> childOp ) {
+    public static  TrieBuilderOp zeroOrMore( TrieBuilderOp childOp ) {
         return new ZeroOrMoreOp( childOp );
     }
 
-    public static <T> TrieBuilderOp<T> optional( TrieBuilderOp<T> childOp ) {
+    public static  TrieBuilderOp optional( TrieBuilderOp childOp ) {
         return new OptionalOp( childOp );
     }
 
-    public static <T> TrieBuilderOp<T> predicate( CharacterPredicate predicate ) {
+    public static  TrieBuilderOp predicate( CharacterPredicate predicate ) {
         return new PredicateOp( predicate );
     }
 
-    public static <T> TrieBuilderOp<T> regexp( String regexp ) {
+    public static  TrieBuilderOp regexp( String regexp ) {
         return new RegexpParser().parse( regexp );
     }
 
-    public static <T> TrieBuilderOp<T> constant( String str, CaseSensitivity caseSensitivity ) {
+    public static  TrieBuilderOp constant( String str, CaseSensitivity caseSensitivity ) {
         return new StringOp( str, caseSensitivity );
     }
 

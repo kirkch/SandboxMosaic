@@ -19,7 +19,7 @@ import static com.mosaic.collections.ConsList.Nil;
 public class ParserFrame implements Cloneable {
     private String                         productionRuleName;
 
-    private Node<ParserFrameOp> currentNode;
+    private Node     currentNode;
     private ConsList currentValue = Nil;
     private ConsList<MethodCall>           actions      = Nil;
     private ParserListener                 listener;
@@ -39,7 +39,7 @@ public class ParserFrame implements Cloneable {
         this( rule.name(), rule.startingNode(), listener );
     }
 
-    public ParserFrame( String name, Node<ParserFrameOp> node, ParserListener listener ) {
+    public ParserFrame( String name, Node node, ParserListener listener ) {
         this.productionRuleName = name;
         this.currentNode        = node;
         this.listener           = listener;
@@ -61,7 +61,7 @@ public class ParserFrame implements Cloneable {
         return clone;
     }
 
-    public Node<ParserFrameOp> getCurrentNode() {
+    public Node getCurrentNode() {
         return currentNode;
     }
 
@@ -70,7 +70,7 @@ public class ParserFrame implements Cloneable {
     }
 
     public Iterable<ParserFrame> parse( int line, int col, final char c ) {
-        Nodes<ParserFrameOp> nextNodes =  currentNode.fetch( c );
+        Nodes nextNodes =  currentNode.fetch( c );
 
         ParserFrame parserState = this.clone();
 
@@ -78,16 +78,16 @@ public class ParserFrame implements Cloneable {
         parserState.currentColumnNumber = col;
 
         if ( nextNodes.hasContents() ) {
-            parserState = currentNode.getPayload().consumed( c, parserState );
+            parserState = currentNode.getActions().consumed( c, parserState );
         }
 
         final ParserFrame stateBeforeNotifyingNextNode = parserState;
 
         List<ParserFrame> nextFrames = new ArrayList( nextNodes.size()*2 );
-        for ( Node<ParserFrameOp> n : nextNodes ) {
+        for ( Node n : nextNodes ) {
             ParserFrame nextContext = stateBeforeNotifyingNextNode.withNextNode( n );
 
-            nextContext = n.getPayload().justArrived( nextContext );
+            nextContext = n.getActions().justArrived( nextContext );
 
             nextFrames.add(nextContext);
 
@@ -100,7 +100,7 @@ public class ParserFrame implements Cloneable {
     }
 
     public Iterable<ParserFrame> endOfStream() {
-        ParserFrame nextContext = currentNode.getPayload().productionRuleFinished(this);
+        ParserFrame nextContext = currentNode.getActions().productionRuleFinished(this);
 
         if ( nextContext != null ) {
             return Arrays.asList( nextContext );
@@ -110,7 +110,7 @@ public class ParserFrame implements Cloneable {
     }
 
 
-    private ParserFrame withNextNode( Node<ParserFrameOp> nextNode ) {
+    private ParserFrame withNextNode( Node nextNode ) {
         ParserFrame clone = this.clone();
 
         clone.currentNode = nextNode;
@@ -143,7 +143,7 @@ public class ParserFrame implements Cloneable {
         return clone;
     }
 
-    public ParserFrame push( String targetRuleName, Node<ParserFrameOp> nextNode, Node<ParserFrameOp> returnNode ) {
+    public ParserFrame push( String targetRuleName, Node nextNode, Node returnNode ) {
         ParserFrame returnFrame = this.withNextNode( returnNode );
 
         ParserFrame newFrame = this.clone();
@@ -172,7 +172,7 @@ public class ParserFrame implements Cloneable {
         returnFrame.currentValue      = returnFrame.currentValue.append( this.currentValue );
         returnFrame.actions           = returnFrame.actions.append( this.actions );
 
-        return returnFrame.currentNode.getPayload().justArrived( returnFrame );
+        return returnFrame.currentNode.getActions().justArrived( returnFrame );
 
 //            return returnFrame;
     }

@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
  *
  */
 @SuppressWarnings("unchecked")
-public class CharacterNodeFormatterTest {
+public class NodeFormatterTest {
 
     private NodeFormatter formatter = new NodeFormatter();
 

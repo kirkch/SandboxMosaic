@@ -7,7 +7,7 @@ import com.mosaic.lang.CharacterPredicate;
 /**
  *
  */
-public class PredicateOp<T> extends TrieBuilderOp<T> {
+public class PredicateOp extends TrieBuilderOp {
 
     private CharacterPredicate predicate;
 
@@ -16,7 +16,7 @@ public class PredicateOp<T> extends TrieBuilderOp<T> {
         this.predicate = predicate;
     }
 
-    public Nodes<T> appendTo( Node<T> startNode ) {
+    public Nodes appendTo( Node startNode ) {
         return startNode.append( predicate );
     }
 

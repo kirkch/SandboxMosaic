@@ -12,20 +12,20 @@ import com.mosaic.parser.graph.Nodes;
  * demand.
  */
 @SuppressWarnings("unchecked")
-public abstract class TrieBuilderOp<T> {
+public abstract class TrieBuilderOp {
 
     /**
      * Append this op to the specified node.
      *
      * @return the last nodes appended to the graph
      */
-    public abstract Nodes<T> appendTo( Node<T> startNode );
+    public abstract Nodes appendTo( Node startNode );
 
 
-    public Nodes<T> appendTo( Nodes<T> startNodes ) {
-        Nodes<T> endNodes = new Nodes();
+    public Nodes appendTo( Nodes startNodes ) {
+        Nodes endNodes = new Nodes();
 
-        for ( Node<T> n : startNodes ) {
+        for ( Node n : startNodes ) {
             endNodes.addAll(this.appendTo(n));
         }
 

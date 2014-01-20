@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
  */
 @Ignore
 @RunWith(JUnitMosaicRunner.class)
-public class CharacterNodeTraversalPerformanceTests {
+public class NodeTraversalPerformanceTests {
 
     private ProductionRule rootRule = new ProductionRuleBuilder().regexp( "NameRule", "[a-zA-Z]+" );
     private Node rootNode  = rootRule.startingNode();

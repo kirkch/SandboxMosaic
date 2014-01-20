@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
  *
  */
 @SuppressWarnings("unchecked")
-public class CharacterNodeTest {
+public class NodeTest {
 
     @Test
     public void givenBlankNode_hasOutEdges_expectFalse() {

@@ -13,16 +13,16 @@ import java.util.List;
  *
  */
 @SuppressWarnings("unchecked")
-public class Nodes<T> extends AbstractList<Node<T>> {
+public class Nodes extends AbstractList<Node> {
 
-    private List<Node<T>> nodes;
+    private List<Node> nodes;
 
 
     public Nodes() {
         this( new ArrayList() );
     }
 
-    public Nodes( List<Node<T>> nodes ) {
+    public Nodes( List<Node> nodes ) {
         this.nodes = nodes;
     }
 
@@ -32,11 +32,11 @@ public class Nodes<T> extends AbstractList<Node<T>> {
         this.nodes.add( newNode );
     }
 
-    public Node<T> get( int i ) {
+    public Node get( int i ) {
         return nodes.get( i );
     }
 
-    public Iterator<Node<T>> iterator() {
+    public Iterator<Node> iterator() {
         return nodes.iterator();
     }
 
@@ -44,16 +44,16 @@ public class Nodes<T> extends AbstractList<Node<T>> {
         return nodes.size();
     }
 
-    public void add( int index, Node<T> element ) {
+    public void add( int index, Node element ) {
         nodes.add( index, element );
     }
 
 
 
-    public Nodes<T> fetch( char c ) {
-        List<Node<T>> endNodes = new ArrayList();
+    public Nodes fetch( char c ) {
+        List<Node> endNodes = new ArrayList();
 
-        for ( Node<T> n : nodes ) {
+        for ( Node n : nodes ) {
             n.fetchInto( endNodes, c );
         }
 
@@ -65,55 +65,55 @@ public class Nodes<T> extends AbstractList<Node<T>> {
 //    }
 
 //    public Nodes walk( Iterable <T> path ) {
-//        List<CharacterNode<T>> endNodes = new ArrayList();
+//        List<CharacterNode> endNodes = new ArrayList();
 //
-//        for ( CharacterNode<T> n : nodes ) {
+//        for ( CharacterNode n : nodes ) {
 //            endNodes.addAll( n.walk( path ) );
 //        }
 //
 //        return new Nodes( endNodes );
 //    }
 
-    public Nodes<T> append( char c ) {
+    public Nodes append( char c ) {
         return append( CharacterPredicates.constant( c ) );
     }
 
-    public Nodes<T> append( CharacterPredicate predicate ) {
-        List<Node<T>> endNodes = new ArrayList();
+    public Nodes append( CharacterPredicate predicate ) {
+        List<Node> endNodes = new ArrayList();
 
-        for ( Node<T> n : nodes ) {
+        for ( Node n : nodes ) {
             endNodes.addAll( n.append(predicate) );
         }
 
         return new Nodes( endNodes );
     }
 
-    public void append( CharacterPredicate predicate, Node<T> next ) {
+    public void append( CharacterPredicate predicate, Node next ) {
         append( predicate, next );
     }
 
-    public void append( CharacterPredicate predicate, Nodes<T> next ) {
-        for ( Node<T> n : nodes ) {
+    public void append( CharacterPredicate predicate, Nodes next ) {
+        for ( Node n : nodes ) {
             n.append( predicate, next );
         }
     }
 
-    public void setPayloads( T payload ) {
-        for ( Node<T> n : nodes ) {
-            n.setPayload( payload );
+    public void setPayloads( ParserFrameOp payload ) {
+        for ( Node n : nodes ) {
+            n.setActions( payload );
         }
     }
 
-    public void mapPayloads( Function1<T,T> mappingFunction) {
-        for ( Node<T> n : nodes ) {
-            T newPayload = mappingFunction.invoke( n.getPayload() );
+    public void mapPayloads( Function1<ParserFrameOp,ParserFrameOp> mappingFunction) {
+        for ( Node n : nodes ) {
+            ParserFrameOp newPayload = mappingFunction.invoke( n.getActions() );
 
-            n.setPayload( newPayload );
+            n.setActions( newPayload );
         }
     }
 
     public void isEndNode( boolean isEndNode ) {
-        for ( Node<T> n : nodes ) {
+        for ( Node n : nodes ) {
             n.isEndNode( isEndNode );
         }
     }
@@ -125,10 +125,10 @@ public class Nodes<T> extends AbstractList<Node<T>> {
 //    /**
 //     * Returns all of the nodes that can be transitioned to from this set of nodes.
 //     */
-//    public CharacterNodes<T> getOutNodes() {
-//        List<CharacterNode<T>> outNodes = new ArrayList();
+//    public CharacterNodes getOutNodes() {
+//        List<CharacterNode> outNodes = new ArrayList();
 //
-//        for ( CharacterNode<T> n : nodes ) {
+//        for ( CharacterNode n : nodes ) {
 //            outNodes.addAll( n.getOutNodes() );
 //        }
 //

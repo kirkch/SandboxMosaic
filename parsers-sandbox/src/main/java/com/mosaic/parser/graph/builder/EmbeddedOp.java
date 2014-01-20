@@ -7,20 +7,20 @@ import com.mosaic.parser.graph.Nodes;
  *
  */
 @SuppressWarnings("unchecked")
-public class EmbeddedOp<T> extends TrieBuilderOp<T> {
+public class EmbeddedOp extends TrieBuilderOp {
 
     private String           refName;
-    private TrieBuilderOp<T> op;
+    private TrieBuilderOp op;
 
 
-    public EmbeddedOp( String refName, TrieBuilderOp<T> op ) {
+    public EmbeddedOp( String refName, TrieBuilderOp op ) {
         this.refName = refName;
         this.op      = op;
     }
 
 
 
-    public Nodes<T> appendTo( final Node<T> startNode ) {
+    public Nodes appendTo( final Node startNode ) {
         return op.appendTo( startNode );
     }
 

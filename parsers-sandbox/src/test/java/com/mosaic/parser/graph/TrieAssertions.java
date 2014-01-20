@@ -9,8 +9,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class TrieAssertions {
 
-    public static <T> void assertGraphEquals( Node<T> startingNode, String...graphDescription ) {
-        NodeFormatter<T> f = new NodeFormatter<>();
+    public static  void assertGraphEquals( Node startingNode, String...graphDescription ) {
+        NodeFormatter f = new NodeFormatter();
 
         assertEquals( Arrays.asList( graphDescription ), f.format(startingNode) );
     }

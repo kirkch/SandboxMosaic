@@ -58,7 +58,7 @@ public class Parser {
         hasFinished = false;
 
         ParserFrame initialFrame = new ParserFrame( rootRule, listener );
-        initialFrame = initialFrame.getCurrentNode().getPayload().justArrived( initialFrame );
+        initialFrame = initialFrame.getCurrentNode().getActions().justArrived( initialFrame );
 
         currentCandidateContexts = Nil.cons( initialFrame );
     }
