@@ -9,7 +9,7 @@ import com.mosaic.parser.graph.Nodes;
 @SuppressWarnings("unchecked")
 public class EmbeddedOp extends TrieBuilderOp {
 
-    private String           refName;
+    private String        refName;
     private TrieBuilderOp op;
 
 

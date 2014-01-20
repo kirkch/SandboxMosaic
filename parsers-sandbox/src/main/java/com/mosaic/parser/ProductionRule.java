@@ -6,6 +6,7 @@ import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.reflect.MethodRef;
 import com.mosaic.lang.reflect.ReflectionException;
 import com.mosaic.parser.graph.ParserFrameOp;
+import com.mosaic.parser.graph.ParserFrameOps;
 
 
 /**
@@ -14,49 +15,15 @@ import com.mosaic.parser.graph.ParserFrameOp;
 @SuppressWarnings("unchecked")
 public class ProductionRule {
 
-
-//    public static ProductionRule terminalRegExp( String name, String regexp ) {
-//        TrieBuilderOp builder = TrieBuilders.regexp( regexp );
-//
-//        return makeRule( name, builder, NULL_OP, END_NULL_OP );
-//    }
-//
-//    public static ProductionRule capturingTerminalRegExp( String name, String regexp ) {
-//        TrieBuilderOp builder = TrieBuilders.regexp( regexp );
-//
-//        return makeRule( name, builder, CAPTURE_INPUT_OP, CHARS2STRING_OP );
-//    }
-
-
-
-//    public static ProductionRule nonTerminal( String name, ProductionRule...rules ) {
-//        CharacterNode<Parser.ParserFrameOp> firstNode = new CharacterNode();
-//
-//        CharacterNode<Parser.ParserFrameOp> lastNode = ListUtils.fold( rules, firstNode, new Function2 <CharacterNode<Parser.ParserFrameOp>,ProductionRule,CharacterNode<Parser.ParserFrameOp>>() {
-//            public CharacterNode<Parser.ParserFrameOp> invoke( CharacterNode<Parser.ParserFrameOp> previousNode, ProductionRule nextRule ) {
-//                assert !previousNode.hasOutEdges() : "When embedding a rule, the node that we are pushing from must have no out edges";
-//
-//                CharacterNode <Parser.ParserFrameOp> returnNode = new CharacterNode<>();
-//
-//                previousNode.setActions( new PushRuleParserFrameOp(nextRule,previousNode.getActions(), returnNode) );
-//
-//                return returnNode;
-//            }
-//        });
-//
-//
-//        return new ProductionRule( name, firstNode, new CharacterNodes(lastNode) );
-//    }
-
-    private String                        name;
-    private Node startingNode;
-    private Nodes endNodes;
+    private String name;
+    private Node   startingNode;
+    private Nodes  endNodes;
 
 
     public ProductionRule( String name, Node startingNode, Nodes endNodes ) {
         this.name         = name;
         this.startingNode = startingNode;
-        this.endNodes      = endNodes;
+        this.endNodes     = endNodes;
     }
 
 
@@ -77,7 +44,7 @@ public class ProductionRule {
 
         endNodes.mapPayloads( new Function1<ParserFrameOp, ParserFrameOp>() {
             public ParserFrameOp invoke( ParserFrameOp currentOp ) {
-                return new ProductionRuleBuilder.CallbackParserFrameOp( currentOp, action );
+                return ParserFrameOps.callbackOp( currentOp, action );
             }
         } );
 
