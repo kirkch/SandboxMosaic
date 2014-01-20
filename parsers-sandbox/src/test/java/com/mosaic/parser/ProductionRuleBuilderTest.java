@@ -1,17 +1,18 @@
 package com.mosaic.parser;
 
-import com.mosaic.collections.trie.CharacterNode;
-import com.mosaic.collections.trie.CharacterNodeFormatter;
+import com.mosaic.parser.graph.Node;
+import com.mosaic.parser.graph.NodeFormatter;
+import com.mosaic.parser.graph.ParserFrameOp;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static com.mosaic.collections.trie.CharacterNodeFormatter.NodeFormatPlugin;
 import static com.mosaic.lang.CaseSensitivity.CaseInsensitive;
-import static com.mosaic.parser.Parser.ParserFrameOp;
+import static com.mosaic.parser.graph.NodeFormatter.NodeFormatPlugin;
 import static org.junit.Assert.assertEquals;
+
 
 /**
  *
@@ -20,10 +21,10 @@ import static org.junit.Assert.assertEquals;
 public class ProductionRuleBuilderTest {
 
     private ProductionRuleBuilder b = new ProductionRuleBuilder();
-    private CharacterNodeFormatter nodeFormatter = new CharacterNodeFormatter();
+    private NodeFormatter nodeFormatter = new NodeFormatter();
 
     private NodeFormatPlugin<ParserFrameOp> plugin = new NodeFormatPlugin<ParserFrameOp>() {
-        public String getNodeLabelFor( long nodeId, CharacterNode<ParserFrameOp> node ) {
+        public String getNodeLabelFor( long nodeId, Node<ParserFrameOp> node ) {
             StringBuilder buf = new StringBuilder();
 
             buf.append( nodeId );

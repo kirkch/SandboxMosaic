@@ -1,12 +1,12 @@
 package com.mosaic.parser;
 
-import com.mosaic.collections.trie.CharacterNode;
-import com.mosaic.collections.trie.CharacterNodes;
+import com.mosaic.parser.graph.Node;
+import com.mosaic.parser.graph.Nodes;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.reflect.MethodRef;
 import com.mosaic.lang.reflect.ReflectionException;
+import com.mosaic.parser.graph.ParserFrameOp;
 
-import static com.mosaic.parser.Parser.ParserFrameOp;
 
 /**
  *
@@ -49,11 +49,11 @@ public class ProductionRule {
 //    }
 
     private String                        name;
-    private CharacterNode<ParserFrameOp>  startingNode;
-    private CharacterNodes<ParserFrameOp> endNodes;
+    private Node<ParserFrameOp> startingNode;
+    private Nodes<ParserFrameOp> endNodes;
 
 
-    public ProductionRule( String name, CharacterNode<ParserFrameOp> startingNode, CharacterNodes<ParserFrameOp> endNodes ) {
+    public ProductionRule( String name, Node<ParserFrameOp> startingNode, Nodes<ParserFrameOp> endNodes ) {
         this.name         = name;
         this.startingNode = startingNode;
         this.endNodes      = endNodes;
@@ -64,7 +64,7 @@ public class ProductionRule {
         return name;
     }
 
-    public CharacterNode<ParserFrameOp> startingNode() {
+    public Node<ParserFrameOp> startingNode() {
         return startingNode;
     }
 

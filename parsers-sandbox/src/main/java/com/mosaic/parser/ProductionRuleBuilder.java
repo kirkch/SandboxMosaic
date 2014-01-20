@@ -2,15 +2,17 @@ package com.mosaic.parser;
 
 import com.mosaic.collections.ConsList;
 import com.mosaic.collections.KV;
-import com.mosaic.collections.trie.CharacterNode;
-import com.mosaic.collections.trie.CharacterNodes;
-import com.mosaic.collections.trie.builder.TrieBuilderOp;
-import com.mosaic.collections.trie.builder.TrieBuilders;
 import com.mosaic.lang.CaseSensitivity;
 import com.mosaic.lang.CharacterPredicate;
 import com.mosaic.lang.Validate;
 import com.mosaic.lang.functional.VoidFunction2;
 import com.mosaic.lang.reflect.MethodRef;
+import com.mosaic.parser.graph.Node;
+import com.mosaic.parser.graph.Nodes;
+import com.mosaic.parser.graph.ParserFrame;
+import com.mosaic.parser.graph.ParserFrameOp;
+import com.mosaic.parser.graph.builder.TrieBuilderOp;
+import com.mosaic.parser.graph.builder.TrieBuilders;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,8 +20,7 @@ import java.util.Set;
 
 import static com.mosaic.collections.ConsList.Nil;
 import static com.mosaic.lang.CaseSensitivity.CaseSensitive;
-import static com.mosaic.parser.Parser.ParserFrame;
-import static com.mosaic.parser.Parser.ParserFrameOp;
+
 
 /**
  *
@@ -80,8 +81,8 @@ public class ProductionRuleBuilder {
             throw new IllegalArgumentException( "'"+name+"' has already been declared" );
         }
 
-        CharacterNode<ParserFrameOp> firstNode = new CharacterNode();
-        CharacterNodes<ParserFrameOp> endNodes  = builder.appendTo( firstNode );
+        Node<ParserFrameOp> firstNode = new Node();
+        Nodes<ParserFrameOp> endNodes  = builder.appendTo( firstNode );
 
 
         setOp( firstNode, innerNodeOp );
@@ -96,10 +97,10 @@ public class ProductionRuleBuilder {
         return productionRule;
     }
 
-    private void setOp( CharacterNode<Parser.ParserFrameOp> firstNode, final Parser.ParserFrameOp op ) {
-        firstNode.depthFirstPrefixTraversal( new VoidFunction2<ConsList<KV<Set<CharacterPredicate>, CharacterNode<ParserFrameOp>>>, Boolean>() {
-            public void invoke( ConsList<KV<Set<CharacterPredicate>, CharacterNode<Parser.ParserFrameOp>>> path, Boolean isEndOfPath ) {
-                CharacterNode<Parser.ParserFrameOp> node = path.head().getValue();
+    private void setOp( Node<ParserFrameOp> firstNode, final ParserFrameOp op ) {
+        firstNode.depthFirstPrefixTraversal( new VoidFunction2<ConsList<KV<Set<CharacterPredicate>, Node<ParserFrameOp>>>, Boolean>() {
+            public void invoke( ConsList<KV<Set<CharacterPredicate>, Node<ParserFrameOp>>> path, Boolean isEndOfPath ) {
+                Node<ParserFrameOp> node = path.head().getValue();
 
                 node.setPayload( op );
             }
@@ -128,11 +129,11 @@ public class ProductionRuleBuilder {
         }
     };
 
-    private static class WrappedParserFrameOp implements Parser.ParserFrameOp {
-        private Parser.ParserFrameOp wrappedOpNbl;
+    private static class WrappedParserFrameOp implements ParserFrameOp {
+        private ParserFrameOp wrappedOpNbl;
         private String desc;
 
-        public WrappedParserFrameOp( Parser.ParserFrameOp wrappedOpNbl, String desc ) {
+        public WrappedParserFrameOp( ParserFrameOp wrappedOpNbl, String desc ) {
             this.wrappedOpNbl = wrappedOpNbl;
             this.desc         = desc;
         }
@@ -161,9 +162,9 @@ public class ProductionRuleBuilder {
 
     private static class PushRuleParserFrameOp extends WrappedParserFrameOp {
         private ProductionRule                 nextRule;
-        private CharacterNode<Parser.ParserFrameOp> returnNode;
+        private Node<ParserFrameOp> returnNode;
 
-        public PushRuleParserFrameOp( ProductionRule nextRule, Parser.ParserFrameOp wrappedOp, CharacterNode<Parser.ParserFrameOp> returnNode ) {
+        public PushRuleParserFrameOp( ProductionRule nextRule, ParserFrameOp wrappedOp, Node<ParserFrameOp> returnNode ) {
             super( wrappedOp, "Psh" );
 
             Validate.notNull( nextRule, "nextRule" );
@@ -180,13 +181,13 @@ public class ProductionRuleBuilder {
 
     private static class PopFrameOp extends WrappedParserFrameOp {
         private ProductionRule                 nextRule;
-        private CharacterNode<Parser.ParserFrameOp> returnNode;
+        private Node<ParserFrameOp> returnNode;
 
         public PopFrameOp() {
             super( null, "Pop" );
         }
 
-        public PopFrameOp(Parser.ParserFrameOp wrappedOp ) {
+        public PopFrameOp(ParserFrameOp wrappedOp ) {
             super( wrappedOp, "Pop" );
         }
 
