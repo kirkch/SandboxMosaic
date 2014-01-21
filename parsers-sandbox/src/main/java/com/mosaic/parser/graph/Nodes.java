@@ -98,17 +98,9 @@ public class Nodes extends AbstractList<Node> {
         }
     }
 
-    public void setPayloads( ParserFrameOp payload ) {
+    public void setActions( ParserFrameOp payload ) {
         for ( Node n : nodes ) {
             n.setActions( payload );
-        }
-    }
-
-    public void mapPayloads( Function1<ParserFrameOp,ParserFrameOp> mappingFunction) {
-        for ( Node n : nodes ) {
-            ParserFrameOp newPayload = mappingFunction.invoke( n.getActions() );
-
-            n.setActions( newPayload );
         }
     }
 
@@ -120,6 +112,14 @@ public class Nodes extends AbstractList<Node> {
 
     public boolean hasContents() {
         return !isEmpty();
+    }
+
+    public void wrapActions( Function1<ParserFrameOp, ParserFrameOp> wrappingFunction ) {
+        for ( Node n : nodes ) {
+            ParserFrameOp newPayload = wrappingFunction.invoke( n.getActions() );
+
+            n.setActions( newPayload );
+        }
     }
 
 //    /**

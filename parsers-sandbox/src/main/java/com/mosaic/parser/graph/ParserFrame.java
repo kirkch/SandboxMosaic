@@ -4,7 +4,7 @@ import com.mosaic.collections.ConsList;
 import com.mosaic.lang.reflect.MethodCall;
 import com.mosaic.lang.reflect.MethodRef;
 import com.mosaic.lang.reflect.ReflectionException;
-import com.mosaic.parser.ProductionRule;
+import com.mosaic.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,13 +16,14 @@ import static com.mosaic.collections.ConsList.Nil;
 /**
 *
 */
+@SuppressWarnings("unchecked")
 public class ParserFrame implements Cloneable {
-    private String                         productionRuleName;
+    private String               productionRuleName;
 
-    private Node     currentNode;
-    private ConsList currentValue = Nil;
-    private ConsList<MethodCall>           actions      = Nil;
-    private ParserListener                 listener;
+    private Node                 currentNode;
+    private ConsList             currentValue = Nil;
+    private ConsList<MethodCall> actions      = Nil;
+    private ParserListener       listener;
 
 
     private int frameStartedAtLineNumber   = 1;
@@ -34,9 +35,16 @@ public class ParserFrame implements Cloneable {
 
     private ParserFrame parentContext;
 
+    public String toString() {
+        String next = StringUtils.join( currentNode.getOutPredicates(), "," );
+        String v = StringUtils.join( currentValue, "," );
+        String a = StringUtils.join( actions, "," );
 
-    public ParserFrame( ProductionRule rule, ParserListener listener ) {
-        this( rule.name(), rule.startingNode(), listener );
+        return productionRuleName + "(next=" + next + ", value="+v+", actions="+a+")   -->  " + parentContext;
+    }
+
+    public ParserFrame( ParserListener listener ) {
+        this( "ROOT", null, listener );
     }
 
     public ParserFrame( String name, Node node, ParserListener listener ) {
@@ -71,6 +79,9 @@ public class ParserFrame implements Cloneable {
 
     public Iterable<ParserFrame> parse( int line, int col, final char c ) {
         Nodes nextNodes =  currentNode.fetch( c );
+        if ( nextNodes.isEmpty() ) {
+            return Collections.EMPTY_LIST;
+        }
 
         ParserFrame parserState = this.clone();
 
@@ -91,6 +102,7 @@ public class ParserFrame implements Cloneable {
 
             nextFrames.add(nextContext);
 
+            // when on an end node, start a new frame in case it has been popped
             if ( n.isEndNode() && nextContext != null ) {
                 nextFrames.add( nextContext.pop() );
             }
@@ -135,8 +147,12 @@ public class ParserFrame implements Cloneable {
     }
 
     public ParserFrame appendAction( MethodRef callbackMethodRef ) {
+        if ( currentValue.isEmpty() ) {
+            throw new IllegalStateException("Unable to append action '"+callbackMethodRef+"' as no value has been captured by line "+frameStartedAtLineNumber+" column "+frameStartedAtColumnNumber+" as part of production rule '"+productionRuleName+"'.");
+        }
+
         ParserFrame clone  = this.clone();
-        MethodCall    action = new MethodCall( callbackMethodRef, listener, frameStartedAtLineNumber, frameStartedAtColumnNumber, currentValue.head() );
+        MethodCall  action = new MethodCall( callbackMethodRef, listener, frameStartedAtLineNumber, frameStartedAtColumnNumber, currentValue.head() );
 
         clone.actions = this.actions.cons( action );
 

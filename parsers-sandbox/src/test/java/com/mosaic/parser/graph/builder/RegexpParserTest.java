@@ -1,5 +1,6 @@
 package com.mosaic.parser.graph.builder;
 
+import com.mosaic.parser.ProductionRule;
 import com.mosaic.parser.graph.Node;
 import com.mosaic.parser.graph.NodeFormatter;
 import com.mosaic.parser.graph.Nodes;
@@ -24,14 +25,14 @@ public class RegexpParserTest {
 
     @Test
     public void givenA_expectConstantAOpBack() {
-        TrieBuilderOp op = parser.parse( "a" );
+        NodeBuilder op = parser.parse( "a" );
 
         assertEquals( "a", op.toString() );
     }
 
     @Test
     public void givenAIgnoreCase_expectConstantAOpBack() {
-        TrieBuilderOp op = parser.parse( "~a" );
+        NodeBuilder op = parser.parse( "~a" );
 
         assertEquals( "~a", op.toString() );
         assertEquals( false, ((StringOp) op).isCaseSensitive() );
@@ -40,7 +41,7 @@ public class RegexpParserTest {
 
     @Test
     public void givenAEscapedIgnoreCase_expectConstantTildaAOpBack() {
-        TrieBuilderOp op = parser.parse( "\\~a" );
+        NodeBuilder op = parser.parse( "\\~a" );
 
         assertEquals( "\\~a", op.toString() );
         assertEquals( true, ((StringOp) op).isCaseSensitive() );
@@ -49,7 +50,7 @@ public class RegexpParserTest {
 
     @Test
     public void givenABC_expectConstantABCOpBack() {
-        TrieBuilderOp op = parser.parse( "abc" );
+        NodeBuilder op = parser.parse( "abc" );
 
         assertEquals( "abc", op.toString() );
     }
@@ -161,7 +162,7 @@ public class RegexpParserTest {
 
     @Test
     public void nestedBrackets() {
-        TrieBuilderOp op = parser.parse( "((abc|0123)?|[a-z])" );
+        NodeBuilder op = parser.parse( "((abc|0123)?|[a-z])" );
 
         assertEquals( "(abc|0123)?|[a-z]", op.toString() );
     }
@@ -179,7 +180,7 @@ public class RegexpParserTest {
 
     @Test
     public void anyChar() {
-        TrieBuilderOp op = parser.parse( "a.c" );
+        NodeBuilder op = parser.parse( "a.c" );
 
         assertEquals( "a.c", op.toString() );
 
@@ -202,7 +203,7 @@ public class RegexpParserTest {
 
     @Test
     public void whiteSpace() {
-        TrieBuilderOp op = parser.parse( "[ \n\t\r]*" );
+        NodeBuilder op = parser.parse( "[ \n\t\r]*" );
 
         assertEquals( "([ \n\t\r])*", op.toString() );
 
@@ -234,29 +235,60 @@ public class RegexpParserTest {
 
     @Test
     public void givenRule1_declarePatternWithSingleReference_expectParse() {
-        Map<String,TrieBuilderOp> ops = MapUtils.asMap(
-            "op1", parser.parse( "abc" )
+        Map<String,ProductionRule> ops = MapUtils.asMap(
+            "op1", createRule("op1", "abc")
         );
 
-        TrieBuilderOp op2 = parser.parse( "$op1", ops );
+        NodeBuilder op2 = parser.parse( "$op1", ops );
 
         assertEquals( "$op1", op2.toString() );
 
 
         Node n = createGraph( op2 );
 
-        assertEquals( Arrays.asList("1 -a-> 2 -b-> 3 -c-> 4"), new NodeFormatter().format( n ) );
+        assertEquals( Arrays.asList("1 -$op1-> 2"), new NodeFormatter().format( n ) );
+    }
 
-//        assertTrue( walk( n, Arrays.asList('a', 'b', 'c') ) );
-//        assertTrue( walk( n, Arrays.asList('a', 'a', 'c') ) );
-//        assertTrue( walk( n, Arrays.asList('a', 'c', 'c') ) );
-//        assertTrue( walk( n, Arrays.asList('a', '|', 'c') ) );
-//        assertTrue( walk( n, Arrays.asList('a', '\"', 'c') ) );
-//        assertTrue( walk( n, Arrays.asList('a', '!', 'c') ) );
-//        assertTrue( walk( n, Arrays.asList('a', 'f', 'c') ) );
-//
-//        assertFalse( walk( n, Arrays.asList('b', 'f', 'c') ) );
-//        assertFalse( walk( n, Arrays.asList( 'a', 'f', 'd' ) ) );
+    @Test
+    public void givenTwoRules_declarePatternWithSingleReference_expectParse() {
+        Map<String,ProductionRule> ops = MapUtils.asMap(
+            "op1", createRule("op1", "abc"),
+            "op2", createRule("op2", "123")
+        );
+
+        NodeBuilder rootOp = parser.parse( "$op1$op2", ops );
+
+        assertEquals( "$op1 $op2", rootOp.toString() );
+
+
+        Node n = createGraph( rootOp );
+
+        assertEquals( Arrays.asList("1 -$op1-> 2 -$op2-> 3"), new NodeFormatter().format( n ) );
+    }
+
+    @Test
+    public void givenTwoEmbeddedRulesWithWhitespace_declarePatternWithSingleReference_expectParse() {
+        Map<String,ProductionRule> ops = MapUtils.asMap(
+            "op1", createRule("op1", "abc"),
+            "op2", createRule("op2", "123")
+        );
+
+        NodeBuilder rootOp = parser.parse( "$op1  $op2", ops );
+
+        assertEquals( "$op1 $op2", rootOp.toString() );
+
+
+        Node n = createGraph( rootOp );
+
+        assertEquals( Arrays.asList("1 -$op1-> 2 -$op2-> 3"), new NodeFormatter().format( n ) );
+    }
+
+    private ProductionRule createRule( String ruleName, String regExp ) {
+        NodeBuilder b = parser.parse( "abc" );
+        Node start = new Node();
+        Nodes end = b.appendTo( start );
+
+        return new ProductionRule( ruleName, start, end );
     }
 
 
@@ -276,7 +308,7 @@ public class RegexpParserTest {
         return true;
     }
 
-    private Node createGraph( TrieBuilderOp op ) {
+    private Node createGraph( NodeBuilder op ) {
         Node n = new Node();
 
         op.appendTo( n );

@@ -33,7 +33,7 @@ import java.util.Set;
 @SuppressWarnings("unchecked")
 public class Node implements Iterable<Pair<CharacterPredicate,Node>> {
 
-    private ParserFrameOp actions;
+    private ParserFrameOp actions = ParserFrameOps.noOp();
 
     private List<Pair<CharacterPredicate,Node>> edges = new ArrayList();
 

@@ -23,7 +23,7 @@ public class OptionalOpTest {
     @Test
     public void givenBlankStartingNode_appendACaseSensitive_expectSingleTransition() {
         Node s  = new Node();
-        TrieBuilderOp op = new OptionalOp( new StringOp("a", CaseSensitive) );
+        NodeBuilder op = new OptionalOp( new StringOp("a", CaseSensitive) );
 
         Nodes endNodes = op.appendTo( s );
 
@@ -41,7 +41,7 @@ public class OptionalOpTest {
     @Test
     public void givenBlankStartingNode_appendACaseInsensitive_expectSingleTransition() {
         Node s  = new Node();
-        TrieBuilderOp op = new OptionalOp( new StringOp("a", CaseInsensitive) );
+        NodeBuilder op = new OptionalOp( new StringOp("a", CaseInsensitive) );
 
         op.appendTo( s );
 
@@ -59,7 +59,7 @@ public class OptionalOpTest {
     public void givenSingleExistingTransition_appendACaseInsensitive_expectSingleTransitionThenLoopBack() {
         Node n1  = new Node();
         Node n2  = new Node();
-        TrieBuilderOp op = new OptionalOp( new StringOp("b", CaseSensitive) );
+        NodeBuilder op = new OptionalOp( new StringOp("b", CaseSensitive) );
 
         n1.append( a, n2 );
         op.appendTo( n2 );
@@ -76,7 +76,7 @@ public class OptionalOpTest {
     public void givenBlankStartingNode_appendAorBWithDifferentEdges_expectBothAAndBToLoopBack() {
         Node n1  = new Node();
 
-        TrieBuilderOp op = new OptionalOp(
+        NodeBuilder op = new OptionalOp(
             new OrOp(new StringOp("a", CaseSensitive), new StringOp("b", CaseSensitive))
         );
 
@@ -102,14 +102,14 @@ public class OptionalOpTest {
 
     @Test
     public void givenConstantA_toString() {
-        TrieBuilderOp op = new OptionalOp( new StringOp("a", CaseSensitive) );
+        NodeBuilder op = new OptionalOp( new StringOp("a", CaseSensitive) );
 
         assertEquals( "(a)?", op.toString() );
     }
 
     @Test
     public void givenAorBWithDifferentEdges_toString() {
-        TrieBuilderOp op = new OptionalOp( new OrOp(new StringOp("a", CaseSensitive), new StringOp("b", CaseSensitive)) );
+        NodeBuilder op = new OptionalOp( new OrOp(new StringOp("a", CaseSensitive), new StringOp("b", CaseSensitive)) );
 
         assertEquals( "(a|b)?", op.toString() );
     }

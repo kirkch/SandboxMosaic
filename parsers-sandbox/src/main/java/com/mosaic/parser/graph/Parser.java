@@ -22,6 +22,8 @@ import static com.mosaic.collections.ConsList.Nil;
 @SuppressWarnings("unchecked")
 public class Parser {
 
+    private static final boolean DEBUG = false;
+
     private ProductionRule rootRule;
     private ParserListener listener;
 
@@ -31,7 +33,7 @@ public class Parser {
      * ambiguities will be short lived, and we thus avoid the obscurities created
      * by supporting backtracking or look ahead.
      */
-    private ConsList<ParserFrame> currentCandidateContexts;
+    private ConsList<ParserFrame> activeFrames;
 
     private boolean hasStarted;
     private boolean hasFinished;
@@ -57,22 +59,31 @@ public class Parser {
         hasStarted  = false;
         hasFinished = false;
 
-        ParserFrame initialFrame = new ParserFrame( rootRule, listener );
+        ParserFrame initialFrame = new ParserFrame( listener ).push( rootRule.name(), rootRule.startingNode(), new Node() );
         initialFrame = initialFrame.getCurrentNode().getActions().justArrived( initialFrame );
 
-        currentCandidateContexts = Nil.cons( initialFrame );
+        activeFrames = Nil.cons( initialFrame );
     }
 
     public boolean parse( char input ) {
         preparseStateChecks();
 
-        ConsList<ParserFrame> nextContexts = Nil;
+        ConsList<ParserFrame> nextFrames = Nil;
 
-        for ( ParserFrame ctx : currentCandidateContexts ) {
-            nextContexts = nextContexts.append( ctx.parse(lineNumber, columnNumber, input) );
+        for ( ParserFrame frame : activeFrames ) {
+            nextFrames = nextFrames.append( frame.parse( lineNumber, columnNumber, input ) );
         }
 
-        if ( nextContexts.isEmpty() ) {
+        if ( DEBUG ) {
+            System.out.println( "Received '"+input+"'" );
+
+            for ( ParserFrame frame : nextFrames ) {
+                System.out.println( "    "+frame );
+            }
+        }
+
+
+        if ( nextFrames.isEmpty() ) {
             Set<CharacterPredicate> candidateNextInputs = calculateCandidateNextInputs();
 
             if ( candidateNextInputs.isEmpty() ) {
@@ -85,7 +96,7 @@ public class Parser {
 
             return false;
         } else {
-            currentCandidateContexts = nextContexts;
+            activeFrames = nextFrames;
 
             incrementColumnAndLinePositionsGiven( input );
 
@@ -99,8 +110,8 @@ public class Parser {
 
         ConsList<ParserFrame> nextContexts = Nil;
 
-        for ( ParserFrame ctx : currentCandidateContexts ) {
-            nextContexts = nextContexts.append( ctx.endOfStream() );
+        for ( ParserFrame frame : activeFrames ) {
+            nextContexts = nextContexts.append( frame.endOfStream() );
         }
 
 
@@ -112,7 +123,7 @@ public class Parser {
 
             listener.error( lineNumber, columnNumber, "end of stream reached when expecting '"+formattedExpectation+"'" );
         } else {
-            currentCandidateContexts = nextContexts;
+            activeFrames = nextContexts;
 
             for ( MethodCall action : nextContexts.head().getActions() ) {
                 action.invoke();
@@ -141,10 +152,10 @@ public class Parser {
     }
 
     public List getParsedValue() {
-        if ( currentCandidateContexts.isEmpty() ) {
+        if ( activeFrames.isEmpty() ) {
             return Collections.EMPTY_LIST;
         } else {
-            return currentCandidateContexts.head().getValue().toList();
+            return activeFrames.head().getValue().toList();
         }
     }
 
@@ -172,7 +183,7 @@ public class Parser {
     private Set<CharacterPredicate> calculateCandidateNextInputs() {
         Set<CharacterPredicate > candidates = new HashSet();
 
-        for ( ParserFrame ctx : currentCandidateContexts ) {
+        for ( ParserFrame ctx : activeFrames ) {
             candidates.addAll( ctx.getCurrentNode().getOutPredicates() );
         }
 

@@ -19,7 +19,7 @@ import static com.mosaic.lang.CaseSensitivity.CaseSensitive;
  * Append the transitions required to match a constant onto the automata.
  */
 @SuppressWarnings("unchecked")
-public class StringOp extends TrieBuilderOp {
+public class StringOp extends NodeBuilder {
 
     private String          constant;
     private CaseSensitivity caseSensitivity;
@@ -38,7 +38,7 @@ public class StringOp extends TrieBuilderOp {
         });
     }
 
-    public Nodes appendTo( Node startNode ) {
+    protected  Nodes doAppendTo( Node startNode ) {
         Nodes n = new Nodes(startNode);
 
         for ( CharacterPredicate nextLabel : perCharacterPredicates ) {

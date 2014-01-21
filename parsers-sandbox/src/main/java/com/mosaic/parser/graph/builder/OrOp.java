@@ -12,29 +12,29 @@ import java.util.List;
  *
  */
 @SuppressWarnings("unchecked")
-public class OrOp extends TrieBuilderOp {
+public class OrOp extends NodeBuilder {
 
-    private List<TrieBuilderOp> childOps = new ArrayList();
+    private List<NodeBuilder> childOps = new ArrayList();
 
 
-    public OrOp( TrieBuilderOp...childOps ) {
+    public OrOp( NodeBuilder...childOps ) {
         Collections.addAll( this.childOps, childOps );
     }
 
-    public OrOp( Iterable<TrieBuilderOp> childOps ) {
-        for ( TrieBuilderOp op : childOps ) {
+    public OrOp( Iterable<NodeBuilder> childOps ) {
+        for ( NodeBuilder op : childOps ) {
             this.childOps.add( op );
         }
     }
 
-    public void add( TrieBuilderOp childOp ) {
+    public void add( NodeBuilder childOp ) {
         childOps.add( childOp );
     }
 
-    public Nodes appendTo( Node startNode ) {
+    protected  Nodes doAppendTo( Node startNode ) {
         Nodes endNodes = new Nodes();
 
-        for ( TrieBuilderOp op : childOps ) {
+        for ( NodeBuilder op : childOps ) {
             endNodes.addAll( op.appendTo(startNode) );
         }
 

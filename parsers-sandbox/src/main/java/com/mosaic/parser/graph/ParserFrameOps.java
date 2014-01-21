@@ -2,7 +2,6 @@ package com.mosaic.parser.graph;
 
 import com.mosaic.lang.Validate;
 import com.mosaic.lang.reflect.MethodRef;
-import com.mosaic.parser.ProductionRule;
 
 import static com.mosaic.collections.ConsList.Nil;
 
@@ -12,8 +11,7 @@ import static com.mosaic.collections.ConsList.Nil;
 public class ParserFrameOps {
 
     private static ParserFrameOp CAPTURE_INPUT_OP = new CaptureOp();
-    private static ParserFrameOp CAPTURE_END_OP   = new PopFrameOp(new ToStringOp(CAPTURE_INPUT_OP));
-    private static ParserFrameOp POP_OP           = new PopFrameOp();
+    private static ParserFrameOp CAPTURE_END_OP   = new ToStringOp(CAPTURE_INPUT_OP);
 
 
     public static ParserFrameOp noOp() {
@@ -32,10 +30,6 @@ public class ParserFrameOps {
         return new PushRuleParserFrameOp( name, jumpToNode, wrappedOp, returnNode );
     }
 
-    public static ParserFrameOp popOp() {
-        return POP_OP;
-    }
-
 
 
     private static ParserFrameOp NO_OP = new ParserFrameOp() {
@@ -48,11 +42,15 @@ public class ParserFrameOps {
         }
 
         public ParserFrame productionRuleFinished( ParserFrame nextState ) {
-            return null;
+            return nextState.getCurrentNode().isEndNode() ? nextState : null;
         }
 
         public void appendOpCodesTo( StringBuilder buf ) {
-            buf.append( "NoOp" );
+            buf.append( toString() );
+        }
+
+        public String toString() {
+            return "NoOp";
         }
     };
 
@@ -78,12 +76,17 @@ public class ParserFrameOps {
         }
 
         public ParserFrame productionRuleFinished( ParserFrame nextState ) {
-            return wrappedOpNbl == null ? nextState : wrappedOpNbl.productionRuleFinished( nextState );
+            if ( wrappedOpNbl == null ) {
+                return nextState.getCurrentNode().isEndNode() ? nextState : null;
+            } else {
+                return wrappedOpNbl.productionRuleFinished( nextState );
+            }
         }
 
         public void appendOpCodesTo( StringBuilder buf ) {
-            if ( wrappedOpNbl != null ) {
+            if ( wrappedOpNbl != null && wrappedOpNbl != NO_OP) {
                 wrappedOpNbl.appendOpCodesTo( buf );
+                buf.append( ',' );
             }
 
             buf.append( desc );
@@ -97,7 +100,7 @@ public class ParserFrameOps {
         private Node   returnNode;
 
         public PushRuleParserFrameOp( String name, Node jumpToNode, ParserFrameOp wrappedOp, Node returnNode ) {
-            super( wrappedOp, "Psh" );
+            super( wrappedOp, "Push" );
 
             Validate.notNull( jumpToNode, "jumpToNode" );
             Validate.notNull( returnNode, "returnNode" );
@@ -109,23 +112,6 @@ public class ParserFrameOps {
 
         public ParserFrame justArrived( ParserFrame nextState ) {
             return super.justArrived(nextState).push( name, jumpToNode, returnNode );
-        }
-    }
-
-    private static class PopFrameOp extends WrappedParserFrameOp {
-        private ProductionRule                 nextRule;
-        private Node returnNode;
-
-        public PopFrameOp() {
-            super( null, "Pop" );
-        }
-
-        public PopFrameOp(ParserFrameOp wrappedOp ) {
-            super( wrappedOp, "Pop" );
-        }
-
-        public ParserFrame justArrived( ParserFrame nextState ) {
-            return super.justArrived(nextState).pop();
         }
     }
 

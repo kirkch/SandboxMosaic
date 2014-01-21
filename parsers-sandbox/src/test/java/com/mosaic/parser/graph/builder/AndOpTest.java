@@ -18,7 +18,7 @@ public class AndOpTest {
     @Test
     public void givenBlankStartingNode_appendAThenB_expectTwoEdgesThenLoopBack() {
         Node s  = new Node();
-        TrieBuilderOp op = new AndOp( new StringOp("a", CaseSensitive), new StringOp("b", CaseSensitive) );
+        NodeBuilder op = new AndOp( new StringOp("a", CaseSensitive), new StringOp("b", CaseSensitive) );
 
         Nodes endNodes = op.appendTo( s );
 
@@ -32,9 +32,9 @@ public class AndOpTest {
     @Test
     public void givenBlankStartingNode_appendAOrBTHENCorD() {
         Node s   = new Node();
-        TrieBuilderOp or1 = new OrOp( new StringOp("a", CaseSensitive), new StringOp("b", CaseSensitive) );
-        TrieBuilderOp or2 = new OrOp( new StringOp("c", CaseSensitive), new StringOp("d", CaseSensitive) );
-        TrieBuilderOp op  = new AndOp( or1, or2 );
+        NodeBuilder or1 = new OrOp( new StringOp("a", CaseSensitive), new StringOp("b", CaseSensitive) );
+        NodeBuilder or2 = new OrOp( new StringOp("c", CaseSensitive), new StringOp("d", CaseSensitive) );
+        NodeBuilder op  = new AndOp( or1, or2 );
 
         Nodes endNodes = op.appendTo( s );
 

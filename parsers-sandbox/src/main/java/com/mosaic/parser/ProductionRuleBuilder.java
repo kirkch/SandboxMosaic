@@ -1,22 +1,16 @@
 package com.mosaic.parser;
 
-import com.mosaic.collections.ConsList;
-import com.mosaic.collections.KV;
 import com.mosaic.lang.CaseSensitivity;
-import com.mosaic.lang.CharacterPredicate;
-import com.mosaic.lang.functional.VoidFunction2;
 import com.mosaic.parser.graph.Node;
 import com.mosaic.parser.graph.Nodes;
-import com.mosaic.parser.graph.ParserFrameOp;
-import com.mosaic.parser.graph.builder.TrieBuilderOp;
-import com.mosaic.parser.graph.builder.TrieBuilders;
+import com.mosaic.parser.graph.builder.NodeBuilder;
+import com.mosaic.parser.graph.builder.NodeBuilders;
+import com.mosaic.parser.graph.builder.RegexpParser;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import static com.mosaic.lang.CaseSensitivity.CaseSensitive;
-import static com.mosaic.parser.graph.ParserFrameOps.*;
 
 
 /**
@@ -27,6 +21,7 @@ public class ProductionRuleBuilder {
 
     private Map<String,ProductionRule> rules = new HashMap();
 
+    private RegexpParser parser = new RegexpParser();
 
 
     public ProductionRule constant( String name, String constant ) {
@@ -34,9 +29,9 @@ public class ProductionRuleBuilder {
     }
 
     public ProductionRule constant( String name, String constant, CaseSensitivity caseSensitivity ) {
-        TrieBuilderOp builder = TrieBuilders.constant( constant, caseSensitivity );
+        NodeBuilder builder = NodeBuilders.constant( constant, caseSensitivity );
 
-        return makeRule( name, builder, noOp(), popOp() );
+        return makeRule( name, builder );
     }
 
     public ProductionRule capturingConstant( String name, String constant ) {
@@ -44,31 +39,27 @@ public class ProductionRuleBuilder {
     }
 
     public ProductionRule capturingConstant( String name, String constant, CaseSensitivity caseSensitivity ) {
-        TrieBuilderOp builder = TrieBuilders.constant( constant, caseSensitivity );
+        NodeBuilder builder = NodeBuilders.constant( constant, caseSensitivity ).isCapturing( true );
 
-        return makeRule( name, builder, captureInputOp(), captureEndOp() );
+        return makeRule( name, builder );
     }
 
     public ProductionRule regexp( String name, String regexp ) {
-        TrieBuilderOp builder = TrieBuilders.regexp( regexp );
+        NodeBuilder builder = parser.parse( regexp, rules );
 
-        return makeRule( name, builder, noOp(), popOp() );
+        return makeRule( name, builder );
     }
 
     public ProductionRule capturingRegexp( String name, String regexp ) {
-        TrieBuilderOp builder = TrieBuilders.regexp( regexp );
+        NodeBuilder builder = parser.parse( regexp, rules ).isCapturing(true);
 
-        return makeRule( name, builder, captureInputOp(), captureEndOp() );
+        return makeRule( name, builder );
     }
 
 
 
 
-    private ProductionRule makeRule( String name, TrieBuilderOp builder, ParserFrameOp innerNodeOp, ParserFrameOp endNodeOp ) {
-        return makeRule( name, builder, innerNodeOp, innerNodeOp, endNodeOp );
-    }
-
-    private ProductionRule makeRule( String name, TrieBuilderOp builder, ParserFrameOp firstNodeOp, ParserFrameOp innerNodeOp, ParserFrameOp endNodeOp ) {
+    private ProductionRule makeRule( String name, NodeBuilder builder ) {
         if ( rules.containsKey(name) ) {
             throw new IllegalArgumentException( "'"+name+"' has already been declared" );
         }
@@ -76,10 +67,6 @@ public class ProductionRuleBuilder {
         Node firstNode = new Node();
         Nodes endNodes  = builder.appendTo( firstNode );
 
-
-        setOp( firstNode, innerNodeOp );
-        endNodes.setPayloads( endNodeOp );
-        firstNode.setActions( firstNodeOp );
         endNodes.isEndNode( true );
 
         ProductionRule productionRule = new ProductionRule( name, firstNode, endNodes );
@@ -87,16 +74,6 @@ public class ProductionRuleBuilder {
         rules.put( name, productionRule );
 
         return productionRule;
-    }
-
-    private void setOp( Node firstNode, final ParserFrameOp op ) {
-        firstNode.depthFirstPrefixTraversal( new VoidFunction2<ConsList<KV<Set<CharacterPredicate>, Node>>, Boolean>() {
-            public void invoke( ConsList<KV<Set<CharacterPredicate>, Node>> path, Boolean isEndOfPath ) {
-                Node node = path.head().getValue();
-
-                node.setActions( op );
-            }
-        } );
     }
 
 }

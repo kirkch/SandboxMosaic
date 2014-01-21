@@ -14,22 +14,22 @@ import java.util.Set;
  *
  */
 @SuppressWarnings("unchecked")
-public class ZeroOrMoreOp extends TrieBuilderOp {
+public class ZeroOrMoreOp extends NodeBuilder {
 
-    private TrieBuilderOp opToRepeat;
+    private NodeBuilder opToRepeat;
 
     
     /**
      *
      * @param op the op to repeat
      */
-    public ZeroOrMoreOp( TrieBuilderOp op ) {
+    public ZeroOrMoreOp( NodeBuilder op ) {
         opToRepeat = op;
     }
 
 
 
-    public Nodes appendTo( final Node startNode ) {
+    protected  Nodes doAppendTo( final Node startNode ) {
         final Nodes endNodes = opToRepeat.appendTo( startNode );
 
         startNode.depthFirstPrefixTraversal(new VoidFunction2<ConsList<KV<Set<CharacterPredicate>,Node>>, Boolean>() {

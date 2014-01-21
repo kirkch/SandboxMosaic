@@ -5,6 +5,7 @@ import com.mosaic.lang.CaseSensitivity;
 import com.mosaic.lang.CharacterPredicates;
 import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.functional.Stream;
+import com.mosaic.parser.ProductionRule;
 import com.mosaic.utils.StringUtils;
 
 import java.util.Collections;
@@ -45,20 +46,20 @@ public class RegexpParser {
     private static final PredicateOp ANY_CHARACTER = new PredicateOp( CharacterPredicates.appendAnyCharacter() );
 
 
-    public static TrieBuilderOp compile( String regexp ) {
+    public static NodeBuilder compile( String regexp ) {
         return new RegexpParser().parse( regexp );
     }
 
 
 
-    private FastStack<TrieBuilderOp> opStack = new FastStack();
+    private FastStack<NodeBuilder> opStack = new FastStack();
 
 
-    public TrieBuilderOp parse( String regexpString ) {
+    public NodeBuilder parse( String regexpString ) {
         return parse( regexpString, Collections.EMPTY_MAP );
     }
 
-    public TrieBuilderOp parse( String regexpString, Map<String, TrieBuilderOp> ops ) {
+    public NodeBuilder parse( String regexpString, Map<String, ProductionRule> ops ) {
         Stream<Token> tokens = toTokenStream( 0, regexpString );
 
         while ( tokens.notEmpty() ) {
@@ -73,11 +74,13 @@ public class RegexpParser {
             opStack.push( andOp );
         }
 
+        assert opStack.size() == 1 : "op stack should have one entry";
+
         return opStack.pop();
     }
 
 
-    private Stream<Token> parseNextFragment( Stream<Token> in, Map<String,TrieBuilderOp> ops ) {
+    private Stream<Token> parseNextFragment( Stream<Token> in, Map<String,ProductionRule> ops ) {
         Token next = in.head();
 
         if ( next.isSpecial ) {
@@ -87,7 +90,7 @@ public class RegexpParser {
         }
     }
 
-    private Stream<Token> parseSpecial( Stream<Token> token, Map<String,TrieBuilderOp> ops ) {
+    private Stream<Token> parseSpecial( Stream<Token> token, Map<String,ProductionRule> ops ) {
         char c = token.head().c;
 
         switch ( c ) {
@@ -192,8 +195,8 @@ public class RegexpParser {
     }
 
     private void orTopTwoOpsOnStack() {
-        TrieBuilderOp b = opStack.pop();
-        TrieBuilderOp a = opStack.pop();
+        NodeBuilder b = opStack.pop();
+        NodeBuilder a = opStack.pop();
 
         if ( a.getClass() == OrOp.class ) {
             OrOp op = (OrOp) a;
@@ -227,7 +230,7 @@ public class RegexpParser {
         return pos;
     }
 
-    private Stream<Token> parseEmbeddedRuleReference( Stream<Token> tokens, Map<String,TrieBuilderOp> ops ) {
+    private Stream<Token> parseEmbeddedRuleReference( Stream<Token> tokens, Map<String,ProductionRule> ops ) {
         StringBuilder buf = new StringBuilder();
 
         Stream<Token> pos = tokens;
@@ -243,14 +246,14 @@ public class RegexpParser {
             pos = pos.tail();
         }
 
-        String opName = buf.toString();
-        TrieBuilderOp op = ops.get(opName);
+        String         opName       = buf.toString().trim();
+        ProductionRule embeddedRule = ops.get(opName);
 
-        if ( op == null ) {
+        if ( embeddedRule == null ) {
             throw new IllegalArgumentException( "'"+opName+"' has not been declared yet; forward references are not supported" );
         }
 
-        opStack.push( new EmbeddedOp(opName, op) );
+        opStack.push( new EmbeddedProductionRuleOp(embeddedRule) );
 
         return pos;
     }

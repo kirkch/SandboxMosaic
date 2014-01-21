@@ -13,22 +13,22 @@ import java.util.Set;
  *
  */
 @SuppressWarnings("unchecked")
-public class OneOrMoreOp extends TrieBuilderOp {
+public class OneOrMoreOp extends NodeBuilder {
 
-    private TrieBuilderOp opToRepeat;
+    private NodeBuilder opToRepeat;
 
 
     /**
      *
      * @param op the op to repeat
      */
-    public OneOrMoreOp( TrieBuilderOp op ) {
+    public OneOrMoreOp( NodeBuilder op ) {
         opToRepeat = op;
     }
 
 
 
-    public Nodes appendTo( Node startNode ) {
+    protected  Nodes doAppendTo( Node startNode ) {
         final Nodes afterFirstStepNodes = opToRepeat.appendTo( startNode );
 
 

@@ -42,7 +42,7 @@ public class ProductionRule {
     public ProductionRule withCallback( Class listenerClass, String methodName ) {
         final MethodRef action = MethodRef.create( listenerClass, methodName, Integer.TYPE, Integer.TYPE, String.class );
 
-        endNodes.mapPayloads( new Function1<ParserFrameOp, ParserFrameOp>() {
+        endNodes.wrapActions( new Function1<ParserFrameOp, ParserFrameOp>() {
             public ParserFrameOp invoke( ParserFrameOp currentOp ) {
                 return ParserFrameOps.callbackOp( currentOp, action );
             }

@@ -12,26 +12,26 @@ import java.util.List;
  *
  */
 @SuppressWarnings("unchecked")
-public class AndOp extends TrieBuilderOp {
+public class AndOp extends NodeBuilder {
 
-    private List<TrieBuilderOp> childOps;
+    private List<NodeBuilder> childOps;
 
-    public AndOp( Iterable<TrieBuilderOp> childOps ) {
+    public AndOp( Iterable<NodeBuilder> childOps ) {
         this.childOps = new ArrayList();
 
-        for ( TrieBuilderOp op : childOps ) {
+        for ( NodeBuilder op : childOps ) {
             this.childOps.add( op );
         }
     }
 
-    public AndOp( TrieBuilderOp...childOps ) {
+    public AndOp( NodeBuilder...childOps ) {
         this.childOps = Arrays.asList(childOps);
     }
 
-    public Nodes appendTo( Node startNode ) {
+    protected  Nodes doAppendTo( Node startNode ) {
         Nodes pos = new Nodes(startNode);
 
-        for ( TrieBuilderOp op : childOps ) {
+        for ( NodeBuilder op : childOps ) {
             pos = op.appendTo(pos);
         }
 
@@ -41,7 +41,10 @@ public class AndOp extends TrieBuilderOp {
     public String toString() {
         StringBuilder buf = new StringBuilder();
 
-        for ( TrieBuilderOp op : childOps ) {
+        for ( NodeBuilder op : childOps ) {
+            if ( op instanceof EmbeddedProductionRuleOp && buf.length() != 0 ) {
+                buf.append(" ");
+            }
             buf.append( op );
         }
 

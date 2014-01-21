@@ -7,22 +7,22 @@ import com.mosaic.parser.graph.Nodes;
  *
  */
 @SuppressWarnings("unchecked")
-public class OptionalOp extends TrieBuilderOp {
+public class OptionalOp extends NodeBuilder {
 
-    private TrieBuilderOp opToRepeat;
+    private NodeBuilder opToRepeat;
 
 
     /**
      *
      * @param op the op to repeat
      */
-    public OptionalOp( TrieBuilderOp op ) {
+    public OptionalOp( NodeBuilder op ) {
         opToRepeat = op;
     }
 
 
 
-    public Nodes appendTo( final Node startNode ) {
+    protected  Nodes doAppendTo( final Node startNode ) {
         final Nodes endNodes = opToRepeat.appendTo( startNode );
 
         endNodes.add( startNode );

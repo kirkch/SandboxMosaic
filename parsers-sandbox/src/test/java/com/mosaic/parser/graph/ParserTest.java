@@ -2,6 +2,7 @@ package com.mosaic.parser.graph;
 
 import com.mosaic.parser.ProductionRule;
 import com.mosaic.parser.ProductionRuleBuilder;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -338,31 +339,103 @@ public class ParserTest {
 
 
 
-//// NON TERMINALS
-//
-////    @Test
-//    public void givenNonTerminalFollowedByAnotherRule_parseMatchingText_expectSuccess() {
-//        ProductionRule helloRule      = b.constant( "HelloRule", "Hello" );
-//        ProductionRule whitespaceRule = b.regexp( "WhitespaceRule", "[ \t]+" );
-//        ProductionRule nameRule       = b.regexp( "NameRule", "[a-zA-Z]+" );
-//        ProductionRule rootRule       = b.nonTerminal( "NameRule", helloRule, whitespaceRule, nameRule );
-//
-//        Parser parser = new Parser( rootRule, l );
-////erroring because the payload of the last node that NameRule returns to is null
-//        int numCharactersParsed = parser.parse( "Hello Bob" );
-//        parser.endOfStream();
-//
-//        assertEquals( 9, numCharactersParsed );
-//        assertEquals( Arrays.asList(), parser.getParsedValue() );
-//
-//        List<String> expectedAudit = Arrays.asList(
-//            "started",
-//            "finished"
-//        );
-//
-//        assertEquals( expectedAudit, l.audit );
-//    }
-//
+// NON TERMINALS
+
+    @Test
+    public void givenNonTerminalFollowedByAnotherRule_parseMatchingText_expectSuccess() {
+        b.constant( "HelloRule", "Hello" );
+        b.regexp( "WhitespaceRule", "[ \t]+" );
+        b.regexp( "NameRule", "[a-zA-Z]+" );
+
+        ProductionRule rootRule = b.regexp( "RootRule", "$HelloRule$WhitespaceRule$NameRule" );
+
+        Parser parser = new Parser( rootRule, l );
+
+        int numCharactersParsed = parser.parse( "Hello Bob" );
+        parser.endOfStream();
+
+        assertEquals( 9, numCharactersParsed );
+        assertEquals( Arrays.asList(), parser.getParsedValue() );
+
+        List<String> expectedAudit = Arrays.asList(
+            "started",
+            "finished"
+        );
+
+        assertEquals( expectedAudit, l.audit );
+    }
+
+    @Test
+    public void givenNonTerminalFollowedByAnotherRule_parseCapturingMatchingText_expectValueBack() {
+        b.constant( "HelloRule", "Hello" );
+        b.regexp( "WhitespaceRule", "[ \t]+" );
+        b.capturingRegexp( "NameRule", "[a-zA-Z]+" );
+
+        ProductionRule rootRule = b.regexp( "RootRule", "$HelloRule$WhitespaceRule$NameRule" );
+
+        Parser parser = new Parser( rootRule, l );
+
+        int numCharactersParsed = parser.parse( "Hello Bob" );
+        parser.endOfStream();
+
+        assertEquals( 9, numCharactersParsed );
+        assertEquals( Arrays.asList("Bob"), parser.getParsedValue() );
+
+        List<String> expectedAudit = Arrays.asList(
+            "started",
+            "finished"
+        );
+
+        assertEquals( expectedAudit, l.audit );
+    }
+
+    @Test
+    public void givenNonTerminalFollowedByAnotherRule_parseMatchingTextWithCallback_expectErrorAsNoValueWIllHaveBeenCaptured() {
+        b.constant( "HelloRule", "Hello" );
+        b.regexp( "WhitespaceRule", "[ \t]+" );
+        b.regexp( "NameRule", "[a-zA-Z]+" ).withCallback( RecordingParserListener.class, "hello" );
+
+        ProductionRule rootRule = b.regexp( "RootRule", "$HelloRule$WhitespaceRule$NameRule" );
+
+        Parser parser = new Parser( rootRule, l );
+
+        parser.parse( "Hello Bob" );
+
+
+        try {
+            parser.endOfStream();
+
+            Assert.fail( "expected IllegalStateException" );
+        } catch ( IllegalStateException e ) {
+            Assert.assertEquals( "Unable to append action 'hello' as no value has been captured by line 6 column 1 as part of production rule 'NameRule'.", e.getMessage() );
+        }
+    }
+
+    @Test
+    public void givenNonTerminalFollowedByAnotherRule_parseMatchingTextWithCallbackAndCaptureValue_expectCallback() {
+        b.constant( "HelloRule", "Hello" );
+        b.regexp( "WhitespaceRule", "[ \t]+" );
+        b.capturingRegexp( "NameRule", "[a-zA-Z]+" ).withCallback(RecordingParserListener.class,"hello");
+
+        ProductionRule rootRule = b.regexp( "RootRule", "$HelloRule$WhitespaceRule$NameRule" );
+
+        Parser parser = new Parser( rootRule, l );
+
+        int numCharactersParsed = parser.parse( "Hello Bob" );
+        parser.endOfStream();
+
+        assertEquals( 9, numCharactersParsed );
+        assertEquals( Arrays.asList("Bob"), parser.getParsedValue() );
+
+        List<String> expectedAudit = Arrays.asList(
+            "started",
+            "(6,1): Welcome 'Bob'",
+            "finished"
+        );
+
+        assertEquals( expectedAudit, l.audit );
+    }
+
 
 
     @SuppressWarnings({"unchecked", "UnusedDeclaration"})

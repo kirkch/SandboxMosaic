@@ -41,22 +41,71 @@ public class NodeFormatter {
         }
     };
 
+    private static final NodeFormatPlugin DETAILED_PLUGIN = new NodeFormatPlugin() {
+        public String getNodeLabelFor( long nodeId, Node node ) {
+            StringBuilder buf = new StringBuilder();
 
+            buf.append( nodeId );
+
+            if ( node.isEndNode() ) {
+                buf.append( 'e' );
+            }
+
+            ParserFrameOp op = node.getActions();
+            if ( op != null ) {
+                buf.append( ':' );
+
+                StringBuilder buf2 = new StringBuilder();
+                op.appendOpCodesTo(buf2);
+
+                String ops = buf2.toString();
+                if ( ops.contains(",") ) {
+                    buf.append( '(' );
+                    buf.append( ops );
+                    buf.append( ')' );
+                } else {
+                    buf.append( ops );
+                }
+            }
+
+            return buf.toString();
+        }
+    };
+
+
+    public static final NodeFormatter DEFAULT_FORMATTER  = new NodeFormatter(DEFAULT_PLUGIN);
+    public static final NodeFormatter DETAILED_FORMATTER = new NodeFormatter(DETAILED_PLUGIN);
+
+
+
+
+    private NodeFormatPlugin defaultPlugin;
+
+    public NodeFormatter() {
+        this( DEFAULT_PLUGIN );
+    }
+
+    public NodeFormatter( NodeFormatPlugin defaultPlugin ) {
+        Validate.notNull( defaultPlugin, "defaultPlugin" );
+
+        this.defaultPlugin = defaultPlugin;
+    }
 
     public List<String> format( Node startingNode ) {
-        return format( startingNode, DEFAULT_PLUGIN );
+        return format( startingNode, defaultPlugin );
     }
 
     public List<String> format( Node startingNode, final NodeFormatPlugin plugin  ) {
         Validate.notNull( startingNode, "startingNode" );
 
         final List<String> formattedGraph = new ArrayList();
+        final NodeLabeler  nodeLabeler    = new NodeLabeler();
 
         startingNode.depthFirstPrefixTraversal(
             new VoidFunction2<ConsList<KV<Set<CharacterPredicate>, Node>>,Boolean>() {
                 public void invoke( ConsList<KV<Set<CharacterPredicate>, Node>> path, Boolean isCompletePath ) {
                     if ( isCompletePath ) {
-                        appendPath( path.reverse(), formattedGraph, plugin );
+                        appendPath( nodeLabeler, path.reverse(), formattedGraph, plugin );
                     }
                 }
             }
@@ -122,7 +171,7 @@ public class NodeFormatter {
     }
 
 
-    private Function2<Node,NodeFormatPlugin,String> nodeLabeler = new Function2<Node, NodeFormatPlugin, String>() {
+    public class NodeLabeler implements Function2<Node, NodeFormatPlugin, String> {
         private Map<Node,String> existingLabels = new IdentityHashMap<>();
         private long             nextLabel      = 1;
 
@@ -142,7 +191,7 @@ public class NodeFormatter {
         }
     };
 
-    private void appendPath( ConsList<KV<Set<CharacterPredicate>, Node>> path, List<String> formattedGraph, NodeFormatPlugin plugin ) {
+    private void appendPath( NodeLabeler nodeLabeler, ConsList<KV<Set<CharacterPredicate>, Node>> path, List<String> formattedGraph, NodeFormatPlugin plugin ) {
         StringBuilder buf = new StringBuilder();
 
         for ( KV<Set<CharacterPredicate>,Node> step : path ) {
