@@ -109,7 +109,7 @@ public class ParserTest {
 
     @Test
     public void givenAutomataExpectingAorB_parseC_expectError() {
-        ProductionRule rule1  = b.regexp( "rule1", "a|b" );
+        ProductionRule rule1  = b.terminal( "rule1", "a|b", Void.class );
         Parser parser = new Parser(rule1, l);
 
 
@@ -294,7 +294,7 @@ public class ParserTest {
 
     @Test
     public void givenSingleConstantCapturingGrammarCI_parseValue_expectParseWithValue() {
-        ProductionRule rootRule = b.capturingConstant( "rule1", "bob", CaseInsensitive );
+        ProductionRule rootRule = b.terminal( "rule1", "bob", CaseInsensitive );
         Parser         parser   = new Parser( rootRule, l );
 
         int numCharactersParsed = parser.parse( "bOb" );
@@ -306,18 +306,18 @@ public class ParserTest {
 
     @Test
     public void parseValueButNotEOS_expectCharactersToBeConsumedButParseValueIsYetToBeTurnedIntoAString() {
-        ProductionRule rootRule = b.capturingConstant( "rule1", "bob", CaseInsensitive );
+        ProductionRule rootRule = b.terminal( "rule1", "bob", CaseInsensitive );
         Parser         parser   = new Parser( rootRule, l );
 
         int numCharactersParsed = parser.parse( "bOb" );
 
         assertEquals( 3, numCharactersParsed );
-        assertEquals( Arrays.asList('b','O','b'), parser.getParsedValue() );
+        assertEquals( Arrays.asList("bOb"), parser.getParsedValue() );
     }
 
     @Test
     public void givenRuleWithCallback_parseRuleSuccessfully_expectCallback() {
-        ProductionRule rootRule = b.capturingRegexp( "rule1", "[a-zA-Z]+" )
+        ProductionRule rootRule = b.terminal( "rule1", "[a-zA-Z]+", String.class )
             .withCallback(RecordingParserListener.class, "hello");
 
         Parser parser = new Parser( rootRule, l );
@@ -344,10 +344,10 @@ public class ParserTest {
     @Test
     public void givenNonTerminalFollowedByAnotherRule_parseMatchingText_expectSuccess() {
         b.constant( "HelloRule", "Hello" );
-        b.regexp( "WhitespaceRule", "[ \t]+" );
-        b.regexp( "NameRule", "[a-zA-Z]+" );
+        b.terminal( "WhitespaceRule", "[ \t]+", Void.class );
+        b.terminal( "NameRule", "[a-zA-Z]+", Void.class );
 
-        ProductionRule rootRule = b.regexp( "RootRule", "$HelloRule$WhitespaceRule$NameRule" );
+        ProductionRule rootRule = b.nonTerminal( "RootRule", "$HelloRule$WhitespaceRule$NameRule" );
 
         Parser parser = new Parser( rootRule, l );
 
@@ -368,10 +368,10 @@ public class ParserTest {
     @Test
     public void givenNonTerminalFollowedByAnotherRule_parseCapturingMatchingText_expectValueBack() {
         b.constant( "HelloRule", "Hello" );
-        b.regexp( "WhitespaceRule", "[ \t]+" );
-        b.capturingRegexp( "NameRule", "[a-zA-Z]+" );
+        b.terminal( "WhitespaceRule", "[ \t]+", Void.class );
+        b.terminal( "NameRule", "[a-zA-Z]+", String.class );
 
-        ProductionRule rootRule = b.regexp( "RootRule", "$HelloRule$WhitespaceRule$NameRule" );
+        ProductionRule rootRule = b.nonTerminal( "RootRule", "$HelloRule$WhitespaceRule$NameRule" );
 
         Parser parser = new Parser( rootRule, l );
 
@@ -392,32 +392,26 @@ public class ParserTest {
     @Test
     public void givenNonTerminalFollowedByAnotherRule_parseMatchingTextWithCallback_expectErrorAsNoValueWIllHaveBeenCaptured() {
         b.constant( "HelloRule", "Hello" );
-        b.regexp( "WhitespaceRule", "[ \t]+" );
-        b.regexp( "NameRule", "[a-zA-Z]+" ).withCallback( RecordingParserListener.class, "hello" );
 
-        ProductionRule rootRule = b.regexp( "RootRule", "$HelloRule$WhitespaceRule$NameRule" );
-
-        Parser parser = new Parser( rootRule, l );
-
-        parser.parse( "Hello Bob" );
+        b.terminal( "WhitespaceRule", "[ \t]+", Void.class );
 
 
         try {
-            parser.endOfStream();
+            b.terminal( "NameRule", "[a-zA-Z]+", Void.class ).withCallback( RecordingParserListener.class, "hello" );
 
             Assert.fail( "expected IllegalStateException" );
         } catch ( IllegalStateException e ) {
-            Assert.assertEquals( "Unable to append action 'hello' as no value has been captured by line 6 column 1 as part of production rule 'NameRule'.", e.getMessage() );
+            Assert.assertEquals( "Unable to append action 'hello' as the return type of the production rule 'NameRule' is 'Void'", e.getMessage() );
         }
     }
 
     @Test
     public void givenNonTerminalFollowedByAnotherRule_parseMatchingTextWithCallbackAndCaptureValue_expectCallback() {
         b.constant( "HelloRule", "Hello" );
-        b.regexp( "WhitespaceRule", "[ \t]+" );
-        b.capturingRegexp( "NameRule", "[a-zA-Z]+" ).withCallback(RecordingParserListener.class,"hello");
+        b.terminal( "WhitespaceRule", "[ \t]+", Void.class );
+        b.terminal( "NameRule", "[a-zA-Z]+", String.class ).withCallback(RecordingParserListener.class,"hello");
 
-        ProductionRule rootRule = b.regexp( "RootRule", "$HelloRule$WhitespaceRule$NameRule" );
+        ProductionRule rootRule = b.nonTerminal( "RootRule", "$HelloRule$WhitespaceRule$NameRule" );
 
         Parser parser = new Parser( rootRule, l );
 
@@ -454,9 +448,9 @@ public class ParserTest {
             audit.add(  String.format("(%d,%d): Welcome '%s'", line, col, name) );
         }
 
-//        public void list( int line, int col, List<String> l ) {
-//            audit.add(  String.format("(%d,%d): list=%s", line, col, l) );
-//        }
+        public void list( int line, int col, List<String> l ) {
+            audit.add(  String.format("(%d,%d): list=%s", line, col, l) );
+        }
 
         public void finished() {
             audit.add("finished");

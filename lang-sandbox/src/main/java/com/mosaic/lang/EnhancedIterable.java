@@ -8,6 +8,7 @@ import java.util.Iterator;
 /**
  *
  */
+@SuppressWarnings("unchecked")
 public abstract class EnhancedIterable<T> implements java.lang.Iterable<T> {
 
     public abstract boolean isEmpty();

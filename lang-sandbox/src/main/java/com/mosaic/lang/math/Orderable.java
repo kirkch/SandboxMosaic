@@ -7,6 +7,7 @@ import java.io.Serializable;
 /**
  *
  */
+@SuppressWarnings("unchecked")
 public abstract class Orderable <T extends Orderable> implements Comparable<T>, Serializable, Immutable {
     private static final long serialVersionUID = 3657918383685576118L;
 

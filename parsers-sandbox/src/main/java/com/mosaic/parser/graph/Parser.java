@@ -59,7 +59,10 @@ public class Parser {
         hasStarted  = false;
         hasFinished = false;
 
-        ParserFrame initialFrame = new ParserFrame( listener ).push( rootRule.name(), rootRule.startingNode(), new Node() );
+        Node endNode = new Node().isEndNode( true );
+        System.out.println( "endNode = " + System.identityHashCode(endNode) );
+        System.out.println( "endNode = " + endNode );
+        ParserFrame initialFrame = new ParserFrame( listener ).push( rootRule.name(), rootRule.startingNode(), endNode );
         initialFrame = initialFrame.getCurrentNode().getActions().justArrived( initialFrame );
 
         activeFrames = Nil.cons( initialFrame );
@@ -108,24 +111,32 @@ public class Parser {
         preparseStateChecks();
 
 
-        ConsList<ParserFrame> nextContexts = Nil;
+        ConsList<ParserFrame> nextFrames = Nil;
 
         for ( ParserFrame frame : activeFrames ) {
-            nextContexts = nextContexts.append( frame.endOfStream() );
+            nextFrames = nextFrames.append( frame.endOfStream() );
         }
 
 
+        if ( DEBUG ) {
+            System.out.println( "Received EOS" );
+
+            for ( ParserFrame frame : nextFrames ) {
+                System.out.println( "    " + frame );
+            }
+        }
+
         hasFinished = true;
 
-        if ( nextContexts.isEmpty() ) {
+        if ( nextFrames.isEmpty() ) {
             Set<CharacterPredicate> candidateNextInputs  = calculateCandidateNextInputs();
             String                  formattedExpectation = formatCharacterPredicates( candidateNextInputs );
 
             listener.error( lineNumber, columnNumber, "end of stream reached when expecting '"+formattedExpectation+"'" );
         } else {
-            activeFrames = nextContexts;
+            activeFrames = nextFrames;
 
-            for ( MethodCall action : nextContexts.head().getActions() ) {
+            for ( MethodCall action : nextFrames.head().getActions() ) {
                 action.invoke();
             }
 

@@ -40,7 +40,8 @@ public class ParserFrame implements Cloneable {
         String v = StringUtils.join( currentValue, "," );
         String a = StringUtils.join( actions, "," );
 
-        return productionRuleName + "(next=" + next + ", value="+v+", actions="+a+")   -->  " + parentContext;
+        String nodeLabel = System.identityHashCode(currentNode) + (currentNode.isEndNode() ? "e" : "");
+        return productionRuleName + "(node="+nodeLabel+", next=" + next + ", value="+v+", actions="+a+")   -->  " + parentContext;
     }
 
     public ParserFrame( ParserListener listener ) {
@@ -112,13 +113,23 @@ public class ParserFrame implements Cloneable {
     }
 
     public Iterable<ParserFrame> endOfStream() {
-        ParserFrame nextContext = currentNode.getActions().productionRuleFinished(this);
-
-        if ( nextContext != null ) {
-            return Arrays.asList( nextContext );
+        if ( currentNode.isEndNode() ) {
+            if ( parentContext == null ) {
+                return Arrays.asList( this );
+            } else {
+                return this.pop().endOfStream();
+            }
         } else {
             return Collections.EMPTY_LIST;
         }
+
+//        ParserFrame nextContext = currentNode.getActions().productionRuleFinished(this);
+//
+//        if ( nextContext != null ) {
+//            return Arrays.asList( nextContext );
+//        } else {
+//            return Collections.EMPTY_LIST;
+//        }
     }
 
 
@@ -152,7 +163,15 @@ public class ParserFrame implements Cloneable {
         }
 
         ParserFrame clone  = this.clone();
-        MethodCall  action = new MethodCall( callbackMethodRef, listener, frameStartedAtLineNumber, frameStartedAtColumnNumber, currentValue.head() );
+        Object value;
+
+        if ( callbackMethodRef.isParamType(List.class,2) ) {
+            value = currentValue.toList();
+        } else {
+            value = currentValue.head();
+        }
+
+        MethodCall  action = new MethodCall( callbackMethodRef, listener, frameStartedAtLineNumber, frameStartedAtColumnNumber, value );
 
         clone.actions = this.actions.cons( action );
 
@@ -173,7 +192,7 @@ public class ParserFrame implements Cloneable {
         newFrame.parentContext              = returnFrame;
 
 
-        return newFrame;
+        return nextNode.getActions().justArrived(newFrame);
     }
 
     public ParserFrame pop() {
@@ -181,12 +200,14 @@ public class ParserFrame implements Cloneable {
             return this;
         }
 
-        ParserFrame returnFrame = this.parentContext.clone();
 
-        returnFrame.currentLineNumber = this.currentLineNumber;
-        returnFrame.currentLineNumber = this.currentColumnNumber;
-        returnFrame.currentValue      = returnFrame.currentValue.append( this.currentValue );
-        returnFrame.actions           = returnFrame.actions.append( this.actions );
+        ParserFrame exitFrame   = this.currentNode.getActions().productionRuleFinished(this);
+        ParserFrame returnFrame = exitFrame.parentContext.clone();
+
+        returnFrame.currentLineNumber = exitFrame.currentLineNumber;
+        returnFrame.currentLineNumber = exitFrame.currentColumnNumber;
+        returnFrame.currentValue      = returnFrame.currentValue.append( exitFrame.currentValue );
+        returnFrame.actions           = returnFrame.actions.append( exitFrame.actions );
 
         return returnFrame.currentNode.getActions().justArrived( returnFrame );
 

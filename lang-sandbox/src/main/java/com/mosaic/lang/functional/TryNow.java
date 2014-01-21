@@ -7,6 +7,7 @@ import com.mosaic.utils.concurrent.FutureNbl;
 /**
  * Factory class for jobs that execute immediately.
  */
+@SuppressWarnings( "unchecked" )
 public class TryNow {
 
     public static final TryNbl NULL = successfulNbl(Nullable.NULL);

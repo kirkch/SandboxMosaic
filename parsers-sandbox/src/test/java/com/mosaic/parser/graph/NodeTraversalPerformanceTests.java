@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 @RunWith(JUnitMosaicRunner.class)
 public class NodeTraversalPerformanceTests {
 
-    private ProductionRule rootRule = new ProductionRuleBuilder().regexp( "NameRule", "[a-zA-Z]+" );
+    private ProductionRule rootRule = new ProductionRuleBuilder().terminal( "NameRule", "[a-zA-Z]+", String.class );
     private Node rootNode  = rootRule.startingNode();
 
 

@@ -28,16 +28,6 @@ public class AndOp extends NodeBuilder {
         this.childOps = Arrays.asList(childOps);
     }
 
-    protected  Nodes doAppendTo( Node startNode ) {
-        Nodes pos = new Nodes(startNode);
-
-        for ( NodeBuilder op : childOps ) {
-            pos = op.appendTo(pos);
-        }
-
-        return pos;
-    }
-
     public String toString() {
         StringBuilder buf = new StringBuilder();
 
@@ -51,4 +41,20 @@ public class AndOp extends NodeBuilder {
         return buf.toString();
     }
 
+    protected  Nodes doAppendTo( Node startNode ) {
+        Nodes pos = new Nodes(startNode);
+
+        for ( NodeBuilder op : childOps ) {
+            pos = op.appendTo(pos);
+        }
+
+        return pos;
+    }
+
+    @Override
+    protected NodeBuilder and( NodeBuilder b ) {
+        childOps.add( b );
+
+        return this;
+    }
 }

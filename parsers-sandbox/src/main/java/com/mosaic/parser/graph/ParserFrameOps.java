@@ -26,8 +26,8 @@ public class ParserFrameOps {
         return CAPTURE_END_OP;
     }
 
-    public static ParserFrameOp pushOp( String name, Node jumpToNode, ParserFrameOp wrappedOp, Node returnNode ) {
-        return new PushRuleParserFrameOp( name, jumpToNode, wrappedOp, returnNode );
+    public static ParserFrameOp pushOp( String name, Node jumpToNode, ParserFrameOp wrappedOp, Node fromNode ) {
+        return new PushRuleParserFrameOp( name, jumpToNode, wrappedOp, fromNode );
     }
 
 
@@ -97,20 +97,23 @@ public class ParserFrameOps {
     private static class PushRuleParserFrameOp extends WrappedParserFrameOp {
         private String name;
         private Node   jumpToNode;
-        private Node   returnNode;
+        private Node   fromNode;
 
-        public PushRuleParserFrameOp( String name, Node jumpToNode, ParserFrameOp wrappedOp, Node returnNode ) {
+
+        public PushRuleParserFrameOp( String name, Node jumpToNode, ParserFrameOp wrappedOp, Node fromNode ) {
             super( wrappedOp, "Push" );
 
+            Validate.notNull( fromNode, "fromNode" );
             Validate.notNull( jumpToNode, "jumpToNode" );
-            Validate.notNull( returnNode, "returnNode" );
 
             this.name       = name;
+            this.fromNode   = fromNode;
             this.jumpToNode = jumpToNode;
-            this.returnNode = returnNode;
         }
 
         public ParserFrame justArrived( ParserFrame nextState ) {
+            Node returnNode = fromNode.getOutNodes().get(0);
+
             return super.justArrived(nextState).push( name, jumpToNode, returnNode );
         }
     }
@@ -129,6 +132,7 @@ public class ParserFrameOps {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static class ToStringOp extends WrappedParserFrameOp {
         public ToStringOp( ParserFrameOp wrappedOpNbl ) {
             super( wrappedOpNbl, "ToStr" );

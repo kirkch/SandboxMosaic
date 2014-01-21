@@ -8,6 +8,7 @@ import java.util.Iterator;
 /**
  *
  */
+@SuppressWarnings("unchecked")
 public class IteratorUtils {
 
     public static <T> Iterator<T> combine( final Iterator<T>...iterators ) {

@@ -1,6 +1,9 @@
 package com.mosaic.parser;
 
 import com.mosaic.parser.graph.NodeFormatter;
+
+import com.mosaic.parser.graph.Parser;
+import com.mosaic.parser.graph.ParserTest;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,8 +47,8 @@ public class ProductionRuleBuilderTest {
     }
 
     @Test
-    public void givenEmptyBuilder_createCapturingConstantRule_expectConstantMatcher() {
-        ProductionRule helloRule = b.capturingConstant( "rule1", "Hello" );
+    public void givenEmptyBuilder_createTerminalRule_expectConstantMatcher() {
+        ProductionRule<String> helloRule = b.terminal( "rule1", "Hello", String.class );
 
         assertEquals( "rule1", helloRule.name() );
 
@@ -55,7 +58,7 @@ public class ProductionRuleBuilderTest {
 
     @Test
     public void givenEmptyBuilder_createCapturingCaseInsensitiveConstantRule_expectConstantMatcher() {
-        ProductionRule helloRule = b.capturingConstant( "rule1", "Hello", CaseInsensitive );
+        ProductionRule<String> helloRule = b.terminal( "rule1", "Hello", CaseInsensitive );
 
         assertEquals( "rule1", helloRule.name() );
 
@@ -68,7 +71,7 @@ public class ProductionRuleBuilderTest {
 
     @Test
     public void givenEmptyBuilder_createRegexpConstant() {
-        ProductionRule rule1 = b.regexp( "rule1", "Hello" );
+        ProductionRule rule1 = b.constant( "rule1", "Hello" );
 
         assertEquals( "rule1", rule1.name() );
 
@@ -77,8 +80,8 @@ public class ProductionRuleBuilderTest {
     }
 
     @Test
-    public void givenEmptyBuilder_createRegexp() {
-        ProductionRule rule1 = b.regexp( "rule1", "[a-z]+" );
+    public void givenEmptyBuilder_createNonCapturingTerminal() {
+        ProductionRule rule1 = b.terminal( "rule1", "[a-z]+", Void.class );
 
         assertEquals( "rule1", rule1.name() );
 
@@ -88,7 +91,7 @@ public class ProductionRuleBuilderTest {
 
     @Test
     public void givenEmptyBuilder_createCapturingRegexp() {
-        ProductionRule rule1 = b.capturingRegexp( "rule1", "[a-z]+" );
+        ProductionRule rule1 = b.terminal( "rule1", "[a-z]+", String.class );
 
         assertEquals( "rule1", rule1.name() );
 
@@ -103,10 +106,10 @@ public class ProductionRuleBuilderTest {
 
     @Test
     public void givenBuilderWithRule1_declareAnotherRule1_expectError() {
-        b.capturingRegexp( "rule1", "[a-z]+" );
+        b.terminal( "rule1", "[a-z]+", Void.class );
 
         try {
-            b.capturingRegexp( "rule1", "[0-9]+" );
+            b.terminal( "rule1", "[0-9]+", Void.class );
 
             Assert.fail( "expected IllegalArgumentException" );
         } catch ( IllegalArgumentException e ) {
@@ -117,7 +120,7 @@ public class ProductionRuleBuilderTest {
     @Test
     public void givenEmptyBuilder_declareRuleWithSingleEmbeddedRuleThatDoesNotExist_expectError() {
         try {
-            b.capturingRegexp( "rule1", "$rule2" );
+            b.terminal( "rule1", "$rule2", Void.class );
 
             Assert.fail( "expected IllegalArgumentException" );
         } catch ( IllegalArgumentException e ) {
@@ -127,8 +130,8 @@ public class ProductionRuleBuilderTest {
 
     @Test
     public void givenExistingRule_reuseRuleInAnotherRule_expectNewGraph() {
-        ProductionRule rule1 = b.capturingRegexp( "rule1", "[a-z]+" );
-        ProductionRule rule2 = b.regexp( "rule2", "$rule1" );
+        ProductionRule rule1 = b.terminal( "rule1", "[a-z]+", Void.class );
+        ProductionRule rule2 = b.nonTerminal( "rule2", "$rule1" );
 
         assertEquals( "rule1", rule1.name() );
         assertEquals( "rule2", rule2.name() );
@@ -140,15 +143,53 @@ public class ProductionRuleBuilderTest {
 
     @Test
     public void embedThreeRulesInARow() {
-        b.capturingRegexp( "rule1", "Hello" );
-        b.capturingRegexp( "rule2", "[ \t]+" );
-        b.capturingRegexp( "rule3", "[a-z]+" );
+        b.terminal( "rule1", "Hello", Void.class );
+        b.terminal( "rule2", "[ \t]+", Void.class );
+        b.terminal( "rule3", "[a-z]+", Void.class );
 
-        ProductionRule rootRule = b.regexp( "rootRule", "$rule1$rule2$rule3" );
+        ProductionRule rootRule = b.nonTerminal( "rootRule", "$rule1$rule2$rule3", Void.class );
 
 
         List<String> expectedGraph = Arrays.asList("1:Push -$rule1-> 2:Push -$rule2-> 3:Push -$rule3-> 4e:NoOp");
         assertEquals( expectedGraph, nodeFormatter.format(rootRule.startingNode()) );
+    }
+
+//    @Test   TODO auto consume whitespace between non-terminals
+    public void csvRowsExample_nestedCapturingRules() {
+        ProductionRule<String>       columnRule = b.terminal( "COLUMN_VALUE", "[^, \t]+", String.class );
+        ProductionRule<List<String>> rowRule    = b.nonTerminal( "ROW", "$COLUMN_VALUE (,$COLUMN_VALUE)*", String.class ).withCallback( ParserTest.RecordingParserListener.class, "list" );
+
+
+        ProductionRule<List<String>> rootRule = b.nonTerminal( "rootRule", "$ROW", String.class );
+        ParserTest.RecordingParserListener l = new ParserTest.RecordingParserListener();
+
+        Parser p = new Parser(rootRule, l);
+
+        assertEquals( Arrays.asList("1:Cap -[^, \t]-> 2e:(Cap,ToStr) -[^, \t]-> 2e:(Cap,ToStr)"), nodeFormatter.format(columnRule.startingNode()) );
+        assertEquals( Arrays.asList("1:Push -$COLUMN_VALUE-> 2e:Cb -,-> 3:Push -$COLUMN_VALUE-> 2e:Cb"), nodeFormatter.format(rowRule.startingNode()) );
+
+
+        List<String> expectedGraph = Arrays.asList("1:Push -$ROW-> 2e:NoOp");
+        assertEquals( expectedGraph, nodeFormatter.format(rootRule.startingNode()) );
+
+
+        System.out.println( "columnRule = " + nodeFormatter.format( columnRule.startingNode() ) );
+        System.out.println( "rowRule = " + nodeFormatter.format( rowRule.startingNode() ) );
+        System.out.println( "rootRule = " + nodeFormatter.format( rootRule.startingNode() ) );
+
+        int numCharactersConsumed = p.parse( "header1, header2" );
+        assertEquals( 16, numCharactersConsumed );
+
+        p.endOfStream();
+
+
+        List<String> expectedAudit = Arrays.asList(
+            "started",
+            "(1,1): list=[header1, header2]",
+            "finished"
+        );
+
+        assertEquals( expectedAudit, l.audit );
     }
 
 }

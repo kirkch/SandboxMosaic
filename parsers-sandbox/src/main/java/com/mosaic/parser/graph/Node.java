@@ -44,8 +44,10 @@ public class Node implements Iterable<Pair<CharacterPredicate,Node>> {
         return isEndNode;
     }
 
-    public void isEndNode( boolean endNode ) {
+    public Node isEndNode( boolean endNode ) {
         isEndNode = endNode;
+
+        return this;
     }
 
     /**

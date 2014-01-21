@@ -154,6 +154,35 @@ public class RegexpParserTest {
     }
 
     @Test
+    public void invertedComma() {
+        PredicateOp op = (PredicateOp) parser.parse( "[^,]" );
+
+        assertEquals( "[^,]", op.toString() );
+
+        assertTrue( op.getPredicate().matches('h') );
+        assertTrue( op.getPredicate().matches('H') );
+        assertTrue( op.getPredicate().matches('e') );
+        assertTrue( op.getPredicate().matches('l') );
+        assertTrue( op.getPredicate().matches(' ') );
+        assertFalse( op.getPredicate().matches(',') );
+    }
+
+    @Test
+    public void invertedCommaRepeatedOnceOrMore() {
+        OneOrMoreOp op = (OneOrMoreOp) parser.parse( "[^,]+" );
+
+        assertEquals( "([^,])+", op.toString() );
+    }
+
+    @Test
+    public void csvRow() {
+        AndOp op = (AndOp) parser.parse( "[a-z]+[^,]+" );
+
+        assertEquals( "([a-z])+([^,])+", op.toString() );
+    }
+
+
+    @Test
     public void escapedPartsInCharSelection() {
         PredicateOp op = (PredicateOp) parser.parse( "[\\^abcA\\-D01-3]" );
 
@@ -283,12 +312,28 @@ public class RegexpParserTest {
         assertEquals( Arrays.asList("1 -$op1-> 2 -$op2-> 3"), new NodeFormatter().format( n ) );
     }
 
+    @Test
+    public void composeEmbeddedRules() {
+        Map<String,ProductionRule> ops = MapUtils.asMap(
+            "op1", createRule("op1", "a")
+        );
+
+        NodeBuilder rootOp = parser.parse( "$op1  (,$op1)*", ops );
+
+        assertEquals( "$op1(, $op1)*", rootOp.toString() );
+
+
+        Node n = createGraph( rootOp );
+
+        assertEquals( Arrays.asList("1 -$op1-> 2 -,-> 3 -$op1-> 2"), new NodeFormatter().format( n ) );
+    }
+
     private ProductionRule createRule( String ruleName, String regExp ) {
         NodeBuilder b = parser.parse( "abc" );
         Node start = new Node();
         Nodes end = b.appendTo( start );
 
-        return new ProductionRule( ruleName, start, end );
+        return new ProductionRule( ruleName, start, end, Void.class );
     }
 
 

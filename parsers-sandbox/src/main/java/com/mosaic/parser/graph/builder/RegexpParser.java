@@ -129,24 +129,33 @@ public class RegexpParser {
             case '[':
                 return parseCharacterSelection(token);
             case '(':
-            {
-                Stream<Token> next = parseNextFragment( token.tail(), ops );
-
-                while ( next.notEmpty() && next.head().c != ')' ) {
-                    next = parseNextFragment( next, ops );
-                }
-
-                if ( next.isEmpty() || !next.head().isSpecial || next.head().c != ')' ) {
-                    throw new IllegalArgumentException( "Expected closing bracket ')' but found instead '"+ StringUtils.join(next,"")+"'");
-                }
-
-                return next.tail();
-            }
+                return parseBracketedRegion( token, ops );
             case '$':
                 return parseEmbeddedRuleReference( token.tail(), ops );
             default:
                 throw new IllegalStateException( "Unrecognised special char '"+c+"' with remaining chars '"+ StringUtils.join(token,"")+"'");
         }
+    }
+
+    private Stream<Token> parseBracketedRegion( Stream<Token> token, Map<String, ProductionRule> ops ) {
+        Stream<Token> next = parseNextFragment( token.tail(), ops );
+
+        while ( next.notEmpty() && next.head().c != ')' ) {
+            next = parseNextFragment( next, ops );
+
+            if ( opStack.size() > 1 ) {
+                NodeBuilder b = opStack.pop();
+                NodeBuilder a = opStack.pop();
+
+                opStack.push( a.and(b) );
+            }
+        }
+
+        if ( next.isEmpty() || !next.head().isSpecial || next.head().c != ')' ) {
+            throw new IllegalArgumentException( "Expected closing bracket ')' but found instead '"+ StringUtils.join( next, "" )+"'");
+        }
+
+        return next.tail();
     }
 
     private Stream<Token> parseCharacterSelection( Stream<Token> input ) {

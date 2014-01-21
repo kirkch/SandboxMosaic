@@ -25,7 +25,8 @@ public class EmbeddedProductionRuleOp extends NodeBuilder {
     protected Nodes doAppendTo( final Node startNode ) {
         Node returnNode = new Node();
 
-        ParserFrameOp op = ParserFrameOps.pushOp( embeddedRule.name(), embeddedRule.startingNode(), startNode.getActions(), returnNode );
+
+        ParserFrameOp op = ParserFrameOps.pushOp( embeddedRule.name(), embeddedRule.startingNode(), startNode.getActions(), startNode );
         startNode.setActions( op );
 
         startNode.append( new EmbeddedRuleLink(embeddedRule.name()), returnNode );

@@ -45,4 +45,10 @@ public class OrOp extends NodeBuilder {
         return StringUtils.join( this.childOps, "|" );
     }
 
+    @Override
+    protected NodeBuilder or( NodeBuilder b ) {
+        childOps.add( b );
+
+        return this;
+    }
 }

@@ -78,6 +78,14 @@ public abstract class NodeBuilder {
     }
 
 
+    protected NodeBuilder and( NodeBuilder b ) {
+        return new AndOp( this, b );
+    }
+
+    protected NodeBuilder or( NodeBuilder b ) {
+        return new OrOp( this, b );
+    }
+
 
     private void walkGraphAndSetNodeAction( Node firstNode, final ParserFrameOp op ) {
         firstNode.depthFirstPrefixTraversal( new VoidFunction2<ConsList<KV<Set<CharacterPredicate>, Node>>, Boolean>() {

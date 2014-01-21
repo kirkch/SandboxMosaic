@@ -34,6 +34,10 @@ public class MethodRef<T> {
         }
     }
 
+    public boolean isParamType( Class c, int i ) {
+        return method.getParameterTypes()[i].equals( c );
+    }
+
     public String toString() {
         return method.getName();
     }

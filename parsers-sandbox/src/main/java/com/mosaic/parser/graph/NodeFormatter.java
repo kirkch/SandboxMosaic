@@ -72,9 +72,41 @@ public class NodeFormatter {
         }
     };
 
+    private static final NodeFormatPlugin DEBUG_PLUGIN = new NodeFormatPlugin() {
+        public String getNodeLabelFor( long nodeId, Node node ) {
+            StringBuilder buf = new StringBuilder();
+
+            buf.append( System.identityHashCode(node) );
+
+            if ( node.isEndNode() ) {
+                buf.append( 'e' );
+            }
+
+            ParserFrameOp op = node.getActions();
+            if ( op != null ) {
+                buf.append( ':' );
+
+                StringBuilder buf2 = new StringBuilder();
+                op.appendOpCodesTo(buf2);
+
+                String ops = buf2.toString();
+                if ( ops.contains(",") ) {
+                    buf.append( '(' );
+                    buf.append( ops );
+                    buf.append( ')' );
+                } else {
+                    buf.append( ops );
+                }
+            }
+
+            return buf.toString();
+        }
+    };
+
 
     public static final NodeFormatter DEFAULT_FORMATTER  = new NodeFormatter(DEFAULT_PLUGIN);
     public static final NodeFormatter DETAILED_FORMATTER = new NodeFormatter(DETAILED_PLUGIN);
+    public static final NodeFormatter DEBUG_FORMATTER    = new NodeFormatter(DEBUG_PLUGIN);
 
 
 

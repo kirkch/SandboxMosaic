@@ -9,6 +9,7 @@ import java.lang.reflect.Array;
 /**
  *
  */
+@SuppressWarnings("unchecked")
 public class ArrayUtils {
 
     /**

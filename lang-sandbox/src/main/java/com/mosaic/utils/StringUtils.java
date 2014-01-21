@@ -3,15 +3,13 @@ package com.mosaic.utils;
 import com.mosaic.io.Formatter;
 import com.mosaic.io.Formatters;
 import com.mosaic.io.RuntimeIOException;
-import com.mosaic.lang.functional.Function2;
-import com.mosaic.lang.functional.VoidFunction2;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  *
  */
+@SuppressWarnings("unchecked")
 public class StringUtils {
 
     public static String concat( String prefix, Object[] elements, String separator, String postfix ) {
