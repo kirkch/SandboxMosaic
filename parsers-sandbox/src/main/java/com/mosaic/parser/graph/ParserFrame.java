@@ -79,9 +79,22 @@ public class ParserFrame implements Cloneable {
     }
 
     public Iterable<ParserFrame> parse( int line, int col, final char c ) {
+        if ( currentNode.isStartOfTerminal() && (c == ' ' || c == '\t') ) {
+            ParserFrame parserState = this.clone();
+
+            parserState.frameStartedAtLineNumber   = line;
+            parserState.frameStartedAtColumnNumber = col;
+
+            return Arrays.asList(parserState);
+        }
+
         Nodes nextNodes =  currentNode.fetch( c );
         if ( nextNodes.isEmpty() ) {
-            return Collections.EMPTY_LIST;
+            if ( currentNode.isEndNode() && parentContext != null ) {  // give the parent frame a chance given this frame is endable
+                return this.pop().parse( line, col, c );
+            } else {
+                return Collections.EMPTY_LIST;
+            }
         }
 
         ParserFrame parserState = this.clone();

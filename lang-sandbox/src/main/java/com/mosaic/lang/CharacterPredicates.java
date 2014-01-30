@@ -5,7 +5,6 @@ import com.mosaic.utils.StringUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 
 /**
@@ -102,7 +101,7 @@ public class CharacterPredicates {
         }
 
         public int compareTo( CharacterPredicate o ) {
-            return o == this ? 0 : -1;
+            return this.toString().compareTo( o.toString() );
         }
     }
 
@@ -118,7 +117,7 @@ public class CharacterPredicates {
         }
 
         public int compareTo( CharacterPredicate o ) {
-            return o == this ? 0 : -1;
+            return this.toString().compareTo( o.toString() );
         }
     }
 
@@ -138,12 +137,7 @@ public class CharacterPredicates {
         }
 
         public int compareTo( CharacterPredicate o ) {
-            if ( !(o instanceof SingleCharacterPredicate) ) {
-                return -1;
-            }
-
-            SingleCharacterPredicate other = (SingleCharacterPredicate) o;
-            return this.c - other.c;
+            return this.toString().compareTo( o.toString() );
         }
     }
 
@@ -163,12 +157,7 @@ public class CharacterPredicates {
         }
 
         public int compareTo( CharacterPredicate o ) {
-            if ( !(o instanceof NotCharacterPredicate) ) {
-                return -1;
-            }
-
-            NotCharacterPredicate other = (NotCharacterPredicate) o;
-            return this.c - other.c;
+            return this.toString().compareTo( o.toString() );
         }
     }
 
@@ -184,11 +173,7 @@ public class CharacterPredicates {
         }
 
         public int compareTo( CharacterPredicate o ) {
-            if ( !(o instanceof AnyCharacterPredicate) ) {
-                return -1;
-            }
-
-            return 0;
+            return this.toString().compareTo( o.toString() );
         }
     }
 
@@ -214,12 +199,7 @@ public class CharacterPredicates {
         }
 
         public int compareTo( CharacterPredicate o ) {
-            if ( !(o instanceof OrPredicate) ) {
-                return -1;
-            }
-
-            OrPredicate other = (OrPredicate) o;
-            return Objects.equals(this.predicates, other.predicates) ? 0 : this.predicates.iterator().next().compareTo(other.predicates.iterator().next());
+            return this.toString().compareTo( o.toString() );
         }
     }
 
@@ -241,12 +221,7 @@ public class CharacterPredicates {
         }
 
         public int compareTo( CharacterPredicate o ) {
-            if ( !(o instanceof CaseInsensitivePredicate) ) {
-                return -1;
-            }
-
-            CaseInsensitivePredicate other = (CaseInsensitivePredicate) o;
-            return this.lc - other.lc;
+            return this.toString().compareTo( o.toString() );
         }
     }
 
@@ -276,15 +251,7 @@ public class CharacterPredicates {
         }
 
         public int compareTo( CharacterPredicate o ) {
-            if ( !(o instanceof CharacterRangePredicate) ) {
-                return -1;
-            }
-
-            CharacterRangePredicate other = (CharacterRangePredicate) o;
-            int a = this.minInc - other.minInc;
-            int b = this.maxInc - other.maxInc;
-
-            return a == 0 ? b : a;
+            return this.toString().compareTo( o.toString() );
         }
     }
 
@@ -348,10 +315,6 @@ public class CharacterPredicates {
         }
 
         public int compareTo( CharacterPredicate o ) {
-            if ( !(o instanceof CharacterSelectionPredicate) ) {
-                return -1;
-            }
-
             return this.toString().compareTo( o.toString() );
         }
 

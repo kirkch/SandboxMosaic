@@ -38,6 +38,17 @@ public class Node implements Iterable<Pair<CharacterPredicate,Node>> {
     private List<Pair<CharacterPredicate,Node>> edges = new ArrayList();
 
     private boolean isEndNode;
+    private boolean isStartOfTerminal;
+
+    public boolean isStartOfTerminal() {
+        return isStartOfTerminal;
+    }
+
+    public Node isStartOfTerminal( boolean isStartOfTerminal ) {
+        this.isStartOfTerminal = isStartOfTerminal;
+
+        return this;
+    }
 
 
     public boolean isEndNode() {
@@ -271,7 +282,15 @@ public class Node implements Iterable<Pair<CharacterPredicate,Node>> {
         public static Map<Node,Set<CharacterPredicate>> getDestinationsGroupedByCharacters( Node n ) {
             Map<Node,Set<CharacterPredicate>> map = InitialValueMap.identityMapOfSets();
 
-            for ( Pair<CharacterPredicate,Node> e : n.getOutEdges() ) {
+            List<Pair<CharacterPredicate, Node>> outEdges = new ArrayList(n.getOutEdges());
+            Collections.sort( outEdges, new Comparator<Pair<CharacterPredicate, Node>>() {
+                public int compare( Pair<CharacterPredicate, Node> a, Pair<CharacterPredicate, Node> b ) {
+                    return a.getFirst().compareTo( b.getFirst() );
+                }
+            } );
+
+
+            for ( Pair<CharacterPredicate,Node> e : outEdges ) {
                 Set<CharacterPredicate> labelsSoFar = map.get(e.getSecond());
 
                 labelsSoFar.add( e.getFirst() );

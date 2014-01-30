@@ -120,7 +120,7 @@ public class ProductionRuleBuilderTest {
     @Test
     public void givenEmptyBuilder_declareRuleWithSingleEmbeddedRuleThatDoesNotExist_expectError() {
         try {
-            b.terminal( "rule1", "$rule2", Void.class );
+            b.nonTerminal( "rule1", "$rule2", Void.class );
 
             Assert.fail( "expected IllegalArgumentException" );
         } catch ( IllegalArgumentException e ) {
@@ -154,9 +154,25 @@ public class ProductionRuleBuilderTest {
         assertEquals( expectedGraph, nodeFormatter.format(rootRule.startingNode()) );
     }
 
-//    @Test   TODO auto consume whitespace between non-terminals
+    @Test
+    public void tryParsingNonTerminalThatReferencesAnotherRule_expectException() {
+        b.terminal( "COLUMN_VALUE", "[^, \t]+", String.class );
+
+
+        try {
+            b.terminal( "WHITESPACE", "[ \t]*? $COLUMN_VALUE", Void.class );
+
+            Assert.fail( "expected IllegalArgumentException" );
+        } catch ( IllegalArgumentException e ) {
+            Assert.assertEquals( "By definition, a terminal cannot reference any other production rules", e.getMessage() );
+        }
+    }
+
+    @Test // todo the whitespace should be implicit
     public void csvRowsExample_nestedCapturingRules() {
         ProductionRule<String>       columnRule = b.terminal( "COLUMN_VALUE", "[^, \t]+", String.class );
+        ProductionRule<Void>         whiteSpaceRule = b.terminal( "WHITESPACE", "[ \t]*?", Void.class );
+//        ProductionRule<List<String>> rowRule    = b.nonTerminal( "ROW", "$COLUMN_VALUE $WHITESPACE (,$WHITESPACE$COLUMN_VALUE)*", String.class ).withCallback( ParserTest.RecordingParserListener.class, "list" );
         ProductionRule<List<String>> rowRule    = b.nonTerminal( "ROW", "$COLUMN_VALUE (,$COLUMN_VALUE)*", String.class ).withCallback( ParserTest.RecordingParserListener.class, "list" );
 
 
@@ -166,16 +182,13 @@ public class ProductionRuleBuilderTest {
         Parser p = new Parser(rootRule, l);
 
         assertEquals( Arrays.asList("1:Cap -[^, \t]-> 2e:(Cap,ToStr) -[^, \t]-> 2e:(Cap,ToStr)"), nodeFormatter.format(columnRule.startingNode()) );
-        assertEquals( Arrays.asList("1:Push -$COLUMN_VALUE-> 2e:Cb -,-> 3:Push -$COLUMN_VALUE-> 2e:Cb"), nodeFormatter.format(rowRule.startingNode()) );
+        assertEquals( Arrays.asList("1e:NoOp -[ \t]-> 1e:NoOp"), nodeFormatter.format(whiteSpaceRule.startingNode()) );
+//        assertEquals( Arrays.asList("1:Push -$COLUMN_VALUE-> 2e:Cb -,-> 3:Push -$COLUMN_VALUE-> 2e:Cb"), nodeFormatter.format(rowRule.startingNode()) );
 
 
         List<String> expectedGraph = Arrays.asList("1:Push -$ROW-> 2e:NoOp");
         assertEquals( expectedGraph, nodeFormatter.format(rootRule.startingNode()) );
 
-
-        System.out.println( "columnRule = " + nodeFormatter.format( columnRule.startingNode() ) );
-        System.out.println( "rowRule = " + nodeFormatter.format( rowRule.startingNode() ) );
-        System.out.println( "rootRule = " + nodeFormatter.format( rootRule.startingNode() ) );
 
         int numCharactersConsumed = p.parse( "header1, header2" );
         assertEquals( 16, numCharactersConsumed );

@@ -1,6 +1,7 @@
 package com.mosaic.lang;
 
 import com.mosaic.lang.math.MathematicalNumber;
+import com.mosaic.lang.reflect.ReflectionException;
 import com.mosaic.utils.MathUtils;
 import com.mosaic.utils.StringUtils;
 
@@ -20,6 +21,10 @@ public class Validate {
 
     public static void isGTE( int a, int b, String fieldName ) {
         isTrue( a >= b, "%s (%s) must be >= %s", fieldName, a, b );
+    }
+
+    public static <T extends Throwable> void isGTE( int a, int b, String fieldName, Class<T> exceptionType ) {
+        isTrue( a >= b, exceptionType, "%s (%s) must be >= %s", fieldName, a, b );
     }
 
     public static void isGTE( long a, long b, String fieldName ) {
@@ -114,6 +119,10 @@ public class Validate {
 
     public static void isGT( int a, int b, String fieldName ) {
         isTrue( a > b, "%s (%s) must be > %s", fieldName, a, b );
+    }
+
+    public static <T extends Throwable> void isGT( int a, int b, String fieldName, Class<T> exceptionType ) {
+        isTrue( a > b, exceptionType, "%s (%s) must be > %s", fieldName, a, b );
     }
 
     public static void isGT( long a, long b, String fieldName ) {
@@ -326,9 +335,13 @@ public class Validate {
     }
 
 
-    public static void isTrue( boolean condition, String msg, Object...values ) {
+    public static <T extends Throwable> void isTrue( boolean condition, String msg, Object...values ) {
+        isTrue( condition, IllegalArgumentException.class, msg, values );
+    }
+
+    public static <T extends Throwable> void isTrue( boolean condition, Class<T> exceptionType, String msg, Object...values ) {
         if ( !condition ) {
-            throwException( msg, values );
+            throwException( exceptionType, msg, values );
         }
     }
 
@@ -364,9 +377,17 @@ public class Validate {
     }
 
     private static void throwException( String msg, Object...values ) {
+        throwException( IllegalArgumentException.class, msg, values );
+    }
+
+    private static <T extends Throwable> void throwException( Class<T> exceptionType, String msg, Object...values ) {
         String formattedMessage = String.format( msg, formatValues(values) );
 
-        throw new IllegalArgumentException( formattedMessage );
+        try {
+            throw exceptionType.getConstructor( String.class ).newInstance( formattedMessage );
+        } catch ( Throwable ex ) {
+            throw ReflectionException.recast( ex );
+        }
     }
 
     private static void throwIllegalStateException( String msg, Object...values ) {

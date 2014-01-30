@@ -63,11 +63,11 @@ public abstract class Stream<T> implements Iterable<T> {
         }
 
         public T head() {
-            throw new IllegalStateException( "" );
+            throw new IllegalStateException( "Empty Stream" );
         }
 
         public Stream<T> tail() {
-            throw new IllegalStateException( "" );
+            throw new IllegalStateException( "Empty Stream" );
         }
     }
 

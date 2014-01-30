@@ -60,8 +60,7 @@ public class Parser {
         hasFinished = false;
 
         Node endNode = new Node().isEndNode( true );
-        System.out.println( "endNode = " + System.identityHashCode(endNode) );
-        System.out.println( "endNode = " + endNode );
+
         ParserFrame initialFrame = new ParserFrame( listener ).push( rootRule.name(), rootRule.startingNode(), endNode );
         initialFrame = initialFrame.getCurrentNode().getActions().justArrived( initialFrame );
 

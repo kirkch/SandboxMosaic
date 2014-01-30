@@ -3,6 +3,7 @@ package com.mosaic.parser.graph.builder;
 import com.mosaic.lang.CaseSensitivity;
 import com.mosaic.lang.CharacterPredicate;
 
+
 /**
  *
  */
@@ -42,11 +43,14 @@ public class NodeBuilders {
     }
 
     public static NodeBuilder regexp( String regexp ) {
-        return new RegexpParser().parse( regexp );
+        return new NodeBuilderFactory().parse( regexp );
     }
 
     public static NodeBuilder constant( String str, CaseSensitivity caseSensitivity ) {
         return new StringOp( str, caseSensitivity );
     }
 
+    public static NodeBuilder noOp() {
+        return NoOp.INSTANCE;
+    }
 }

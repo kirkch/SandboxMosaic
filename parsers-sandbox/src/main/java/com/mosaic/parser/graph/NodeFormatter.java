@@ -76,7 +76,8 @@ public class NodeFormatter {
         public String getNodeLabelFor( long nodeId, Node node ) {
             StringBuilder buf = new StringBuilder();
 
-            buf.append( System.identityHashCode(node) );
+//            buf.append( System.identityHashCode(node) );
+            buf.append( nodeId );
 
             if ( node.isEndNode() ) {
                 buf.append( 'e' );

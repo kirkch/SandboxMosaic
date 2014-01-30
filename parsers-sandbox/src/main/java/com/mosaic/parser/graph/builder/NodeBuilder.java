@@ -24,6 +24,8 @@ public abstract class NodeBuilder {
 
 
     private boolean isCapturing;
+    private boolean isWhitespaceSkipable;
+
 
     public Node build() {
         Node n = new Node();
@@ -46,6 +48,10 @@ public abstract class NodeBuilder {
             walkGraphAndSetNodeAction( startNode, ParserFrameOps.captureInputOp() );
 
             endNodes.setActions( ParserFrameOps.captureEndOp() );
+        }
+
+        if ( isWhitespaceSkipable ) {
+            startNode.isStartOfTerminal( true );
         }
 
         return endNodes;
@@ -77,6 +83,11 @@ public abstract class NodeBuilder {
         return this;
     }
 
+    public NodeBuilder isWhitespaceSkipable( boolean isWhitespaceSkipable ) {
+        this.isWhitespaceSkipable = isWhitespaceSkipable;
+
+        return this;
+    }
 
     protected NodeBuilder and( NodeBuilder b ) {
         return new AndOp( this, b );

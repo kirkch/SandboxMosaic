@@ -344,10 +344,9 @@ public class ParserTest {
     @Test
     public void givenNonTerminalFollowedByAnotherRule_parseMatchingText_expectSuccess() {
         b.constant( "HelloRule", "Hello" );
-        b.terminal( "WhitespaceRule", "[ \t]+", Void.class );
         b.terminal( "NameRule", "[a-zA-Z]+", Void.class );
 
-        ProductionRule rootRule = b.nonTerminal( "RootRule", "$HelloRule$WhitespaceRule$NameRule" );
+        ProductionRule rootRule = b.nonTerminal( "RootRule", "$HelloRule $NameRule" );
 
         Parser parser = new Parser( rootRule, l );
 
@@ -368,10 +367,9 @@ public class ParserTest {
     @Test
     public void givenNonTerminalFollowedByAnotherRule_parseCapturingMatchingText_expectValueBack() {
         b.constant( "HelloRule", "Hello" );
-        b.terminal( "WhitespaceRule", "[ \t]+", Void.class );
         b.terminal( "NameRule", "[a-zA-Z]+", String.class );
 
-        ProductionRule rootRule = b.nonTerminal( "RootRule", "$HelloRule$WhitespaceRule$NameRule" );
+        ProductionRule rootRule = b.nonTerminal( "RootRule", "$HelloRule $NameRule" );
 
         Parser parser = new Parser( rootRule, l );
 
@@ -408,10 +406,9 @@ public class ParserTest {
     @Test
     public void givenNonTerminalFollowedByAnotherRule_parseMatchingTextWithCallbackAndCaptureValue_expectCallback() {
         b.constant( "HelloRule", "Hello" );
-        b.terminal( "WhitespaceRule", "[ \t]+", Void.class );
         b.terminal( "NameRule", "[a-zA-Z]+", String.class ).withCallback(RecordingParserListener.class,"hello");
 
-        ProductionRule rootRule = b.nonTerminal( "RootRule", "$HelloRule$WhitespaceRule$NameRule" );
+        ProductionRule rootRule = b.nonTerminal( "RootRule", "$HelloRule $NameRule" );
 
         Parser parser = new Parser( rootRule, l );
 
@@ -423,7 +420,30 @@ public class ParserTest {
 
         List<String> expectedAudit = Arrays.asList(
             "started",
-            "(6,1): Welcome 'Bob'",
+            "(1,6): Welcome 'Bob'",
+            "finished"
+        );
+
+        assertEquals( expectedAudit, l.audit );
+    }
+
+//    @Test
+    public void givenComplexNonTerminalFollowedByAnotherRule_parseMatchingTextWithCallbackAndCaptureValue_expectCallback() {
+        b.constant( "HelloRule", "Hello" );
+        ProductionRule nameRule = b.terminal( "NameRule", "[a-zA-Z]+|\"[^\"]+\"", String.class ).withCallback(RecordingParserListener.class,"hello");
+        ProductionRule rootRule = b.nonTerminal( "RootRule", "$HelloRule $NameRule" );
+
+        Parser parser = new Parser( rootRule, l );
+
+        int numCharactersParsed = parser.parse( "Hello Bob" );
+        parser.endOfStream();
+
+        assertEquals( 9, numCharactersParsed );
+        assertEquals( Arrays.asList("Bob"), parser.getParsedValue() );
+
+        List<String> expectedAudit = Arrays.asList(
+            "started",
+            "(1,6): Welcome 'Bob'",
             "finished"
         );
 

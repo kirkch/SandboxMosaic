@@ -4,8 +4,8 @@ import com.mosaic.lang.CaseSensitivity;
 import com.mosaic.parser.graph.Node;
 import com.mosaic.parser.graph.Nodes;
 import com.mosaic.parser.graph.builder.NodeBuilder;
+import com.mosaic.parser.graph.builder.NodeBuilderFactory;
 import com.mosaic.parser.graph.builder.NodeBuilders;
-import com.mosaic.parser.graph.builder.RegexpParser;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +22,7 @@ public class ProductionRuleBuilder {
 
     private Map<String,ProductionRule> rules = new HashMap();
 
-    private RegexpParser parser = new RegexpParser();
+    private NodeBuilderFactory parser = new NodeBuilderFactory();
 
 
     public ProductionRule<Void> constant( String name, String constant ) {
@@ -36,13 +36,13 @@ public class ProductionRuleBuilder {
     }
 
     public ProductionRule<String> terminal( String name, String constant, CaseSensitivity caseSensitivity ) {
-        NodeBuilder builder = NodeBuilders.constant( constant, caseSensitivity ).isCapturing( true );
+        NodeBuilder builder = NodeBuilders.constant( constant, caseSensitivity ).isCapturing( true ).isWhitespaceSkipable(true);
 
         return makeRule( name, builder, String.class );
     }
 
     public <T> ProductionRule<T> terminal( String name, String regexp, Class<T> capturedValueType ) {
-        NodeBuilder builder = parser.parse( regexp, rules );
+        NodeBuilder builder = parser.parse( regexp ).isWhitespaceSkipable( true );
 
         if ( capturedValueType == String.class ) {  // todo support more types
             builder = builder.isCapturing(true);

@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class RegexpParserActionTests {
 
-    private RegexpParser  parser    = new RegexpParser();
+    private NodeBuilderFactory parser    = new NodeBuilderFactory();
     private NodeFormatter formatter = NodeFormatter.DETAILED_FORMATTER;
 
 

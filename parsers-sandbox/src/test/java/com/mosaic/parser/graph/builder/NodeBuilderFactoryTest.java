@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -18,9 +19,9 @@ import static org.junit.Assert.*;
  *
  */
 @SuppressWarnings("unchecked")
-public class RegexpParserTest {
+public class NodeBuilderFactoryTest {
 
-    private RegexpParser parser = new RegexpParser();
+    private NodeBuilderFactory parser = new NodeBuilderFactory();
 
 
     @Test
@@ -164,7 +165,7 @@ public class RegexpParserTest {
         assertTrue( op.getPredicate().matches('e') );
         assertTrue( op.getPredicate().matches('l') );
         assertTrue( op.getPredicate().matches(' ') );
-        assertFalse( op.getPredicate().matches(',') );
+        assertFalse( op.getPredicate().matches( ',' ) );
     }
 
     @Test
@@ -172,6 +173,28 @@ public class RegexpParserTest {
         OneOrMoreOp op = (OneOrMoreOp) parser.parse( "[^,]+" );
 
         assertEquals( "([^,])+", op.toString() );
+    }
+
+    @Test
+    public void emptyCharacterSelectionWithMissingBrace_expectException() {
+        try {
+            parser.parse( "[" );
+
+            Assert.fail( "expected IllegalArgumentException" );
+        } catch ( IllegalArgumentException e ) {
+            Assert.assertEquals( "Unable to find closing ']' after '['", e.getMessage() );
+        }
+    }
+
+    @Test
+    public void characterSelectionWithMissingBrace_expectException() {
+        try {
+            parser.parse( "[ab" );
+
+            Assert.fail( "expected IllegalArgumentException" );
+        } catch ( IllegalArgumentException e ) {
+            Assert.assertEquals( "Unable to find closing ']' after '['", e.getMessage() );
+        }
     }
 
     @Test
@@ -254,7 +277,7 @@ public class RegexpParserTest {
     @Test
     public void givenEmptyBuilder_declareRuleWithSingleEmbeddedRuleThatDoesNotExist_expectError() {
         try {
-            parser.parse( "$rule2*" );
+            parser.parse( "$rule2*", Collections.EMPTY_MAP );
 
             Assert.fail( "expected IllegalArgumentException" );
         } catch ( IllegalArgumentException e ) {
@@ -327,6 +350,54 @@ public class RegexpParserTest {
 
         assertEquals( Arrays.asList("1 -$op1-> 2 -,-> 3 -$op1-> 2"), new NodeFormatter().format( n ) );
     }
+
+    @Test
+    public void parseTerminalWithNestedOneOrMoresCombinedWithAnOr() {
+        NodeBuilder rootOp = parser.parse( "[a-zA-Z]+|\"[^\"]*\"" );
+
+
+        Node n = createGraph( rootOp );
+
+        List<String> expected = Arrays.asList(
+            "1 -\"-> 2 -\"-> 3",
+            "         -[^\"]-> 2",
+            "  -[a-zA-Z]-> 4 -[a-zA-Z]-> 4"
+        );
+
+        assertGraphs( expected, n );
+    }
+
+    @Test
+    public void parseTerminalWithNestedBracketedOneOrMoresCombinedWithAnOr() {
+        NodeBuilder rootOp = parser.parse( "([a-zA-Z]+)|(\"[^\"]*\")" );
+
+
+        Node n = createGraph( rootOp );
+
+        List<String> expected = Arrays.asList(
+            "1 -\"-> 2 -\"-> 3",
+            "         -[^\"]-> 2",
+            "  -[a-zA-Z]-> 4 -[a-zA-Z]-> 4"
+        );
+
+        assertGraphs( expected, n );
+    }
+
+    private void assertGraphs( List<String> expected, Node n ) {
+        List<String> actual = new NodeFormatter().format( n );
+
+        try {
+            assertEquals( expected, actual );
+        } catch ( AssertionError e ) {
+            System.out.println( "Actual:" );
+            for ( String line : actual ) {
+                System.out.println( "  " + line);
+            }
+
+            throw e;
+        }
+    }
+
 
     private ProductionRule createRule( String ruleName, String regExp ) {
         NodeBuilder b = parser.parse( "abc" );

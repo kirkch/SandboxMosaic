@@ -25,7 +25,7 @@ public class AndOp extends NodeBuilder {
     }
 
     public AndOp( NodeBuilder...childOps ) {
-        this.childOps = Arrays.asList(childOps);
+        this( Arrays.asList(childOps) );
     }
 
     public String toString() {

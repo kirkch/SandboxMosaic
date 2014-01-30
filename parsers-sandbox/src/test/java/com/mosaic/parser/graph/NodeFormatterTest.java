@@ -101,7 +101,7 @@ public class NodeFormatterTest {
 
         List<String> formattedGraph = formatter.format(startingNode);
 
-        assertEquals( Arrays.asList("1 -a|f|c|d|t|x|b|z|y|0|1|2|3|4|5-> 2"), formattedGraph );
+        assertEquals( Arrays.asList("1 -0|1|2|3|4|5|a|b|c|d|f|t|x|y|z-> 2"), formattedGraph );
     }
 
     @Test
