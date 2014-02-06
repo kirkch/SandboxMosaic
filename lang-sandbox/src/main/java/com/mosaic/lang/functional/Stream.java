@@ -69,6 +69,10 @@ public abstract class Stream<T> implements Iterable<T> {
         public Stream<T> tail() {
             throw new IllegalStateException( "Empty Stream" );
         }
+
+        public String toString() {
+            return "SNil";
+        }
     }
 
     private static class ValueStream<T> extends Stream<T> {
@@ -96,6 +100,10 @@ public abstract class Stream<T> implements Iterable<T> {
             }
 
             return tail;
+        }
+
+        public String toString() {
+            return head + "::tail";
         }
     }
 }

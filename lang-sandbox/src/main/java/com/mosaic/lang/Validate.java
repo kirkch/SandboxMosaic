@@ -159,6 +159,10 @@ public class Validate {
         isTrue( a < b, "%s (%s) must be < %s", fieldName, a, b );
     }
 
+    public static void isLT( long a, long b, String fieldNameA, String fieldNameB ) {
+        isTrue( a < b, "%s (%s) must be < %s (%s)", fieldNameA, a, fieldNameB, b );
+    }
+
     public static void isLT( float a, float b, String fieldName, float tolerance ) {
         isTrue( a-tolerance < b, "%s (%s) must be < %s", fieldName, a, b );
     }

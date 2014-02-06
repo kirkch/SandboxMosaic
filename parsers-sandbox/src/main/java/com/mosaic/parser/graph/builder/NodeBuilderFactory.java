@@ -60,7 +60,7 @@ public class NodeBuilderFactory {
         try {
             Stream <Token> tokens = toTokenStream( 0, regexpString );
 
-            Pair<NodeBuilder,Stream<Token>> result = parseExpression( tokens );
+            Pair<NodeBuilder,Stream<Token>> result = parseOrExpressions( tokens );
 
             assert result.getSecond().isEmpty() : "failed to parse the entire string";
 
@@ -71,14 +71,31 @@ public class NodeBuilderFactory {
     }
 
 
+    private Pair<NodeBuilder,Stream<Token>> parseOrExpressions( Stream<Token> stream ) {
+        Pair<NodeBuilder,Stream<Token>> result = parseExpression( stream );
+
+        while ( isOrSymbol(result.getSecond()) ) {
+            result = parseOrOps( result.getFirst(), result.getSecond() );
+        }
+
+        return result;
+    }
+
+
     /*  GRAMMER:
 
               pre   = ~
               post  = [+*?]
               value = . | [...] | constant | $ref
 
+
               term = (exp) | value
-              exp  = pre* term post* (bi exp)?
+              exp  = pre* term post* (impliedAnd exp)?
+
+              term = (orExpressions) | value
+              exp  = pre* term post* (binaryOp exp)?
+              orExpressions = exp (\| exp)*
+
      */
 
     private Pair<NodeBuilder,Stream<Token>> parseExpression( final Stream<Token> input ) {
@@ -92,7 +109,7 @@ public class NodeBuilderFactory {
         Stream<Token> posAfterPostfix         = parseAndAppendUnaryPostfixOps( unaryOps, termResult.getSecond() );
         NodeBuilder   valueAndUnaryOpsBuilder = applyUnaryOps( unaryOps, termResult.getFirst() );
 
-        return parseBinaryOps( valueAndUnaryOpsBuilder, posAfterPostfix );
+        return parseImplicitAndOps( valueAndUnaryOpsBuilder, posAfterPostfix );
     }
 
     private Stream<Token> parseAndAppendUnaryPrefixOps( List<UnaryOp> unaryOps, Stream<Token> input ) {
@@ -148,7 +165,7 @@ public class NodeBuilderFactory {
         Stream<Token> posAfterTerm;
 
         if ( isOpenBracket(input.head()) ) {
-            Pair<NodeBuilder,Stream<Token>> valueResult = parseExpression(input.tail());
+            Pair<NodeBuilder,Stream<Token>> valueResult = parseOrExpressions( input.tail() );
 
             Stream<Token> posAfterExpression = valueResult.getSecond();
             if ( posAfterExpression.isEmpty() || !isCloseBracket(posAfterExpression.head()) ) {
@@ -167,17 +184,13 @@ public class NodeBuilderFactory {
         return new Pair(term,posAfterTerm);
     }
 
-    private Pair<NodeBuilder, Stream<Token>> parseBinaryOps( NodeBuilder lhs, Stream<Token> pos ) {
+    private Pair<NodeBuilder, Stream<Token>> parseImplicitAndOps( NodeBuilder lhs, Stream <Token> pos ) {
         if ( pos.isEmpty() ) {
             return new Pair(lhs,pos);
         } else if ( isCloseBracket(pos.head()) ) {
             return new Pair(lhs,pos);
         } else if ( isOrSymbol(pos.head()) ) {
-            Pair<NodeBuilder,Stream<Token>> rhsResult = parseExpression( pos.tail() );
-
-            NodeBuilder op = lhs.or( rhsResult.getFirst() );
-
-            return new Pair( op, rhsResult.getSecond() );
+            return new Pair(lhs, pos); // do not handle explicit ors here; the and statements need to unroll first
         } else {
             Pair<NodeBuilder,Stream<Token>> rhsResult = parseExpression( pos );
 
@@ -187,12 +200,55 @@ public class NodeBuilderFactory {
         }
     }
 
+    private Pair<NodeBuilder, Stream<Token>> parseOrOps( NodeBuilder lhs, Stream<Token> pos ) {
+        if ( pos.isEmpty() ) {
+            return new Pair(lhs,pos);
+        } else if ( isOrSymbol(pos.head()) ) {
+            Pair<NodeBuilder,Stream<Token>> rhsResult = parseExpression( pos.tail() );
+
+            NodeBuilder op = lhs.or( rhsResult.getFirst() );
+
+            return new Pair( op, rhsResult.getSecond() );
+        } else {
+            return new Pair(lhs,pos);
+        }
+    }
+
     private boolean isOpenBracket( Token token ) {
         return token.isSpecial && token.c == '(';
     }
 
     private boolean isCloseBracket( Token token ) {
         return token.isSpecial && token.c == ')';
+    }
+
+    private boolean isOpenCurlyBrace( Stream<Token> in ) {
+        if ( in.isEmpty() ) {
+            return false;
+        } else {
+            Token head = in.head();
+
+            return head.isSpecial && head.c == '{';
+        }
+    }
+
+    private boolean isCloseCurlyBrace( Stream<Token> in ) {
+        if ( in.isEmpty() ) {
+            return false;
+        } else {
+            Token head = in.head();
+
+            return head.isSpecial && head.c == '}';
+        }
+    }
+
+    private boolean isOrSymbol( Stream<Token> in ) {
+        if ( in.isEmpty() ) {
+            return false;
+        }
+
+        Token head = in.head();
+        return head.isSpecial && head.c == '|';
     }
 
     private boolean isOrSymbol( Token token ) {
@@ -297,6 +353,13 @@ public class NodeBuilderFactory {
         StringBuilder buf = new StringBuilder();
 
         Stream<Token> pos = input;
+
+        boolean isBracketed = false;
+        if ( isOpenCurlyBrace(pos) ) {
+            pos = pos.tail();
+            isBracketed = true;
+        }
+
         while ( pos.notEmpty() ) {
             Token token = pos.head();
 
@@ -307,6 +370,14 @@ public class NodeBuilderFactory {
             }
 
             pos = pos.tail();
+        }
+
+        if ( isBracketed ) {
+            if ( isCloseCurlyBrace( pos ) ) {
+                pos = pos.tail();
+            } else {
+                throw new IllegalArgumentException( "'${"+buf.toString().trim()+"' must end with a '}'" );
+            }
         }
 
         String         opName       = buf.toString().trim();

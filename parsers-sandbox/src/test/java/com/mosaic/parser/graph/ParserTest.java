@@ -427,7 +427,7 @@ public class ParserTest {
         assertEquals( expectedAudit, l.audit );
     }
 
-//    @Test
+    @Test
     public void givenComplexNonTerminalFollowedByAnotherRule_parseMatchingTextWithCallbackAndCaptureValue_expectCallback() {
         b.constant( "HelloRule", "Hello" );
         ProductionRule nameRule = b.terminal( "NameRule", "[a-zA-Z]+|\"[^\"]+\"", String.class ).withCallback(RecordingParserListener.class,"hello");

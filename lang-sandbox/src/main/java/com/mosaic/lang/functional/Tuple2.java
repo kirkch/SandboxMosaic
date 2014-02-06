@@ -21,4 +21,7 @@ public class Tuple2<V1,V2> {
         return v2;
     }
 
+    public String toString() {
+        return "("+v1+","+v2+")";
+    }
 }

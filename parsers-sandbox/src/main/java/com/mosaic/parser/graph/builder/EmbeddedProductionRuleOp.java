@@ -36,7 +36,7 @@ public class EmbeddedProductionRuleOp extends NodeBuilder {
 
 
     public String toString() {
-        return "$"+embeddedRule.name();
+        return "${"+embeddedRule.name()+"}";
     }
 
 
@@ -57,7 +57,7 @@ public class EmbeddedProductionRuleOp extends NodeBuilder {
         }
 
         public int compareTo( CharacterPredicate o ) {
-            return o == this ? 0 : -1;
+            return this.toString().compareTo( o.toString() );
         }
     }
 }

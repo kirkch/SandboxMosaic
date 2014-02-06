@@ -16,6 +16,14 @@ import java.util.Set;
 import static com.mosaic.collections.ConsList.Nil;
 
 
+
+// StartNode      (isTerminal)
+// NormalNode
+// EndNode        (isGreedy, valuePostProcessor, callback)
+
+
+
+
 /**
  *
  */

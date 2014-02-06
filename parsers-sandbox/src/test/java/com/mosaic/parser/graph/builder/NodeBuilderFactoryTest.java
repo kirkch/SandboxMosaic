@@ -293,7 +293,7 @@ public class NodeBuilderFactoryTest {
 
         NodeBuilder op2 = parser.parse( "$op1", ops );
 
-        assertEquals( "$op1", op2.toString() );
+        assertEquals( "${op1}", op2.toString() );
 
 
         Node n = createGraph( op2 );
@@ -310,7 +310,7 @@ public class NodeBuilderFactoryTest {
 
         NodeBuilder rootOp = parser.parse( "$op1$op2", ops );
 
-        assertEquals( "$op1 $op2", rootOp.toString() );
+        assertEquals( "${op1} ${op2}", rootOp.toString() );
 
 
         Node n = createGraph( rootOp );
@@ -327,12 +327,43 @@ public class NodeBuilderFactoryTest {
 
         NodeBuilder rootOp = parser.parse( "$op1  $op2", ops );
 
-        assertEquals( "$op1 $op2", rootOp.toString() );
+        assertEquals( "${op1} ${op2}", rootOp.toString() );
 
 
         Node n = createGraph( rootOp );
 
         assertEquals( Arrays.asList("1 -$op1-> 2 -$op2-> 3"), new NodeFormatter().format( n ) );
+    }
+
+    @Test
+    public void embeddedRuleFollowedByConstant_haveToUseQuotedRuleNameFormat() {
+        Map<String,ProductionRule> ops = MapUtils.asMap(
+            "op1", createRule("op1", "abc")
+        );
+
+        NodeBuilder rootOp = parser.parse( "${op1}123", ops );
+
+        assertEquals( "${op1}123", rootOp.toString() );
+
+
+        Node n = createGraph( rootOp );
+
+        assertEquals( Arrays.asList("1 -$op1-> 2 -1-> 3 -2-> 4 -3-> 5"), new NodeFormatter().format(n) );
+    }
+
+    @Test
+    public void givenQuotedEmbeddedRuleRefWhichIsMissingItsClosingBrace_expectError() {
+        Map<String,ProductionRule> ops = MapUtils.asMap(
+            "op1", createRule("op1", "abc")
+        );
+
+        try {
+            parser.parse( "${op1123", ops );
+
+            Assert.fail( "expected IllegalArgumentException" );
+        } catch ( IllegalArgumentException e ) {
+            Assert.assertEquals( "'${op1123' must end with a '}'", e.getMessage() );
+        }
     }
 
     @Test
@@ -343,13 +374,58 @@ public class NodeBuilderFactoryTest {
 
         NodeBuilder rootOp = parser.parse( "$op1  (,$op1)*", ops );
 
-        assertEquals( "$op1(, $op1)*", rootOp.toString() );
+        assertEquals( "${op1}(, ${op1})*", rootOp.toString() );
 
 
         Node n = createGraph( rootOp );
 
         assertEquals( Arrays.asList("1 -$op1-> 2 -,-> 3 -$op1-> 2"), new NodeFormatter().format( n ) );
     }
+
+    @Test
+    public void compositeBracketedLHSOfOr() {
+        Map<String,ProductionRule> ops = MapUtils.asMap(
+            "op1", createRule("op1", "a"),
+            "op2", createRule("op2", "b")
+        );
+
+        NodeBuilder rootOp = parser.parse( "(\"${op1}\")|${op2}", ops );
+
+        assertEquals( "\"${op1}\"|${op2}", rootOp.toString() );
+
+
+        Node n = createGraph( rootOp );
+
+        List<String> expected = Arrays.asList(
+            "1 -\"-> 2 -$op1-> 3 -\"-> 4",
+            "  -$op2-> 5"
+        );
+        assertEquals( expected, new NodeFormatter().format( n ) );
+    }
+
+    @Test
+    public void compositeUnbracketedLHSOfOr() {
+        Map<String,ProductionRule> ops = MapUtils.asMap(
+            "op1", createRule("op1", "a"),
+            "op2", createRule("op2", "b")
+        );
+
+        NodeBuilder rootOp = parser.parse( "\"${op1}\"|${op2}", ops );
+
+        assertEquals( "\"${op1}\"|${op2}", rootOp.toString() );
+
+
+        Node n = createGraph( rootOp );
+
+        List<String> expected = Arrays.asList(
+            "1 -\"-> 2 -$op1-> 3 -\"-> 4",
+            "  -$op2-> 5"
+        );
+        assertEquals( expected, new NodeFormatter().format( n ) );
+    }
+
+
+// NESTED CASES THAT HAVE CAUSED SOME PROBLEMS
 
     @Test
     public void parseTerminalWithNestedOneOrMoresCombinedWithAnOr() {
