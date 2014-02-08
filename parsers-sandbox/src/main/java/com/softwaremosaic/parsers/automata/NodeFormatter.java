@@ -29,7 +29,7 @@ import java.util.Set;
 public class NodeFormatter<T extends Comparable<T>> {
 
     public List<String> format( Node<T> startingNode ) {
-        Validate.notNull( startingNode, "startingNode" );
+        Validate.argNotNull( startingNode, "startingNode" );
 
         final List<String> formattedGraph = new ArrayList();
 

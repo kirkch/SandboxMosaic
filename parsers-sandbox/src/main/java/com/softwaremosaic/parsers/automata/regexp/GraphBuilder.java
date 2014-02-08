@@ -9,6 +9,7 @@ import com.softwaremosaic.parsers.automata.Nodes;
  * to represent a regular expression that can be appended to any graph on
  * demand.
  */
+@SuppressWarnings("unchecked")
 public abstract class GraphBuilder<T extends Comparable<T>> {
 
     /**

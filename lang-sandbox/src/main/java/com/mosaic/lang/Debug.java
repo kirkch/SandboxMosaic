@@ -1,7 +1,8 @@
 package com.mosaic.lang;
 
 /**
- * Util class for printing out debug code. Tuned so that it can be optimised out by hotspot within production environments.
+ * Util class for printing out debug code. Tuned so that it can be optimised
+ * out by hotspot within production environments.
  */
 public class Debug {
 
@@ -59,5 +60,9 @@ public class Debug {
         }
 
         log( buf.toString() );
+    }
+
+    public static void assertTrue( boolean b, String recordIndex, String numRecordsAllocated ) {
+
     }
 }

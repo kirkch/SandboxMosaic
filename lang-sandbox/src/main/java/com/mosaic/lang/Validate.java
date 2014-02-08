@@ -6,341 +6,659 @@ import com.mosaic.utils.MathUtils;
 import com.mosaic.utils.StringUtils;
 
 /**
- *
+ * A suite of argument and state validations.  Use to enforce api contracts
+ * with only one line per contract.
  */
+@SuppressWarnings("UnusedDeclaration")
 public class Validate {
 // isGTE
 
-    public static void isGTE( byte a, byte b, String fieldName ) {
-        isTrue( a >= b, "%s (%s) must be >= %s", fieldName, a, b );
+    public static void argIsGTE( byte a, byte b, String argName ) {
+        if ( a < b ) {
+            throwException( "%s (%s) must be >= %s", argName, a, b );
+        }
     }
 
-    public static void isGTE( short a, short b, String fieldName ) {
-        isTrue( a >= b, "%s (%s) must be >= %s", fieldName, a, b );
+    public static void argIsGTE( short a, short b, String argName ) {
+        if ( a < b ) {
+            throwException( "%s (%s) must be >= %s", argName, a, b );
+        }
     }
 
-    public static void isGTE( int a, int b, String fieldName ) {
-        isTrue( a >= b, "%s (%s) must be >= %s", fieldName, a, b );
+    public static void argIsGTE( int a, int b, String argName ) {
+        if ( a < b ) {
+            throwException( "%s (%s) must be >= %s", argName, a, b );
+        }
     }
 
-    public static <T extends Throwable> void isGTE( int a, int b, String fieldName, Class<T> exceptionType ) {
-        isTrue( a >= b, exceptionType, "%s (%s) must be >= %s", fieldName, a, b );
+    public static void argIsGTE( long a, long b, String argName ) {
+        if ( a < b ) {
+            throwException( "%s (%s) must be >= %s", argName, a, b );
+        }
     }
 
-    public static void isGTE( long a, long b, String fieldName ) {
-        isTrue( a >= b, "%s (%s) must be >= %s", fieldName, a, b );
+    public static void argIsGTE( float a, float b, String argName, float tolerance ) {
+        if ( a < b ) {
+            throwException( "%s (%s) must be >= %s", argName, a, b );
+        }
     }
 
-    public static void isGTE( float a, float b, String fieldName, float tolerance ) {
-        isTrue( a-tolerance >= b, "%s (%s) must be >= %s", fieldName, a, b );
+    public static void argIsGTE( double a, double b, String argName, double tolerance ) {
+        if ( a < b ) {
+            throwException( "%s (%s) must be >= %s", argName, a, b );
+        }
     }
 
-    public static void isGTE( double a, double b, String fieldName, double tolerance ) {
-        isTrue( a-tolerance >= b, "%s (%s) must be >= %s", fieldName, a, b );
+    public static <T extends Comparable<T>> void argIsGTE( T a, T b, String argName ) {
+        if ( a.compareTo(b) < 0 ) {
+            throwException( "%s (%s) must be >= %s", argName, a, b );
+        }
     }
 
-    public static <T extends Comparable<T>> void isGTE( T a, T b, String fieldName ) {
-        isTrue( a.compareTo(b) == 0, "%s (%s) must be >= %s", fieldName, a, b );
+    public static void isGTE( byte a, byte b, String message, Object...args ) {
+        isTrue( a >= b, IllegalStateException.class, message, args );
+    }
+
+    public static void isGTE( short a, short b, String message, Object...args ) {
+        isTrue( a >= b, IllegalStateException.class, message, args );
+    }
+
+    public static void isGTE( int a, int b, String message, Object...args ) {
+        isTrue( a >= b, IllegalStateException.class, message, args );
+    }
+
+    public static void isGTE( long a, long b, String message, Object...args ) {
+        isTrue( a >= b, IllegalStateException.class, message, args );
+    }
+
+    public static void isGTE( float a, float b, float tolerance, String message, Object...args ) {
+        isTrue( a-tolerance >= b, IllegalStateException.class, message, args );
+    }
+
+    public static void isGTE( double a, double b, double tolerance, String message, Object...args ) {
+        isTrue( a-tolerance >= b, IllegalStateException.class, message, args );
+    }
+
+    public static <T extends Comparable<T>> void isGTE( T a, T b, String message, Object...args ) {
+        isTrue( a.compareTo(b) >= 0, IllegalStateException.class, message, args );
     }
 
 
 // isGTZero
 
-    public static void isGTZero( byte a, String fieldName ) {
-        isGTE( a, 1, fieldName );
+    public static void argIsGTZero( byte a, String argName ) {
+        if ( a <= 0 ) {
+            throwException( "%s (%s) must be > 0", argName, a );
+        }
     }
 
-    public static void isGTZero( short a, String fieldName ) {
-        isGTE( a, 1, fieldName );
+    public static void argIsGTZero( short a, String argName ) {
+        if ( a <= 0 ) {
+            throwException( "%s (%s) must be > 0", argName, a );
+        }
     }
 
-    public static void isGTZero( int a, String fieldName ) {
-        isGTE( a, 1, fieldName );
+    public static void argIsGTZero( int a, String argName ) {
+        if ( a <= 0 ) {
+            throwException( "%s (%s) must be > 0", argName, a );
+        }
     }
 
-    public static void isGTZero( long a, String fieldName ) {
-        isGTE( a, 1, fieldName );
+    public static void argIsGTZero( long a, String argName ) {
+        if ( a <= 0 ) {
+            throwException( "%s (%s) must be > 0", argName, a );
+        }
     }
 
-    public static void isGTZero( float a, String fieldName, float tolerance ) {
-        isGTE( a, 0.0f, fieldName, tolerance );
+    public static void argIsGTZero( float a, String argName, float tolerance ) {
+        if ( a+tolerance <= 0 ) {
+            throwException( "%s (%s) must be > 0", argName, a );
+        }
     }
 
-    public static void isGTZero( double a, String fieldName, double tolerance ) {
-        isGTE( a, 0.0, fieldName, tolerance );
+    public static void argIsGTZero( double a, String argName, double tolerance ) {
+        if ( a+tolerance <= 0 ) {
+            throwException( "%s (%s) must be > 0", argName, a );
+        }
     }
 
-    public static <T extends MathematicalNumber<T>> void isGTZero( T a, String fieldName ) {
-        isGTE( a, a.zero(), fieldName );
+
+    public static void isGTZero( byte a, String message, Object...args ) {
+        isTrue( a > 0, IllegalStateException.class, message, args );
+    }
+
+    public static void isGTZero( short a, String message, Object...args ) {
+        isTrue( a > 0, IllegalStateException.class, message, args );
+    }
+
+    public static void isGTZero( int a, String message, Object...args ) {
+        isTrue( a > 0, IllegalStateException.class, message, args );
+    }
+
+    public static void isGTZero( long a, String message, Object...args ) {
+        isTrue( a > 0, IllegalStateException.class, message, args );
+    }
+
+    public static void isGTZero( float a, float tolerance, String message, Object...args ) {
+        isTrue( a-tolerance > 0, IllegalStateException.class, message, args );
+    }
+
+    public static void isGTZero( double a, double tolerance, String message, Object...args ) {
+        isTrue( a-tolerance > 0, IllegalStateException.class, message, args );
     }
 
 
 
 // isGTEZero
 
-    public static void isGTEZero( byte a, String fieldName ) {
-        isGTE( a, 0, fieldName );
+    public static void argIsGTEZero( byte a, String argName ) {
+        if ( a < 0 ) {
+            throwException( "%s (%s) must be >= 0", argName, a );
+        }
     }
 
-    public static void isGTEZero( short a, String fieldName ) {
-        isGTE( a, 0, fieldName );
+    public static void argIsGTEZero( short a, String argName ) {
+        if ( a < 0 ) {
+            throwException( "%s (%s) must be >= 0", argName, a );
+        }
     }
 
-    public static void isGTEZero( int a, String fieldName ) {
-        isGTE( a, 0, fieldName );
+    public static void argIsGTEZero( int a, String argName ) {
+        if ( a < 0 ) {
+            throwException( "%s (%s) must be >= 0", argName, a );
+        }
     }
 
-    public static void isGTEZero( long a, String fieldName ) {
-        isGTE( a, 0, fieldName );
+    public static void argIsGTEZero( long a, String argName ) {
+        if ( a < 0 ) {
+            throwException( "%s (%s) must be >= 0", argName, a );
+        }
     }
 
-    public static void isGTEZero( float a, String fieldName, float tolerance ) {
-        isGTE( a, 0f, fieldName, tolerance );
+    public static void argIsGTEZero( float a, String argName, float tolerance ) {
+        if ( a+tolerance < 0 ) {
+            throwException( "%s (%s) must be >= 0", argName, a );
+        }
     }
 
-    public static void isGTEZero( double a, String fieldName, double tolerance ) {
-        isGTE( a, 0.0, fieldName, tolerance );
+    public static void argIsGTEZero( double a, String argName, double tolerance ) {
+        if ( a+tolerance < 0 ) {
+            throwException( "%s (%s) must be >= 0", argName, a );
+        }
     }
 
-    public static <T extends MathematicalNumber<T>> void isGTEZero( T a, String fieldName ) {
-        isGTE( a, a.zero(), fieldName );
+    public static void isGTEZero( byte a, String message, Object...args ) {
+        isTrue( a >= 0, IllegalStateException.class, message, args );
     }
+
+    public static void isGTEZero( short a, String message, Object...args ) {
+        isTrue( a >= 0, IllegalStateException.class, message, args );
+    }
+
+    public static void isGTEZero( int a, String message, Object...args ) {
+        isTrue( a >= 0, IllegalStateException.class, message, args );
+    }
+
+    public static void isGTEZero( long a, String message, Object...args ) {
+        isTrue( a >= 0, IllegalStateException.class, message, args );
+    }
+
+    public static void isGTEZero( float a, float tolerance, String message, Object...args ) {
+        isTrue( a+tolerance >= 0, IllegalStateException.class, message, args );
+    }
+
+    public static void isGTEZero( double a, double tolerance, String message, Object...args ) {
+        isTrue( a+tolerance >= 0, IllegalStateException.class, message, args );
+    }
+
 
 
 // isGT
 
-    public static void isGT( byte a, byte b, String fieldName ) {
-        isTrue( a > b, "%s (%s) must be > %s", fieldName, a, b );
+    public static void argIsGT( byte a, byte b, String argName ) {
+        if ( a <= b ) {
+            throwException( "%s (%s) must be > %s", argName, a, b );
+        }
     }
 
-    public static void isGT( short a, short b, String fieldName ) {
-        isTrue( a > b, "%s (%s) must be > %s", fieldName, a, b );
+    public static void argIsGT( short a, short b, String argName ) {
+        if ( a <= b ) {
+            throwException( "%s (%s) must be > %s", argName, a, b );
+        }
     }
 
-    public static void isGT( int a, int b, String fieldName ) {
-        isTrue( a > b, "%s (%s) must be > %s", fieldName, a, b );
+    public static void argIsGT( int a, int b, String argName ) {
+        if ( a <= b ) {
+            throwException( "%s (%s) must be > %s", argName, a, b );
+        }
     }
 
-    public static <T extends Throwable> void isGT( int a, int b, String fieldName, Class<T> exceptionType ) {
-        isTrue( a > b, exceptionType, "%s (%s) must be > %s", fieldName, a, b );
+    public static <T extends Throwable> void argIsGT( int a, int b, String argName, Class<T> exceptionType ) {
+        if ( a <= b ) {
+            throwException( "%s (%s) must be > %s", argName, a, b );
+        }
     }
 
-    public static void isGT( long a, long b, String fieldName ) {
-        isTrue( a > b, "%s (%s) must be > %s", fieldName, a, b );
+    public static void argIsGT( long a, long b, String argName ) {
+        if ( a <= b ) {
+            throwException( "%s (%s) must be > %s", argName, a, b );
+        }
     }
 
-    public static void isGT( float a, float b, String fieldName, float tolerance ) {
-        isTrue( a-tolerance > b, "%s (%s) must be > %s", fieldName, a, b );
+    public static void argIsGT( float a, float b, String argName, float tolerance ) {
+        if ( a <= b ) {
+            throwException( "%s (%s) must be > %s", argName, a, b );
+        }
     }
 
-    public static void isGT( double a, double b, String fieldName, double tolerance ) {
-        isTrue( a-tolerance > b, "%s (%s) must be > %s", fieldName, a, b );
+    public static void argIsGT( double a, double b, String argName, double tolerance ) {
+        if ( a+tolerance <= b ) {
+            throwException( "%s (%s) must be > %s", argName, a, b );
+        }
     }
 
-    public static <T extends Comparable<T>> void isGT( T a, T b, String fieldName ) {
-        isTrue( a.compareTo(b) > 0, "%s (%s) must be > %s", fieldName, a, b );
+    public static <T extends Comparable<T>> void argIsGT( T a, T b, String argName ) {
+        if ( a.compareTo(b) <= 0 ) {
+            throwException( "%s (%s) must be > %s", argName, a, b );
+        }
+    }
+
+    public static void isGT( byte a, byte b, String message, Object...args ) {
+        isTrue( a > b, IllegalStateException.class, message, args );
+    }
+
+    public static void isGT( short a, short b, String message, Object...args ) {
+        isTrue( a > b, IllegalStateException.class, message, args );
+    }
+
+    public static void isGT( int a, int b, String message, Object...args ) {
+        isTrue( a > b, IllegalStateException.class, message, args );
+    }
+
+    public static void isGT( long a, long b, String message, Object...args ) {
+        isTrue( a > b, IllegalStateException.class, message, args );
+    }
+
+    public static void isGT( float a, float b, float tolerance, String message, Object...args ) {
+        isTrue( a-tolerance > b, IllegalStateException.class, message, args );
+    }
+
+    public static void isGT( double a, double b, double tolerance, String message, Object...args ) {
+        isTrue( a-tolerance > b, IllegalStateException.class, message, args );
+    }
+
+    public static <T extends Comparable<T>> void isGT( T a, T b, String message, Object...args ) {
+        isTrue( a.compareTo(b) > 0, IllegalStateException.class, message, args );
     }
 
 // isLT
 
-    public static void isLT( byte a, byte b, String fieldName ) {
-        isTrue( a < b, "%s (%s) must be < %s", fieldName, a, b );
+    public static void argIsLT( byte a, byte b, String argName ) {
+        if ( a >= b ) {
+            throwException( "%s (%s) must be < %s", argName, a, b );
+        }
     }
 
-    public static void isLT( short a, short b, String fieldName ) {
-        isTrue( a < b, "%s (%s) must be < %s", fieldName, a, b );
+    public static void argIsLT( short a, short b, String argName ) {
+        if ( a >= b ) {
+            throwException( "%s (%s) must be < %s", argName, a, b );
+        }
     }
 
-    public static void isLT( int a, int b, String fieldName ) {
-        isTrue( a < b, "%s (%s) must be < %s", fieldName, a, b );
+    public static void argIsLT( int a, int b, String argName ) {
+        if ( a >= b ) {
+            throwException( "%s (%s) must be < %s", argName, a, b );
+        }
     }
 
-    public static void isLT( long a, long b, String fieldName ) {
-        isTrue( a < b, "%s (%s) must be < %s", fieldName, a, b );
+    public static void argIsLT( long a, long b, String argName ) {
+        if ( a >= b ) {
+            throwException( "%s (%s) must be < %s", argName, a, b );
+        }
     }
 
-    public static void isLT( long a, long b, String fieldNameA, String fieldNameB ) {
-        isTrue( a < b, "%s (%s) must be < %s (%s)", fieldNameA, a, fieldNameB, b );
+    public static void argAIsLTArgB( long a, long b, String argNameA, String argNameB ) {
+        if ( a >= b ) {
+            throwException( "%s (%s) must be < %s (%s)", argNameA, a, argNameB, b );
+        }
     }
 
-    public static void isLT( float a, float b, String fieldName, float tolerance ) {
-        isTrue( a-tolerance < b, "%s (%s) must be < %s", fieldName, a, b );
+    public static void argIsLT( float a, float b, String argName, float tolerance ) {
+        if ( a+tolerance >= b ) {
+            throwException( "%s (%s) must be < %s", argName, a, b );
+        }
     }
 
-    public static void isLT( double a, double b, String fieldName, double tolerance ) {
-        isTrue( a-tolerance < b, "%s (%s) must be < %s", fieldName, a, b );
+    public static void argIsLT( double a, double b, String argName, double tolerance ) {
+        if ( a-tolerance >= b ) {
+            throwException( "%s (%s) must be < %s", argName, a, b );
+        }
     }
 
-    public static <T extends Comparable<T>> void isLT( T a, T b, String fieldName ) {
-        isTrue( a.compareTo(b) < 0, "%s (%s) must be < %s", fieldName, a, b );
+    public static <T extends Comparable<T>> void argIsLT( T a, T b, String argName ) {
+        if ( a.compareTo(b) >= 0 ) {
+            throwException( "%s (%s) must be < %s", argName, a, b );
+        }
+    }
+
+    public static void isLT( byte a, byte b, String message, Object...args ) {
+        isTrue( a < b, IllegalStateException.class, message, args );
+    }
+
+    public static void isLT( short a, short b, String message, Object...args ) {
+        isTrue( a < b, IllegalStateException.class, message, args );
+    }
+
+    public static void isLT( int a, int b, String message, Object...args ) {
+        isTrue( a < b, IllegalStateException.class, message, args );
+    }
+
+    public static void isLT( long a, long b, String message, Object...args ) {
+        if ( a - b >= 0 ) { // condition added here as this method was shown to be slow without it in benchmarks
+            isTrue( a < b, IllegalStateException.class, message, args );
+        }
+    }
+
+    public static void isLT( float a, float b, float tolerance, String message, Object...args ) {
+        isTrue( a-tolerance < b, IllegalStateException.class, message, args );
+    }
+
+    public static void isLT( double a, double b, double tolerance, String message, Object...args ) {
+        isTrue( a-tolerance < b, IllegalStateException.class, message, args );
+    }
+
+    public static <T extends Comparable<T>> void isLT( T a, T b, String message, Object...args ) {
+        isTrue( a.compareTo(b) < 0, message, args );
     }
 
 // isLTE
 
-    public static void isLTE( byte a, byte b, String fieldName ) {
-        isTrue( a <= b, "%s (%s) must be <= %s", fieldName, a, b );
+    public static void argIsLTE( byte a, byte b, String argName ) {
+        if ( a > b ) {
+            throwException( "%s (%s) must be <= %s", argName, a, b );
+        }
     }
 
-    public static void isLTE( short a, short b, String fieldName ) {
-        isTrue( a <= b, "%s (%s) must be <= %s", fieldName, a, b );
+    public static void argIsLTE( short a, short b, String argName ) {
+        if ( a > b ) {
+            throwException( "%s (%s) must be <= %s", argName, a, b );
+        }
     }
 
-    public static void isLTE( int a, int b, String fieldName ) {
-        isTrue( a <= b, "%s (%s) must be <= %s", fieldName, a, b );
+    public static void argIsLTE( int a, int b, String argName ) {
+        if ( a > b ) {
+            throwException( "%s (%s) must be <= %s", argName, a, b );
+        }
     }
 
-    public static void isLTE( long a, long b, String fieldName ) {
-        isTrue( a <= b, "%s (%s) must be <= %s", fieldName, a, b );
+    public static void argIsLTE( long a, long b, String argName ) {
+        if ( a > b ) {
+            throwException( "%s (%s) must be <= %s", argName, a, b );
+        }
     }
 
-    public static void isLTE( float a, float b, String fieldName, float tolerance ) {
-        isTrue( a-tolerance <= b, "%s (%s) must be <= %s", fieldName, a, b );
+    public static void argIsLTE( float a, float b, String argName, float tolerance ) {
+        if ( a > b-tolerance ) {
+            throwException( "%s (%s) must be <= %s", argName, a, b );
+        }
     }
 
-    public static void isLTE( double a, double b, String fieldName, double tolerance ) {
-        isTrue( a-tolerance <= b, "%s (%s) must be <= %s", fieldName, a, b );
+    public static void argIsLTE( double a, double b, String argName, double tolerance ) {
+        if ( a-tolerance > b ) {
+            throwException( "%s (%s) must be <= %s", argName, a, b );
+        }
     }
 
-    public static <T extends Comparable<T>> void isLTE( T a, T b, String fieldName ) {
-        isTrue( a.compareTo(b) <= 0, "%s (%s) must be <= %s", fieldName, a, b );
+    public static <T extends Comparable<T>> void argIsLTE( T a, T b, String argName ) {
+        if ( a.compareTo(b) > 0 ) {
+            throwException( "%s (%s) must be <= %s", argName, a, b );
+        }
+    }
+
+    public static void isLTE( byte a, byte b, String message, Object...args ) {
+        isTrue( a <= b, IllegalStateException.class, message, args );
+    }
+
+    public static void isLTE( short a, short b, String message, Object...args ) {
+        isTrue( a <= b, IllegalStateException.class, message, args );
+    }
+
+    public static void isLTE( int a, int b, String message, Object...args ) {
+        isTrue( a <= b, IllegalStateException.class, message, args );
+    }
+
+    public static void isLTE( long a, long b, String message, Object...args ) {
+        isTrue( a <= b, IllegalStateException.class, message, args );
+    }
+
+    public static void isLTE( float a, float b, float tolerance, String message, Object...args ) {
+        isTrue( a-tolerance <= b, IllegalStateException.class, message, args );
+    }
+
+    public static void isLTE( double a, double b, double tolerance, String message, Object...args ) {
+        isTrue( a-tolerance <= b, IllegalStateException.class, message, args );
+    }
+
+    public static <T extends Comparable<T>> void isLTEObjects( T a, T b, String message, Object...args ) {
+        isTrue( a.compareTo(b) <= 0, IllegalStateException.class, message, args );
     }
 
 // isLTZero
 
-    public static void isLTZero( byte a, String fieldName ) {
-        isLT( a, 0, fieldName );
+    public static void argIsLTZero( byte a, String argName ) {
+        if ( a >= 0 ) {
+            throwException( "%s (%s) must be < 0", argName, a );
+        }
     }
 
-    public static void isLTZero( short a, String fieldName ) {
-        isLT( a, 0, fieldName );
+    public static void argIsLTZero( short a, String argName ) {
+        if ( a >= 0 ) {
+            throwException( "%s (%s) must be < 0", argName, a );
+        }
     }
 
-    public static void isLTZero( int a, String fieldName ) {
-        isLT( a, 0, fieldName );
+    public static void argIsLTZero( int a, String argName ) {
+        if ( a >= 0 ) {
+            throwException( "%s (%s) must be < 0", argName, a );
+        }
     }
 
-    public static void isLTZero( long a, String fieldName ) {
-        isLT( a, 0, fieldName );
+    public static void argIsLTZero( long a, String argName ) {
+        if ( a >= 0 ) {
+            throwException( "%s (%s) must be < 0", argName, a );
+        }
     }
 
-    public static void isLTZero( float a, String fieldName, float tolerance ) {
-        isLT( a, 0.0f, fieldName, tolerance );
+    public static void argIsLTZero( float a, String argName, float tolerance ) {
+        if ( a >= 0 ) {
+            throwException( "%s (%s) must be < 0", argName, a );
+        }
     }
 
-    public static void isLTZero( double a, String fieldName, double tolerance ) {
-        isLT( a, 0.0, fieldName, tolerance );
+    public static void argIsLTZero( double a, String argName, double tolerance ) {
+        if ( a >= 0 ) {
+            throwException( "%s (%s) must be < 0", argName, a );
+        }
     }
 
-    public static <T extends MathematicalNumber<T>> void isLTZero( T a, String fieldName ) {
-        isLT( a, a.zero(), fieldName );
+    public static <T extends MathematicalNumber<T>> void argIsLTZero( T a, String argName ) {
+        if ( a.isGTZero() ) {
+            throwException( "%s (%s) must be < 0", argName, a );
+        }
+    }
+
+    public static void isLTZero( byte a, String message, Object...args ) {
+        isTrue( a < 0, IllegalStateException.class, message, args );
+    }
+
+    public static void isLTZero( short a, String message, Object...args ) {
+        isTrue( a < 0, IllegalStateException.class, message, args );
+    }
+
+    public static void isLTZero( int a, String message, Object...args ) {
+        isTrue( a < 0, IllegalStateException.class, message, args );
+    }
+
+    public static void isLTZero( long a, String message, Object...args ) {
+        isTrue( a < 0, IllegalStateException.class, message, args );
+    }
+
+    public static void isLTZero( float a, float tolerance, String message, Object...args ) {
+        isTrue( a < 0f, IllegalStateException.class, message, args, tolerance );
+    }
+
+    public static void isLTZero( double a, double tolerance, String message, Object...args ) {
+        isTrue( a < 0.0, IllegalStateException.class, message, args, tolerance );
+    }
+
+    public static <T extends MathematicalNumber<T>> void isLTZero( T a, String message, Object...args ) {
+        isTrue( a.isLTEZero(), IllegalStateException.class, message, args );
     }
 
 // isLTEZero
 
-    public static void isLTEZero( byte a, String fieldName ) {
-        isLTE( a, 0, fieldName );
+    public static void argIsLTEZero( byte a, String argName ) {
+        if ( a > 0 ) {
+            throwException( "%s (%s) must be <= 0", argName, a );
+        }
     }
 
-    public static void isLTEZero( short a, String fieldName ) {
-        isLTE( a, 0, fieldName );
+    public static void argIsLTEZero( short a, String argName ) {
+        if ( a > 0 ) {
+            throwException( "%s (%s) must be <= 0", argName, a );
+        }
     }
 
-    public static void isLTEZero( int a, String fieldName ) {
-        isLTE( a, 0, fieldName );
+    public static void argIsLTEZero( int a, String argName ) {
+        if ( a > 0 ) {
+            throwException( "%s (%s) must be <= 0", argName, a );
+        }
     }
 
-    public static void isLTEZero( long a, String fieldName ) {
-        isLTE( a, 0, fieldName );
+    public static void argIsLTEZero( long a, String argName ) {
+        if ( a > 0 ) {
+            throwException( "%s (%s) must be <= 0", argName, a );
+        }
     }
 
-    public static void isLTEZero( float a, String fieldName, float tolerance ) {
-        isLTE( a, 0.0f, fieldName, tolerance );
+    public static void argIsLTEZero( float a, String argName, float tolerance ) {
+        if ( a > 0 ) {
+            throwException( "%s (%s) must be <= 0", argName, a );
+        }
     }
 
-    public static void isLTEZero( double a, String fieldName, double tolerance ) {
-        isLTE( a, 0.0, fieldName, tolerance );
+    public static void argIsLTEZero( double a, String argName, double tolerance ) {
+        if ( a > 0 ) {
+            throwException( "%s (%s) must be <= 0", argName, a );
+        }
     }
 
-    public static <T extends MathematicalNumber<T>> void isLTEZero( T a, String fieldName ) {
-        isLTE( a, a.zero(), fieldName );
+    public static <T extends MathematicalNumber<T>> void argIsLTEZero( T a, String argName ) {
+        if ( a.isGTZero() ) {
+            throwException( "%s (%s) must be <= 0", argName, a );
+        }
+    }
+
+    public static void isLTEZero( byte a, String message, Object...args ) {
+        isTrue( a <= 0, IllegalStateException.class, message, args );
+    }
+
+    public static void isLTEZero( short a, String message, Object...args ) {
+        isTrue( a <= 0, IllegalStateException.class, message, args );
+    }
+
+    public static void isLTEZero( int a, String message, Object...args ) {
+        isTrue( a <= 0, IllegalStateException.class, message, args );
+    }
+
+    public static void isLTEZero( long a, String message, Object...args ) {
+        isTrue( a <= 0, IllegalStateException.class, message, args );
+    }
+
+    public static void isLTEZero( float a, float tolerance, String message, Object...args ) {
+        isTrue( a - tolerance <= 0, IllegalStateException.class, message, args );
+    }
+
+    public static void isLTEZero( double a, double tolerance, String message, Object...args ) {
+        isTrue( a - tolerance <= 0, IllegalStateException.class, message, args );
+    }
+
+    public static <T extends MathematicalNumber<T>> void isLTEZero( T a, String message, Object...args ) {
+        isTrue( a.isLTEZero(), IllegalStateException.class, message, args );
     }
 
 
 
 /////////
 
-    public static void isMultipleOf2( int v, String fieldName ) {
+    public static void isMultipleOf2( int v, String argName ) {
         if ( !MathUtils.isPowerOf2( v ) ) {
-            throwException( "%s (%s) must be a power of 2", fieldName, v);
+            throwException( "%s (%s) must be a power of 2", argName, v);
         }
     }
 
-    public static void notBlank( String chars, String fieldName ) {
-        notBlank( chars, fieldName, "%s must not be blank (was %s)" );
+    public static void argNotBlank( String chars, String argName ) {
+        if ( !StringUtils.isBlank(chars) ) {
+            throwException( "%s must not be blank (was %s)", argName );
+        }
     }
 
-    public static void notBlank( String chars, String fieldName, String description ) {
+    public static void notBlank( String chars, String message, Object...args) {
         if ( StringUtils.isBlank(chars) ) {
-            throwException( description, fieldName, chars );
+            throwException( IllegalStateException.class, message, args );
         }
     }
 
-    public static void notEmpty( CharSequence chars, String fieldName ) {
-        notEmpty( chars, fieldName, "%s must not be empty (was %s)" );
-    }
-
-    public static void notEmpty( CharSequence chars, String fieldName, String description ) {
+    public static void argNotEmpty( CharSequence chars, String argName ) {
         if ( chars == null || chars.length() == 0 ) {
-            throwException( description, fieldName, chars );
+            throwException( "%s must not be empty (was %s)", argName );
         }
     }
 
-    public static void notNull( Object o, String fieldName ) {
+    public static void notEmpty( CharSequence chars, String message, Object...args ) {
+        if ( chars == null || chars.length() == 0 ) {
+            throwException( IllegalStateException.class, message, args );
+        }
+    }
+
+    public static void argNotNull( Object o, String argName ) {
         if ( o == null ) {
-            throwException( "%s must not be %s", fieldName, o );
+            throwException( "%s must not be %s", argName, o );
         }
     }
 
-    public static void notNull( Object o, String fieldName, String description ) {
+    public static void notNull( Object o, String message, Object...args ) {
         if ( o == null ) {
-            throwException( "%s must not be %s: %s", fieldName, o, description );
+            throwException( IllegalStateException.class, message, args );
         }
     }
 
-    public static void notNullState( Object o, String fieldName, String description ) {
-        if ( o == null ) {
-            throwIllegalStateException( "%s must not be %s: %s", fieldName, o, description );
-        }
-    }
-
-    public static void isFalseState( boolean flag, String msg, Object...args ) {
-        if ( flag ) {
-            throwIllegalStateException( msg, args );
-        }
-    }
-
-
-    public static void isNull( Object o, String fieldName ) {
+    public static void argIsNull( Object o, String argName ) {
         if ( o != null ) {
-            throwException( "%s must be null but was %s", fieldName, o );
+            throwException( "%s must be null but was %s", argName, o );
         }
     }
 
-    public static void isNull( Object o, String fieldName, String description ) {
+    public static void isNull( Object o, String message, Object...args ) {
         if ( o != null ) {
-            throwException( "%s must be null but was %s: %s", fieldName, o, description );
+            throwException( IllegalStateException.class, message, args );
         }
     }
 
-    public static void isNullState( Object o, String fieldName, String description ) {
-        if ( o != null ) {
-            throwIllegalStateException( "%s must be null but was %s: %s", fieldName, o, description );
+    public static void argIsTrue( boolean v, String argName ) {
+        if ( !v ) {
+            throwException( "'%s' (%s) must be true", argName, v );
         }
     }
 
+    public static void argIsFalse( boolean v, String argName ) {
+        if ( v ) {
+            throwException( "'%s' (%s) must be false", argName, v );
+        }
+    }
 
-    public static <T extends Throwable> void isTrue( boolean condition, String msg, Object...values ) {
-        isTrue( condition, IllegalArgumentException.class, msg, values );
+    public static void isTrue( boolean condition, String msg, Object...values ) {
+        isTrue( condition, IllegalStateException.class, msg, values );
     }
 
     public static <T extends Throwable> void isTrue( boolean condition, Class<T> exceptionType, String msg, Object...values ) {
@@ -351,34 +669,31 @@ public class Validate {
 
     public static void isFalse( boolean condition, String msg, Object...values ) {
         if ( condition ) {
-            throwException( msg, values );
+            throwException( IllegalStateException.class, msg, values );
         }
     }
 
-    public static void inclusiveBetween( int minInc, int v, int maxInc, String fieldName ) {
+    public static void argInclusiveBetween( int minInc, int v, int maxInc, String argName ) {
         if ( v < minInc || v > maxInc ) {
-            throwException( "%s is not within the specified bounds of %s <= %s <= %s", fieldName, minInc, v, maxInc );
+            throwException( "%s is not within the specified bounds of %s <= %s <= %s", argName, minInc, v, maxInc );
         }
     }
 
-    public static void noNullElements( Object[] array, String fieldName ) {
+    @SuppressWarnings("ConstantConditions")
+    public static void argHasNoNullElements( Object[] array, String argName ) {
         if ( array == null ) {
-            throwException( "%s is not allowed to be null", fieldName );
+            throwException( "%s is not allowed to be null", argName );
         }
 
         for ( int i=0; i<array.length; i++ ) {
             Object e = array[i];
 
-            notNull( e, String.format("%s[%s]",fieldName,i) );
+            if ( e == null ) {
+                throwException( "%s must not be null",argName+"["+i+"]" );
+            }
         }
     }
 
-
-    public static void isTrueState( boolean flag, String msg, Object...msgArgs ) {
-        if ( !flag ) {
-            throwIllegalStateException( msg, msgArgs );
-        }
-    }
 
     private static void throwException( String msg, Object...values ) {
         throwException( IllegalArgumentException.class, msg, values );
@@ -425,74 +740,70 @@ public class Validate {
         return value;
     }
 
-//
-//    public static void notNull(Object a) {
-//        Validate.notNull( a, "arg was null" );
-//    }
-//
-//    public static void notNull(Object a, String msg) {
-//        if ( a == null ) {
-//            throw new NullArgumentException(msg);
-//        }
-//    }
-//
-//    public static void isNull(Object a, String msg) {
-//        isTrue( a == null, msg );
-//    }
-//
-//    public static void isBetween(int v, int minInc, int maxInc, String varName) {
-//        if ( v < minInc || v > maxInc ) {
-//            throw new IllegalArgumentException( varName + " must be between " + minInc + " and " + maxInc + ", its actual value is " + v );
-//        }
-//    }
 
 // isEqualTo
 
-    public static void isEqualTo( byte a, byte b, String fieldName ) {
-        isTrue( a == b, "%s (%s) must be == %s", fieldName, a, b );
+    public static void argIsEqualTo( byte a, byte b, String argName ) {
+        if ( a != b ) {
+            throwException(  "%s (%s) must be == %s", argName, a, b );
+        }
     }
 
-    public static void isEqualTo( short a, short b, String fieldName ) {
-        isTrue( a == b, "%s (%s) must be == %s", fieldName, a, b );
+    public static void argIsEqualTo( short a, short b, String argName ) {
+        if ( a != b ) {
+            throwException(  "%s (%s) must be == %s", argName, a, b );
+        }
     }
 
-    public static void isEqualTo( int a, int b, String fieldName ) {
-        isTrue( a == b, "%s (%s) must be == %s", fieldName, a, b );
+    public static void argIsEqualTo( int a, int b, String argName ) {
+        if ( a != b ) {
+            throwException(  "%s (%s) must be == %s", argName, a, b );
+        }
     }
 
-    public static void isEqualTo( long a, long b, String fieldName ) {
-        isTrue( a == b, "%s (%s) must be == %s", fieldName, a, b );
+    public static void argIsEqualTo( long a, long b, String argName ) {
+        if ( a != b ) {
+            throwException(  "%s (%s) must be == %s", argName, a, b );
+        }
     }
 
-    public static void isEqualTo( float a, float b, String fieldName, float tolerance ) {
-        isTrue( Math.abs(a-b) <= tolerance, "%s (%s) must be == %s (within a tolerance of %s)", fieldName, a, b, tolerance );
+    public static void argIsEqualTo( float a, float b, String argName, float tolerance ) {
+        if ( Math.abs(a-b) <= tolerance ) {
+            throwException(  "%s (%s) must be == %s", argName, a, b );
+        }
     }
 
-    public static void isEqualTo( double a, double b, String fieldName, double tolerance ) {
-        isTrue( Math.abs(a-b) < tolerance, "%s (%s) must be == %s (within a tolerance of %s)", fieldName, a, b, tolerance );
+    public static void argIsEqualTo( double a, double b, String argName, double tolerance ) {
+        if ( Math.abs(a-b) <= tolerance ) {
+            throwException(  "%s (%s) must be == %s", argName, a, b );
+        }
     }
 
-    public static <T extends Comparable<T>> void isEqualTo( T a, T b, String fieldName ) {
-        isTrue( a.compareTo(b) == 0, "%s (%s) must be == %s", fieldName, a, b );
+    public static <T extends Comparable<T>> void argIsEqualTo( T a, T b, String argName ) {
+        if ( a.compareTo(b) != 0 ) {
+            throwException(  "%s (%s) must be == %s", argName, a, b );
+        }
     }
 
     /**
      * Validates that minInc <= n < maxExc and throws IndexOutOfBoundsException if it fails.
      */
-    public static void indexBounds( int minInc, int n, int maxExc, String fieldName ) {
+    public static void argIndexBounds( int minInc, int n, int maxExc, String argName ) {
         if ( !(minInc <= n && n < maxExc) ) {
-            throwIndexOutOfBoundsException( "%s (%d) must be >= %d and < %d", fieldName, n, minInc, maxExc );
+            throwIndexOutOfBoundsException( "%s (%d) must be >= %d and < %d", argName, n, minInc, maxExc );
         }
     }
 
     /**
      * The specified range must equal or be within specified range.
      */
-    public static void withinRange( int minInc, int minValue, int maxValue, int maxExc, String minValueName, String maxValueName ) {
-        indexBounds( minInc, minValue, maxExc, minValueName );
-        indexBounds( minInc, maxValue, maxExc+1, maxValueName );
+    public static void argIsWithinRange( int minInc, int minValue, int maxValue, int maxExc, String minValueName, String maxValueName ) {
+        argIndexBounds( minInc, minValue, maxExc, minValueName );
+        argIndexBounds( minInc, maxValue, maxExc + 1, maxValueName );
 
-        isTrue( minValue < maxValue, "%s (%s) < %s (%s)", minValueName,minValue, maxValueName,maxValue );
+        if ( !(minValue < maxValue) ) {
+            throwException( "%s (%s) < %s (%s)", minValueName,minValue, maxValueName,maxValue );
+        }
     }
 
 }

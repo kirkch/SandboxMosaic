@@ -12,6 +12,7 @@ import static java.util.Collections.unmodifiableSet;
 /**
  *
  */
+@SuppressWarnings("unchecked")
 public class SetUtils {
     public static final Set EMPTY = unmodifiableSet( new HashSet() );
 
@@ -26,7 +27,7 @@ public class SetUtils {
         return s;
     }
     
-    public static final <T> Set<T> asImmutableSet( T...elements ) {
+    public static <T> Set<T> asImmutableSet( T...elements ) {
         return unmodifiableSet( asSet( elements ) );
     }
 

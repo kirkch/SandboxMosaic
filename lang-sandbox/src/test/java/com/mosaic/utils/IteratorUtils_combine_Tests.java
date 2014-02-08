@@ -10,6 +10,7 @@ import static org.junit.Assert.*;
 /**
  *
  */
+@SuppressWarnings( "unchecked" )
 public class IteratorUtils_combine_Tests {
 
     @Test
@@ -25,7 +26,7 @@ public class IteratorUtils_combine_Tests {
     @Test
     public void combineNullIteratorWithIterator_expectException() {
         try {
-            Iterator a = Arrays.asList( new Object[] {1,2} ).iterator();
+            Iterator a = Arrays.asList( new Object[]{1, 2} ).iterator();
 
             IteratorUtils.combine( a, null );
 

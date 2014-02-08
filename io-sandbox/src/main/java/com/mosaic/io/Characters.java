@@ -13,6 +13,7 @@ import java.util.List;
  * character stores, such as CharBuffer and String.  Designed for use with
  * simple pull parsers such as Tokenizer.
  */
+@SuppressWarnings("UnusedDeclaration")
 public abstract class Characters implements CharSequence {
 
     public static final Characters EMPTY = wrapCharBuffer( CharBuffer.allocate( 0 ) );
@@ -34,7 +35,7 @@ public abstract class Characters implements CharSequence {
      * original position before completion of this method.
      */
     public static Characters wrapCharBuffer( CharBuffer src ) {
-        Validate.notNull( src, "src" );
+        Validate.argNotNull( src, "src" );
 
         int originalPosition = src.position();
         CharBuffer copy = CharBuffer.allocate( src.remaining() );
@@ -53,7 +54,7 @@ public abstract class Characters implements CharSequence {
      * thus any background changes to it will damage the immutability of the Characters instance.
      */
     public static Characters wrapCharactersBufferNoCopy( CharBuffer src ) {
-        Validate.notNull( src, "src" );
+        Validate.argNotNull( src, "src" );
 
         return new CharactersNIOWrapper(new CharPosition(), src,src.position());
     }
@@ -113,7 +114,7 @@ public abstract class Characters implements CharSequence {
 
 
     public CharSequence subSequence(int start, int end) {
-        Validate.withinRange( 0, start, end, this.length(), "start", "end" );
+        Validate.argIsWithinRange( 0, start, end, this.length(), "start", "end" );
 
         int    length   = end - start;
         char[] chars    = new char[length];
@@ -156,7 +157,7 @@ public abstract class Characters implements CharSequence {
      * Returns true if targetString is at fromIndex.
      */
     public boolean containsAt( String targetString, int fromIndex ) {
-        Validate.isGTEZero( fromIndex, "fromIndex" );
+        Validate.argIsGTEZero( fromIndex, "fromIndex" );
 
         int targetStringLength = targetString.length();
         if ( this.length()-fromIndex < targetStringLength ) {
@@ -191,7 +192,7 @@ public abstract class Characters implements CharSequence {
      * Extract the string starting from startIndexInc (inclusive) and endIndexExc (exclusive).
      */
     public String toString( int startIndexInc, int endIndexExc ) {
-        Validate.withinRange( 0, startIndexInc, endIndexExc, this.length(), "startIndexInc", "endIndexExc" );
+        Validate.argIsWithinRange( 0, startIndexInc, endIndexExc, this.length(), "startIndexInc", "endIndexExc" );
 
         StringBuilder buf = new StringBuilder( endIndexExc-startIndexInc );
 
@@ -224,6 +225,7 @@ public abstract class Characters implements CharSequence {
 
 
 
+@SuppressWarnings("unchecked")
 class CharactersNIOWrapper extends Characters {
     private final CharBuffer buf;
     private final int        bufOffset;
@@ -244,7 +246,7 @@ class CharactersNIOWrapper extends Characters {
     }
 
     public Characters appendCharacters( Characters other ) {
-        Validate.notNull( other, "other" );
+        Validate.argNotNull( other, "other" );
 
         if ( this.length() == 0 ) {
             return other;
@@ -260,7 +262,7 @@ class CharactersNIOWrapper extends Characters {
     }
 
     public Characters skipCharacters( int numCharacters ) {
-        Validate.isLTE( numCharacters, this.length(), "numCharacters" );
+        Validate.argIsLTE( numCharacters, this.length(), "numCharacters" );
 
         if ( numCharacters == 0 ) {
             return this;
@@ -271,7 +273,7 @@ class CharactersNIOWrapper extends Characters {
     }
 
     public void writeTo( CharBuffer targetBuffer, int numCharacters ) {
-        Validate.isLTE( numCharacters, this.length(), "numCharacters" );
+        Validate.argIsLTE( numCharacters, this.length(), "numCharacters" );
 
         CharBuffer buf   = this.buf;
         int        limit = numCharacters+this.bufOffset;
@@ -291,6 +293,7 @@ class CharactersNIOWrapper extends Characters {
  * Wraps other instances of Characters. Allows appending instances together without copying all of the characters around. Also
  * allows for the deallocation of consumed characters on the fly, again without copying characters around.
  */
+@SuppressWarnings("unchecked")
 class CharactersMultiBucketWrapper extends Characters {
     private final List<Characters> buckets;
 
@@ -326,7 +329,7 @@ class CharactersMultiBucketWrapper extends Characters {
     }
 
     public Characters appendCharacters( Characters other ) {
-        Validate.notNull( other, "other" );
+        Validate.argNotNull( other, "other" );
 
         if ( this.length() == 0 ) {
             return other;
@@ -342,7 +345,7 @@ class CharactersMultiBucketWrapper extends Characters {
     }
 
     public Characters skipCharacters( int numCharacters ) {
-        Validate.isLTE( numCharacters, this.length(), "numCharacters" );
+        Validate.argIsLTE( numCharacters, this.length(), "numCharacters" );
 
         if ( numCharacters == 0 ) {
             return this;
@@ -373,7 +376,7 @@ class CharactersMultiBucketWrapper extends Characters {
     }
 
     public void writeTo( CharBuffer targetBuffer, final int numCharacters ) {
-        Validate.isLTE( numCharacters, this.length(), "numCharacters" );
+        Validate.argIsLTE( numCharacters, this.length(), "numCharacters" );
 
         int numCharactersLeftToWrite = numCharacters;
 

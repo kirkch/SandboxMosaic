@@ -12,7 +12,7 @@ import java.util.Iterator;
 public class IteratorUtils {
 
     public static <T> Iterator<T> combine( final Iterator<T>...iterators ) {
-        Validate.noNullElements( iterators, "iterators" );
+        Validate.argHasNoNullElements( iterators, "iterators" );
 
         switch ( iterators.length ) {
             case 0: return EnhancedIterable.EMPTY.iterator();

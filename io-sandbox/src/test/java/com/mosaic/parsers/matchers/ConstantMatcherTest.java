@@ -32,7 +32,7 @@ public class ConstantMatcherTest {
             ConstantMatcher.create( "" );
             fail( "Expected IllegalArgumentException" );
         } catch (IllegalArgumentException e) {
-            assertEquals( "'targetString.length()' (0) must be >= 1", e.getMessage() );
+            assertEquals( "'targetString.length()' (0) must be > 0", e.getMessage() );
         }
     }
 

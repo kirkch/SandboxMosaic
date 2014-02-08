@@ -16,7 +16,7 @@ public class ConstantMatcher {
     }
 
     public static Matcher create( String targetString ) {
-        Validate.isGTZero(targetString.length(), "targetString.length()");
+        Validate.argIsGTZero(targetString.length(), "targetString.length()");
 
         if ( targetString.length() == 1 ) {
             return new SingleCharacterMatcher(targetString);

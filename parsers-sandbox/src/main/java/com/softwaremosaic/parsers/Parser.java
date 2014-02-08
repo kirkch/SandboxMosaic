@@ -156,7 +156,7 @@ public abstract class Parser<T extends Comparable<T>> {
     }
 
     private void throwIfNotAcceptingInput() {
-        Validate.isFalseState(hasReachedEOS, "the parser has already been notified of EOS");
+        Validate.isFalse(hasReachedEOS, "the parser has already been notified of EOS");
     }
 
     protected void incrementColumnAndLinePositionsGiven( T input ) {

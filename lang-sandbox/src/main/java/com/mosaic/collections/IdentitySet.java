@@ -96,7 +96,7 @@ public class IdentitySet<T> extends AbstractSet<T> {
             }
 
             public T next() {
-                Validate.isTrueState( hasNext(), "the iterator is empty, call hasNext() first" );
+                Validate.isTrue( hasNext(), "the iterator is empty, call hasNext() first" );
 
                 return (T) array[pos++];
             }

@@ -17,13 +17,13 @@ public class MovingAverageAggregator <T extends MathematicalNumber> extends Aggr
 
     private T[] circularBuffer;
 
-    public MovingAverageAggregator( T zero, int size ) {
-        Validate.isGTZero( size, "maxSize" );
+    public MovingAverageAggregator( T zero, int maxSize ) {
+        Validate.argIsGTZero( maxSize, "maxSize" );
 
         this.zero        = zero;
         this.resultSoFar = zero;
 
-        this.circularBuffer = (T[]) Array.newInstance( zero.getClass(), size );
+        this.circularBuffer = (T[]) Array.newInstance( zero.getClass(), maxSize );
     }
 
     @Override

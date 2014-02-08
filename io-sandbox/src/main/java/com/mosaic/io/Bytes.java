@@ -22,7 +22,7 @@ public abstract class Bytes {
      * original position before completion of this method.
      */
     public static Bytes wrapBytesBuffer( ByteBuffer src ) {
-        Validate.notNull( src, "src" );
+        Validate.argNotNull( src, "src" );
 
         int originalPosition = src.position();
         ByteBuffer copy = ByteBuffer.allocate( src.remaining() );
@@ -136,6 +136,7 @@ public abstract class Bytes {
 
 
 
+@SuppressWarnings("unchecked")
 class BytesNIOWrapper extends Bytes {
     private final ByteBuffer buf;
     private final int        positionOffset;
@@ -173,7 +174,7 @@ class BytesNIOWrapper extends Bytes {
     }
 
     public Bytes appendBytes( Bytes other ) {
-        Validate.notNull( other, "other" );
+        Validate.argNotNull( other, "other" );
 
         if ( this.length() == 0 ) {
             return other;
@@ -189,7 +190,7 @@ class BytesNIOWrapper extends Bytes {
     }
 
     public Bytes skipBytes( int numBytes ) {
-        Validate.isLTE( numBytes, this.length(), "numBytes" );
+        Validate.argIsLTE( numBytes, this.length(), "numBytes" );
 
         if ( numBytes == 0 ) {
             return this;
@@ -205,8 +206,8 @@ class BytesNIOWrapper extends Bytes {
             return this;
         }
 
-        Validate.indexBounds( 0, fromInc, length, "fromInc" );
-        Validate.indexBounds( 0, toExc, length+1, "toExc" );
+        Validate.argIndexBounds( 0, fromInc, length, "fromInc" );
+        Validate.argIndexBounds( 0, toExc, length + 1, "toExc" );
 
 
         ByteBuffer clonedBuffer = this.buf.duplicate();
@@ -216,7 +217,7 @@ class BytesNIOWrapper extends Bytes {
     }
 
     public void writeTo( ByteBuffer targetBuffer, int numBytes ) {
-        Validate.isLTE( numBytes, this.length(), "numBytes" );
+        Validate.argIsLTE( numBytes, this.length(), "numBytes" );
 
         ByteBuffer buf   = this.buf;
         int        limit = numBytes+this.positionOffset;
@@ -236,6 +237,7 @@ class BytesNIOWrapper extends Bytes {
  * Wraps other instances of Bytes. Allows appending instances together without copying all of the bytes around. Also
  * allows for the deallocation of consumed bytes on the fly, again without copying bytes around.
  */
+@SuppressWarnings("unchecked")
 class BytesMultiBucketWrapper extends Bytes {
     private final List<Bytes> buckets;
     private final long        streamOffset;

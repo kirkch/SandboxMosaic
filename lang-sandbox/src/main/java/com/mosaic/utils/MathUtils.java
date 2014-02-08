@@ -3,6 +3,7 @@ package com.mosaic.utils;
 /**
  *
  */
+@SuppressWarnings("unchecked")
 public class MathUtils {
     public static <T extends Comparable> T max( T a, T b ) {
         if ( a == null ) {

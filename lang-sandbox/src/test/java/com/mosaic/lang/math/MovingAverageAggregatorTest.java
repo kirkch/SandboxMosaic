@@ -17,7 +17,7 @@ public class MovingAverageAggregatorTest {
             new MovingAverageAggregator<Money>(Money.ZERO, -1);
             fail( "expected IAE" );
         } catch ( IllegalArgumentException e ) {
-            assertEquals( "'maxSize' (-1) must be >= 1", e.getMessage() );
+            assertEquals( "'maxSize' (-1) must be > 0", e.getMessage() );
         }
     }
 
@@ -27,7 +27,7 @@ public class MovingAverageAggregatorTest {
             new MovingAverageAggregator<Money>(Money.ZERO, 0);
             fail( "expected IAE" );
         } catch ( IllegalArgumentException e ) {
-            assertEquals( "'maxSize' (0) must be >= 1", e.getMessage() );
+            assertEquals( "'maxSize' (0) must be > 0", e.getMessage() );
         }
     }
 

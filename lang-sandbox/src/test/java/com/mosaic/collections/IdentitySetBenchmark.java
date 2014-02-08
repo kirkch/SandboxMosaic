@@ -4,11 +4,8 @@ import com.mosaic.lang.functional.Function0;
 import com.mosaic.utils.ArrayUtils;
 import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Benchmark;
-import net.java.quickcheck.generator.Generators;
-import net.java.quickcheck.generator.PrimitiveGenerators;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,6 +13,7 @@ import java.util.Set;
  *
  */
 @RunWith(JUnitMosaicRunner.class)
+@SuppressWarnings( "unchecked" )
 public class IdentitySetBenchmark {
     private static int NUM_ELEMENTS = 20;
 

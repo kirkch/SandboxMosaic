@@ -47,12 +47,12 @@ public class DTM extends Orderable<DTM> {
     }
 
     public DTM(int year, int month, int day, int hour, int minute, int seconds, int millis, TZ tz) {
-        Validate.inclusiveBetween( 1, month,   12,  "month"   );
-        Validate.inclusiveBetween( 1, day,     31,  "day"     );
-        Validate.inclusiveBetween( 0, hour,    23,  "hour"    );
-        Validate.inclusiveBetween( 0, minute,  59,  "minutes" );
-        Validate.inclusiveBetween( 0, seconds, 59,  "seconds" );
-        Validate.inclusiveBetween( 0, millis,  999, "millis"  );
+        Validate.argInclusiveBetween( 1, month,   12,  "month"   );
+        Validate.argInclusiveBetween( 1, day,     31,  "day"     );
+        Validate.argInclusiveBetween( 0, hour,    23,  "hour"    );
+        Validate.argInclusiveBetween( 0, minute,  59,  "minutes" );
+        Validate.argInclusiveBetween( 0, seconds, 59,  "seconds" );
+        Validate.argInclusiveBetween( 0, millis,  999, "millis"  );
 
         Calendar c = GregorianCalendar.getInstance();
 

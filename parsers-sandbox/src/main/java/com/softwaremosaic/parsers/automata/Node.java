@@ -11,6 +11,7 @@ import java.util.Set;
 /**
  *
  */
+@SuppressWarnings( "unchecked" )
 public interface Node<T extends Comparable<T>> extends Iterable<KV<Label<T>,Node<T>>> {
 
     /**

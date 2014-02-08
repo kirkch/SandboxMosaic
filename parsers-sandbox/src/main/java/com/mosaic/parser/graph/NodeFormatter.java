@@ -119,7 +119,7 @@ public class NodeFormatter {
     }
 
     public NodeFormatter( NodeFormatPlugin defaultPlugin ) {
-        Validate.notNull( defaultPlugin, "defaultPlugin" );
+        Validate.argNotNull( defaultPlugin, "defaultPlugin" );
 
         this.defaultPlugin = defaultPlugin;
     }
@@ -129,7 +129,7 @@ public class NodeFormatter {
     }
 
     public List<String> format( Node startingNode, final NodeFormatPlugin plugin  ) {
-        Validate.notNull( startingNode, "startingNode" );
+        Validate.argNotNull( startingNode, "startingNode" );
 
         final List<String> formattedGraph = new ArrayList();
         final NodeLabeler  nodeLabeler    = new NodeLabeler();

@@ -16,7 +16,7 @@ public class RollingAverageIntTest {
             new RollingAverageInt(-1);
             fail( "expected IAE" );
         } catch ( IllegalArgumentException e ) {
-            assertEquals( "'maxSize' (-1) must be >= 1", e.getMessage() );
+            assertEquals( "'maxSize' (-1) must be > 0", e.getMessage() );
         }
     }
 
@@ -26,7 +26,7 @@ public class RollingAverageIntTest {
             new RollingAverageInt(0);
             fail( "expected IAE" );
         } catch ( IllegalArgumentException e ) {
-            assertEquals( "'maxSize' (0) must be >= 1", e.getMessage() );
+            assertEquals( "'maxSize' (0) must be > 0", e.getMessage() );
         }
     }
 

@@ -12,6 +12,7 @@ import java.nio.CharBuffer;
 /**
  *
  */
+@SuppressWarnings("unchecked")
 public abstract class BasePushParser implements PushParser {
 
     private static boolean DEBUG = false;

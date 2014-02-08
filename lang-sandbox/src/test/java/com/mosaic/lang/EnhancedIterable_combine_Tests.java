@@ -11,6 +11,7 @@ import static org.junit.Assert.*;
 /**
  *
  */
+@SuppressWarnings( "unchecked" )
 public class EnhancedIterable_combine_Tests {
 
     @Test

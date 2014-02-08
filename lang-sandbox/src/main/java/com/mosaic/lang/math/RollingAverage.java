@@ -24,7 +24,7 @@ public class RollingAverage implements Serializable {
     }
 
     public RollingAverage(int maxSize) {
-        Validate.isGTZero( maxSize, "maxSize" );
+        Validate.argIsGTZero( maxSize, "maxSize" );
 
         this.circularBuffer = new double[maxSize];
     }

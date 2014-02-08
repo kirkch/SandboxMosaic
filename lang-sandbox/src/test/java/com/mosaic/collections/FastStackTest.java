@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
  *
  */
 @RunWith(JUnitMosaicRunner.class)
-@SuppressWarnings("UnusedDeclaration")
+@SuppressWarnings({"UnusedDeclaration","unchecked"})
 public class FastStackTest {
 
 

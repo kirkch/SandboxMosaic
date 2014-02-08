@@ -10,6 +10,7 @@ import java.util.List;
 /**
  *
  */
+@SuppressWarnings("unchecked")
 public class OrOp<T extends Comparable<T>> extends GraphBuilder<T> {
 
     private List<GraphBuilder<T>> childOps = new ArrayList();
