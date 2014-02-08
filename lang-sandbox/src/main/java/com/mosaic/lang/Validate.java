@@ -11,6 +11,50 @@ import com.mosaic.utils.StringUtils;
  */
 @SuppressWarnings("UnusedDeclaration")
 public class Validate {
+// isNotZero
+
+    public static void isNotZero( byte v, String message, Object...args ) {
+        if ( v == 0 ) {
+            throwException( IllegalStateException.class, message, args );
+        }
+    }
+
+    public static void isNotZero( char v, String message, Object...args ) {
+        if ( v == 0 ) {
+            throwException( IllegalStateException.class, message, args );
+        }
+    }
+
+    public static void isNotZero( short v, String message, Object...args ) {
+        if ( v == 0 ) {
+            throwException( IllegalStateException.class, message, args );
+        }
+    }
+
+    public static void isNotZero( int v, String message, Object...args ) {
+        if ( v == 0 ) {
+            throwException( IllegalStateException.class, message, args );
+        }
+    }
+
+    public static void isNotZero( long v, String message, Object...args ) {
+        if ( v == 0 ) {
+            throwException( IllegalStateException.class, message, args );
+        }
+    }
+
+    public static void isNotZero( float v, float tolerance, String message, Object...args ) {
+        if ( Math.abs(v) <= tolerance ) {
+            throwException( IllegalStateException.class, message, args );
+        }
+    }
+
+    public static void isNotZero( double v, double tolerance, String message, Object...args ) {
+        if ( Math.abs(v) <= tolerance ) {
+            throwException( IllegalStateException.class, message, args );
+        }
+    }
+
 // isGTE
 
     public static void argIsGTE( byte a, byte b, String argName ) {
@@ -79,7 +123,7 @@ public class Validate {
         isTrue( a-tolerance >= b, IllegalStateException.class, message, args );
     }
 
-    public static <T extends Comparable<T>> void isGTE( T a, T b, String message, Object...args ) {
+    public static <T extends Comparable<T>> void GTE( T a, T b, String message, Object...args ) {
         isTrue( a.compareTo(b) >= 0, IllegalStateException.class, message, args );
     }
 
@@ -367,7 +411,7 @@ public class Validate {
         isTrue( a-tolerance < b, IllegalStateException.class, message, args );
     }
 
-    public static <T extends Comparable<T>> void isLT( T a, T b, String message, Object...args ) {
+    public static <T extends Comparable<T>> void LT( T a, T b, String message, Object...args ) {
         isTrue( a.compareTo(b) < 0, message, args );
     }
 
@@ -785,10 +829,48 @@ public class Validate {
         }
     }
 
+
+
     /**
      * Validates that minInc <= n < maxExc and throws IndexOutOfBoundsException if it fails.
      */
-    public static void argIndexBounds( int minInc, int n, int maxExc, String argName ) {
+    public static void argIsBetween( byte minInc, byte n, byte maxExc, String argName ) {
+        if ( !(minInc <= n && n < maxExc) ) {
+            throwIndexOutOfBoundsException( "%s (%d) must be >= %d and < %d", argName, n, minInc, maxExc );
+        }
+    }
+
+    /**
+     * Validates that minInc <= n < maxExc and throws IndexOutOfBoundsException if it fails.
+     */
+    public static void argIsBetween( short minInc, short n, short maxExc, String argName ) {
+        if ( !(minInc <= n && n < maxExc) ) {
+            throwIndexOutOfBoundsException( "%s (%d) must be >= %d and < %d", argName, n, minInc, maxExc );
+        }
+    }
+
+    /**
+     * Validates that minInc <= n < maxExc and throws IndexOutOfBoundsException if it fails.
+     */
+    public static void argIsBetween( char minInc, char n, char maxExc, String argName ) {
+        if ( !(minInc <= n && n < maxExc) ) {
+            throwIndexOutOfBoundsException( "%s (%d) must be >= %d and < %d", argName, n, minInc, maxExc );
+        }
+    }
+
+    /**
+     * Validates that minInc <= n < maxExc and throws IndexOutOfBoundsException if it fails.
+     */
+    public static void argIsBetween( int minInc, int n, int maxExc, String argName ) {
+        if ( !(minInc <= n && n < maxExc) ) {
+            throwIndexOutOfBoundsException( "%s (%d) must be >= %d and < %d", argName, n, minInc, maxExc );
+        }
+    }
+
+    /**
+     * Validates that minInc <= n < maxExc and throws IndexOutOfBoundsException if it fails.
+     */
+    public static void argIsBetween( long minInc, long n, long maxExc, String argName ) {
         if ( !(minInc <= n && n < maxExc) ) {
             throwIndexOutOfBoundsException( "%s (%d) must be >= %d and < %d", argName, n, minInc, maxExc );
         }
@@ -798,8 +880,8 @@ public class Validate {
      * The specified range must equal or be within specified range.
      */
     public static void argIsWithinRange( int minInc, int minValue, int maxValue, int maxExc, String minValueName, String maxValueName ) {
-        argIndexBounds( minInc, minValue, maxExc, minValueName );
-        argIndexBounds( minInc, maxValue, maxExc + 1, maxValueName );
+        argIsBetween( minInc, minValue, maxExc, minValueName );
+        argIsBetween( minInc, maxValue, maxExc + 1, maxValueName );
 
         if ( !(minValue < maxValue) ) {
             throwException( "%s (%s) < %s (%s)", minValueName,minValue, maxValueName,maxValue );

@@ -206,8 +206,8 @@ class BytesNIOWrapper extends Bytes {
             return this;
         }
 
-        Validate.argIndexBounds( 0, fromInc, length, "fromInc" );
-        Validate.argIndexBounds( 0, toExc, length + 1, "toExc" );
+        Validate.argIsBetween( 0, fromInc, length, "fromInc" );
+        Validate.argIsBetween( 0, toExc, length + 1, "toExc" );
 
 
         ByteBuffer clonedBuffer = this.buf.duplicate();

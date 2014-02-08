@@ -86,14 +86,18 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
 
 
     protected void throwIfNotReady() {
-        if ( !isReady() ) {
-            throw new IllegalStateException( "'"+serviceName+"' is not running" );
+        if ( SystemX.isDebugRun() ) {
+            if ( !isReady() ) {
+                throw new IllegalStateException( "'"+serviceName+"' is not running" );
+            }
         }
     }
 
     protected void throwIfReady() {
-        if ( isReady() ) {
-            throw new IllegalStateException( "'"+serviceName+"' is running" );
+        if ( SystemX.isDebugRun() ) {
+            if ( isReady() ) {
+                throw new IllegalStateException( "'"+serviceName+"' is running" );
+            }
         }
     }
 

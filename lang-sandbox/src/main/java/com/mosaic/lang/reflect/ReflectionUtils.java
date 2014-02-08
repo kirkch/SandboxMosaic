@@ -1,10 +1,12 @@
 package com.mosaic.lang.reflect;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
  *
  */
+@SuppressWarnings("unchecked")
 public class ReflectionUtils {
 
     public static Object invoke( Object instance, Method method, Object...args ) {
@@ -33,5 +35,16 @@ public class ReflectionUtils {
         }
 
         return null;
+    }
+
+    public static <T> T getPrivateField( Object o, String fieldName ) {
+        try {
+            Field f = o.getClass().getDeclaredField( fieldName );
+            f.setAccessible( true );
+
+            return (T) f.get( o );
+        } catch ( Exception e ) {
+            throw ReflectionException.recast( e );
+        }
     }
 }
