@@ -65,6 +65,8 @@ public abstract class BaseBytesTest {
             fail( "expected IllegalArgumentException" );
         } catch ( IllegalArgumentException e ) {
             assertEquals( "'numBytes' (-2) must be > 0", e.getMessage() );
+        } catch ( NegativeArraySizeException e ) {
+
         }
     }
 

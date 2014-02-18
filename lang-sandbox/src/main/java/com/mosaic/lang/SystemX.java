@@ -14,6 +14,11 @@ public class SystemX {
     public static final int DOUBLE_SIZE = 8;
 
 
+    public static final int  UNSIGNED_BYTE_MASK  = 0xFF;
+    public static final int  UNSIGNED_SHORT_MASK = 0xFFFF;
+    public static final long UNSIGNED_INT_MASK   = 0xFFFFFFFF;
+
+
 
     private static final boolean areAssertionsEnabled = detectWhetherAssertionsAreEnabled();
 

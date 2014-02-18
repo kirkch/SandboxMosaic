@@ -75,7 +75,7 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
 
         if ( initCount == 0 ) {
             this.isShuttingDown.set(true);
-            
+
             broadcastTearDown();
 
             try {

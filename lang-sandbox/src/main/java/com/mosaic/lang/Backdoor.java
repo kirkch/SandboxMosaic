@@ -163,4 +163,74 @@ public class Backdoor {
         unsafe.setMemory( ptr, numBytes, v );
     }
 
+    public static void fillArray( byte[] array, long offset, long numBytes, byte v ) {
+        unsafe.setMemory( array, B+offset, numBytes, v );
+    }
+
+
+    private static final long B = unsafe.arrayBaseOffset( byte[].class ) * unsafe.arrayIndexScale( byte[].class );
+
+    static {
+        Validate.isNotZero( B, "B" );
+    }
+
+    public static byte getByteFrom( byte[] array, long offset ) {
+        return unsafe.getByte( array, B + offset );
+    }
+
+    public static short getShortFrom( byte[] array, long offset ) {
+        return unsafe.getShort( array, B + offset );
+    }
+
+    public static char getCharacterFrom( byte[] array, long offset ) {
+        return unsafe.getChar( array, B + offset );
+    }
+
+    public static int getIntegerFrom( byte[] array, long offset ) {
+        return unsafe.getInt( array, B + offset );
+    }
+
+    public static long getLongFrom( byte[] array, long offset ) {
+        return unsafe.getLong( array, B + offset );
+    }
+
+    public static float getFloatFrom( byte[] array, long offset ) {
+        return unsafe.getFloat( array, B + offset );
+    }
+
+    public static double getDoubleFrom( byte[] array, long offset ) {
+        return unsafe.getDouble( array, B + offset );
+    }
+
+
+
+
+    public static void setByteIn( byte[] array, long offset, byte v ) {
+        unsafe.putByte( array, B + offset, v );
+    }
+
+    public static void setCharacterIn( byte[] array, long offset, char v ) {
+        unsafe.putChar( array, B + offset, v );
+    }
+
+    public static void setShortIn( byte[] array, long offset, short v ) {
+        unsafe.putShort( array, B + offset, v );
+    }
+
+    public static void setIntegerIn( byte[] array, long offset, int v ) {
+        unsafe.putInt( array, B + offset, v );
+    }
+
+    public static void setLongIn( byte[] array, long offset, long v ) {
+        unsafe.putLong( array, B + offset, v );
+    }
+
+    public static void setFloatIn( byte[] array, long offset, float v ) {
+        unsafe.putFloat( array, B + offset, v );
+    }
+
+    public static void setDoubleIn( byte[] array, long offset, double v ) {
+        unsafe.putDouble( array, B + offset, v );
+    }
+
 }

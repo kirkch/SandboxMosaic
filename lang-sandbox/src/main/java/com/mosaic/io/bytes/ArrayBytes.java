@@ -5,67 +5,41 @@ import com.mosaic.lang.SystemX;
 import com.mosaic.lang.Validate;
 
 import static com.mosaic.lang.SystemX.*;
+import static com.mosaic.lang.SystemX.BYTE_SIZE;
+import static com.mosaic.lang.SystemX.LONG_SIZE;
 
 
 /**
  *
  */
-public class NativeBytes implements Bytes {
+public class ArrayBytes  implements Bytes {
 
-    /**
-     * Reserves n bytes of memory.  The bytes are not guaranteed to be zero'd out,
-     * so they may hold junk in them.
-     */
-    public static Bytes alloc( long numBytes ) {
-        return alloc( numBytes, SystemX.getCacheLineLengthBytes() );
+    private byte[] array;
+
+    private int min;
+    private int maxExc;
+
+    private int positionIndex;
+
+
+    public ArrayBytes( long numBytes ) {
+        this( new byte[(int) numBytes] );
+
+        Validate.argIsBetween( 0, numBytes, Integer.MAX_VALUE, "numBytes" );
     }
 
-    /**
-     * Reserves n bytes of memory.  The bytes are not guaranteed to be zero'd out,
-     * so they may hold junk in them.
-     */
-    public static Bytes alloc( long numBytes, int cpuCacheLineSizeBytes ) {
-        Validate.argIsGTZero( numBytes, "numBytes" );
-
-        long baseAddress    = Backdoor.alloc( numBytes + cpuCacheLineSizeBytes );
-        long alignedAddress = Backdoor.alignAddress( baseAddress, cpuCacheLineSizeBytes );
-
-        return new NativeBytes( baseAddress, alignedAddress, alignedAddress+numBytes );
+    public ArrayBytes( byte[] array ) {
+        this( array, 0, array.length );
     }
 
-
-
-    private long baseAddress;
-    private long cacheAlignedBaseAddress;
-    private long maxAddressExc;
-
-    private long positionIndex;
-//    private long watermarkIndexExc;
-
-
-    private NativeBytes( long baseAddress, long alignedAddress, long maxAddressExc ) {
-        this.baseAddress             = baseAddress;
-        this.cacheAlignedBaseAddress = alignedAddress;
-        this.maxAddressExc           = maxAddressExc;
+    public ArrayBytes( byte[] array, int min, int maxExc ) {
+        this.array  = array;
+        this.min    = min;
+        this.maxExc = maxExc;
     }
 
 
-    public long getBaseAddress() {
-        return cacheAlignedBaseAddress;
-    }
-
-
-    public void release() {
-        Validate.isNotZero( baseAddress, "The memory has already been freed" );
-
-        Backdoor.free( baseAddress );
-
-        this.baseAddress             = 0;
-        this.cacheAlignedBaseAddress = 0;
-        this.maxAddressExc           = 0;
-
-        this.positionIndex           = 0;
-    }
+    public void release() {}
 
     public boolean readBoolean( long index ) {
         byte v = readByte( index );
@@ -74,83 +48,83 @@ public class NativeBytes implements Bytes {
     }
 
     public byte readByte( long index ) {
-        long address = cacheAlignedBaseAddress + index;
+        long i = min + index;
 
-        throwIfInvalidAddress( address, BYTE_SIZE );
+        throwIfInvalidIndex( index, BYTE_SIZE );
 
-        return Backdoor.getByte( address );
+        return Backdoor.getByteFrom( array, i );
     }
 
     public short readShort( long index ) {
-        long address = cacheAlignedBaseAddress + index;
+        long i = min + index;
 
-        throwIfInvalidAddress( address, SHORT_SIZE );
+        throwIfInvalidIndex( index, SHORT_SIZE );
 
-        return Backdoor.getShort( address );
+        return Backdoor.getShortFrom( array, i );
     }
 
     public char readCharacter( long index ) {
-        long address = cacheAlignedBaseAddress + index;
+        long i = min + index;
 
-        throwIfInvalidAddress( address, CHAR_SIZE );
+        throwIfInvalidIndex( index, CHAR_SIZE );
 
-        return Backdoor.getCharacter( address );
+        return Backdoor.getCharacterFrom( array, i );
     }
 
     public int readInteger( long index ) {
-        long address = cacheAlignedBaseAddress + index;
+        long i = min + index;
 
-        throwIfInvalidAddress( address, INT_SIZE );
+        throwIfInvalidIndex( index, INT_SIZE );
 
-        return Backdoor.getInteger( address );
+        return Backdoor.getIntegerFrom( array, i );
     }
 
     public long readLong( long index ) {
-        long address = cacheAlignedBaseAddress + index;
+        long i = min + index;
 
-        throwIfInvalidAddress( address, LONG_SIZE );
+        throwIfInvalidIndex( index, LONG_SIZE );
 
-        return Backdoor.getLong( address );
+        return Backdoor.getLongFrom( array, i );
     }
 
     public float readFloat( long index ) {
-        long address = cacheAlignedBaseAddress + index;
+        long i = min + index;
 
-        throwIfInvalidAddress( address, FLOAT_SIZE );
+        throwIfInvalidIndex( index, FLOAT_SIZE );
 
-        return Backdoor.getFloat( address );
+        return Backdoor.getFloatFrom( array, i );
     }
 
     public double readDouble( long index ) {
-        long address = cacheAlignedBaseAddress + index;
+        long i = min + index;
 
-        throwIfInvalidAddress( address, DOUBLE_SIZE );
+        throwIfInvalidIndex( index, DOUBLE_SIZE );
 
-        return Backdoor.getDouble( address );
+        return Backdoor.getDoubleFrom( array, i );
     }
 
     public short readUnsignedByte( long index ) {
-        long address = cacheAlignedBaseAddress + index;
+        long i = min + index;
 
-        throwIfInvalidAddress( address, BYTE_SIZE );
+        throwIfInvalidIndex( i, BYTE_SIZE );
 
-        return (short) (Backdoor.getByte( address ) & UNSIGNED_BYTE_MASK);
+        return (short) (Backdoor.getByteFrom(array,i) & UNSIGNED_BYTE_MASK);
     }
 
     public int readUnsignedShort( long index ) {
-        long address = cacheAlignedBaseAddress + index;
+        long i = min + index;
 
-        throwIfInvalidAddress( address, SHORT_SIZE );
+        throwIfInvalidIndex( i, SHORT_SIZE );
 
-        return Backdoor.getShort( address ) & UNSIGNED_SHORT_MASK;
+        return Backdoor.getShortFrom(array,i) & UNSIGNED_SHORT_MASK;
     }
 
     public long readUnsignedInteger( long index ) {
-        long address = cacheAlignedBaseAddress + index;
+        long i = min + index;
 
-        throwIfInvalidAddress( address, INT_SIZE );
+        throwIfInvalidIndex( i, INT_SIZE );
 
-        long v = Backdoor.getInteger( address );
+        long v = Backdoor.getIntegerFrom(array,i);
 
         return v & UNSIGNED_INT_MASK;
     }
@@ -160,59 +134,59 @@ public class NativeBytes implements Bytes {
     }
 
     public void writeByte( long index, byte v ) {
-        long address = cacheAlignedBaseAddress + index;
+        long i = min + index;
 
-        throwIfInvalidAddress( address, BYTE_SIZE );
+        throwIfInvalidIndex( i, BYTE_SIZE );
 
-        Backdoor.setByte( address, v );
+        Backdoor.setByteIn( array, i, v );
     }
 
     public void writeShort( long index, short v ) {
-        long address = cacheAlignedBaseAddress + index;
+        long i = min + index;
 
-        throwIfInvalidAddress( address, SHORT_SIZE );
+        throwIfInvalidIndex( i, SHORT_SIZE );
 
-        Backdoor.setShort( address, v );
+        Backdoor.setShortIn( array, i, v );
     }
 
     public void writeCharacter( long index, char v ) {
-        long address = cacheAlignedBaseAddress + index;
+        long i = min + index;
 
-        throwIfInvalidAddress( address, CHAR_SIZE );
+        throwIfInvalidIndex( i, CHAR_SIZE );
 
-        Backdoor.setCharacter( address, v );
+        Backdoor.setCharacterIn( array, i, v );
     }
 
     public void writeInteger( long index, int v ) {
-        long address = cacheAlignedBaseAddress + index;
+        long i = min + index;
 
-        throwIfInvalidAddress( address, INT_SIZE );
+        throwIfInvalidIndex( i, INT_SIZE );
 
-        Backdoor.setInteger( address, v );
+        Backdoor.setIntegerIn( array, i, v );
     }
 
     public void writeLong( long index, long v ) {
-        long address = cacheAlignedBaseAddress + index;
+        long i = min + index;
 
-        throwIfInvalidAddress( address, LONG_SIZE );
+        throwIfInvalidIndex( i, LONG_SIZE );
 
-        Backdoor.setLong( address, v );
+        Backdoor.setLongIn( array, i, v );
     }
 
     public void writeFloat( long index, float v ) {
-        long address = cacheAlignedBaseAddress + index;
+        long i = min + index;
 
-        throwIfInvalidAddress( address, FLOAT_SIZE );
+        throwIfInvalidIndex( i, FLOAT_SIZE );
 
-        Backdoor.setFloat( address, v );
+        Backdoor.setFloatIn( array, i, v );
     }
 
     public void writeDouble( long index, double v ) {
-        long address = cacheAlignedBaseAddress + index;
+        long i = min + index;
 
-        throwIfInvalidAddress( address, DOUBLE_SIZE );
+        throwIfInvalidIndex( i, DOUBLE_SIZE );
 
-        Backdoor.setDouble( address, v );
+        Backdoor.setDoubleIn( array, i, v );
     }
 
     public void writeUnsignedByte( long index, short v ) {
@@ -229,11 +203,11 @@ public class NativeBytes implements Bytes {
 
 
     public long startIndex() {
-        return 0;
+        return min;
     }
 
     public long endIndexExc() {
-        return maxAddressExc - cacheAlignedBaseAddress;
+        return maxExc;
     }
 
     public long positionIndex() {
@@ -243,11 +217,11 @@ public class NativeBytes implements Bytes {
     public void positionIndex( long newIndex ) {
         Validate.argIsBetween( startIndex(), newIndex, endIndexExc(), "newIndex" );
 
-        this.positionIndex = newIndex;
+        this.positionIndex = (int) newIndex;
     }
 
     public void rewindPositionIndex() {
-        this.positionIndex = startIndex();
+        this.positionIndex = min;
     }
 
     public long remaining() {
@@ -410,23 +384,23 @@ public class NativeBytes implements Bytes {
 
 
     public void fill( long from, long toExc, byte v ) {
-        long a        = cacheAlignedBaseAddress+from;
-        long b        = cacheAlignedBaseAddress+toExc-1;
+        long a        = min+from;
+        long b        = min+toExc-1;
         long numBytes = toExc-from;
 
-        throwIfInvalidAddress( a, BYTE_SIZE );
-        throwIfInvalidAddress( b, BYTE_SIZE );
+        throwIfInvalidIndex( a, BYTE_SIZE );
+        throwIfInvalidIndex( b, BYTE_SIZE );
 
-        Backdoor.fill( a, numBytes, (byte) 0 );
+        Backdoor.fillArray( array, a, numBytes, (byte) 0 );
     }
 
 
 
-    private void throwIfInvalidAddress( long address, int numBytes ) {
+    private void throwIfInvalidIndex( long address, int numBytes ) {
         if ( SystemX.isDebugRun() ) {
-            if ( address < cacheAlignedBaseAddress ) {
+            if ( address < min ) {
                 throw new IllegalArgumentException( "Address has under shot the allocated region" );
-            } else if ( address+numBytes > maxAddressExc ) {
+            } else if ( address+numBytes > maxExc ) {
                 throw new IllegalArgumentException( "Address has over shot the allocated region" );
             }
         }
