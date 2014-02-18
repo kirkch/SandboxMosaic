@@ -38,13 +38,19 @@ public class ReflectionUtils {
     }
 
     public static <T> T getPrivateField( Object o, String fieldName ) {
-        try {
-            Field f = o.getClass().getDeclaredField( fieldName );
-            f.setAccessible( true );
+        Class c = o.getClass();
 
-            return (T) f.get( o );
-        } catch ( Exception e ) {
-            throw ReflectionException.recast( e );
+        while ( c != null ) {
+            try {
+                Field f = c.getDeclaredField( fieldName );
+                f.setAccessible( true );
+
+                return (T) f.get( o );
+            } catch ( Exception e ) {
+                c = c.getSuperclass();
+            }
         }
+
+        throw ReflectionException.recast( new NoSuchFieldException(fieldName) );
     }
 }

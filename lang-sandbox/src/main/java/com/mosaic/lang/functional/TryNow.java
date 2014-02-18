@@ -1,8 +1,8 @@
 package com.mosaic.lang.functional;
 
 import com.mosaic.lang.Failure;
-import com.mosaic.utils.concurrent.Future;
-import com.mosaic.utils.concurrent.FutureNbl;
+import com.mosaic.collections.concurrent.Future;
+import com.mosaic.collections.concurrent.FutureNbl;
 
 /**
  * Factory class for jobs that execute immediately.

@@ -1,5 +1,6 @@
-package com.mosaic.utils.concurrent;
+package com.mosaic.collections.concurrent;
 
+import com.mosaic.collections.concurrent.Atomic;
 import com.mosaic.lang.functional.Function1;
 import org.junit.Test;
 

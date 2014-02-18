@@ -2,6 +2,7 @@ package com.mosaic.lang;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -19,13 +20,13 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
      */
     public static void init( Object s ) {
         if ( s instanceof StartStoppable ) {
-            ((StartStoppable) s).init();
+            ((StartStoppable) s).start();
         }
     }
 
     public static void tearDown( Object s ) {
         if ( s instanceof StartStoppable ) {
-            ((StartStoppable) s).tearDown();
+            ((StartStoppable) s).stop();
         }
     }
 
@@ -34,43 +35,67 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
     private AtomicInteger        initCounter     = new AtomicInteger(0);
     private String               serviceName;
 
+    private AtomicBoolean        isShuttingDown  = new AtomicBoolean(false);
+
 
     public StartStopMixin( String serviceName ) {
         this.serviceName = serviceName;
     }
 
-    protected abstract void doInit();
-    protected abstract void doTearDown();
+    protected abstract void doStart() throws Exception;
+    protected abstract void doStop() throws Exception;
 
 
     public String getServiceName() {
         return serviceName;
     }
 
-    public T init() {
+    // todo improve the error handling of Exceptions
+
+    public T start() {
+        throwIfShuttingDown();
+
         int initCount = initCounter.incrementAndGet();
 
         if ( initCount == 1 ) {
             broadcastInit();
-            doInit();
+
+            try {
+                doStart();
+            } catch ( Exception ex ) {
+                throw new RuntimeException( ex );
+            }
         }
 
         return (T) this;
     }
 
-    public T tearDown() {
+    public T stop() {
         int initCount = initCounter.decrementAndGet();
 
         if ( initCount == 0 ) {
+            this.isShuttingDown.set(true);
+            
             broadcastTearDown();
-            doTearDown();
+
+            try {
+                doStop();
+            } catch ( Exception ex ) {
+                throw new RuntimeException( ex );
+            } finally {
+                this.isShuttingDown.set(false);
+            }
         }
 
         return (T) this;
     }
 
-    public boolean isReady() {
+    public boolean isRunning() {
         return initCounter.get() > 0;
+    }
+
+    public boolean isShuttingDown() {
+        return isShuttingDown.get();
     }
 
     public T chainTo( Object... others ) {
@@ -87,7 +112,7 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
 
     protected void throwIfNotReady() {
         if ( SystemX.isDebugRun() ) {
-            if ( !isReady() ) {
+            if ( !isRunning() ) {
                 throw new IllegalStateException( "'"+serviceName+"' is not running" );
             }
         }
@@ -95,22 +120,28 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
 
     protected void throwIfReady() {
         if ( SystemX.isDebugRun() ) {
-            if ( isReady() ) {
+            if ( isRunning() ) {
                 throw new IllegalStateException( "'"+serviceName+"' is running" );
             }
         }
     }
 
-
     private void broadcastInit() {
         for ( StartStoppable o : chainedToOthers ) {
-            o.init();
+            o.start();
         }
     }
 
+
     private void broadcastTearDown() {
         for ( StartStoppable o : chainedToOthers ) {
-            o.tearDown();
+            o.stop();
+        }
+    }
+
+    private void throwIfShuttingDown() {
+        if ( isShuttingDown() ) {
+            throw new IllegalStateException( serviceName + " is currently in the process of shutting down" );
         }
     }
 

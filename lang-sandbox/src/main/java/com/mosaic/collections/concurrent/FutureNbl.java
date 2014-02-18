@@ -1,11 +1,11 @@
-package com.mosaic.utils.concurrent;
+package com.mosaic.collections.concurrent;
 
 
 import com.mosaic.lang.Failure;
 import com.mosaic.lang.ThreadSafe;
 import com.mosaic.lang.Validate;
 import com.mosaic.lang.functional.*;
-import com.mosaic.utils.concurrent.Future.InternalState;
+import com.mosaic.collections.concurrent.Future.InternalState;
 
 import java.util.*;
 

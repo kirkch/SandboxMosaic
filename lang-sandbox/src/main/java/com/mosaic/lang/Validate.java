@@ -888,4 +888,11 @@ public class Validate {
         }
     }
 
+    public static void argIsUnsignedByte( int v, String name ) {
+        if ( SystemX.isDebugRun() ) {
+            if ( v < 0 || v > 255 ) {
+                throwException( "%s (%s) is outside the bounds of an unsigned byte (0-255)", name, v );
+            }
+        }
+    }
 }

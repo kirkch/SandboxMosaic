@@ -20,123 +20,123 @@ public class StartStopMixinTest {
 
         List<String> expectedAudit = asList();
 
-        assertFalse( s1.isReady() );
+        assertFalse( s1.isRunning() );
         assertEquals( expectedAudit, s1.audit );
     }
 
     @Test
-    public void givenNewService_callInit_expectServiceToStart() {
+    public void givenNewService_callStart_expectServiceToStart() {
         FakeService s1 = new FakeService( "s1" );
 
-        s1.init();
+        s1.start();
 
 
         List<String> expectedAudit = asList(
-            "s1.doInit()"
+            "s1.doStart()"
         );
 
-        assertTrue( s1.isReady() );
+        assertTrue( s1.isRunning() );
         assertEquals( expectedAudit, s1.audit );
     }
 
     @Test
-    public void givenNewService_callInitTwice_expectServiceToStartOnce() {
+    public void givenNewService_callStartTwice_expectServiceToStartOnce() {
         FakeService s1 = new FakeService( "s1" );
 
-        s1.init();
-        s1.init();
+        s1.start();
+        s1.start();
 
 
         List<String> expectedAudit = asList(
-            "s1.doInit()"
+            "s1.doStart()"
         );
 
-        assertTrue( s1.isReady() );
+        assertTrue( s1.isRunning() );
         assertEquals( expectedAudit, s1.audit );
     }
 
     @Test
-    public void givenRunningService_callTearDown_expectServiceToShutdown() {
+    public void givenRunningService_callStop_expectServiceToShutdown() {
         FakeService s1 = new FakeService( "s1" );
 
-        s1.init();
-        s1.tearDown();
+        s1.start();
+        s1.stop();
 
 
         List<String> expectedAudit = asList(
-            "s1.doInit()",
-            "s1.doTearDown()"
+            "s1.doStart()",
+            "s1.doStop()"
         );
 
-        assertFalse( s1.isReady() );
+        assertFalse( s1.isRunning() );
         assertEquals( expectedAudit, s1.audit );
     }
 
     @Test
-    public void givenChainedService_callInit_expectStartupToCascade() {
+    public void givenChainedService_callStart_expectStartupToCascade() {
         FakeService s3  = new FakeService( "s3" );
         FakeService s2a = new FakeService( "s2a", s3 );
         FakeService s2b = new FakeService( "s2b" );
         FakeService s1  = new FakeService( "s1", s2a, s2b );
 
-        s1.init();
+        s1.start();
 
 
-        assertTrue( s1.isReady() );
-        assertTrue( s2a.isReady() );
-        assertTrue( s2b.isReady() );
-        assertTrue( s3.isReady() );
+        assertTrue( s1.isRunning() );
+        assertTrue( s2a.isRunning() );
+        assertTrue( s2b.isRunning() );
+        assertTrue( s3.isRunning() );
 
-        assertEquals( asList( "s1.doInit()" ), s1.audit );
-        assertEquals( asList( "s2a.doInit()" ), s2a.audit );
-        assertEquals( asList( "s2b.doInit()" ), s2b.audit );
-        assertEquals( asList( "s3.doInit()" ), s3.audit );
+        assertEquals( asList( "s1.doStart()" ), s1.audit );
+        assertEquals( asList( "s2a.doStart()" ), s2a.audit );
+        assertEquals( asList( "s2b.doStart()" ), s2b.audit );
+        assertEquals( asList( "s3.doStart()" ), s3.audit );
     }
 
     @Test
-    public void givenChainOfStartedServices_callTearDown_expectTearDownToCascade() {
+    public void givenChainOfStartedServices_callStop_expectStopToCascade() {
         FakeService s3  = new FakeService( "s3" );
         FakeService s2a = new FakeService( "s2a", s3 );
         FakeService s2b = new FakeService( "s2b" );
         FakeService s1  = new FakeService( "s1", s2a, s2b );
 
-        s1.init();
-        s1.tearDown();
+        s1.start();
+        s1.stop();
 
 
-        assertFalse( s1.isReady() );
-        assertFalse( s2a.isReady() );
-        assertFalse( s2b.isReady() );
-        assertFalse( s3.isReady() );
+        assertFalse( s1.isRunning() );
+        assertFalse( s2a.isRunning() );
+        assertFalse( s2b.isRunning() );
+        assertFalse( s3.isRunning() );
 
-        assertEquals( asList( "s1.doInit()", "s1.doTearDown()" ), s1.audit );
-        assertEquals( asList( "s2a.doInit()", "s2a.doTearDown()" ), s2a.audit );
-        assertEquals( asList( "s2b.doInit()", "s2b.doTearDown()" ), s2b.audit );
-        assertEquals( asList( "s3.doInit()", "s3.doTearDown()" ), s3.audit );
+        assertEquals( asList( "s1.doStart()", "s1.doStop()" ), s1.audit );
+        assertEquals( asList( "s2a.doStart()", "s2a.doStop()" ), s2a.audit );
+        assertEquals( asList( "s2b.doStart()", "s2b.doStop()" ), s2b.audit );
+        assertEquals( asList( "s3.doStart()", "s3.doStop()" ), s3.audit );
     }
 
     @Test
-    public void givenChainOfServices_callInitAndTearDownTwice_expectStartStopToOnlyBeCalledOnce() {
+    public void givenChainOfServices_callStartAndStopTwice_expectStartStopToOnlyBeCalledOnce() {
         FakeService s3  = new FakeService( "s3" );
         FakeService s2a = new FakeService( "s2a", s3 );
         FakeService s2b = new FakeService( "s2b" );
         FakeService s1  = new FakeService( "s1", s2a, s2b );
 
-        s1.init();
-        s1.init();
-        s1.tearDown();
-        s1.tearDown();
+        s1.start();
+        s1.start();
+        s1.stop();
+        s1.stop();
 
 
-        assertFalse( s1.isReady() );
-        assertFalse( s2a.isReady() );
-        assertFalse( s2b.isReady() );
-        assertFalse( s3.isReady() );
+        assertFalse( s1.isRunning() );
+        assertFalse( s2a.isRunning() );
+        assertFalse( s2b.isRunning() );
+        assertFalse( s3.isRunning() );
 
-        assertEquals( asList( "s1.doInit()", "s1.doTearDown()" ), s1.audit );
-        assertEquals( asList( "s2a.doInit()", "s2a.doTearDown()" ), s2a.audit );
-        assertEquals( asList( "s2b.doInit()", "s2b.doTearDown()" ), s2b.audit );
-        assertEquals( asList( "s3.doInit()", "s3.doTearDown()" ), s3.audit );
+        assertEquals( asList( "s1.doStart()", "s1.doStop()" ), s1.audit );
+        assertEquals( asList( "s2a.doStart()", "s2a.doStop()" ), s2a.audit );
+        assertEquals( asList( "s2b.doStart()", "s2b.doStop()" ), s2b.audit );
+        assertEquals( asList( "s3.doStart()", "s3.doStop()" ), s3.audit );
     }
 
 
@@ -152,12 +152,12 @@ public class StartStopMixinTest {
         }
 
 
-        protected void doInit() {
-            audit.add( getServiceName()+".doInit()" );
+        protected void doStart() {
+            audit.add( getServiceName()+".doStart()" );
         }
 
-        protected void doTearDown() {
-            audit.add( getServiceName()+".doTearDown()" );
+        protected void doStop() {
+            audit.add( getServiceName()+".doStop()" );
         }
     }
 }

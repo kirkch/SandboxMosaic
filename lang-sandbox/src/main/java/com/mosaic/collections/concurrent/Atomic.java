@@ -1,4 +1,4 @@
-package com.mosaic.utils.concurrent;
+package com.mosaic.collections.concurrent;
 
 import com.mosaic.lang.functional.Function1;
 

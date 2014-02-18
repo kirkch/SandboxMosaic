@@ -5,16 +5,44 @@ package com.mosaic.lang;
  */
 public class SystemX {
 
+    public static final int BYTE_SIZE   = 1;
+    public static final int SHORT_SIZE  = 2;
+    public static final int CHAR_SIZE   = 2;
+    public static final int INT_SIZE    = 4;
+    public static final int LONG_SIZE   = 8;
+    public static final int FLOAT_SIZE  = 4;
+    public static final int DOUBLE_SIZE = 8;
+
+
+
+    private static final boolean areAssertionsEnabled = detectWhetherAssertionsAreEnabled();
+
+
     public static int getCacheLineLengthBytes() {
         return 64;  // todo detect or configure this
     }
 
+    /**
+     * Returns true when the JVM is in debug mode.  Toggled via the assertions
+     * flag -ea.  This flag can be used to strip out debug checks that slow
+     * the JVM down.
+     */
     public static boolean isDebugRun() {
-        return true;
+        return areAssertionsEnabled;
     }
-
 
 
     // The latest Intel processors have 3 layers (L1D, L2, and L3); with
     // sizes 32KB, 256KB, and 4-30MB; and ~1ns, ~4ns, and ~15ns latency respectively for a 3.0GHz CPU.
+
+
+    @SuppressWarnings({"AssertWithSideEffects", "UnusedAssignment"})
+    private static boolean detectWhetherAssertionsAreEnabled() {
+        boolean flag = false;
+
+        assert (flag = true);
+
+        return flag;
+    }
+
 }
