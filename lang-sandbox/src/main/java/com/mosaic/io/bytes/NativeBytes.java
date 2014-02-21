@@ -3,6 +3,10 @@ package com.mosaic.io.bytes;
 import com.mosaic.lang.Backdoor;
 import com.mosaic.lang.SystemX;
 import com.mosaic.lang.Validate;
+import com.mosaic.lang.text.DecodedCharacter;
+import com.mosaic.lang.text.UTF8Tools;
+
+import java.io.IOException;
 
 import static com.mosaic.lang.SystemX.*;
 
@@ -10,7 +14,7 @@ import static com.mosaic.lang.SystemX.*;
 /**
  *
  */
-public class NativeBytes implements Bytes {
+public class NativeBytes extends BaseBytes {
 
     /**
      * Reserves n bytes of memory.  The bytes are not guaranteed to be zero'd out,
@@ -39,7 +43,7 @@ public class NativeBytes implements Bytes {
     private long cacheAlignedBaseAddress;
     private long maxAddressExc;
 
-    private long positionIndex;
+
 //    private long watermarkIndexExc;
 
 
@@ -58,13 +62,13 @@ public class NativeBytes implements Bytes {
     public void release() {
         Validate.isNotZero( baseAddress, "The memory has already been freed" );
 
+        super.release();
+
         Backdoor.free( baseAddress );
 
         this.baseAddress             = 0;
         this.cacheAlignedBaseAddress = 0;
         this.maxAddressExc           = 0;
-
-        this.positionIndex           = 0;
     }
 
     public boolean readBoolean( long index ) {
@@ -227,6 +231,29 @@ public class NativeBytes implements Bytes {
         writeInteger( index, (int) (v & UNSIGNED_INT_MASK) );
     }
 
+    public int writeUTF8( long index, char v ) {
+        long toAddress = cacheAlignedBaseAddress+index;
+
+        return UTF8Tools.write( toAddress, maxAddressExc, v );
+    }
+
+    public void writeBytes( long index, byte[] sourceArray, int fromInc, int toExc ) {
+        long toAddress = cacheAlignedBaseAddress+index;
+        int  numBytes  = toExc-fromInc;
+
+        throwIfInvalidAddress( toAddress, numBytes );
+
+        Backdoor.copyBytes( sourceArray, fromInc, toAddress, numBytes );
+    }
+
+    public void writeBytes( long index, long fromAddress, int numBytes ) {
+        long toAddress = cacheAlignedBaseAddress+index;
+
+        throwIfInvalidAddress( toAddress, numBytes );
+
+        Backdoor.copyBytes( fromAddress, toAddress, numBytes );
+    }
+
 
     public long startIndex() {
         return 0;
@@ -236,176 +263,165 @@ public class NativeBytes implements Bytes {
         return maxAddressExc - cacheAlignedBaseAddress;
     }
 
-    public long positionIndex() {
-        return positionIndex;
-    }
-
-    public void positionIndex( long newIndex ) {
-        Validate.argIsBetween( startIndex(), newIndex, endIndexExc(), "newIndex" );
-
-        this.positionIndex = newIndex;
-    }
-
-    public void rewindPositionIndex() {
-        this.positionIndex = startIndex();
-    }
-
-    public long remaining() {
-        return endIndexExc() - positionIndex();
-    }
-
-    public long size() {
-        return endIndexExc() - startIndex();
-    }
 
     public boolean readBoolean() {
         return readByte() != 0;
     }
 
     public byte readByte() {
-        byte v = readByte( positionIndex );
+        byte v = readByte( positionIndex() );
 
-        this.positionIndex += BYTE_SIZE;
+        incrementPosition(  BYTE_SIZE );
 
         return v;
     }
 
     public short readShort() {
-        short v = readShort( positionIndex );
+        short v = readShort( positionIndex() );
 
-        this.positionIndex += SHORT_SIZE;
+        incrementPosition(  SHORT_SIZE );
 
         return v;
     }
 
     public char readCharacter() {
-        char v = readCharacter( positionIndex );
+        char v = readCharacter( positionIndex() );
 
-        this.positionIndex += CHAR_SIZE;
+        incrementPosition(  CHAR_SIZE );
 
         return v;
     }
 
     public int readInteger() {
-        int v = readInteger( positionIndex );
+        int v = readInteger( positionIndex() );
 
-        this.positionIndex += INT_SIZE;
+        incrementPosition(  INT_SIZE );
 
         return v;
     }
 
     public long readLong() {
-        long v = readLong( positionIndex );
+        long v = readLong( positionIndex() );
 
-        this.positionIndex += LONG_SIZE;
+        incrementPosition(  LONG_SIZE );
 
         return v;
     }
 
     public float readFloat() {
-        float v = readFloat( positionIndex );
+        float v = readFloat( positionIndex() );
 
-        this.positionIndex += FLOAT_SIZE;
+        incrementPosition(  FLOAT_SIZE );
 
         return v;
     }
 
     public double readDouble() {
-        double v = readDouble( positionIndex );
+        double v = readDouble( positionIndex() );
 
-        this.positionIndex += DOUBLE_SIZE;
+        incrementPosition(  DOUBLE_SIZE );
 
         return v;
     }
 
     public short readUnsignedByte() {
-        short v = readUnsignedByte( positionIndex );
+        short v = readUnsignedByte( positionIndex() );
 
-        this.positionIndex += BYTE_SIZE;
+        incrementPosition(  BYTE_SIZE );
 
         return v;
     }
 
     public int readUnsignedShort() {
-        int v = readUnsignedShort( positionIndex );
+        int v = readUnsignedShort( positionIndex() );
 
-        this.positionIndex += SHORT_SIZE;
+        incrementPosition(  SHORT_SIZE );
 
         return v;
     }
 
     public long readUnsignedInteger() {
-        long v = readUnsignedByte( positionIndex );
+        long v = readUnsignedByte( positionIndex() );
 
-        this.positionIndex += INT_SIZE;
+        incrementPosition(  INT_SIZE );
 
         return v;
     }
 
     public void writeBoolean( boolean v ) {
-        writeBoolean( positionIndex, v );
+        writeBoolean( positionIndex(), v );
 
-        this.positionIndex += BYTE_SIZE;
+        incrementPosition(  BYTE_SIZE );
     }
 
     public void writeByte( byte v ) {
-        writeByte( positionIndex, v );
+        writeByte( positionIndex(), v );
 
-        this.positionIndex += BYTE_SIZE;
+        incrementPosition(  BYTE_SIZE );
     }
 
     public void writeShort( short v ) {
-        writeShort( positionIndex, v );
+        writeShort( positionIndex(), v );
 
-        this.positionIndex += SHORT_SIZE;
+        incrementPosition(  SHORT_SIZE );
     }
 
     public void writeCharacter( char v ) {
-        writeCharacter( positionIndex, v );
+        writeCharacter( positionIndex(), v );
 
-        this.positionIndex += CHAR_SIZE;
+        incrementPosition(  CHAR_SIZE );
     }
 
     public void writeInteger( int v ) {
-        writeInteger( positionIndex, v );
+        writeInteger( positionIndex(), v );
 
-        this.positionIndex += INT_SIZE;
+        incrementPosition(  INT_SIZE );
     }
 
     public void writeLong( long v ) {
-        writeLong( positionIndex, v );
+        writeLong( positionIndex(), v );
 
-        this.positionIndex += LONG_SIZE;
+        incrementPosition(  LONG_SIZE );
     }
 
     public void writeFloat( float v ) {
-        writeFloat( positionIndex, v );
+        writeFloat( positionIndex(), v );
 
-        this.positionIndex += FLOAT_SIZE;
+        incrementPosition(  FLOAT_SIZE );
     }
 
     public void writeDouble( double v ) {
-        writeDouble( positionIndex, v );
+        writeDouble( positionIndex(), v );
 
-        this.positionIndex += DOUBLE_SIZE;
+        incrementPosition(  DOUBLE_SIZE );
     }
 
     public void writeUnsignedByte( short v ) {
-        writeUnsignedByte( positionIndex, v );
+        writeUnsignedByte( positionIndex(), v );
 
-        this.positionIndex += BYTE_SIZE;
+        incrementPosition(  BYTE_SIZE );
     }
 
     public void writeUnsignedShort( int v ) {
-        writeUnsignedShort( positionIndex, v );
+        writeUnsignedShort( positionIndex(), v );
 
-        this.positionIndex += SHORT_SIZE;
+        incrementPosition(  SHORT_SIZE );
     }
 
     public void writeUnsignedInteger( long v ) {
-        writeUnsignedInt( positionIndex, v );
+        writeUnsignedInt( positionIndex(), v );
 
-        this.positionIndex += LONG_SIZE;
+        incrementPosition(  LONG_SIZE );
+    }
+
+    public void writeBytes( long fromAddress, int numBytes ) {
+        long toAddress = cacheAlignedBaseAddress + positionIndex();
+
+        throwIfInvalidAddress( toAddress, numBytes );
+
+        Backdoor.copyBytes( fromAddress, toAddress, numBytes );
+
+        incrementPosition( numBytes );
     }
 
 
@@ -418,6 +434,79 @@ public class NativeBytes implements Bytes {
         throwIfInvalidAddress( b, BYTE_SIZE );
 
         Backdoor.fill( a, numBytes, (byte) 0 );
+    }
+
+
+    public void readSingleUTF8Character( long index, DecodedCharacter output ) {
+        UTF8Tools.decode( cacheAlignedBaseAddress+index, maxAddressExc, output );
+    }
+
+    public int readUTF8String( long index, Appendable out ) {
+        long lengthAddress = cacheAlignedBaseAddress + index;
+
+        throwIfInvalidAddress( lengthAddress, 2 );
+
+        int numUTF8Bytes = Backdoor.getUnsignedByte( lengthAddress );
+
+        long utf8BytesAddress = cacheAlignedBaseAddress + index + 2;
+
+        throwIfInvalidAddress( utf8BytesAddress, numUTF8Bytes );
+
+
+        DecodedCharacter buf = myDecodedCharacterBuffer();
+
+        int count = 0;
+        long maxAddressExc = utf8BytesAddress + numUTF8Bytes;
+        long nextPtr = utf8BytesAddress;
+        while ( nextPtr < maxAddressExc ) {
+            UTF8Tools.decode( nextPtr, maxAddressExc, buf );
+
+            nextPtr += buf.numBytesConsumed;
+
+            try {
+                out.append( buf.c );
+            } catch ( IOException ex ) {
+                Backdoor.throwException( ex );
+            }
+        }
+
+        assert nextPtr == maxAddressExc;
+
+        return count;
+    }
+
+    public int readBytes( long index, byte[] destinationArray ) {
+        int numBytes = (int) Math.min( remaining(), destinationArray.length );
+
+        long ptr = cacheAlignedBaseAddress + index;
+
+        throwIfInvalidAddress( ptr, numBytes );
+
+        Backdoor.copyBytes( ptr, destinationArray, 0, numBytes );
+
+        return numBytes;
+    }
+
+    public void readBytes( long index, byte[] destinationArray, int fromInc, int toExc ) {
+        Validate.argIsGT( toExc, fromInc, "toExc", "fromInc" );
+        Validate.argIsBetweenInc( 0, fromInc, destinationArray.length, "fromInc" );
+        Validate.argIsBetweenInc( 0, toExc, destinationArray.length, "toExc" );
+
+
+        long ptr = cacheAlignedBaseAddress + index;
+        int numBytes = toExc - fromInc;
+
+        throwIfInvalidAddress( ptr, numBytes );
+
+        Backdoor.copyBytes( ptr, destinationArray, fromInc, numBytes );
+    }
+
+    public void readBytes( long index, long toAddress, int numBytes ) {
+        long ptr = cacheAlignedBaseAddress + index;
+
+        throwIfInvalidAddress( ptr, numBytes );
+
+        Backdoor.copyBytes( ptr, toAddress, numBytes );
     }
 
 

@@ -1,6 +1,7 @@
 package com.mosaic.io.bytes;
 
 import com.mosaic.lang.Backdoor;
+import com.mosaic.lang.text.DecodedCharacter;
 import com.softwaremosaic.junit.JUnitMosaic;
 import org.junit.After;
 import org.junit.Before;
@@ -175,6 +176,211 @@ public abstract class BaseBytesTest {
         assertEquals( Double.MAX_VALUE, b.readDouble( 5 ), 0.001 );
         assertAllBytesAreZero( b, 13, b.size() );
     }
+
+    @Test
+    public void writeUTF8CharRelativeSingleByte_thenReadItBack() {
+        Bytes b = initBytes();
+
+        b.positionIndex( 3 );
+        assertEquals( 1, b.writeUTF8( 'f' ) );
+
+        assertEquals( 4, b.positionIndex() );
+        assertAllBytesAreZero( b, 0, 3 );
+
+        b.positionIndex( 3 );
+        assertEquals( 'f', b.readSingleUTF8Character() );
+        assertAllBytesAreZero( b, 4, b.size() );
+    }
+
+    @Test
+    public void writeUTF8CharRelativeTwoBytes_thenReadItBack() {
+        Bytes b = initBytes();
+
+        b.positionIndex( 3 );
+        assertEquals( 2, b.writeUTF8( '£' ) );
+
+        assertEquals( 5, b.positionIndex() );
+        assertAllBytesAreZero( b, 0, 3 );
+
+        b.positionIndex( 3 );
+        assertEquals( '£', b.readSingleUTF8Character() );
+        assertAllBytesAreZero( b, 5, b.size() );
+    }
+
+    @Test
+    public void writeUTF8CharRelativeThreeBytes_thenReadItBack() {
+        Bytes b = initBytes();
+
+        b.positionIndex( 3 );
+        assertEquals( 3, b.writeUTF8( 'グ' ) );
+
+        assertEquals( 6, b.positionIndex() );
+        assertAllBytesAreZero( b, 0, 3 );
+
+        b.positionIndex( 3 );
+        assertEquals( 'グ', b.readSingleUTF8Character() );
+        assertAllBytesAreZero( b, 6, b.size() );
+    }
+
+    @Test
+    public void writeUTF8CharSingleByte_thenReadItBack() {
+        Bytes            b   = initBytes();
+        DecodedCharacter buf = new DecodedCharacter();
+
+        assertEquals( 1, b.writeUTF8( 3, 'e' ) );
+
+        assertEquals( 0, b.positionIndex() );
+        assertAllBytesAreZero( b, 0, 3 );
+
+        b.readSingleUTF8Character( 3, buf );
+        assertEquals( 'e', buf.c );
+        assertEquals( 1, buf.numBytesConsumed );
+
+        assertAllBytesAreZero( b, 4, b.size() );
+    }
+
+    @Test
+    public void writeUTF8StringRelative_thenReadItBack() {
+        Bytes         b   = initBytes();
+        StringBuilder buf = new StringBuilder();
+
+
+        b.positionIndex( 2 );
+        assertEquals( 7, b.writeUTF8String( "hello" ) );
+
+        assertEquals( 9, b.positionIndex() );
+        assertAllBytesAreZero( b, 0, 2 );
+
+        b.positionIndex( 2 );
+        b.readUTF8String( buf );
+
+
+        assertAllBytesAreZero( b, 0, 2 );
+        assertEquals( "hello", buf.toString() );
+
+        assertAllBytesAreZero( b, 9, b.size() );
+    }
+
+    @Test
+    public void writeUTF8StringRelativeVariableByteLengths_thenReadItBack() {
+        Bytes         b   = initBytes();
+        StringBuilder buf = new StringBuilder();
+
+
+        b.positionIndex( 2 );
+        assertEquals( 12, b.writeUTF8String( "h£グoグ" ) );
+
+        assertEquals( 14, b.positionIndex() );
+        assertAllBytesAreZero( b, 0, 2 );
+
+        b.positionIndex(2);
+        b.readUTF8String( buf );
+
+
+        assertAllBytesAreZero( b, 0, 2 );
+        assertEquals( "h£グoグ", buf.toString() );
+
+        assertAllBytesAreZero( b, 16, b.size() );
+    }
+
+    @Test
+    public void writeUTF8String_thenReadItBack() {
+        Bytes         b   = initBytes();
+        StringBuilder buf = new StringBuilder();
+
+
+        assertEquals( 7, b.writeUTF8String( 2, "hello" ) );
+
+        assertEquals( 0, b.positionIndex() );
+        assertAllBytesAreZero( b, 0, 2 );
+
+
+        b.readUTF8String( 2, buf );
+
+        assertAllBytesAreZero( b, 0, 2 );
+        assertEquals( "hello", buf.toString() );
+        assertEquals( 0, b.positionIndex() );
+        assertAllBytesAreZero( b, 9, b.size() );
+    }
+
+    @Test
+    public void writeUTF8StringVariableByteLengths_thenReadItBack() {
+        Bytes         b   = initBytes();
+        StringBuilder buf = new StringBuilder();
+
+
+        assertEquals( 12, b.writeUTF8String(2,"h£グoグ") );
+
+        assertEquals( 0, b.positionIndex() );
+        assertAllBytesAreZero( b, 0, 2 );
+
+        b.readUTF8String( 2, buf );
+
+        assertAllBytesAreZero( b, 0, 2 );
+        assertEquals( "h£グoグ", buf.toString() );
+        assertEquals( 0, b.positionIndex() );
+        assertAllBytesAreZero( b, 16, b.size() );
+    }
+
+
+    @Test
+    public void writeAllBytesFromAnArrayAndReadyBackRelative() {
+        Bytes b = initBytes();
+
+        b.positionIndex(2);
+
+        b.writeBytes( new byte[] {'a','b','c'} );
+
+        assertEquals( 5, b.positionIndex() );
+        assertAllBytesAreZero( b, 0, 2 );
+        assertEquals( 'a', b.readByte(2) );
+        assertEquals( 'b', b.readByte(3) );
+        assertEquals( 'c', b.readByte(4) );
+        assertAllBytesAreZero( b, 5, b.size() );
+
+        byte[] buf = new byte[3];
+        b.positionIndex(2);
+        b.readBytes(buf);
+
+        assertEquals( 5, b.positionIndex() );
+        assertEquals( 'a', buf[0] );
+        assertEquals( 'b', buf[1] );
+        assertEquals( 'c', buf[2] );
+    }
+
+    @Test
+    public void writeAllBytesFromAnArrayAndReadyBack() {
+        Bytes b = initBytes();
+
+
+        b.writeBytes( 2, new byte[] {'a','b','c'} );
+
+        assertEquals( 0, b.positionIndex() );
+        assertAllBytesAreZero( b, 0, 2 );
+        assertEquals( 'a', b.readByte(2) );
+        assertEquals( 'b', b.readByte(3) );
+        assertEquals( 'c', b.readByte(4) );
+        assertAllBytesAreZero( b, 5, b.size() );
+
+        byte[] buf = new byte[3];
+        b.readBytes(2, buf);
+
+        assertEquals( 0, b.positionIndex() );
+        assertEquals( 'a', buf[0] );
+        assertEquals( 'b', buf[1] );
+        assertEquals( 'c', buf[2] );
+    }
+
+
+
+//    public int writeBytes( byte[] array );
+//    public int writeBytes( byte[] array, int fromInc, int toExc );
+//    public void writeBytes( long fromAddress, int numBytes );
+//
+//    public int writeBytes( long index, byte[] array );
+//    public void writeBytes( long index, byte[] array, int fromInc, int toExc );
+//    public void writeBytes( long index, long fromAddress, int numBytes );
+
 
 
 

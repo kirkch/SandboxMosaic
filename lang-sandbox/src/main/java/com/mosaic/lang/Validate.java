@@ -265,6 +265,12 @@ public class Validate {
         }
     }
 
+    public static void argIsGT( byte a, byte b, String argNameA, String argNameB ) {
+        if ( a <= b ) {
+            throwException( "%s (%s) must be > %s (%s)", argNameA, a, argNameB, b );
+        }
+    }
+
     public static void argIsGT( short a, short b, String argName ) {
         if ( a <= b ) {
             throwException( "%s (%s) must be > %s", argName, a, b );
@@ -277,6 +283,12 @@ public class Validate {
         }
     }
 
+    public static void argIsGT( int a, int b, String argNameA, String argNameB ) {
+        if ( a <= b ) {
+            throwException( "%s (%s) must be > %s (%s)", argNameA, a, argNameB, b );
+        }
+    }
+
     public static <T extends Throwable> void argIsGT( int a, int b, String argName, Class<T> exceptionType ) {
         if ( a <= b ) {
             throwException( "%s (%s) must be > %s", argName, a, b );
@@ -286,6 +298,12 @@ public class Validate {
     public static void argIsGT( long a, long b, String argName ) {
         if ( a <= b ) {
             throwException( "%s (%s) must be > %s", argName, a, b );
+        }
+    }
+
+    public static void argIsGT( long a, long b, String argNameA, String argNameB ) {
+        if ( a <= b ) {
+            throwException( "%s (%s) must be > %s (%s)", argNameA, a, argNameB, b );
         }
     }
 
@@ -358,6 +376,12 @@ public class Validate {
     public static void argIsLT( long a, long b, String argName ) {
         if ( a >= b ) {
             throwException( "%s (%s) must be < %s", argName, a, b );
+        }
+    }
+
+    public static void argIsLT( long a, long b, String argName1, String argName2 ) {
+        if ( a >= b ) {
+            throwException( "%s (%s) must be < %s (%s)", argName1, a, argName2, b );
         }
     }
 
@@ -873,6 +897,51 @@ public class Validate {
     public static void argIsBetween( long minInc, long n, long maxExc, String argName ) {
         if ( !(minInc <= n && n < maxExc) ) {
             throwIndexOutOfBoundsException( "%s (%d) must be >= %d and < %d", argName, n, minInc, maxExc );
+        }
+    }
+
+    /**
+     * Validates that minInc <= n <= maxExc and throws IndexOutOfBoundsException if it fails.
+     */
+    public static void argIsBetweenInc( byte minInc, byte n, byte maxInc, String argName ) {
+        if ( !(minInc <= n && n <= maxInc) ) {
+            throwIndexOutOfBoundsException( "%s (%d) must be >= %d and <= %d", argName, n, minInc, maxInc );
+        }
+    }
+
+    /**
+     * Validates that minInc <= n <= maxInc and throws IndexOutOfBoundsException if it fails.
+     */
+    public static void argIsBetweenInc( short minInc, short n, short maxInc, String argName ) {
+        if ( !(minInc <= n && n <= maxInc) ) {
+            throwIndexOutOfBoundsException( "%s (%d) must be >= %d and <= %d", argName, n, minInc, maxInc );
+        }
+    }
+
+    /**
+     * Validates that minInc <= n <= maxInc and throws IndexOutOfBoundsException if it fails.
+     */
+    public static void argIsBetweenInc( char minInc, char n, char maxInc, String argName ) {
+        if ( !(minInc <= n && n <= maxInc) ) {
+            throwIndexOutOfBoundsException( "%s (%d) must be >= %d and <= %d", argName, n, minInc, maxInc );
+        }
+    }
+
+    /**
+     * Validates that minInc <= n <= maxInc and throws IndexOutOfBoundsException if it fails.
+     */
+    public static void argIsBetweenInc( int minInc, int n, int maxInc, String argName ) {
+        if ( !(minInc <= n && n <= maxInc) ) {
+            throwIndexOutOfBoundsException( "%s (%d) must be >= %d and <= %d", argName, n, minInc, maxInc );
+        }
+    }
+
+    /**
+     * Validates that minInc <= n <= maxInc and throws IndexOutOfBoundsException if it fails.
+     */
+    public static void argIsBetweenInc( long minInc, long n, long maxInc, String argName ) {
+        if ( !(minInc <= n && n <= maxInc) ) {
+            throwIndexOutOfBoundsException( "%s (%d) must be >= %d and <= %d", argName, n, minInc, maxInc );
         }
     }
 

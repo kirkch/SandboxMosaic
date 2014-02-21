@@ -36,6 +36,13 @@ public class SystemX {
         return areAssertionsEnabled;
     }
 
+    /**
+     * Returns true if we are willing to sacrifice important safety checks for
+     * extra speed.
+     */
+    public static boolean isRecklessRun() {
+        return !areAssertionsEnabled;
+    }
 
     // The latest Intel processors have 3 layers (L1D, L2, and L3); with
     // sizes 32KB, 256KB, and 4-30MB; and ~1ns, ~4ns, and ~15ns latency respectively for a 3.0GHz CPU.

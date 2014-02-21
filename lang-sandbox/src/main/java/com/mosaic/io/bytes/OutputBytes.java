@@ -12,18 +12,45 @@ public interface OutputBytes {
 
     public void release();
 
-    public boolean readBoolean( long index );
-    public byte readByte( long index );
-    public short readShort( long index );
-    public char readCharacter( long index );
-    public int readInteger( long index );
-    public long readLong( long index );
-    public float readFloat( long index );
-    public double readDouble( long index );
+    public void writeBoolean( long index, boolean v );
+    public void writeByte( long index, byte v );
+    public void writeShort( long index, short v );
+    public void writeCharacter( long index, char v );
+    public void writeInteger( long index, int v );
+    public void writeLong( long index, long v );
+    public void writeFloat( long index, float v );
+    public void writeDouble( long index, double v );
 
-    public short readUnsignedByte( long index );
-    public int readUnsignedShort( long index );
-    public long readUnsignedInteger( long index );
+    public void writeUnsignedByte( long index, short v );
+    public void writeUnsignedShort( long index, int v );
+    public void writeUnsignedInt( long index, long v );
+
+    /**
+     * Writes the specified character encoded in UTF-8.  UTF-8 is a variable
+     * width encoding, for most latin characters it uses only one byte.  For the
+     * rest it will use two or three.
+     *
+     * @return the number of bytes used
+     */
+    public int writeUTF8( long index, char v );
+
+    /**
+     * Writes the specified string encoded in UTF-8.  UTF-8 is a variable
+     * width encoding, for most latin characters it uses only one byte.  For the
+     * rest it will use two or three.
+     *
+     * @return the number of bytes used
+     */
+    public int writeUTF8String( long index, CharSequence characters );
+
+    /**
+     * Writes all of the bytes within the array.
+     */
+    public void writeBytes( long index, byte[] array );
+
+    public void writeBytes( long index, byte[] array, int fromInc, int toExc );
+
+    public void writeBytes( long index, long fromAddress, int numBytes );
 
 
     /**
@@ -40,17 +67,17 @@ public interface OutputBytes {
     public long endIndexExc();
 
     /**
-     * The index that will be used by the next relative read method.
+     * The index that will be used by the next relative write method.
      */
     public long positionIndex();
 
     /**
-     * Moves the position of the next relative read to the specified index.
+     * Moves the position of the next relative write to the specified index.
      */
     public void positionIndex( long newIndex );
 
     /**
-     * Moves the position of the next relative read to the first valid index.
+     * Moves the position of the next relative write to the first valid index.
      */
     public void rewindPositionIndex();
 
@@ -72,24 +99,43 @@ public interface OutputBytes {
      */
     public long remaining();
 
+
     public long size();
 
 
-    public boolean readBoolean();
-    public byte readByte();
-    public short readShort();
-    public char readCharacter();
-    public int readInteger();
-    public long readLong();
-    public float readFloat();
-    public double readDouble();
+    public void writeBoolean( boolean v );
+    public void writeByte( byte v );
+    public void writeShort( short v );
+    public void writeCharacter( char v );
+    public void writeInteger( int v );
+    public void writeLong( long v );
+    public void writeFloat( float v );
+    public void writeDouble( double v );
 
-    public short readUnsignedByte();
-    public int readUnsignedShort();
-    public long readUnsignedInteger();
+    public void writeUnsignedByte( short v );
+    public void writeUnsignedShort( int v );
+    public void writeUnsignedInteger( long v );
 
 
+    /**
+     * Writes the specified character encoded in UTF-8.  UTF-8 is a variable
+     * width encoding, for most latin characters it uses only one byte.  For the
+     * rest it will use two or three.
+     */
+    public int writeUTF8( char v );
 
-    public void fill( long from, long toExc, byte v );
+    /**
+     * Returns the number of bytes written.
+     */
+    public int writeUTF8String( CharSequence characters );
+
+    /**
+     * Write all of the bytes within the array.
+     */
+    public void writeBytes( byte[] array );
+    public void writeBytes( byte[] array, int fromInc, int toExc );
+
+    public void writeBytes( long fromAddress, int numBytes );
+
 
 }
