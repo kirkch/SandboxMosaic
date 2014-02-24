@@ -13,7 +13,7 @@ import java.io.IOException;
  * Helper class that provides default implementations for the methods on Bytes
  * that may be defined by reusing other methods on the Bytes interface.
  */
-abstract class BaseBytes implements Bytes {
+abstract class BaseBytes extends Bytes {
 
     private DecodedCharacter myDecodedCharacterBuffer;
 

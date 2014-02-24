@@ -6,7 +6,7 @@ package com.mosaic.lang.text;
 public interface CharacterSink {
 
     /**
-     * Append one character.  Returns true if the character was acceoted, else
+     * Append one character.  Returns true if the character was accepted, else
      * false.
      */
     public boolean append( char c );

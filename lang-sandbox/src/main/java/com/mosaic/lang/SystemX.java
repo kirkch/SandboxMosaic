@@ -1,5 +1,8 @@
 package com.mosaic.lang;
 
+import java.nio.charset.Charset;
+
+
 /**
  *
  */
@@ -18,6 +21,8 @@ public class SystemX {
     public static final int  UNSIGNED_SHORT_MASK = 0xFFFF;
     public static final long UNSIGNED_INT_MASK   = 0xFFFFFFFF;
 
+
+    public static Charset UTF8 = Charset.forName( "UTF8" );
 
 
     private static final boolean areAssertionsEnabled = detectWhetherAssertionsAreEnabled();

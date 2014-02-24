@@ -1,5 +1,6 @@
 package com.mosaic.lang;
 
+import com.mosaic.lang.reflect.ReflectionException;
 import com.mosaic.lang.time.Duration;
 import sun.misc.Unsafe;
 
@@ -137,7 +138,7 @@ public class Backdoor {
     public static void copyBytes( byte[] fromArray, int fromInc, long toAddress, long numBytes ) {
         if ( SystemX.isDebugRun() ) {
             Validate.argIsBetweenInc( 0, fromInc, fromArray.length, "fromInc" );
-            Validate.argIsBetweenInc( 0, fromInc+numBytes, fromArray.length, "fromInc+numBytes" );
+            Validate.argIsBetweenInc( 0, fromInc + numBytes, fromArray.length, "fromInc+numBytes" );
         }
 
         unsafe.copyMemory( fromArray, BYTE_ARRAY_BASE_OFFSET+fromInc, null, toAddress, numBytes );
@@ -146,7 +147,7 @@ public class Backdoor {
     public static void copyBytes( long fromAddress, byte[] toArray, int arrayIndex, int numBytes ) {
         if ( SystemX.isDebugRun() ) {
             Validate.argIsBetween( 0, arrayIndex, toArray.length, "arrayIndex" );
-            Validate.argIsBetweenInc( 0, arrayIndex+numBytes, toArray.length, "arrayIndex+numBytes" );
+            Validate.argIsBetweenInc( 0, arrayIndex + numBytes, toArray.length, "arrayIndex+numBytes" );
         }
 
         unsafe.copyMemory( null, fromAddress, toArray, BYTE_ARRAY_BASE_OFFSET+arrayIndex, numBytes );
@@ -155,10 +156,10 @@ public class Backdoor {
     public static void copyBytes( byte[] fromArray, int fromArrayIndex, byte[] toArray, int toArrayIndex, long numBytes ) {
         if ( SystemX.isDebugRun() ) {
             Validate.argIsBetween( 0, fromArrayIndex, fromArray.length, "fromArrayIndex" );
-            Validate.argIsBetweenInc( 0, fromArrayIndex+numBytes, fromArray.length, "fromArrayIndex+numBytes" );
+            Validate.argIsBetweenInc( 0, fromArrayIndex + numBytes, fromArray.length, "fromArrayIndex+numBytes" );
 
             Validate.argIsBetween( 0, toArrayIndex, toArray.length, "toArrayIndex" );
-            Validate.argIsBetweenInc( 0, toArrayIndex+numBytes, toArray.length, "toArrayIndex+numBytes" );
+            Validate.argIsBetweenInc( 0, toArrayIndex + numBytes, toArray.length, "toArrayIndex+numBytes" );
         }
 
         unsafe.copyMemory( fromArray, BYTE_ARRAY_BASE_OFFSET+fromArrayIndex, toArray, BYTE_ARRAY_BASE_OFFSET+toArrayIndex, numBytes );
@@ -201,74 +202,111 @@ public class Backdoor {
         unsafe.setMemory( ptr, numBytes, v );
     }
 
+    public static void fill( long ptr, long numBytes, int v ) {
+        fill( ptr, numBytes, (byte) v );
+    }
+
     public static void fillArray( byte[] array, long offset, long numBytes, byte v ) {
         unsafe.setMemory( array, BYTE_ARRAY_BASE_OFFSET +offset, numBytes, v );
     }
 
 
-    private static final long BYTE_ARRAY_BASE_OFFSET = unsafe.arrayBaseOffset( byte[].class ) * unsafe.arrayIndexScale( byte[].class );
+    private static final long BYTE_ARRAY_BASE_OFFSET = unsafe.arrayBaseOffset( byte[].class );
+    private static final long BYTE_ARRAY_SCALE       = unsafe.arrayIndexScale( byte[].class );
 
     static {
         Validate.isNotZero( BYTE_ARRAY_BASE_OFFSET, "BYTE_ARRAY_BASE_OFFSET" );
     }
 
     public static byte getByteFrom( byte[] array, long offset ) {
-        return unsafe.getByte( array, BYTE_ARRAY_BASE_OFFSET + offset );
+        return unsafe.getByte( array, BYTE_ARRAY_BASE_OFFSET + offset*BYTE_ARRAY_SCALE );
     }
 
     public static short getShortFrom( byte[] array, long offset ) {
-        return unsafe.getShort( array, BYTE_ARRAY_BASE_OFFSET + offset );
+        return unsafe.getShort( array, BYTE_ARRAY_BASE_OFFSET + offset*BYTE_ARRAY_SCALE );
     }
 
     public static char getCharacterFrom( byte[] array, long offset ) {
-        return unsafe.getChar( array, BYTE_ARRAY_BASE_OFFSET + offset );
+        return unsafe.getChar( array, BYTE_ARRAY_BASE_OFFSET + offset*BYTE_ARRAY_SCALE );
     }
 
     public static int getIntegerFrom( byte[] array, long offset ) {
-        return unsafe.getInt( array, BYTE_ARRAY_BASE_OFFSET + offset );
+        return unsafe.getInt( array, BYTE_ARRAY_BASE_OFFSET + offset*BYTE_ARRAY_SCALE );
     }
 
     public static long getLongFrom( byte[] array, long offset ) {
-        return unsafe.getLong( array, BYTE_ARRAY_BASE_OFFSET + offset );
+        return unsafe.getLong( array, BYTE_ARRAY_BASE_OFFSET + offset*BYTE_ARRAY_SCALE );
     }
 
     public static float getFloatFrom( byte[] array, long offset ) {
-        return unsafe.getFloat( array, BYTE_ARRAY_BASE_OFFSET + offset );
+        return unsafe.getFloat( array, BYTE_ARRAY_BASE_OFFSET + offset*BYTE_ARRAY_SCALE );
     }
 
     public static double getDoubleFrom( byte[] array, long offset ) {
-        return unsafe.getDouble( array, BYTE_ARRAY_BASE_OFFSET + offset );
+        return unsafe.getDouble( array, BYTE_ARRAY_BASE_OFFSET + offset*BYTE_ARRAY_SCALE );
     }
 
 
 
 
     public static void setByteIn( byte[] array, long offset, byte v ) {
-        unsafe.putByte( array, BYTE_ARRAY_BASE_OFFSET + offset, v );
+        unsafe.putByte( array, BYTE_ARRAY_BASE_OFFSET + offset*BYTE_ARRAY_SCALE, v );
     }
 
     public static void setCharacterIn( byte[] array, long offset, char v ) {
-        unsafe.putChar( array, BYTE_ARRAY_BASE_OFFSET + offset, v );
+        unsafe.putChar( array, BYTE_ARRAY_BASE_OFFSET + offset * BYTE_ARRAY_SCALE, v );
     }
 
     public static void setShortIn( byte[] array, long offset, short v ) {
-        unsafe.putShort( array, BYTE_ARRAY_BASE_OFFSET + offset, v );
+        unsafe.putShort( array, BYTE_ARRAY_BASE_OFFSET + offset * BYTE_ARRAY_SCALE, v );
     }
 
     public static void setIntegerIn( byte[] array, long offset, int v ) {
-        unsafe.putInt( array, BYTE_ARRAY_BASE_OFFSET + offset, v );
+        unsafe.putInt( array, BYTE_ARRAY_BASE_OFFSET + offset * BYTE_ARRAY_SCALE, v );
     }
 
     public static void setLongIn( byte[] array, long offset, long v ) {
-        unsafe.putLong( array, BYTE_ARRAY_BASE_OFFSET + offset, v );
+        unsafe.putLong( array, BYTE_ARRAY_BASE_OFFSET + offset * BYTE_ARRAY_SCALE, v );
     }
 
     public static void setFloatIn( byte[] array, long offset, float v ) {
-        unsafe.putFloat( array, BYTE_ARRAY_BASE_OFFSET + offset, v );
+        unsafe.putFloat( array, BYTE_ARRAY_BASE_OFFSET + offset * BYTE_ARRAY_SCALE, v );
     }
 
     public static void setDoubleIn( byte[] array, long offset, double v ) {
-        unsafe.putDouble( array, BYTE_ARRAY_BASE_OFFSET + offset, v );
+        unsafe.putDouble( array, BYTE_ARRAY_BASE_OFFSET + offset * BYTE_ARRAY_SCALE, v );
+    }
+
+    public static int toInt( long v ) {
+        Validate.argIsLTE( v, Integer.MAX_VALUE, "v" );
+
+        return (int) v;
+    }
+
+    public static long calculateOffsetForField( Class clazz, String fieldName ) {
+        try {
+            return unsafe.objectFieldOffset( clazz.getDeclaredField(fieldName) );
+        } catch ( NoSuchFieldException ex ) {
+            throwException( ex );
+
+            throw ReflectionException.recast( ex ); // unreachable, but the compiler does not know it
+        }
+    }
+
+    public static void setFloat( Object obj, long fieldOffset, float v ) {
+        unsafe.putFloat( obj, fieldOffset, v );
+    }
+
+    public static float getFloat( Object obj, long fieldOffset ) {
+        return unsafe.getFloat( obj, fieldOffset );
+    }
+
+    public static void setDouble( Object obj, long fieldOffset, double v ) {
+        unsafe.putDouble( obj, fieldOffset, v );
+    }
+
+    public static double getDouble( Object obj, long fieldOffset ) {
+        return unsafe.getDouble( obj, fieldOffset );
     }
 
 }

@@ -56,6 +56,8 @@ public class UTF8ToolsTest {
     public void utf8EncodeThenDecodeNative_1ByteCharacter() throws UnsupportedEncodingException {
         long ptr = Backdoor.alloc( 5 );
 
+        Backdoor.fill( ptr, 5, 0 );
+
         try {
             UTF8Tools.write( ptr+1, ptr+5, 'a' );
             assertBytesViaPointer( ptr, 0, 'a', 0, 0, 0 );
