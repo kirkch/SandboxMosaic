@@ -7,6 +7,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -22,15 +23,19 @@ public abstract class BaseBytesTest {
     private List<Bytes> allocatedBytes = new ArrayList();
 
 
-    protected abstract Bytes doCreateBytes( long numBytes );
+    protected abstract Bytes doCreateBytes( long numBytes ) throws IOException;
 
 
     protected Bytes createBytes( long numBytes ) {
-        Bytes b = doCreateBytes( numBytes );
+        try {
+            Bytes b = doCreateBytes( numBytes );
 
-        allocatedBytes.add(b);
+            allocatedBytes.add(b);
 
-        return b;
+            return b;
+        } catch ( IOException e ) {
+            throw new RuntimeException( e );
+        }
     }
 
     @Before

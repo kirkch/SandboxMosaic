@@ -14,29 +14,7 @@ import static com.mosaic.lang.SystemX.*;
 /**
  *
  */
-public class NativeBytes extends BaseBytes {
-
-    /**
-     * Reserves n bytes of memory.  The bytes are not guaranteed to be zero'd out,
-     * so they may hold junk in them.
-     */
-    public static Bytes alloc( long numBytes ) {
-        return alloc( numBytes, SystemX.getCacheLineLengthBytes() );
-    }
-
-    /**
-     * Reserves n bytes of memory.  The bytes are not guaranteed to be zero'd out,
-     * so they may hold junk in them.
-     */
-    public static Bytes alloc( long numBytes, int cpuCacheLineSizeBytes ) {
-        Validate.argIsGTZero( numBytes, "numBytes" );
-
-        long baseAddress    = Backdoor.alloc( numBytes + cpuCacheLineSizeBytes );
-        long alignedAddress = Backdoor.alignAddress( baseAddress, cpuCacheLineSizeBytes );
-
-        return new NativeBytes( baseAddress, alignedAddress, alignedAddress+numBytes );
-    }
-
+public abstract class NativeBytes extends BaseBytes {
 
 
     private long baseAddress;
@@ -47,7 +25,7 @@ public class NativeBytes extends BaseBytes {
 //    private long watermarkIndexExc;
 
 
-    private NativeBytes( long baseAddress, long alignedAddress, long maxAddressExc ) {
+    protected NativeBytes( long baseAddress, long alignedAddress, long maxAddressExc ) {
         this.baseAddress             = baseAddress;
         this.cacheAlignedBaseAddress = alignedAddress;
         this.maxAddressExc           = maxAddressExc;
@@ -63,8 +41,6 @@ public class NativeBytes extends BaseBytes {
         Validate.isNotZero( baseAddress, "The memory has already been freed" );
 
         super.release();
-
-        Backdoor.free( baseAddress );
 
         this.baseAddress             = 0;
         this.cacheAlignedBaseAddress = 0;
@@ -520,4 +496,5 @@ public class NativeBytes extends BaseBytes {
             }
         }
     }
+
 }
