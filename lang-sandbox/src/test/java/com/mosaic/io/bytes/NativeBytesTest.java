@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 public class NativeBytesTest extends BaseBytesTest {
 
     protected Bytes doCreateBytes( long numBytes ) {
-        return NativeBytes.alloc( numBytes );
+        return NativeBytes.allocOffHeap( numBytes );
     }
 
 

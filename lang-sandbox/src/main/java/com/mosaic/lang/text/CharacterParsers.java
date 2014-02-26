@@ -88,7 +88,7 @@ public class CharacterParsers {
     }
 
     private static class TabOrSpaceEOL implements CharacterParser {
-        public static final CharacterParser INSTANCE = new TabOrSpace();
+        public static final CharacterParser INSTANCE = new TabOrSpaceEOL();
 
         public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
             long pos = fromInc;
@@ -109,7 +109,7 @@ public class CharacterParsers {
         }
 
         public String toString() {
-            return "tabOrSpace";
+            return "tabOrSpaceOrEOL";
         }
     }
 

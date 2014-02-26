@@ -964,4 +964,12 @@ public class Validate {
             }
         }
     }
+
+    public static void isInt( long v, String msg ) {
+        if ( SystemX.isDebugRun() ) {
+            if ( (v & 0x7FFFFFFF) != v ) {
+                throwException( msg, v );
+            }
+        }
+    }
 }

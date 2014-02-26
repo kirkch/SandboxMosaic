@@ -34,8 +34,8 @@ public class Backdoor {
     }
 
     /**
-     * Returns a count of how many more calls to alloc() than free().  The counter
-     * is incremented when alloc() is called, and decremented when free() is
+     * Returns a count of how many more calls to allocOffHeap() than free().  The counter
+     * is incremented when allocOffHeap() is called, and decremented when free() is
      * called.
      */
     public static long getActiveAllocCounter() {
@@ -285,7 +285,7 @@ public class Backdoor {
 
     public static long calculateOffsetForField( Class clazz, String fieldName ) {
         try {
-            return unsafe.objectFieldOffset( clazz.getDeclaredField(fieldName) );
+            return unsafe.objectFieldOffset( clazz.getDeclaredField( fieldName ) );
         } catch ( NoSuchFieldException ex ) {
             throwException( ex );
 

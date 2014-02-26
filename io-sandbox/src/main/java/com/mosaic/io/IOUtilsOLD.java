@@ -6,7 +6,7 @@ import java.nio.charset.Charset;
 /**
  *
  */
-public class IOUtils {
+public class IOUtilsOLD {
 
     public static byte[] toByteArray( CharSequence seq, String charset ) {
         try {
