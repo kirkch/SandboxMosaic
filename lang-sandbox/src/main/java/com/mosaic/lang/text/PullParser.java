@@ -16,22 +16,23 @@ import com.mosaic.lang.Validate;
 @SuppressWarnings("unchecked")
 public class PullParser {
 
-    public static PullParser wrap( String txt ) {
+    public static PullParser wrap( String name, String txt ) {
         Bytes hdr = Bytes.wrap( txt );
 
-        return new PullParser( hdr );
+        return new PullParser( name, hdr );
     }
 
 
-
+    private String     name;
     private long       position = 0;
     private InputBytes source;
 
 
-    public PullParser( InputBytes bytes ) {
+    public PullParser( String name, InputBytes bytes ) {
         Validate.argNotNull( bytes, "bytes" );
 
-        source = bytes;
+        this.name   = name;
+        this.source = bytes;
     }
 
 
@@ -67,18 +68,18 @@ public class PullParser {
     public <T> T pullCustom( CharacterParser<T> p ) {
         doAutoSkip();
 
-        ParserResult<T> r = result;  // NB trick to avoid casting at runtime; uses compile time erasure instead
+        ParserResult<T> r = parse( p );
 
-        p.parse( source, position, source.endIndexExc(), r );
-
-        if ( result.hasMatched() ) {
+        if ( r.hasMatched() ) {
             this.position = r.getToExc();
 
             return r.getValue();
         } else {
-            throw new ParseException( "Expected '"+p+"'", position );
+            throw newParseException( "Expected '" + p + "'", position );
         }
     }
+
+
 
     /**
      * Matches and returns an int.  If no int is matched then an exception
@@ -87,14 +88,14 @@ public class PullParser {
     public int pullInt() {
         doAutoSkip();
 
-        INT_PARSER.parse( source, position, source.endIndexExc(), result );
+        ParserResult r = parse( INT_PARSER );
 
-        if ( result.hasMatched() ) {
-            this.position = result.getToExc();
+        if ( r.hasMatched() ) {
+            this.position = r.getToExc();
 
-            return result.getValueInt();
+            return r.getValueInt();
         } else {
-            throw new ParseException( "Expected 'int'", position );
+            throw newParseException( "Expected 'int'", position );
         }
     }
 
@@ -105,14 +106,14 @@ public class PullParser {
     public long pullLong() {
         doAutoSkip();
 
-        LONG_PARSER.parse( source, position, source.endIndexExc(), result );
+        ParserResult r = parse( LONG_PARSER );
 
-        if ( result.hasMatched() ) {
-            this.position = result.getToExc();
+        if ( r.hasMatched() ) {
+            this.position = r.getToExc();
 
-            return result.getValueLong();
+            return r.getValueLong();
         } else {
-            throw new ParseException( "Expected 'long'", position );
+            throw newParseException( "Expected 'long'", position );
         }
     }
 
@@ -123,14 +124,14 @@ public class PullParser {
     public float pullFloat() {
         doAutoSkip();
 
-        FLOAT_PARSER.parse( source, position, source.endIndexExc(), result );
+        ParserResult r = parse( FLOAT_PARSER );
 
-        if ( result.hasMatched() ) {
-            this.position = result.getToExc();
+        if ( r.hasMatched() ) {
+            this.position = r.getToExc();
 
-            return result.getValueFloat();
+            return r.getValueFloat();
         } else {
-            throw new ParseException( "Expected 'float'", position );
+            throw newParseException( "Expected 'float'", position );
         }
     }
 
@@ -141,14 +142,14 @@ public class PullParser {
     public double pullDouble() {
         doAutoSkip();
 
-        DOUBLE_PARSER.parse( source, position, source.endIndexExc(), result );
+        ParserResult r = parse( DOUBLE_PARSER );
 
-        if ( result.hasMatched() ) {
-            this.position = result.getToExc();
+        if ( r.hasMatched() ) {
+            this.position = r.getToExc();
 
-            return result.getValueDouble();
+            return r.getValueDouble();
         } else {
-            throw new ParseException( "Expected 'double'", position );
+            throw newParseException( "Expected 'double'", position );
         }
     }
 
@@ -160,12 +161,12 @@ public class PullParser {
     public void pullVoid( CharacterParser p ) {
         doAutoSkip();
 
-        p.parse( source, position, source.endIndexExc(), result );
+        ParserResult r = parse( p );
 
-        if ( result.hasMatched() ) {
-            this.position = result.getToExc();
+        if ( r.hasMatched() ) {
+            this.position = r.getToExc();
         } else {
-            throw new ParseException( "Expected '"+p+"'", position );
+            throw newParseException( "Expected '"+p+"'", position );
         }
     }
 
@@ -176,9 +177,7 @@ public class PullParser {
     public <T> T optionallyPull( CharacterParser<T> p ) {
         doAutoSkip();
 
-        ParserResult<T> r = result;  // NB trick to avoid casting at runtime; uses compile time erasure instead
-
-        p.parse( source, position, source.endIndexExc(), r );
+        ParserResult<T> r = parse( p );
 
         if ( r.hasMatched() ) {
             this.position = r.getToExc();
@@ -221,7 +220,21 @@ public class PullParser {
         }
     }
 
+    private ParseException newParseException( String msg, long position ) {
+        return new ParseException( name, msg, position );
+    }
 
+    private <T> ParserResult<T> parse( CharacterParser<T> p ) {
+        ParserResult<T> r = result;  // NB trick to avoid casting at runtime; uses compile time erasure instead
+
+        try {
+            p.parse( source, position, source.endIndexExc(), r );
+        } catch ( Throwable ex ) {
+            throw new ParseException( name, ex, position );
+        }
+
+        return r;
+    }
 
 
 

@@ -21,7 +21,7 @@ public class PullParserTest {
     @Test
     public void given123_pullWithCustomParserThatMatchesAndReturnsAnObject_expectResult() {
         Bytes      source = Bytes.wrap("123");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         Long v = parser.pullCustom( new NumberParser() );
 
@@ -32,13 +32,13 @@ public class PullParserTest {
     @Test
     public void given123_pullWithCustomParserThatDoesNotMatch_expectException() {
         Bytes      source = Bytes.wrap("a");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         try {
             parser.pullCustom( new NumberParser() );
             fail("expected exception");
         } catch ( ParseException ex ) {
-            assertEquals( "Expected 'Number'", ex.getMessage() );
+            assertEquals( "/tmp/file/x: Expected 'Number'", ex.getMessage() );
             assertEquals( 0L, ex.getOffset() );
 
             assertEquals( 0, parser.getPosition() );
@@ -51,7 +51,7 @@ public class PullParserTest {
     @Test
     public void given123_pullInt_expectResult() {
         Bytes      source = Bytes.wrap("123");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         int v = parser.pullInt();
 
@@ -62,7 +62,7 @@ public class PullParserTest {
     @Test
     public void givenNeg123_pullInt_expectResult() {
         Bytes      source = Bytes.wrap("-123");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         int v = parser.pullInt();
 
@@ -73,7 +73,7 @@ public class PullParserTest {
     @Test
     public void givenMaxInt_pullInt_expectResult() {
         Bytes      source = Bytes.wrap(Integer.MAX_VALUE+"");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         int v = parser.pullInt();
 
@@ -84,7 +84,7 @@ public class PullParserTest {
     @Test
     public void givenMinInt_pullInt_expectResult() {
         Bytes      source = Bytes.wrap(Integer.MIN_VALUE+"");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         int v = parser.pullInt();
 
@@ -95,7 +95,7 @@ public class PullParserTest {
     @Test
     public void givenIntFollowedByText_pullInt_expectResult() {
         Bytes      source = Bytes.wrap("1234abc");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         int v = parser.pullInt();
 
@@ -106,7 +106,7 @@ public class PullParserTest {
     @Test
     public void givenNonInt_pullInt_expectError() {
         Bytes      source = Bytes.wrap("abc");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         try {
             parser.pullInt();
@@ -119,7 +119,7 @@ public class PullParserTest {
     @Test
     public void givenDoubleNeg_pullInt_expectError() {
         Bytes      source = Bytes.wrap("--123");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         try {
             parser.pullInt();
@@ -132,13 +132,13 @@ public class PullParserTest {
     @Test
     public void givenMaxIntPlus1_pullInt_expectError() {
         Bytes      source = Bytes.wrap((((long) Integer.MAX_VALUE)+1)+"");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         try {
             parser.pullInt();
             fail("expected exception" );
-        } catch ( IllegalArgumentException ex ) {
-            assertEquals( "'num' (-2147483648) must be >= 0", ex.getMessage() );
+        } catch ( ParseException ex ) {
+            assertEquals( "/tmp/file/x: 'num' (-2147483648) must be >= 0", ex.getMessage() );
         }
     }
 
@@ -147,7 +147,7 @@ public class PullParserTest {
     @Test
     public void given123_pullLong_expectResult() {
         Bytes      source = Bytes.wrap("123");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         long v = parser.pullLong();
 
@@ -158,7 +158,7 @@ public class PullParserTest {
     @Test
     public void givenNeg123_pullLong_expectResult() {
         Bytes      source = Bytes.wrap("-123");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         long v = parser.pullLong();
 
@@ -169,7 +169,7 @@ public class PullParserTest {
     @Test
     public void givenMaxLong_pullLong_expectResult() {
         Bytes      source = Bytes.wrap(Long.MAX_VALUE+"");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         long v = parser.pullLong();
 
@@ -180,7 +180,7 @@ public class PullParserTest {
     @Test
     public void givenMinLong_pullLong_expectResult() {
         Bytes      source = Bytes.wrap(Long.MIN_VALUE+"");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         long v = parser.pullLong();
 
@@ -191,7 +191,7 @@ public class PullParserTest {
     @Test
     public void givenLongFollowedByText_pullLong_expectResult() {
         Bytes      source = Bytes.wrap("1234abc");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         long v = parser.pullLong();
 
@@ -202,7 +202,7 @@ public class PullParserTest {
     @Test
     public void givenNonLong_pullLong_expectError() {
         Bytes      source = Bytes.wrap("abc");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         try {
             parser.pullLong();
@@ -215,7 +215,7 @@ public class PullParserTest {
     @Test
     public void givenDoubleNeg_pullLong_expectError() {
         Bytes      source = Bytes.wrap("--123");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         try {
             parser.pullLong();
@@ -228,13 +228,13 @@ public class PullParserTest {
     @Test
     public void givenMaxLongPlus1_pullLong_expectError() {
         Bytes      source = Bytes.wrap((((long) Integer.MAX_VALUE))+"1");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         try {
             parser.pullInt();
             fail("expected exception" );
-        } catch ( IllegalArgumentException ex ) {
-            assertEquals( "'num' (-9) must be >= 0", ex.getMessage() );
+        } catch ( ParseException ex ) {
+            assertEquals( "/tmp/file/x: 'num' (-9) must be >= 0", ex.getMessage() );
         }
     }
 
@@ -243,7 +243,7 @@ public class PullParserTest {
     @Test
     public void given123_pullFloat_expectResult() {
         Bytes      source = Bytes.wrap("123");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         float v = parser.pullFloat();
 
@@ -254,7 +254,7 @@ public class PullParserTest {
     @Test
     public void givenNeg123_pullFloat_expectResult() {
         Bytes      source = Bytes.wrap("-123");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         float v = parser.pullFloat();
 
@@ -266,7 +266,7 @@ public class PullParserTest {
     public void givenMaxFloat_pullFloat_expectResult() {
         String     str    = (Integer.MAX_VALUE/10) + "." + (Integer.MAX_VALUE/10);
         Bytes      source = Bytes.wrap( str );
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         float v = parser.pullFloat();
 
@@ -277,7 +277,7 @@ public class PullParserTest {
     @Test
     public void givenMinFloat_pullFloat_expectResult() {
         String     str    = "-"+(Integer.MAX_VALUE/10) + "." + (Integer.MAX_VALUE/10);
-        PullParser parser = new PullParser( Bytes.wrap(str) );
+        PullParser parser = new PullParser( "/tmp/file/x", Bytes.wrap(str) );
 
         float v = parser.pullFloat();
 
@@ -288,7 +288,7 @@ public class PullParserTest {
     @Test
     public void givenFloatFollowedByText_pullFloat_expectResult() {
         Bytes      source = Bytes.wrap("1234.12abc");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         float v = parser.pullFloat();
 
@@ -299,7 +299,7 @@ public class PullParserTest {
     @Test
     public void givenNonFloat_pullFloat_expectError() {
         Bytes      source = Bytes.wrap("abc");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         try {
             parser.pullFloat();
@@ -312,7 +312,7 @@ public class PullParserTest {
     @Test
     public void givenDoubleNeg_pullFloat_expectError() {
         Bytes      source = Bytes.wrap("--123");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         try {
             parser.pullFloat();
@@ -327,7 +327,7 @@ public class PullParserTest {
     @Test
     public void given123_pullDouble_expectResult() {
         Bytes      source = Bytes.wrap("123");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         double v = parser.pullDouble();
 
@@ -338,7 +338,7 @@ public class PullParserTest {
     @Test
     public void givenNeg123_pullDouble_expectResult() {
         Bytes      source = Bytes.wrap("-123");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         double v = parser.pullDouble();
 
@@ -350,7 +350,7 @@ public class PullParserTest {
     public void givenMaxDouble_pullDouble_expectResult() {
         String     str    = (Integer.MAX_VALUE/10) + "." + (Integer.MAX_VALUE/10);
         Bytes      source = Bytes.wrap( str );
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         double v = parser.pullDouble();
 
@@ -361,7 +361,7 @@ public class PullParserTest {
     @Test
     public void givenMinDouble_pullDouble_expectResult() {
         String     str    = "-"+(Integer.MAX_VALUE/10) + "." + (Integer.MAX_VALUE/10);
-        PullParser parser = new PullParser( Bytes.wrap(str) );
+        PullParser parser = new PullParser( "/tmp/file/x", Bytes.wrap(str) );
 
         double v = parser.pullDouble();
 
@@ -372,7 +372,7 @@ public class PullParserTest {
     @Test
     public void givenDoubleFollowedByText_pullDouble_expectResult() {
         Bytes      source = Bytes.wrap("1234.12abc");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         double v = parser.pullDouble();
 
@@ -383,7 +383,7 @@ public class PullParserTest {
     @Test
     public void givenNonDouble_pullDouble_expectError() {
         Bytes      source = Bytes.wrap("abc");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         try {
             parser.pullDouble();
@@ -396,7 +396,7 @@ public class PullParserTest {
     @Test
     public void givenDoubleNeg_pullDouble_expectError() {
         Bytes      source = Bytes.wrap("--123");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         try {
             parser.pullDouble();
@@ -412,7 +412,7 @@ public class PullParserTest {
     @Test
     public void given123_optionallyParseValue_expectValue() {
         Bytes      source = Bytes.wrap("123");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         Long v = parser.pullCustom( new NumberParser() );
 
@@ -423,7 +423,7 @@ public class PullParserTest {
     @Test
     public void givenABC_optionallyParseValue_expectNull() {
         Bytes      source = Bytes.wrap("abc");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         Long v = parser.optionallyPull( new NumberParser() );
 
@@ -436,7 +436,7 @@ public class PullParserTest {
     @Test
     public void givenTwoNumbersSeparatedByWhitespace_autoSkipWhitspace_expectToParseBothValues() {
         Bytes      source = Bytes.wrap("123 456");
-        PullParser parser = new PullParser( source );
+        PullParser parser = new PullParser( "/tmp/file/x", source );
 
         parser.autoSkip( new WhitespaceParser() );
 
@@ -454,7 +454,7 @@ public class PullParserTest {
 
 
 //    Bytes      source = Bytes.wrap("1234567890");
-//    PullParser parser = new PullParser( source );
+//    PullParser parser = new PullParser( "/tmp/file/x", source );
 //
 //    @Benchmark(durationResultMultiplier = 1/10.0, units="byte" )
 //    public int b() {
