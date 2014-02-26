@@ -38,7 +38,7 @@ public class PullParserTest {
             parser.pullCustom( new NumberParser() );
             fail("expected exception");
         } catch ( ParseException ex ) {
-            assertEquals( "/tmp/file/x: Expected 'Number'", ex.getMessage() );
+            assertEquals( "/tmp/file/x (1,1): Expected 'Number'", ex.getMessage() );
             assertEquals( 0L, ex.getOffset() );
 
             assertEquals( 0, parser.getPosition() );
@@ -138,7 +138,7 @@ public class PullParserTest {
             parser.pullInt();
             fail("expected exception" );
         } catch ( ParseException ex ) {
-            assertEquals( "/tmp/file/x: 'num' (-2147483648) must be >= 0", ex.getMessage() );
+            assertEquals( "/tmp/file/x (1,1): 'num' (-2147483648) must be >= 0", ex.getMessage() );
         }
     }
 
@@ -234,7 +234,7 @@ public class PullParserTest {
             parser.pullInt();
             fail("expected exception" );
         } catch ( ParseException ex ) {
-            assertEquals( "/tmp/file/x: 'num' (-9) must be >= 0", ex.getMessage() );
+            assertEquals( "/tmp/file/x (1,1): 'num' (-9) must be >= 0", ex.getMessage() );
         }
     }
 

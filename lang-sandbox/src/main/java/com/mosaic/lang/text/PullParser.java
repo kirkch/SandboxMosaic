@@ -221,7 +221,7 @@ public class PullParser {
     }
 
     private ParseException newParseException( String msg, long position ) {
-        return new ParseException( name, msg, position );
+        return ParseException.newParseException( source, position, name, msg );
     }
 
     private <T> ParserResult<T> parse( CharacterParser<T> p ) {
@@ -230,7 +230,7 @@ public class PullParser {
         try {
             p.parse( source, position, source.endIndexExc(), r );
         } catch ( Throwable ex ) {
-            throw new ParseException( name, ex, position );
+            throw ParseException.newParseException( source, position, name, ex.getMessage(), ex );
         }
 
         return r;
