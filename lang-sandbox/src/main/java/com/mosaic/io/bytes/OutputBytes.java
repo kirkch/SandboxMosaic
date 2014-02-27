@@ -71,7 +71,7 @@ public interface OutputBytes {
      * Marks the end of the bytes.  By convention this index is returned as being
      * exclusive.  This means that the max valid index is actually endIndexExc()-1.
      */
-    public long endIndexExc();
+    public long getEndIndexExc();
 
     /**
      * The index that will be used by the next relative write method.

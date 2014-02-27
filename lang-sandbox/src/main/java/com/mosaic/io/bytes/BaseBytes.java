@@ -29,7 +29,7 @@ abstract class BaseBytes extends Bytes {
     }
 
     public void positionIndex( long newIndex ) {
-        Validate.argIsBetween( startIndex(), newIndex, endIndexExc(), "newIndex" );
+        Validate.argIsBetween( startIndex(), newIndex, getEndIndexExc(), "newIndex" );
 
         this.positionIndex = newIndex;
     }
@@ -39,11 +39,11 @@ abstract class BaseBytes extends Bytes {
     }
 
     public long remaining() {
-        return endIndexExc() - positionIndex();
+        return getEndIndexExc() - positionIndex();
     }
 
     public long size() {
-        return endIndexExc() - startIndex();
+        return getEndIndexExc() - startIndex();
     }
 
     public int writeUTF8( char v ) {

@@ -241,7 +241,7 @@ public class ArrayBytes extends BaseBytes {
         return min;
     }
 
-    public long endIndexExc() {
+    public long getEndIndexExc() {
         return maxExc;
     }
 

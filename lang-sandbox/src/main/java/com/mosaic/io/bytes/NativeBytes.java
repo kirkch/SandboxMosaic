@@ -245,7 +245,7 @@ public abstract class NativeBytes extends BaseBytes {
         return 0;
     }
 
-    public long endIndexExc() {
+    public long getEndIndexExc() {
         return maxAddressExc - cacheAlignedBaseAddress;
     }
 

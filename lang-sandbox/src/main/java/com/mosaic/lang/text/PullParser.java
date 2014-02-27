@@ -200,7 +200,7 @@ public class PullParser {
     public void optionallyPullVoid( ByteMatcher p ) {
         doAutoSkip();
 
-        p.parse( source, position, source.endIndexExc(), result );
+        p.parse( source, position, source.getEndIndexExc(), result );
 
         if ( result.hasMatched() ) {
             this.position = result.getToExc();
@@ -253,9 +253,13 @@ public class PullParser {
         return position;
     }
 
+    public long getEndIndexExc() {
+        return source.getEndIndexExc();
+    }
+
 
     private void doAutoSkip() {
-        autoSkipParser.parse( source, position, source.endIndexExc(), result );
+        autoSkipParser.parse( source, position, source.getEndIndexExc(), result );
 
         if ( result.hasMatched() ) {
             this.position = result.getToExc();
@@ -270,7 +274,7 @@ public class PullParser {
         ParserResult<T> r = result;  // NB trick to avoid casting at runtime; uses compile time erasure instead
 
         try {
-            p.parse( source, position, source.endIndexExc(), r );
+            p.parse( source, position, source.getEndIndexExc(), r );
         } catch ( Throwable ex ) {
             throw ParseException.newParseException( source, position, name, ex.getMessage(), ex );
         }
