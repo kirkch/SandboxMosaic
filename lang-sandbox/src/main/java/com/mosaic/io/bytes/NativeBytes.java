@@ -17,9 +17,10 @@ import static com.mosaic.lang.SystemX.*;
 public abstract class NativeBytes extends BaseBytes {
 
 
-    private long baseAddress;
-    private long cacheAlignedBaseAddress;
-    private long maxAddressExc;
+    private String name;
+    private long   baseAddress;
+    private long   cacheAlignedBaseAddress;
+    private long   maxAddressExc;
 
 
 //    private long watermarkIndexExc;
@@ -29,6 +30,15 @@ public abstract class NativeBytes extends BaseBytes {
         this.baseAddress             = baseAddress;
         this.cacheAlignedBaseAddress = alignedAddress;
         this.maxAddressExc           = maxAddressExc;
+    }
+
+
+    public String name() {
+        return name;
+    }
+
+    public void setName( String name ) {
+        this.name = name;
     }
 
 

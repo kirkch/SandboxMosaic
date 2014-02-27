@@ -666,8 +666,8 @@ public class Validate {
     }
 
     public static void argNotBlank( String chars, String argName ) {
-        if ( !StringUtils.isBlank(chars) ) {
-            throwException( "%s must not be blank (was %s)", argName );
+        if ( StringUtils.isBlank(chars) ) {
+            throwException( "%s must not be blank (was %s)", argName, chars );
         }
     }
 

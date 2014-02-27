@@ -28,7 +28,12 @@ public class PullParser {
     private InputBytes source;
 
 
+    public PullParser( InputBytes bytes ) {
+        this( bytes.name(), bytes );
+    }
+
     public PullParser( String name, InputBytes bytes ) {
+        Validate.argNotBlank( name, "name" );
         Validate.argNotNull( bytes, "bytes" );
 
         this.name   = name;

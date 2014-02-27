@@ -10,6 +10,13 @@ import com.mosaic.lang.NotThreadSafe;
 @NotThreadSafe
 public interface OutputBytes {
 
+    /**
+     * Helps to identify where the bytes came from/what they are used for.
+     */
+    public String name();
+    public void setName( String name );
+
+
     public void release();
 
     public void writeBoolean( long index, boolean v );

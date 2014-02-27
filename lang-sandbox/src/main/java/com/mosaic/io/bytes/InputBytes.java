@@ -11,6 +11,13 @@ import com.mosaic.lang.text.DecodedCharacter;
 @NotThreadSafe
 public interface InputBytes {
 
+    /**
+     * Helps to identify where the bytes came from/what they are used for.
+     */
+    public String name();
+    public void setName( String name );
+
+
     public void release();
 
     public boolean readBoolean( long index );
@@ -116,7 +123,7 @@ public interface InputBytes {
      *
      * @return the number of bytes read
      */
-    public void readBytes( byte[] destinationArray );
+    public long readBytes( byte[] destinationArray );
 
     /**
      * Copies as many bytes specified into the supplied array.  Starts reading

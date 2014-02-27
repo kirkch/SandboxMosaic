@@ -136,12 +136,14 @@ abstract class BaseBytes extends Bytes {
         }
     }
 
-    public void readBytes( byte[] destinationArray ) {
+    public long readBytes( byte[] destinationArray ) {
         long numBytes = Math.min( remaining(), destinationArray.length );
 
         readBytes( positionIndex, destinationArray, 0, (int) numBytes );
 
         incrementPosition( numBytes );
+
+        return numBytes;
     }
 
     public void readBytes( byte[] destinationArray, int fromInc, int toExc ) {

@@ -16,6 +16,7 @@ import static com.mosaic.lang.SystemX.*;
  */
 public class ArrayBytes extends BaseBytes {
 
+    private String name;
     private byte[] array;
 
     private int min;
@@ -36,6 +37,15 @@ public class ArrayBytes extends BaseBytes {
         this.array  = array;
         this.min    = min;
         this.maxExc = maxExc;
+    }
+
+
+    public String name() {
+        return name;
+    }
+
+    public void setName( String name ) {
+        this.name = name;
     }
 
 
