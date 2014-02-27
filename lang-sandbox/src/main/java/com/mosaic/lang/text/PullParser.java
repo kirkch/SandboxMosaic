@@ -50,9 +50,9 @@ public class PullParser {
 
     private ParserResult result = new ParserResult();
 
-    private CharacterParser autoSkipParser = NoOpParser.INSTANCE;
+    private ByteMatcher autoSkipParser = NoOpParser.INSTANCE;
 
-    public void autoSkip( CharacterParser skipParser ) {
+    public void autoSkip( ByteMatcher skipParser ) {
         Validate.argNotNull( skipParser, "skipParser" );
 
         this.autoSkipParser = skipParser;
@@ -65,7 +65,7 @@ public class PullParser {
      * Expects the specified parser to match.  If it does not then an exception
      * will be thrown.
      */
-    public <T> T pullCustom( CharacterParser<T> p ) {
+    public <T> T pullCustom( ByteMatcher<T> p ) {
         doAutoSkip();
 
         ParserResult<T> r = parse( p );
@@ -158,7 +158,7 @@ public class PullParser {
      * that never generate a response, or lazily create it then this will be
      * more efficient than the other pull methods.
      */
-    public void pullVoid( CharacterParser p ) {
+    public void pullVoid( ByteMatcher p ) {
         doAutoSkip();
 
         ParserResult r = parse( p );
@@ -174,7 +174,7 @@ public class PullParser {
      * Optionally match the specified parser.  Does not distinguish between
      * a parser returning null and the parser not matching anything.
      */
-    public <T> T optionallyPull( CharacterParser<T> p ) {
+    public <T> T optionallyPull( ByteMatcher<T> p ) {
         doAutoSkip();
 
         ParserResult<T> r = parse( p );
@@ -190,9 +190,9 @@ public class PullParser {
 
     /**
      * Optionally match the specified parser.  Does not distinguish between
-     * a parser returning null and the parser not matching anything.
+     * a matcher returning null and the matcher not matching anything.
      */
-    public void optionallyPullVoid( CharacterParser p ) {
+    public void optionallyPullVoid( ByteMatcher p ) {
         doAutoSkip();
 
         p.parse( source, position, source.endIndexExc(), result );
@@ -202,6 +202,43 @@ public class PullParser {
         }
     }
 
+    /**
+     * Moves the current position to the start of the previous line.  If already
+     * at the start of the region then the pointer will not move.
+     *
+     * @return number of bytes reversed over.
+     */
+    public long rewindLine() {
+        long minInc = source.startIndex();
+
+        long i     = position-1;
+        long count = 0;
+        for ( ; i>= minInc; i-- ) { // reverse over 'current' eol marker
+            if ( !isEOL(i) ) {
+                break;
+            }
+
+            count++;
+        }
+
+        for ( ; i>= minInc; i-- ) { // reverse up to previous eol marker
+            if ( isEOL(i) ) {
+                break;
+            }
+
+            count++;
+        }
+
+        this.setPosition( position - count );
+
+        return count;
+    }
+
+    private boolean isEOL( long i ) {
+        byte b = source.readByte( i );
+
+        return b == '\n' || b == '\r';
+    }
 
     public void setPosition( long i ) {
         position = i;
@@ -224,7 +261,7 @@ public class PullParser {
         return ParseException.newParseException( source, position, name, msg );
     }
 
-    private <T> ParserResult<T> parse( CharacterParser<T> p ) {
+    private <T> ParserResult<T> parse( ByteMatcher<T> p ) {
         ParserResult<T> r = result;  // NB trick to avoid casting at runtime; uses compile time erasure instead
 
         try {
@@ -240,7 +277,7 @@ public class PullParser {
 
 
 
-    private static final CharacterParser INT_PARSER = new CharacterParser() {
+    private static final ByteMatcher INT_PARSER = new ByteMatcher() {
         public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
             int num = 0;
 
@@ -292,7 +329,7 @@ public class PullParser {
 
 
 
-    private static final CharacterParser LONG_PARSER = new CharacterParser() {
+    private static final ByteMatcher LONG_PARSER = new ByteMatcher() {
         public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
             long num = 0;
 
@@ -341,7 +378,7 @@ public class PullParser {
         }
     };
 
-    private static final CharacterParser FLOAT_PARSER = new CharacterParser() {
+    private static final ByteMatcher FLOAT_PARSER = new ByteMatcher() {
         public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
             byte v = source.readByte(fromInc);
 
@@ -428,7 +465,7 @@ public class PullParser {
     };
 
 
-    private static final CharacterParser DOUBLE_PARSER = new CharacterParser() {
+    private static final ByteMatcher DOUBLE_PARSER = new ByteMatcher() {
         public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
             byte v = source.readByte(fromInc);
 
@@ -517,8 +554,8 @@ public class PullParser {
 
 
 
-    private static class NoOpParser implements CharacterParser {
-        public static final CharacterParser INSTANCE = new NoOpParser();
+    private static class NoOpParser implements ByteMatcher {
+        public static final ByteMatcher INSTANCE = new NoOpParser();
 
         public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
             result.resultNoMatch();

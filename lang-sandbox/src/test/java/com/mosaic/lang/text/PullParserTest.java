@@ -451,18 +451,64 @@ public class PullParserTest {
         assertEquals( 7, parser.getPosition() );
     }
 
+// REWIND LINE
+
+    @Test
+    public void givenMultiLineText_startAt0_rewindLine_expectNoChange() {
+        Bytes      source = Bytes.wrap("123\r\n456\r\n789\rabc def\naaa");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        assertEquals( 0, parser.getPosition() );
+        assertEquals( 0, parser.rewindLine() );
+        assertEquals( 0, parser.getPosition() );
+    }
+
+    @Test
+    public void givenMultiLineText_startAtEndOfFirstLineButBeforeEOLMarker_rewindLine_expectRewindToStart() {
+        Bytes      source = Bytes.wrap("123\r\n456\r\n789\rabc def\naaa");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        parser.setPosition( 3 );
+
+        assertEquals( 3, parser.rewindLine() );
+        assertEquals( 0, parser.getPosition() );
+    }
+
+    @Test
+    public void givenMultiLineText_startAtEndOfFirstLine_rewindLine_expectRewindToStart() {
+        Bytes      source = Bytes.wrap("123\r\n456\r\n789\rabc def\naaa");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        parser.setPosition( 5 );
+
+        assertEquals( 5, parser.rewindLine() );
+        assertEquals( 0, parser.getPosition() );
+    }
+
+    @Test
+    public void givenMultiLineText_startAtEndOfSecondLineButBeforeEOLMarker_rewindLine_expectRewindToStart() {
+        Bytes      source = Bytes.wrap("123\r\n456\r\n789\rabc def\naaa");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        parser.setPosition( 8 );
+
+        assertEquals( 3, parser.rewindLine() );
+        assertEquals( 5, parser.getPosition() );
+    }
+
+    @Test
+    public void givenMultiLineText_startAtEndOfSecondLine_rewindLine_expectRewindToStart() {
+        Bytes      source = Bytes.wrap("123\r\n456\r\n789\rabc def\naaa");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        parser.setPosition( 10 );
+
+        assertEquals( 5, parser.rewindLine() );
+        assertEquals( 5, parser.getPosition() );
+    }
 
 
-//    Bytes      source = Bytes.wrap("1234567890");
-//    PullParser parser = new PullParser( "/tmp/file/x", source );
-//
-//    @Benchmark(durationResultMultiplier = 1/10.0, units="byte" )
-//    public int b() {
-//        parser.setPosition( 0 );
-//        return parser.pullInt();
-//    }
-
-    private static class NumberParser implements CharacterParser<Long> {
+    private static class NumberParser implements ByteMatcher<Long> {
         public void parse( InputBytes source, long fromInc, long toExc, ParserResult<Long> result ) {
             long num = 0;
 
@@ -490,7 +536,7 @@ public class PullParserTest {
         }
     }
 
-    private static class WhitespaceParser implements CharacterParser<Void> {
+    private static class WhitespaceParser implements ByteMatcher<Void> {
         public void parse( InputBytes source, long fromInc, long toExc, ParserResult<Void> result ) {
             long i=fromInc;
             for ( ; i<toExc; i++ ) {

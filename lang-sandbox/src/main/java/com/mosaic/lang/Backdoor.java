@@ -13,9 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class Backdoor {
 
-    private static final Unsafe unsafe = fetchUnsafe();
-
-
+    private static final Unsafe     unsafe        = fetchUnsafe();
     private static final AtomicLong mallocCounter = new AtomicLong(0);
 
 

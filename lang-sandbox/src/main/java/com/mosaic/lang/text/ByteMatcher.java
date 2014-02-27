@@ -9,7 +9,7 @@ import com.mosaic.io.bytes.InputBytes;
  *
  *
  */
-public interface CharacterParser<T> {
+public interface ByteMatcher<T> {
 
     /**
      * Parse the specified bytes.<p/>

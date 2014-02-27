@@ -15,19 +15,19 @@ public class CharacterParsers {
     // char
     //
 
-    public static CharacterParser<UTF8> exactMatch( String target ) {
+    public static ByteMatcher<UTF8> exactMatch( String target ) {
         return new ExactMatch( new UTF8(target) );
     }
 
-    public static CharacterParser tabOrSpaces() {
+    public static ByteMatcher tabOrSpaces() {
         return TabOrSpace.INSTANCE;
     }
 
-    public static CharacterParser tabsSpacesAndEOL() {
+    public static ByteMatcher tabsSpacesAndEOL() {
         return TabOrSpaceEOL.INSTANCE;
     }
 
-    public static CharacterParser eol() {
+    public static ByteMatcher eol() {
         return EOL.INSTANCE;
     }
 
@@ -35,8 +35,8 @@ public class CharacterParsers {
 
 
 
-    private static class EOL implements CharacterParser {
-        public static final CharacterParser INSTANCE = new EOL();
+    private static class EOL implements ByteMatcher {
+        public static final ByteMatcher INSTANCE = new EOL();
 
         public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
             long pos = fromInc;
@@ -61,8 +61,8 @@ public class CharacterParsers {
         }
     }
 
-    private static class TabOrSpace implements CharacterParser {
-        public static final CharacterParser INSTANCE = new TabOrSpace();
+    private static class TabOrSpace implements ByteMatcher {
+        public static final ByteMatcher INSTANCE = new TabOrSpace();
 
         public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
             long pos = fromInc;
@@ -87,8 +87,8 @@ public class CharacterParsers {
         }
     }
 
-    private static class TabOrSpaceEOL implements CharacterParser {
-        public static final CharacterParser INSTANCE = new TabOrSpaceEOL();
+    private static class TabOrSpaceEOL implements ByteMatcher {
+        public static final ByteMatcher INSTANCE = new TabOrSpaceEOL();
 
         public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
             long pos = fromInc;
@@ -113,7 +113,7 @@ public class CharacterParsers {
         }
     }
 
-    private static class ExactMatch implements CharacterParser<UTF8> {
+    private static class ExactMatch implements ByteMatcher<UTF8> {
         private UTF8 target;
 
         public ExactMatch( UTF8 target ) {
