@@ -5,6 +5,7 @@ import com.mosaic.lang.reflect.ReflectionException;
 import com.mosaic.utils.MathUtils;
 import com.mosaic.utils.StringUtils;
 
+
 /**
  * A suite of argument and state validations.  Use to enforce api contracts
  * with only one line per contract.
@@ -671,6 +672,12 @@ public class Validate {
         }
     }
 
+    public static void argNotBlank( UTF8 chars, String argName ) {
+        if ( StringUtils.isBlank(chars) ) {
+            throwException( "%s must not be blank (was %s)", argName, chars );
+        }
+    }
+
     public static void notBlank( String chars, String message, Object...args) {
         if ( StringUtils.isBlank(chars) ) {
             throwException( IllegalStateException.class, message, args );
@@ -953,7 +960,7 @@ public class Validate {
         argIsBetween( minInc, maxValue, maxExc + 1, maxValueName );
 
         if ( !(minValue < maxValue) ) {
-            throwException( "%s (%s) < %s (%s)", minValueName,minValue, maxValueName,maxValue );
+            throwException( "%s (%s) < %s (%s)", minValueName, minValue, maxValueName, maxValue );
         }
     }
 
@@ -965,10 +972,26 @@ public class Validate {
         }
     }
 
-    public static void isInt( long v, String msg ) {
+    public static void isInt( long v, String argName ) {
         if ( SystemX.isDebugRun() ) {
             if ( (v & 0x7FFFFFFF) != v ) {
-                throwException( msg, v );
+                throwException( "%s (%s) is out of bounds of an int", argName, v );
+            }
+        }
+    }
+
+    public static void isUnsignedInt( long v, String argName ) {
+        if ( SystemX.isDebugRun() ) {
+            if ( (v & 0xFFFFFFFF) != v ) {
+                throwException( "%s (%s) is out of bounds of an unsigned int", argName, v );
+            }
+        }
+    }
+
+    public static void isUnsignedShort( int v, String argName ) {
+        if ( SystemX.isDebugRun() ) {
+            if ( (v & 0xFFFF) != v ) {
+                throwException( "%s (%s) is out of bounds of an unsigned short", argName, v );
             }
         }
     }

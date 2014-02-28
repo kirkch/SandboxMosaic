@@ -3,6 +3,7 @@ package com.mosaic.utils;
 import com.mosaic.io.Formatter;
 import com.mosaic.io.Formatters;
 import com.mosaic.io.RuntimeIOException;
+import com.mosaic.lang.UTF8;
 
 import java.io.IOException;
 
@@ -31,6 +32,10 @@ public class StringUtils {
 
     public static boolean isBlank( String chars ) {
         return chars == null || chars.trim().length() == 0;
+    }
+
+    public static boolean isBlank( UTF8 chars ) {
+        return chars == null || chars.getSizeInBytes() == 0;
     }
 
     public static <T> String join( Iterable<T> elements, String separator ) {
