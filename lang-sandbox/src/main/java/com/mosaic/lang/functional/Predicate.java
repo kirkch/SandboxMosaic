@@ -3,5 +3,8 @@ package com.mosaic.lang.functional;
 /**
  *
  */
-public interface Predicate<T> extends Function1<T,Boolean> {
+public interface Predicate<T> {
+
+    public boolean invoke( T arg );
+
 }

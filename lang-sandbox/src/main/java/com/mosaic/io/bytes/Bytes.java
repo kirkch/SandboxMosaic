@@ -1,6 +1,6 @@
 package com.mosaic.io.bytes;
 
-import com.mosaic.io.FileModeEnum;
+import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.lang.SystemX;
 import com.mosaic.lang.Validate;
 
@@ -27,11 +27,11 @@ public abstract class Bytes implements OutputBytes, InputBytes {
         return new ArrayBytes( numBytes );
     }
 
-    public static Bytes memoryMapFile( File f, FileModeEnum mode ) throws IOException {
+    public static Bytes memoryMapFile( File f, FileModeEnum mode ) {
         return MemoryMappedBytes.mapFile( f, mode, f.length() );
     }
 
-    public static Bytes memoryMapFile( File f, FileModeEnum mode, long numBytes ) throws IOException {
+    public static Bytes memoryMapFile( File f, FileModeEnum mode, long numBytes ) {
         return MemoryMappedBytes.mapFile( f, mode, numBytes );
     }
 

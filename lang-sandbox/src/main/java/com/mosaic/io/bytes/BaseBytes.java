@@ -19,9 +19,16 @@ abstract class BaseBytes extends Bytes {
 
     private long positionIndex;
 
+    protected void throwIfReleased() {
+        if ( positionIndex < 0 ) {
+            throw new IllegalStateException( name() + " has been released()" );
+        }
+    }
 
     public void release() {
-        this.positionIndex = 0;
+        throwIfReleased();
+
+        this.positionIndex = Integer.MIN_VALUE;
     }
 
     public long positionIndex() {
@@ -172,6 +179,16 @@ abstract class BaseBytes extends Bytes {
     }
 
 
+    /**
+     * Returns the remaining contents of this buffer as an ascii encoded string.
+     */
+    public String toString() {
+        byte[] bytes = new byte[(int) remaining()];
+
+        readBytes( bytes );
+
+        return new String( bytes, SystemX.ASCII );
+    }
 
 
     protected DecodedCharacter myDecodedCharacterBuffer() {

@@ -1,6 +1,7 @@
 package com.mosaic.lang;
 
 import java.nio.charset.Charset;
+import java.util.Random;
 
 
 /**
@@ -22,8 +23,11 @@ public class SystemX {
     public static final long UNSIGNED_INT_MASK   = 0xFFFFFFFF;
 
 
-    public static Charset UTF8 = Charset.forName( "UTF8" );
+    public static Charset UTF8  = Charset.forName( "UTF8" );
+    public static Charset ASCII = Charset.forName( "ASCII" );
 
+
+    private static final Random RND = new Random();
 
     private static final boolean areAssertionsEnabled = detectWhetherAssertionsAreEnabled();
 
@@ -48,6 +52,16 @@ public class SystemX {
     public static boolean isRecklessRun() {
         return !areAssertionsEnabled;
     }
+
+    public static String getTempDirectory() {
+        return System.getProperty( "java.io.tmpdir" );
+    }
+
+    public static long nextRandomLong() {
+        return RND.nextLong();
+    }
+
+
 
     // The latest Intel processors have 3 layers (L1D, L2, and L3); with
     // sizes 32KB, 256KB, and 4-30MB; and ~1ns, ~4ns, and ~15ns latency respectively for a 3.0GHz CPU.

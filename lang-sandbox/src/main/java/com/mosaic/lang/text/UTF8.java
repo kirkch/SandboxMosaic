@@ -13,7 +13,6 @@ import java.util.Arrays;
 public class UTF8 implements Text {
 
 
-
     private static byte[] toArray( Bytes b, long fromInc, long toExc ) {
         int    numBytes = Backdoor.toInt( toExc - fromInc );
         byte[] buf      = new byte[numBytes];

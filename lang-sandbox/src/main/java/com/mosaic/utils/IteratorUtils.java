@@ -3,7 +3,10 @@ package com.mosaic.utils;
 import com.mosaic.lang.EnhancedIterable;
 import com.mosaic.lang.Validate;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+
 
 /**
  *
@@ -42,6 +45,16 @@ public class IteratorUtils {
                 iterators[iteratorIndex].remove();
             }
         };
+    }
+
+    public static <T> List<T> toList( Iterator<T> it ) {
+        List<T> list = new ArrayList<T>();
+
+        while ( it.hasNext() ) {
+            list.add( it.next() );
+        }
+
+        return list;
     }
 
 }

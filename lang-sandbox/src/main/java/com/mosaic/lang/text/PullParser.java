@@ -64,7 +64,9 @@ public class PullParser {
     }
 
 
-
+    public String getName() {
+        return name;
+    }
 
     /**
      * Expects the specified parser to match.  If it does not then an exception

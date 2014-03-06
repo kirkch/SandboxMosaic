@@ -1,6 +1,6 @@
 package com.mosaic.io.bytes;
 
-import com.mosaic.io.FileModeEnum;
+import com.mosaic.io.filesystemx.FileModeEnum;
 import org.junit.After;
 
 import java.io.File;
