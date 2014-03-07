@@ -455,6 +455,7 @@ public class PullParser {
                 return;
             }
 
+            float offsetCount = 1;
             long i=fromInc+1;
             for ( ; i<toExc; i++ ) {
                 v = source.readByte(i);
@@ -462,10 +463,13 @@ public class PullParser {
                 if ( v < '0' || v > '9' ) {
                     break;
                 } else {
-                    num /= 10;
+                    offsetCount *= 10;
+                    num *= 10;
                     num += v - '0';
                 }
             }
+
+            num /= offsetCount;
 
             result.resultMatchedFloat( num, result.getFrom(), i );
         }
@@ -543,6 +547,7 @@ public class PullParser {
                 return;
             }
 
+            double offsetCount = 1.0;
             long i=fromInc+1;
             for ( ; i<toExc; i++ ) {
                 v = source.readByte(i);
@@ -550,11 +555,13 @@ public class PullParser {
                 if ( v < '0' || v > '9' ) {
                     break;
                 } else {
-                    num /= 10;
+                    offsetCount *= 10;
+                    num *= 10;
                     num += v - '0';
                 }
             }
 
+            num /= offsetCount;
             result.resultMatchedDouble( num, result.getFrom(), i );
         }
 

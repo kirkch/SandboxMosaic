@@ -247,7 +247,7 @@ public class PullParserTest {
 
         float v = parser.pullFloat();
 
-        assertEquals( 123, v, 1e9 );
+        assertEquals( 123, v, 1e-6 );
         assertEquals( 3, parser.getPosition() );
     }
 
@@ -258,7 +258,7 @@ public class PullParserTest {
 
         float v = parser.pullFloat();
 
-        assertEquals( -123, v, 1e9 );
+        assertEquals( -123, v, 1e-6 );
         assertEquals( 4, parser.getPosition() );
     }
 
@@ -270,7 +270,7 @@ public class PullParserTest {
 
         float v = parser.pullFloat();
 
-        assertEquals( Float.parseFloat(str), v, 1e9 );
+        assertEquals( "2.14748352E8", Float.toString(v) );
         assertEquals( str.length(), parser.getPosition() );
     }
 
@@ -281,7 +281,7 @@ public class PullParserTest {
 
         float v = parser.pullFloat();
 
-        assertEquals( Float.parseFloat(str), v, 1e9 );
+        assertEquals( "-2.14748352E8", Float.toString(v) );
         assertEquals( str.length(), parser.getPosition() );
     }
 
@@ -292,8 +292,19 @@ public class PullParserTest {
 
         float v = parser.pullFloat();
 
-        assertEquals( 1234.12, v, 1e9 );
+        assertEquals( 1234.12f, v, 1e-6 );
         assertEquals( 7, parser.getPosition() );
+    }
+
+    @Test
+    public void givenFloat_pullFloat_expectResult() {
+        Bytes      source = Bytes.wrap("3.11");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        float v = parser.pullFloat();
+
+        assertEquals( 3.11, v, 1e-6 );
+        assertEquals( 4, parser.getPosition() );
     }
 
     @Test
@@ -331,7 +342,7 @@ public class PullParserTest {
 
         double v = parser.pullDouble();
 
-        assertEquals( 123, v, 1e9 );
+        assertEquals( 123, v, 1e-6 );
         assertEquals( 3, parser.getPosition() );
     }
 
@@ -342,7 +353,7 @@ public class PullParserTest {
 
         double v = parser.pullDouble();
 
-        assertEquals( -123, v, 1e9 );
+        assertEquals( -123, v, 1e-6 );
         assertEquals( 4, parser.getPosition() );
     }
 
@@ -354,7 +365,7 @@ public class PullParserTest {
 
         double v = parser.pullDouble();
 
-        assertEquals( Double.parseDouble(str), v, 1e9 );
+        assertEquals( Double.parseDouble(str), v, 1e-6 );
         assertEquals( str.length(), parser.getPosition() );
     }
 
@@ -365,7 +376,7 @@ public class PullParserTest {
 
         double v = parser.pullDouble();
 
-        assertEquals( Double.parseDouble(str), v, 1e9 );
+        assertEquals( Double.parseDouble(str), v, 1e-6 );
         assertEquals( str.length(), parser.getPosition() );
     }
 
@@ -376,7 +387,7 @@ public class PullParserTest {
 
         double v = parser.pullDouble();
 
-        assertEquals( 1234.12, v, 1e9 );
+        assertEquals( 1234.12, v, 1e-6 );
         assertEquals( 7, parser.getPosition() );
     }
 
