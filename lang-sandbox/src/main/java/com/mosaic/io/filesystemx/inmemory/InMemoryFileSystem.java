@@ -1,7 +1,8 @@
 package com.mosaic.io.filesystemx.inmemory;
 
 import com.mosaic.io.filesystemx.FileSystemX;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 
 
 /**
@@ -35,6 +36,6 @@ public class InMemoryFileSystem extends InMemoryDirectory implements FileSystemX
     void decrementOpenFileCount() {
         openFileCount--;
 
-        Validate.isGTEZero( openFileCount, "openFileCount" );
+        QA.isGTEZero( openFileCount, "openFileCount" );
     }
 }

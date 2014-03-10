@@ -2,7 +2,8 @@ package com.mosaic.parser.graph;
 
 import com.mosaic.collections.ConsList;
 import com.mosaic.lang.CharacterPredicate;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.reflect.MethodCall;
 import com.mosaic.parser.ProductionRule;
 import com.mosaic.utils.SetUtils;
@@ -51,8 +52,8 @@ public class Parser {
 
 
     public Parser( ProductionRule rootRule, ParserListener listener ) {
-        Validate.notNull( rootRule, "rootRule" );
-        Validate.notNull( listener, "listener" );
+        QA.notNull( rootRule, "rootRule" );
+        QA.notNull( listener, "listener" );
 
         this.rootRule = rootRule;
         this.listener = listener;

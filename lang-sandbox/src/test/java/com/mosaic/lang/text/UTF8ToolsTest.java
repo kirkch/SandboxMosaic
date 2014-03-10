@@ -1,6 +1,6 @@
 package com.mosaic.lang.text;
 
-import com.mosaic.lang.Backdoor;
+import com.mosaic.lang.system.Backdoor;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;

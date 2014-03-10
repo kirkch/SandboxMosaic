@@ -1,6 +1,7 @@
 package com.mosaic.collections.concurrent;
 
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,7 +51,7 @@ public abstract class ForkJoinJob<I,O> {
      * used.
      */
     public O exec( I data ) {
-        Validate.notNull( data, "data" );
+        QA.notNull( data, "data" );
 
         FJTask job = new FJTask(data);
 
@@ -65,7 +66,7 @@ public abstract class ForkJoinJob<I,O> {
         private I inputData;
 
         public FJTask( I inputData ) {
-            Validate.notNull( inputData, "inputData" );
+            QA.notNull( inputData, "inputData" );
 
             this.inputData = inputData;
         }

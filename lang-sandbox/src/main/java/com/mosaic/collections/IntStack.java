@@ -1,6 +1,7 @@
 package com.mosaic.collections;
 
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 
 /**
  * Stack of int primitives.
@@ -59,8 +60,8 @@ public class IntStack {
      * @param peekOffset zero is the head, one is the second element, two the third etc
      */
     public int peek( int peekOffset ) {
-        Validate.isTrue( peekOffset >= 0, "peekOffset (%d) must be greater than 0", peekOffset );
-        Validate.isTrue( peekOffset < pos, "peekOffset (%d) must be less the number of items in the stack (%d)", peekOffset, pos );
+        QA.isTrue( peekOffset >= 0, "peekOffset (%d) must be greater than 0", peekOffset );
+        QA.isTrue( peekOffset < pos, "peekOffset (%d) must be less the number of items in the stack (%d)", peekOffset, pos );
 
 
         return stack[pos-peekOffset-1];

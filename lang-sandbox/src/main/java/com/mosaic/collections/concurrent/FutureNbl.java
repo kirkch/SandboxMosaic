@@ -2,8 +2,9 @@ package com.mosaic.collections.concurrent;
 
 
 import com.mosaic.lang.Failure;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.ThreadSafe;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.*;
 import com.mosaic.collections.concurrent.Future.InternalState;
 
@@ -167,7 +168,7 @@ public class FutureNbl<T> implements TryNbl<T> {
     }
 
     public boolean completeWithResult( T result ) {
-        Validate.notNull(result, "result");
+        QA.notNull( result, "result" );
 
         return completeWithResultNbl( Nullable.createNullable(result) );
     }

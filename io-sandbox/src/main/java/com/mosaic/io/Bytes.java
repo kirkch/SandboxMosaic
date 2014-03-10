@@ -1,6 +1,7 @@
 package com.mosaic.io;
 
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 
 import java.io.CharConversionException;
 import java.nio.ByteBuffer;
@@ -22,7 +23,7 @@ public abstract class Bytes {
      * original position before completion of this method.
      */
     public static Bytes wrapBytesBuffer( ByteBuffer src ) {
-        Validate.argNotNull( src, "src" );
+        QA.argNotNull( src, "src" );
 
         int originalPosition = src.position();
         ByteBuffer copy = ByteBuffer.allocate( src.remaining() );
@@ -41,7 +42,7 @@ public abstract class Bytes {
      * thus any background changes to it will damage the immutability of the Bytes instance.
      */
     public static Bytes wrapBytesBufferNoCopy( ByteBuffer src ) {
-        Validate.notNull( src, "src" );
+        QA.notNull( src, "src" );
 
         return new BytesNIOWrapper(src,src.position(),0L);
     }
@@ -174,7 +175,7 @@ class BytesNIOWrapper extends Bytes {
     }
 
     public Bytes appendBytes( Bytes other ) {
-        Validate.argNotNull( other, "other" );
+        QA.argNotNull( other, "other" );
 
         if ( this.length() == 0 ) {
             return other;
@@ -190,7 +191,7 @@ class BytesNIOWrapper extends Bytes {
     }
 
     public Bytes skipBytes( int numBytes ) {
-        Validate.argIsLTE( numBytes, this.length(), "numBytes" );
+        QA.argIsLTE( numBytes, this.length(), "numBytes" );
 
         if ( numBytes == 0 ) {
             return this;
@@ -206,8 +207,8 @@ class BytesNIOWrapper extends Bytes {
             return this;
         }
 
-        Validate.argIsBetween( 0, fromInc, length, "fromInc" );
-        Validate.argIsBetween( 0, toExc, length + 1, "toExc" );
+        QA.argIsBetween( 0, fromInc, length, "fromInc" );
+        QA.argIsBetween( 0, toExc, length + 1, "toExc" );
 
 
         ByteBuffer clonedBuffer = this.buf.duplicate();
@@ -217,7 +218,7 @@ class BytesNIOWrapper extends Bytes {
     }
 
     public void writeTo( ByteBuffer targetBuffer, int numBytes ) {
-        Validate.argIsLTE( numBytes, this.length(), "numBytes" );
+        QA.argIsLTE( numBytes, this.length(), "numBytes" );
 
         ByteBuffer buf   = this.buf;
         int        limit = numBytes+this.positionOffset;
@@ -296,7 +297,7 @@ class BytesMultiBucketWrapper extends Bytes {
     }
 
     public Bytes appendBytes( Bytes other ) {
-        Validate.notNull( other, "other" );
+        QA.notNull( other, "other" );
 
         if ( this.length() == 0 ) {
             return other;
@@ -312,7 +313,7 @@ class BytesMultiBucketWrapper extends Bytes {
     }
 
     public Bytes skipBytes( int numBytes ) {
-        Validate.isLTE( numBytes, this.length(), "numBytes" );
+        QA.isLTE( numBytes, this.length(), "numBytes" );
 
         if ( numBytes == 0 ) {
             return this;
@@ -345,7 +346,7 @@ class BytesMultiBucketWrapper extends Bytes {
     }
 
     public void writeTo( ByteBuffer targetBuffer, final int numBytes ) {
-        Validate.isLTE( numBytes, this.length(), "numBytes" );
+        QA.isLTE( numBytes, this.length(), "numBytes" );
 
         int numBytesLeftToWrite = numBytes;
 

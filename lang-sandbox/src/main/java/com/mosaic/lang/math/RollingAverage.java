@@ -1,6 +1,7 @@
 package com.mosaic.lang.math;
 
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 
 import java.io.Serializable;
 
@@ -24,7 +25,7 @@ public class RollingAverage implements Serializable {
     }
 
     public RollingAverage(int maxSize) {
-        Validate.argIsGTZero( maxSize, "maxSize" );
+        QA.argIsGTZero( maxSize, "maxSize" );
 
         this.circularBuffer = new double[maxSize];
     }

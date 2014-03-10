@@ -3,8 +3,9 @@ package com.mosaic.io.filesystemx.inmemory;
 import com.mosaic.io.bytes.Bytes;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileX;
-import com.mosaic.lang.SystemX;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.system.SystemX;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.Predicate;
 import com.mosaic.utils.ArrayUtils;
 
@@ -27,7 +28,7 @@ public class InMemoryDirectory implements DirectoryX {
 
 
     public InMemoryDirectory( InMemoryDirectory parentDirectory, String directoryName ) {
-        Validate.argNotNull( directoryName, "directoryName" );
+        QA.argNotNull( directoryName, "directoryName" );
 
         this.parentDirectory = parentDirectory;
         this.directoryName   = directoryName;
@@ -127,7 +128,7 @@ public class InMemoryDirectory implements DirectoryX {
     }
 
     public FileX getFile( String fileName ) {
-        Validate.argNotBlank( fileName, "fileName" );
+        QA.argNotBlank( fileName, "fileName" );
 
         for ( FileX d : files ) {
             if ( d.getFileName().equals(fileName) ) {
@@ -163,7 +164,7 @@ public class InMemoryDirectory implements DirectoryX {
 
 
     private InMemoryDirectory getDirectory0( String dirPath ) {
-        Validate.argNotBlank( dirPath, "dirPath" );
+        QA.argNotBlank( dirPath, "dirPath" );
 
         InMemoryDirectory fromDir      = dirPath.startsWith("/") ? rootDirectory() : this;
         String[]          pathElements = dirPath.split( "/" );
@@ -204,7 +205,7 @@ public class InMemoryDirectory implements DirectoryX {
             directories.add(d);
         }
 
-        return d.createDirectoryFrom( path, i+1 );
+        return d.createDirectoryFrom( path, i + 1 );
     }
 
     private InMemoryDirectory rootDirectory() {

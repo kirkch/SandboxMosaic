@@ -1,6 +1,7 @@
 package com.mosaic.lang.math;
 
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 
 /**
  *
@@ -15,13 +16,13 @@ public class Quantity extends AbstractLongNumber<Quantity> {
     public Quantity( long v ) {
         super(ZERO, v);
 
-        Validate.isGTEZero( v, "quantity" );
+        QA.isGTEZero( v, "quantity" );
     }
 
     public Quantity( String v ) {
         super(ZERO, v);
 
-        Validate.isTrue( isGTE( ZERO ), v + "" );
+        QA.isTrue( isGTE( ZERO ), v + "" );
     }
 
     @Override

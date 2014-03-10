@@ -1,7 +1,8 @@
 package com.mosaic.io.filesystemx.disk;
 
 import com.mosaic.io.filesystemx.FileSystemX;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 
 import java.io.File;
 
@@ -14,6 +15,10 @@ public class ActualFileSystem extends ActualDirectory implements FileSystemX {
 
     private int openFileCount;
 
+
+    public ActualFileSystem() {
+        this( new File( "/" ) );
+    }
 
     public ActualFileSystem( File file ) {
         super( null, file );
@@ -33,7 +38,7 @@ public class ActualFileSystem extends ActualDirectory implements FileSystemX {
     void decrementOpenFileCount() {
         openFileCount--;
 
-        Validate.isGTEZero( openFileCount, "openFileCount" );
+        QA.isGTEZero( openFileCount, "openFileCount" );
     }
 
 }

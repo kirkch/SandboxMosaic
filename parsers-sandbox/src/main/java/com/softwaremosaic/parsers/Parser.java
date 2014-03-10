@@ -1,7 +1,8 @@
 package com.softwaremosaic.parsers;
 
 import com.mosaic.collections.ConsList;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.reflect.MethodCall;
 import com.mosaic.lang.reflect.MethodRef;
@@ -55,7 +56,7 @@ public abstract class Parser<T extends Comparable<T>> {
 
 
     public Parser( ProductionRule start, ParserListener listener ) {
-        Validate.notNull( listener, "listener" );
+        QA.notNull( listener, "listener" );
 
         this.startingRule    = start;
         this.listener        = listener;
@@ -156,7 +157,7 @@ public abstract class Parser<T extends Comparable<T>> {
     }
 
     private void throwIfNotAcceptingInput() {
-        Validate.isFalse(hasReachedEOS, "the parser has already been notified of EOS");
+        QA.isFalse( hasReachedEOS, "the parser has already been notified of EOS" );
     }
 
     protected void incrementColumnAndLinePositionsGiven( T input ) {

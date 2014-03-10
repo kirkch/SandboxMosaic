@@ -1,14 +1,15 @@
 package com.mosaic.io.bytes;
 
-import com.mosaic.lang.Backdoor;
-import com.mosaic.lang.SystemX;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.system.Backdoor;
+import com.mosaic.lang.system.SystemX;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.text.DecodedCharacter;
 import com.mosaic.lang.text.UTF8Tools;
 
 import java.io.IOException;
 
-import static com.mosaic.lang.SystemX.*;
+import static com.mosaic.lang.system.SystemX.*;
 
 
 /**
@@ -48,7 +49,7 @@ public abstract class NativeBytes extends BaseBytes {
 
 
     public void release() {
-        Validate.isNotZero( baseAddress, "The memory has already been freed" );
+        QA.isNotZero( baseAddress, "The memory has already been freed" );
 
         super.release();
 
@@ -474,9 +475,9 @@ public abstract class NativeBytes extends BaseBytes {
     }
 
     public void readBytes( long index, byte[] destinationArray, int fromInc, int toExc ) {
-        Validate.argIsGT( toExc, fromInc, "toExc", "fromInc" );
-        Validate.argIsBetweenInc( 0, fromInc, destinationArray.length, "fromInc" );
-        Validate.argIsBetweenInc( 0, toExc, destinationArray.length, "toExc" );
+        QA.argIsGT( toExc, fromInc, "toExc", "fromInc" );
+        QA.argIsBetweenInc( 0, fromInc, destinationArray.length, "fromInc" );
+        QA.argIsBetweenInc( 0, toExc, destinationArray.length, "toExc" );
 
 
         long ptr = cacheAlignedBaseAddress + index;

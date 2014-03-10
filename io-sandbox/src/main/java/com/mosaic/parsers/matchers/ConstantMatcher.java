@@ -1,6 +1,7 @@
 package com.mosaic.parsers.matchers;
 
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 import com.mosaic.parsers.BaseMatcher;
 import com.mosaic.parsers.MatchResult;
 import com.mosaic.parsers.Matcher;
@@ -16,7 +17,7 @@ public class ConstantMatcher {
     }
 
     public static Matcher create( String targetString ) {
-        Validate.argIsGTZero(targetString.length(), "targetString.length()");
+        QA.argIsGTZero( targetString.length(), "targetString.length()" );
 
         if ( targetString.length() == 1 ) {
             return new SingleCharacterMatcher(targetString);

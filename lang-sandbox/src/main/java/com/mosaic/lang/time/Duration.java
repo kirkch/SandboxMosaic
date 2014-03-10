@@ -72,7 +72,8 @@ public class Duration {
         long remainder = append( buf, millis,    ONE_DAY_MILLIS, "d" );
              remainder = append( buf, remainder, ONE_HOUR_MILLIS, "h" );
              remainder = append( buf, remainder, ONE_MINUTE_MILLIS, "m" );
-                         append( buf, remainder, ONE_SECOND_MILLIS, "s" );
+             remainder = append( buf, remainder, ONE_SECOND_MILLIS, "s" );
+                         append( buf, remainder, 1, "ms" );
 
         return buf.toString();
     }

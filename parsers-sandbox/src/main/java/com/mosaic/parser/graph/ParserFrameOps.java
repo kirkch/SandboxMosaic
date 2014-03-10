@@ -1,6 +1,7 @@
 package com.mosaic.parser.graph;
 
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.reflect.MethodRef;
 
 import static com.mosaic.collections.ConsList.Nil;
@@ -103,8 +104,8 @@ public class ParserFrameOps {
         public PushRuleParserFrameOp( String name, Node jumpToNode, ParserFrameOp wrappedOp, Node fromNode ) {
             super( wrappedOp, "Push" );
 
-            Validate.notNull( fromNode, "fromNode" );
-            Validate.notNull( jumpToNode, "jumpToNode" );
+            QA.notNull( fromNode, "fromNode" );
+            QA.notNull( jumpToNode, "jumpToNode" );
 
             this.name       = name;
             this.fromNode   = fromNode;

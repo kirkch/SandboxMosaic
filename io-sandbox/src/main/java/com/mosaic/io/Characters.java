@@ -1,7 +1,8 @@
 package com.mosaic.io;
 
 import com.mosaic.lang.CharacterPredicate;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 
 import java.nio.CharBuffer;
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public abstract class Characters implements CharSequence {
      * original position before completion of this method.
      */
     public static Characters wrapCharBuffer( CharBuffer src ) {
-        Validate.argNotNull( src, "src" );
+        QA.argNotNull( src, "src" );
 
         int originalPosition = src.position();
         CharBuffer copy = CharBuffer.allocate( src.remaining() );
@@ -54,7 +55,7 @@ public abstract class Characters implements CharSequence {
      * thus any background changes to it will damage the immutability of the Characters instance.
      */
     public static Characters wrapCharactersBufferNoCopy( CharBuffer src ) {
-        Validate.argNotNull( src, "src" );
+        QA.argNotNull( src, "src" );
 
         return new CharactersNIOWrapper(new CharPosition(), src,src.position());
     }
@@ -114,7 +115,7 @@ public abstract class Characters implements CharSequence {
 
 
     public CharSequence subSequence(int start, int end) {
-        Validate.argIsWithinRange( 0, start, end, this.length(), "start", "end" );
+        QA.argIsWithinRange( 0, start, end, this.length(), "start", "end" );
 
         int    length   = end - start;
         char[] chars    = new char[length];
@@ -157,7 +158,7 @@ public abstract class Characters implements CharSequence {
      * Returns true if targetString is at fromIndex.
      */
     public boolean containsAt( String targetString, int fromIndex ) {
-        Validate.argIsGTEZero( fromIndex, "fromIndex" );
+        QA.argIsGTEZero( fromIndex, "fromIndex" );
 
         int targetStringLength = targetString.length();
         if ( this.length()-fromIndex < targetStringLength ) {
@@ -192,7 +193,7 @@ public abstract class Characters implements CharSequence {
      * Extract the string starting from startIndexInc (inclusive) and endIndexExc (exclusive).
      */
     public String toString( int startIndexInc, int endIndexExc ) {
-        Validate.argIsWithinRange( 0, startIndexInc, endIndexExc, this.length(), "startIndexInc", "endIndexExc" );
+        QA.argIsWithinRange( 0, startIndexInc, endIndexExc, this.length(), "startIndexInc", "endIndexExc" );
 
         StringBuilder buf = new StringBuilder( endIndexExc-startIndexInc );
 
@@ -246,7 +247,7 @@ class CharactersNIOWrapper extends Characters {
     }
 
     public Characters appendCharacters( Characters other ) {
-        Validate.argNotNull( other, "other" );
+        QA.argNotNull( other, "other" );
 
         if ( this.length() == 0 ) {
             return other;
@@ -262,7 +263,7 @@ class CharactersNIOWrapper extends Characters {
     }
 
     public Characters skipCharacters( int numCharacters ) {
-        Validate.argIsLTE( numCharacters, this.length(), "numCharacters" );
+        QA.argIsLTE( numCharacters, this.length(), "numCharacters" );
 
         if ( numCharacters == 0 ) {
             return this;
@@ -273,7 +274,7 @@ class CharactersNIOWrapper extends Characters {
     }
 
     public void writeTo( CharBuffer targetBuffer, int numCharacters ) {
-        Validate.argIsLTE( numCharacters, this.length(), "numCharacters" );
+        QA.argIsLTE( numCharacters, this.length(), "numCharacters" );
 
         CharBuffer buf   = this.buf;
         int        limit = numCharacters+this.bufOffset;
@@ -329,7 +330,7 @@ class CharactersMultiBucketWrapper extends Characters {
     }
 
     public Characters appendCharacters( Characters other ) {
-        Validate.argNotNull( other, "other" );
+        QA.argNotNull( other, "other" );
 
         if ( this.length() == 0 ) {
             return other;
@@ -345,7 +346,7 @@ class CharactersMultiBucketWrapper extends Characters {
     }
 
     public Characters skipCharacters( int numCharacters ) {
-        Validate.argIsLTE( numCharacters, this.length(), "numCharacters" );
+        QA.argIsLTE( numCharacters, this.length(), "numCharacters" );
 
         if ( numCharacters == 0 ) {
             return this;
@@ -376,7 +377,7 @@ class CharactersMultiBucketWrapper extends Characters {
     }
 
     public void writeTo( CharBuffer targetBuffer, final int numCharacters ) {
-        Validate.argIsLTE( numCharacters, this.length(), "numCharacters" );
+        QA.argIsLTE( numCharacters, this.length(), "numCharacters" );
 
         int numCharactersLeftToWrite = numCharacters;
 

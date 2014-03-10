@@ -1,8 +1,8 @@
 package com.mosaic.lang.text;
 
 import com.mosaic.io.bytes.Bytes;
-import com.mosaic.lang.Backdoor;
-import com.mosaic.lang.SystemX;
+import com.mosaic.lang.system.Backdoor;
+import com.mosaic.lang.system.SystemX;
 
 import java.util.Arrays;
 

@@ -1,6 +1,7 @@
 package com.mosaic.collections;
 
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 
 import java.util.AbstractSet;
 import java.util.Iterator;
@@ -96,7 +97,7 @@ public class IdentitySet<T> extends AbstractSet<T> {
             }
 
             public T next() {
-                Validate.isTrue( hasNext(), "the iterator is empty, call hasNext() first" );
+                QA.isTrue( hasNext(), "the iterator is empty, call hasNext() first" );
 
                 return (T) array[pos++];
             }

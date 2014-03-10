@@ -1,8 +1,9 @@
 package com.mosaic.io.bytes;
 
-import com.mosaic.lang.Backdoor;
-import com.mosaic.lang.SystemX;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.system.Backdoor;
+import com.mosaic.lang.system.SystemX;
+import com.mosaic.lang.QA;
 
 
 /**
@@ -24,7 +25,7 @@ public class MallocedBytes extends NativeBytes {
      * so they may hold junk in them.
      */
     public static Bytes alloc( long numBytes, int cpuCacheLineSizeBytes ) {
-        Validate.argIsGTZero( numBytes, "numBytes" );
+        QA.argIsGTZero( numBytes, "numBytes" );
 
         long baseAddress    = Backdoor.alloc( numBytes + cpuCacheLineSizeBytes );
         long alignedAddress = Backdoor.alignAddress( baseAddress, cpuCacheLineSizeBytes );

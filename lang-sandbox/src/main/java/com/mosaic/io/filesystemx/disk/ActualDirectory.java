@@ -4,8 +4,9 @@ import com.mosaic.io.bytes.Bytes;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
-import com.mosaic.lang.SystemX;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.system.SystemX;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.Predicate;
 import com.mosaic.utils.ArrayUtils;
 
@@ -25,7 +26,7 @@ public class ActualDirectory implements DirectoryX {
 
 
     public ActualDirectory( ActualDirectory parentDirectory, File file ) {
-        Validate.argNotNull( file, "file" );
+        QA.argNotNull( file, "file" );
 
         this.parentDirectory = parentDirectory;
         this.file            = file;
@@ -86,7 +87,7 @@ public class ActualDirectory implements DirectoryX {
     }
 
     public FileX getFile( String fileName ) {
-        Validate.argNotBlank( fileName, "fileName" );
+        QA.argNotBlank( fileName, "fileName" );
 
         File child = new File(file, fileName);
 
@@ -115,7 +116,7 @@ public class ActualDirectory implements DirectoryX {
     }
 
     public DirectoryX getDirectory( String dirName ) {
-        Validate.argNotBlank( dirName, "dirName" );
+        QA.argNotBlank( dirName, "dirName" );
 
         File child = new File(file, dirName);
 
@@ -138,7 +139,7 @@ public class ActualDirectory implements DirectoryX {
     }
 
     public DirectoryX createDirectory( String dirName ) {
-        Validate.argNotBlank( dirName, "dirName" );
+        QA.argNotBlank( dirName, "dirName" );
 
         File child = new File(file, dirName);
         if ( !child.exists() ) {

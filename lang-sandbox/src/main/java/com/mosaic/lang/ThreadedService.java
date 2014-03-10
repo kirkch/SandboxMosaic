@@ -27,7 +27,7 @@ public abstract class ThreadedService<T extends StartStoppable<T>> extends Start
     public ThreadedService( String serviceName, ThreadType threadType ) {
         super( serviceName );
 
-        Validate.argNotNull( threadType, "threadType" );
+        QA.argNotNull( threadType, "threadType" );
 
         this.threadType = threadType;
     }

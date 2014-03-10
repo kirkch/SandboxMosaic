@@ -1,4 +1,9 @@
-package com.mosaic.lang;
+package com.mosaic.lang.system;
+
+import com.mosaic.io.filesystemx.DirectoryX;
+import com.mosaic.io.filesystemx.FileSystemX;
+import com.mosaic.io.streams.WriterX;
+import com.mosaic.lang.time.SystemClock;
 
 import java.nio.charset.Charset;
 import java.util.Random;
@@ -7,7 +12,7 @@ import java.util.Random;
 /**
  *
  */
-public class SystemX {
+public abstract class SystemX {
 
     public static final int BYTE_SIZE   = 1;
     public static final int SHORT_SIZE  = 2;
@@ -62,7 +67,6 @@ public class SystemX {
     }
 
 
-
     // The latest Intel processors have 3 layers (L1D, L2, and L3); with
     // sizes 32KB, 256KB, and 4-30MB; and ~1ns, ~4ns, and ~15ns latency respectively for a 3.0GHz CPU.
 
@@ -74,6 +78,46 @@ public class SystemX {
         assert (flag = true);
 
         return flag;
+    }
+
+
+
+    public final FileSystemX fileSystem;
+    public final SystemClock clock;
+
+    public final WriterX     info;
+    public final WriterX     warn;
+    public final WriterX     error;
+    public final WriterX     debug;
+
+    // NB stdin, when needed will be done by subscription with callbacks and not the Java blocking approach
+
+
+    protected SystemX( FileSystemX fileSystem, SystemClock clock, WriterX info, WriterX warn, WriterX error, WriterX debug ) {
+        this.fileSystem = fileSystem;
+        this.clock      = clock;
+
+        this.info       = info;
+        this.warn       = warn;
+        this.error      = error;
+        this.debug      = debug;
+    }
+
+
+    public DirectoryX getDirectory( String path ) {
+        return fileSystem.getDirectory( path );
+    }
+
+    public DirectoryX getOrCreateDirectory( String path ) {
+        return fileSystem.getOrCreateDirectory( path );
+    }
+
+    public long getCurrentMillis() {
+        return clock.getCurrentMillis();
+    }
+
+    public void error( String msg, String... args ) {
+        error.writeLine( String.format(msg,args) );
     }
 
 }

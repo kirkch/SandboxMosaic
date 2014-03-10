@@ -1,8 +1,9 @@
 package com.mosaic.lang.time;
 
 
+import com.mosaic.lang.QA;
 import com.mosaic.lang.ThreadSafe;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
 
 /**
  * Access the current date and time.  Use in preference to System.currentTimeMillis()
@@ -99,7 +100,7 @@ public final class SystemClock {
         private DTM fixedDTM;
 
         private FixedTimeClock( DTM fixedDTM ) {
-            Validate.notNull( fixedDTM, "fixedDTM" );
+            QA.notNull( fixedDTM, "fixedDTM" );
 
             this.fixedDTM = fixedDTM;
         }

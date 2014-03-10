@@ -1,7 +1,8 @@
 package com.softwaremosaic.parsers.automata;
 
 import com.mosaic.lang.CaseSensitivity;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 import com.mosaic.utils.StringUtils;
 import com.softwaremosaic.parsers.automata.regexp.RegExpCharacterUtils;
 
@@ -286,7 +287,7 @@ public class Labels {
         }
 
         public void appendRange( final char minInc, final char maxInc ) {
-            Validate.isLTE( minInc, maxInc, "minInc" );
+            QA.isLTE( minInc, maxInc, "minInc" );
 
             candidates.add( new CharacterSelection() {
                 public boolean matches( Character input ) {

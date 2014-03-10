@@ -2,8 +2,9 @@ package com.mosaic.io.bytes;
 
 import com.mosaic.io.RuntimeIOException;
 import com.mosaic.io.filesystemx.FileModeEnum;
-import com.mosaic.lang.Backdoor;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.system.Backdoor;
+import com.mosaic.lang.QA;
 import sun.misc.Cleaner;
 import sun.nio.ch.DirectBuffer;
 
@@ -20,7 +21,7 @@ import java.nio.channels.FileChannel;
 public class MemoryMappedBytes extends NativeBytes {
 
     public static Bytes mapFile( File f, FileModeEnum mode, long numBytes ) {
-        Validate.argIsGTZero( numBytes, "numBytes" );
+        QA.argIsGTZero( numBytes, "numBytes" );
 
         try {
             RandomAccessFile raf     = new RandomAccessFile( f, mode.toString() );

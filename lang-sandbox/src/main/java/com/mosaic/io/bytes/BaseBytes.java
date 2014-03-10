@@ -1,8 +1,9 @@
 package com.mosaic.io.bytes;
 
-import com.mosaic.lang.Backdoor;
-import com.mosaic.lang.SystemX;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.system.Backdoor;
+import com.mosaic.lang.system.SystemX;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.text.DecodedCharacter;
 import com.mosaic.lang.text.UTF8Tools;
 
@@ -36,7 +37,7 @@ abstract class BaseBytes extends Bytes {
     }
 
     public void positionIndex( long newIndex ) {
-        Validate.argIsBetween( startIndex(), newIndex, getEndIndexExc(), "newIndex" );
+        QA.argIsBetween( startIndex(), newIndex, getEndIndexExc(), "newIndex" );
 
         this.positionIndex = newIndex;
     }
@@ -70,7 +71,7 @@ abstract class BaseBytes extends Bytes {
         int byteCount      = 2;
 
         if ( !SystemX.isRecklessRun() ) {
-            Validate.isLTE( utf8ByteLength, remaining(), "%s bytes are required, but only %s remain", utf8ByteLength, remaining() );
+            QA.isLTE( utf8ByteLength, remaining(), "%s bytes are required, but only %s remain", utf8ByteLength, remaining() );
         }
 
         writeUnsignedShort( index, utf8ByteLength );
@@ -89,7 +90,7 @@ abstract class BaseBytes extends Bytes {
         int byteCount      = 2;
 
         if ( !SystemX.isRecklessRun() ) {
-            Validate.isLTE( utf8ByteLength, remaining(), "%s bytes are required, but only %s remain", utf8ByteLength, remaining() );
+            QA.isLTE( utf8ByteLength, remaining(), "%s bytes are required, but only %s remain", utf8ByteLength, remaining() );
         }
 
         writeUnsignedShort( utf8ByteLength );

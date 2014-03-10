@@ -1,6 +1,6 @@
 package com.mosaic.io.bytes;
 
-import com.mosaic.lang.SystemX;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.reflect.ReflectionUtils;
 import org.junit.Test;
 

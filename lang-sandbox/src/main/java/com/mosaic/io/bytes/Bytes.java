@@ -1,8 +1,9 @@
 package com.mosaic.io.bytes;
 
 import com.mosaic.io.filesystemx.FileModeEnum;
-import com.mosaic.lang.SystemX;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.system.SystemX;
+import com.mosaic.lang.QA;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -67,7 +68,7 @@ public abstract class Bytes implements OutputBytes, InputBytes {
             count += lastSkipCount;
         } while ( lastSkipCount == 1024);
 
-        Validate.isInt( count, "input stream is too large for an int" );
+        QA.isInt( count, "input stream is too large for an int" );
 
         in.reset();
 

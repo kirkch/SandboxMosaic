@@ -1,5 +1,7 @@
-package com.mosaic.lang;
+package com.mosaic.lang.system;
 
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.reflect.ReflectionException;
 import com.mosaic.lang.time.Duration;
 import sun.misc.Unsafe;
@@ -47,7 +49,7 @@ public class Backdoor {
     public static void sleep( Duration sleepFor ) {
         long millis = sleepFor.getMillis();
 
-        Validate.argIsGTEZero( millis, "millis" );
+        QA.argIsGTEZero( millis, "millis" );
 
         try {
             Thread.sleep( millis );
@@ -135,8 +137,8 @@ public class Backdoor {
 
     public static void copyBytes( byte[] fromArray, int fromInc, long toAddress, long numBytes ) {
         if ( SystemX.isDebugRun() ) {
-            Validate.argIsBetweenInc( 0, fromInc, fromArray.length, "fromInc" );
-            Validate.argIsBetweenInc( 0, fromInc + numBytes, fromArray.length, "fromInc+numBytes" );
+            QA.argIsBetweenInc( 0, fromInc, fromArray.length, "fromInc" );
+            QA.argIsBetweenInc( 0, fromInc + numBytes, fromArray.length, "fromInc+numBytes" );
         }
 
         unsafe.copyMemory( fromArray, BYTE_ARRAY_BASE_OFFSET+fromInc, null, toAddress, numBytes );
@@ -144,8 +146,8 @@ public class Backdoor {
 
     public static void copyBytes( long fromAddress, byte[] toArray, int arrayIndex, int numBytes ) {
         if ( SystemX.isDebugRun() ) {
-            Validate.argIsBetween( 0, arrayIndex, toArray.length, "arrayIndex" );
-            Validate.argIsBetweenInc( 0, arrayIndex + numBytes, toArray.length, "arrayIndex+numBytes" );
+            QA.argIsBetween( 0, arrayIndex, toArray.length, "arrayIndex" );
+            QA.argIsBetweenInc( 0, arrayIndex + numBytes, toArray.length, "arrayIndex+numBytes" );
         }
 
         unsafe.copyMemory( null, fromAddress, toArray, BYTE_ARRAY_BASE_OFFSET+arrayIndex, numBytes );
@@ -153,11 +155,11 @@ public class Backdoor {
 
     public static void copyBytes( byte[] fromArray, int fromArrayIndex, byte[] toArray, int toArrayIndex, long numBytes ) {
         if ( SystemX.isDebugRun() ) {
-            Validate.argIsBetween( 0, fromArrayIndex, fromArray.length, "fromArrayIndex" );
-            Validate.argIsBetweenInc( 0, fromArrayIndex + numBytes, fromArray.length, "fromArrayIndex+numBytes" );
+            QA.argIsBetween( 0, fromArrayIndex, fromArray.length, "fromArrayIndex" );
+            QA.argIsBetweenInc( 0, fromArrayIndex + numBytes, fromArray.length, "fromArrayIndex+numBytes" );
 
-            Validate.argIsBetween( 0, toArrayIndex, toArray.length, "toArrayIndex" );
-            Validate.argIsBetweenInc( 0, toArrayIndex + numBytes, toArray.length, "toArrayIndex+numBytes" );
+            QA.argIsBetween( 0, toArrayIndex, toArray.length, "toArrayIndex" );
+            QA.argIsBetweenInc( 0, toArrayIndex + numBytes, toArray.length, "toArrayIndex+numBytes" );
         }
 
         unsafe.copyMemory( fromArray, BYTE_ARRAY_BASE_OFFSET+fromArrayIndex, toArray, BYTE_ARRAY_BASE_OFFSET+toArrayIndex, numBytes );
@@ -213,7 +215,7 @@ public class Backdoor {
     private static final long BYTE_ARRAY_SCALE       = unsafe.arrayIndexScale( byte[].class );
 
     static {
-        Validate.isNotZero( BYTE_ARRAY_BASE_OFFSET, "BYTE_ARRAY_BASE_OFFSET" );
+        QA.isNotZero( BYTE_ARRAY_BASE_OFFSET, "BYTE_ARRAY_BASE_OFFSET" );
     }
 
     public static byte getByteFrom( byte[] array, long offset ) {
@@ -276,7 +278,7 @@ public class Backdoor {
     }
 
     public static int toInt( long v ) {
-        Validate.argIsLTE( v, Integer.MAX_VALUE, "v" );
+        QA.argIsLTE( v, Integer.MAX_VALUE, "v" );
 
         return (int) v;
     }

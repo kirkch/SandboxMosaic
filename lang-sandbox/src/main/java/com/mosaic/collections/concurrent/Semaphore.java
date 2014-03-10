@@ -1,6 +1,6 @@
 package com.mosaic.collections.concurrent;
 
-import com.mosaic.lang.Backdoor;
+import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.time.Duration;
 
 import java.util.concurrent.TimeUnit;

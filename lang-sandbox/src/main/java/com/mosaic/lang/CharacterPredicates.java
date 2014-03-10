@@ -281,7 +281,7 @@ public class CharacterPredicates {
         }
 
         public void appendRange( final char minInc, final char maxInc ) {
-            Validate.argIsLTE( minInc, maxInc, "minInc" );
+            QA.argIsLTE( minInc, maxInc, "minInc" );
 
             candidates.add( new CharacterRangePredicate(minInc,maxInc) {
                 public String toString() {

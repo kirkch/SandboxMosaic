@@ -1,6 +1,7 @@
 package com.mosaic.utils;
 
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 
 import java.util.*;
 
@@ -18,7 +19,7 @@ public class MapUtils {
      *                key b mapping to value 2.
      */
     public static <K,V> Map<K,V> asMap( Object...kvPairs ) {
-        Validate.isTrue( kvPairs.length % 2 == 0, "kvPairs must be an even length of kv encoded pairs: %s", Arrays.asList(kvPairs) );
+        QA.isTrue( kvPairs.length % 2 == 0, "kvPairs must be an even length of kv encoded pairs: %s", Arrays.asList( kvPairs ) );
 
         Map result = new HashMap();
         for ( int i=0; i<kvPairs.length; i+=2 ) {

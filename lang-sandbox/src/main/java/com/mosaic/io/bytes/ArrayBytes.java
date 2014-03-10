@@ -1,14 +1,15 @@
 package com.mosaic.io.bytes;
 
-import com.mosaic.lang.Backdoor;
-import com.mosaic.lang.SystemX;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.system.Backdoor;
+import com.mosaic.lang.system.SystemX;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.text.DecodedCharacter;
 import com.mosaic.lang.text.UTF8Tools;
 
 import java.io.IOException;
 
-import static com.mosaic.lang.SystemX.*;
+import static com.mosaic.lang.system.SystemX.*;
 
 
 /**
@@ -26,7 +27,7 @@ public class ArrayBytes extends BaseBytes {
     public ArrayBytes( long numBytes ) {
         this( new byte[(int) numBytes] );
 
-        Validate.argIsBetween( 0, numBytes, Integer.MAX_VALUE, "numBytes" );
+        QA.argIsBetween( 0, numBytes, Integer.MAX_VALUE, "numBytes" );
     }
 
     public ArrayBytes( byte[] array ) {
@@ -210,26 +211,26 @@ public class ArrayBytes extends BaseBytes {
     }
 
     public int writeUTF8( long index, char v ) {
-        Validate.argIsLTE( index, Integer.MAX_VALUE, "index" );
+        QA.argIsLTE( index, Integer.MAX_VALUE, "index" );
 
         return UTF8Tools.write( array, (int) index, v );
     }
 
 
     public void writeBytes( long index, byte[] sourceArray, int fromInc, int toExc ) {
-        Validate.argIsBetween( 0, index, Integer.MAX_VALUE, "index" );
+        QA.argIsBetween( 0, index, Integer.MAX_VALUE, "index" );
 
         Backdoor.copyBytes( sourceArray, fromInc, array, (int) index, toExc-fromInc );
     }
 
     public void writeBytes( long index, long fromAddress, int numBytes ) {
-        Validate.argIsBetween( 0, index, Integer.MAX_VALUE, "index" );
+        QA.argIsBetween( 0, index, Integer.MAX_VALUE, "index" );
 
         Backdoor.copyBytes( fromAddress, array, (int) index, numBytes );
     }
 
     public void writeBytes( long fromAddress, int numBytes ) {
-        Validate.argIsBetween( 0, positionIndex(), Integer.MAX_VALUE, "positionIndex()" );
+        QA.argIsBetween( 0, positionIndex(), Integer.MAX_VALUE, "positionIndex()" );
 
         Backdoor.copyBytes( fromAddress, array, (int) positionIndex(), numBytes );
 
@@ -453,9 +454,9 @@ public class ArrayBytes extends BaseBytes {
     }
 
     public void readBytes( long index, byte[] destinationArray, int fromInc, int toExc ) {
-        Validate.argIsGT( toExc, fromInc, "toExc", "fromInc" );
-        Validate.argIsBetweenInc( 0, fromInc, destinationArray.length, "fromInc" );
-        Validate.argIsBetweenInc( 0, toExc, destinationArray.length, "toExc" );
+        QA.argIsGT( toExc, fromInc, "toExc", "fromInc" );
+        QA.argIsBetweenInc( 0, fromInc, destinationArray.length, "fromInc" );
+        QA.argIsBetweenInc( 0, toExc, destinationArray.length, "toExc" );
 
 
         int numBytes = toExc - fromInc;

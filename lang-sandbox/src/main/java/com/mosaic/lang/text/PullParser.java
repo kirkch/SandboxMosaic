@@ -3,7 +3,7 @@ package com.mosaic.lang.text;
 import com.mosaic.io.bytes.Bytes;
 import com.mosaic.io.bytes.InputBytes;
 import com.mosaic.lang.NotThreadSafe;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
 
 
 /**
@@ -33,8 +33,8 @@ public class PullParser {
     }
 
     public PullParser( String name, InputBytes bytes ) {
-        Validate.argNotBlank( name, "name" );
-        Validate.argNotNull( bytes, "bytes" );
+        QA.argNotBlank( name, "name" );
+        QA.argNotNull( bytes, "bytes" );
 
         this.name   = name;
         this.source = bytes;
@@ -58,7 +58,7 @@ public class PullParser {
     private ByteMatcher autoSkipParser = NoOpParser.INSTANCE;
 
     public void autoSkip( ByteMatcher skipParser ) {
-        Validate.argNotNull( skipParser, "skipParser" );
+        QA.argNotNull( skipParser, "skipParser" );
 
         this.autoSkipParser = skipParser;
     }
@@ -317,12 +317,12 @@ public class PullParser {
                 } else {
                     int r = -num;
 
-                    Validate.argIsLTEZero( r, "num" );
+                    QA.argIsLTEZero( r, "num" );
 
                     result.resultMatchedInt( -num, fromInc, i );
                 }
             } else {
-                Validate.argIsGTEZero( num, "num" );
+                QA.argIsGTEZero( num, "num" );
 
                 if ( i == fromInc  ) {
                     result.resultNoMatch();
@@ -369,7 +369,7 @@ public class PullParser {
                 } else {
                     long r = -num;
 
-                    Validate.argIsLTEZero( r, "num" );
+                    QA.argIsLTEZero( r, "num" );
 
                     result.resultMatchedLong( r, fromInc, i );
                 }
@@ -377,7 +377,7 @@ public class PullParser {
                 if ( i == fromInc  ) {
                     result.resultNoMatch();
                 } else {
-                    Validate.argIsGTEZero( num, "num" );
+                    QA.argIsGTEZero( num, "num" );
 
                     result.resultMatchedLong( num, fromInc, i );
                 }

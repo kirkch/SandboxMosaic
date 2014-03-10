@@ -1,6 +1,6 @@
 package com.mosaic.io.bytes;
 
-import com.mosaic.lang.Backdoor;
+import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.text.DecodedCharacter;
 import com.softwaremosaic.junit.JUnitMosaic;
 import org.junit.After;

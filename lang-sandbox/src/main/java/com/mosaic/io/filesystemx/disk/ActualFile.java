@@ -4,7 +4,8 @@ import com.mosaic.io.bytes.Bytes;
 import com.mosaic.io.bytes.WrappedBytes;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 
 import java.io.File;
 
@@ -18,8 +19,8 @@ public class ActualFile implements FileX {
     private ActualDirectory parentDirectory;
 
     ActualFile( ActualDirectory parentDirectory, File file ) {
-        Validate.argNotNull(file,            "file");
-        Validate.argNotNull(parentDirectory, "parentDirectory");
+        QA.argNotNull( file, "file" );
+        QA.argNotNull( parentDirectory, "parentDirectory" );
 
         this.file            = file;
         this.parentDirectory = parentDirectory;

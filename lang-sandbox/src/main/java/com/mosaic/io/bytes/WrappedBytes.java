@@ -1,6 +1,7 @@
 package com.mosaic.io.bytes;
 
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.text.DecodedCharacter;
 
 
@@ -12,7 +13,7 @@ public class WrappedBytes extends BaseBytes {
     private Bytes delegate;
 
     public WrappedBytes( Bytes delegate ) {
-        Validate.argNotNull( delegate, "delegate" );
+        QA.argNotNull( delegate, "delegate" );
 
         this.delegate = delegate;
     }

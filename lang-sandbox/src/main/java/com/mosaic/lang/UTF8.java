@@ -1,5 +1,8 @@
 package com.mosaic.lang;
 
+import com.mosaic.lang.system.SystemX;
+
+
 /**
  *
  */
@@ -10,7 +13,7 @@ public class UTF8 {
     }
 
     public static UTF8 wrap( String str ) {
-        return wrap( str.getBytes(SystemX.UTF8) );
+        return wrap( str.getBytes( SystemX.UTF8) );
     }
 
 

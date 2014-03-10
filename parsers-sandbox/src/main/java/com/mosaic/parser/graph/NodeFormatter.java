@@ -3,7 +3,8 @@ package com.mosaic.parser.graph;
 import com.mosaic.collections.ConsList;
 import com.mosaic.collections.KV;
 import com.mosaic.lang.CharacterPredicate;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.Function2;
 import com.mosaic.lang.functional.VoidFunction2;
@@ -119,7 +120,7 @@ public class NodeFormatter {
     }
 
     public NodeFormatter( NodeFormatPlugin defaultPlugin ) {
-        Validate.argNotNull( defaultPlugin, "defaultPlugin" );
+        QA.argNotNull( defaultPlugin, "defaultPlugin" );
 
         this.defaultPlugin = defaultPlugin;
     }
@@ -129,7 +130,7 @@ public class NodeFormatter {
     }
 
     public List<String> format( Node startingNode, final NodeFormatPlugin plugin  ) {
-        Validate.argNotNull( startingNode, "startingNode" );
+        QA.argNotNull( startingNode, "startingNode" );
 
         final List<String> formattedGraph = new ArrayList();
         final NodeLabeler  nodeLabeler    = new NodeLabeler();

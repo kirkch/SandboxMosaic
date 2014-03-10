@@ -1,7 +1,8 @@
 package com.mosaic.utils;
 
 import com.mosaic.lang.EnhancedIterable;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,7 +16,7 @@ import java.util.List;
 public class IteratorUtils {
 
     public static <T> Iterator<T> combine( final Iterator<T>...iterators ) {
-        Validate.argHasNoNullElements( iterators, "iterators" );
+        QA.argHasNoNullElements( iterators, "iterators" );
 
         switch ( iterators.length ) {
             case 0: return EnhancedIterable.EMPTY.iterator();

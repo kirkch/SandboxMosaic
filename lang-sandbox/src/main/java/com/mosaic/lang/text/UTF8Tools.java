@@ -1,8 +1,9 @@
 package com.mosaic.lang.text;
 
-import com.mosaic.lang.Backdoor;
-import com.mosaic.lang.SystemX;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.system.Backdoor;
+import com.mosaic.lang.system.SystemX;
+import com.mosaic.lang.QA;
 
 import java.io.UTFDataFormatException;
 
@@ -33,13 +34,13 @@ public class UTF8Tools {
 
     public static int write( long ptr, long maxAddressExc, char c ) {
         if ( (c >= 0x0000) && (c <= 0x007F) ) {
-            Validate.argIsLT( ptr, maxAddressExc, "ptr", "maxAddressExc" );
+            QA.argIsLT( ptr, maxAddressExc, "ptr", "maxAddressExc" );
 
             Backdoor.setByte( ptr, (byte) c );
 
             return 1;
         } else if ( c > 0x07FF ) {
-            Validate.argIsLT( ptr+2, maxAddressExc, "ptr+2", "maxAddressExc" );
+            QA.argIsLT( ptr + 2, maxAddressExc, "ptr+2", "maxAddressExc" );
 
             Backdoor.setByte( ptr,   (byte) (0xE0 | ((c >> 12) & 0x0F)));
             Backdoor.setByte( ptr+1, (byte) (0x80 | ((c >> 6) & 0x3F)));
@@ -47,7 +48,7 @@ public class UTF8Tools {
 
             return 3;
         } else {
-            Validate.argIsLT( ptr+1, maxAddressExc, "ptr+2", "maxAddressExc" );
+            QA.argIsLT( ptr + 1, maxAddressExc, "ptr+2", "maxAddressExc" );
 
             Backdoor.setByte( ptr,   (byte) (0xC0 | ((c >> 6) & 0x1F)));
             Backdoor.setByte( ptr+1, (byte) (0x80 | c & 0x3F));
@@ -109,7 +110,7 @@ public class UTF8Tools {
     }
 
     public static void decode( long ptr, long maxAddressExc, DecodedCharacter output ) {
-        Validate.argIsLT( ptr, maxAddressExc, "ptr", "maxAddressExc");
+        QA.argIsLT( ptr, maxAddressExc, "ptr", "maxAddressExc" );
 
         int c = Backdoor.getUnsignedByte( ptr );
         switch (c >> 4) {
@@ -128,7 +129,7 @@ public class UTF8Tools {
             case 12:
             case 13: {
                 /* 110x xxxx 10xx xxxx */
-                Validate.argIsLT( ptr+1, maxAddressExc, "ptr", "maxAddressExc");
+                QA.argIsLT( ptr + 1, maxAddressExc, "ptr", "maxAddressExc" );
 
                 int char2 = Backdoor.getUnsignedByte( ptr + 1 );
 
@@ -144,7 +145,7 @@ public class UTF8Tools {
             }
             case 14: {
                 /* 1110 xxxx 10xx xxxx 10xx xxxx */
-                Validate.argIsLT( ptr+2, maxAddressExc, "ptr", "maxAddressExc");
+                QA.argIsLT( ptr + 2, maxAddressExc, "ptr", "maxAddressExc" );
 
                 int char2 = Backdoor.getUnsignedByte( ptr + 1 );
                 int char3 = Backdoor.getUnsignedByte( ptr + 2 );

@@ -1,6 +1,7 @@
 package com.mosaic.collections;
 
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 
 import java.util.Collection;
 import java.util.Map;
@@ -15,7 +16,7 @@ public class DelegatingMap<K,V> implements Map<K,V> {
 
 
     public DelegatingMap( Map<K,V> delegate ) {
-        Validate.notNull( delegate, "delegate" );
+        QA.notNull( delegate, "delegate" );
 
         this.delegate = delegate;
     }

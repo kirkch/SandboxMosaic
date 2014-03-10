@@ -2,7 +2,8 @@ package com.softwaremosaic.parsers.automata;
 
 import com.mosaic.collections.ConsList;
 import com.mosaic.collections.KV;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.VoidFunction2;
 import com.mosaic.utils.ListUtils;
@@ -29,7 +30,7 @@ import java.util.Set;
 public class NodeFormatter<T extends Comparable<T>> {
 
     public List<String> format( Node<T> startingNode ) {
-        Validate.argNotNull( startingNode, "startingNode" );
+        QA.argNotNull( startingNode, "startingNode" );
 
         final List<String> formattedGraph = new ArrayList();
 

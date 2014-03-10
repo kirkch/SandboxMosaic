@@ -1,6 +1,7 @@
 package com.mosaic.utils.string;
 
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -66,7 +67,7 @@ class ConstantMatcher implements CharacterMatcher {
     private String targetStr;
 
     public ConstantMatcher( String targetStr ) {
-        Validate.notNull( targetStr, "targetStr" );
+        QA.notNull( targetStr, "targetStr" );
 
         this.targetStr = targetStr;
     }

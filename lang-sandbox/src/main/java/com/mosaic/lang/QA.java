@@ -2,16 +2,17 @@ package com.mosaic.lang;
 
 import com.mosaic.lang.math.MathematicalNumber;
 import com.mosaic.lang.reflect.ReflectionException;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.MathUtils;
 import com.mosaic.utils.StringUtils;
 
 
 /**
  * A suite of argument and state validations.  Use to enforce api contracts
- * with only one line per contract.
+ * with only one line per contract.  QA is short for Quality Assurance.
  */
 @SuppressWarnings("UnusedDeclaration")
-public class Validate {
+public class QA {
 // isNotZero
 
     public static void isNotZero( byte v, String message, Object...args ) {

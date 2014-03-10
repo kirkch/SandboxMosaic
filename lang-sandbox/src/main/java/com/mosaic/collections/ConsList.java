@@ -1,6 +1,7 @@
 package com.mosaic.collections;
 
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.Nullable;
 
@@ -70,7 +71,7 @@ public abstract class ConsList<T> implements Iterable<T> {
      * as its tail.
      */
     public ConsList<T> cons( T v ) {
-        Validate.notNull( v, "v" );
+        QA.notNull( v, "v" );
 
         return new ElementNode( v, this );
     }

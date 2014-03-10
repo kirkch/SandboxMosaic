@@ -1,7 +1,7 @@
 package com.mosaic.io.filesystemx;
 
 import com.mosaic.io.bytes.Bytes;
-import com.mosaic.lang.SystemX;
+import com.mosaic.lang.system.SystemX;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -95,14 +95,14 @@ public abstract class BaseFileSystemTestCases {
         FileX newFile = fileSystem.addFile( "foo.txt", "abc", "123" );
 
         assertEquals( 1, fileSystem.files().size() );
-        assertEquals( newFile.getFullPath(), fileSystem.files().get(0).getFullPath() );
+        assertEquals( newFile.getFullPath(), fileSystem.files().get( 0 ).getFullPath() );
     }
 
     @Test
     public void givenFileSystem_addFile_expectItToBeVisibleViaGetFile() {
         FileX newFile = fileSystem.addFile( "foo.txt", "abc", "123" );
 
-        assertEquals( newFile.getFullPath(), fileSystem.getFile("foo.txt").getFullPath() );
+        assertEquals( newFile.getFullPath(), fileSystem.getFile( "foo.txt" ).getFullPath() );
     }
 
     @Test
@@ -147,7 +147,7 @@ public abstract class BaseFileSystemTestCases {
         DirectoryX dir = fileSystem.getOrCreateDirectory( "dir1" );
 
         assertEquals( "dir1", dir.getDirectoryName() );
-        assertEquals( fileSystem.getFullPath()+"/dir1", dir.getFullPath() );
+        assertEquals( fileSystem.getFullPath() + "/dir1", dir.getFullPath() );
     }
 
     @Test
@@ -155,8 +155,8 @@ public abstract class BaseFileSystemTestCases {
         DirectoryX dir = fileSystem.getOrCreateDirectory( "dir1/dir2" );
 
         assertEquals( "dir2", dir.getDirectoryName() );
-        assertEquals( fileSystem.getFullPath()+"/dir1/dir2", dir.getFullPath() );
-        assertEquals( fileSystem.getFullPath()+"/dir1", fileSystem.getDirectory("dir1").getFullPath() );
+        assertEquals( fileSystem.getFullPath() + "/dir1/dir2", dir.getFullPath() );
+        assertEquals( fileSystem.getFullPath() + "/dir1", fileSystem.getDirectory( "dir1" ).getFullPath() );
     }
 
     @Test
@@ -164,8 +164,8 @@ public abstract class BaseFileSystemTestCases {
         DirectoryX dir = fileSystem.getOrCreateDirectory( "/dir1/dir2" );
 
         assertEquals( "dir2", dir.getDirectoryName() );
-        assertEquals( fileSystem.getFullPath()+"/dir1/dir2", dir.getFullPath() );
-        assertEquals( fileSystem.getFullPath()+"/dir1", fileSystem.getDirectory("dir1").getFullPath() );
+        assertEquals( fileSystem.getFullPath() + "/dir1/dir2", dir.getFullPath() );
+        assertEquals( fileSystem.getFullPath() + "/dir1", fileSystem.getDirectory( "dir1" ).getFullPath() );
     }
 
     @Test
@@ -176,7 +176,7 @@ public abstract class BaseFileSystemTestCases {
 
         assertEquals( "dir2", dir.getDirectoryName() );
         assertEquals( fileSystem.getFullPath()+"/dir1/dir2", dir.getFullPath() );
-        assertEquals( fileSystem.getFullPath()+"/dir1", fileSystem.getDirectory("dir1").getFullPath() );
+        assertEquals( fileSystem.getFullPath() + "/dir1", fileSystem.getDirectory( "dir1" ).getFullPath() );
     }
 
     @Test

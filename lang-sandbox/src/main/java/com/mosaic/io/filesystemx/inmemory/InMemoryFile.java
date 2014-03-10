@@ -4,7 +4,8 @@ import com.mosaic.io.bytes.Bytes;
 import com.mosaic.io.bytes.WrappedBytes;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 
 
 /**
@@ -19,9 +20,9 @@ public class InMemoryFile implements FileX {
     private boolean           hasBeenDeletedFlag;
 
     InMemoryFile( InMemoryDirectory parentDirectory, String fileName, Bytes bytes ) {
-        Validate.argNotNull( parentDirectory, "parentDirectory" );
-        Validate.argNotBlank( fileName, "fileName" );
-        Validate.argNotNull( bytes, "bytes" );
+        QA.argNotNull( parentDirectory, "parentDirectory" );
+        QA.argNotBlank( fileName, "fileName" );
+        QA.argNotNull( bytes, "bytes" );
 
         this.parentDirectory = parentDirectory;
         this.fileName        = fileName;

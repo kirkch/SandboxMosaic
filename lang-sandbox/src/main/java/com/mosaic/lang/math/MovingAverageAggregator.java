@@ -1,6 +1,7 @@
 package com.mosaic.lang.math;
 
-import com.mosaic.lang.Validate;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.QA;
 
 import java.lang.reflect.Array;
 
@@ -18,7 +19,7 @@ public class MovingAverageAggregator <T extends MathematicalNumber> extends Aggr
     private T[] circularBuffer;
 
     public MovingAverageAggregator( T zero, int maxSize ) {
-        Validate.argIsGTZero( maxSize, "maxSize" );
+        QA.argIsGTZero( maxSize, "maxSize" );
 
         this.zero        = zero;
         this.resultSoFar = zero;

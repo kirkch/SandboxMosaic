@@ -76,7 +76,7 @@ public abstract class EnhancedIterable<T> implements java.lang.Iterable<T> {
 
 
     public static <T> EnhancedIterable<T> combine( final Iterable<T>...iterables ) {
-        Validate.argHasNoNullElements( iterables, "iterables" );
+        QA.argHasNoNullElements( iterables, "iterables" );
 
         switch ( iterables.length ) {
             case 0: return EnhancedIterable.EMPTY;
