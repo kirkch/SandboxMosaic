@@ -75,7 +75,36 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testCharactersLengthOf() {
+    public void testCharactersLengthOfBytes() {
+        assertEquals( 1, charactersLengthOf( (byte) 0 ) );
+        assertEquals( 1, charactersLengthOf( (byte) 1 ) );
+        assertEquals( 1, charactersLengthOf( (byte) 2 ) );
+
+        for ( byte i=0; i<10; i++ ) {
+            assertEquals( Integer.toString(i), 1, charactersLengthOf( i ) );
+        }
+        for ( byte i=10; i<100; i++ ) {
+            assertEquals( 2, charactersLengthOf( i ) );
+        }
+        for ( byte i=100; i<Byte.MAX_VALUE; i++ ) {
+            assertEquals( 3, charactersLengthOf( i ) );
+        }
+
+        assertEquals( 2, charactersLengthOf( (byte) -1 ) );
+
+        for ( byte i=-1; i>-10; i-- ) {
+            assertEquals( 2, charactersLengthOf( i ) );
+        }
+
+        for ( byte i=-10; i>-100; i-- ) {
+            assertEquals( 3, charactersLengthOf( i ) );
+        }
+
+        assertEquals( 4, charactersLengthOf( Byte.MIN_VALUE ) );
+    }
+
+    @Test
+    public void testCharactersLengthOfLong() {
         assertEquals( 1, charactersLengthOf( 0 ) );
         assertEquals( 1, charactersLengthOf( 1 ) );
         assertEquals( 1, charactersLengthOf( 2 ) );

@@ -1,7 +1,6 @@
 package com.mosaic.lang.system;
 
 import com.mosaic.lang.QA;
-import com.mosaic.lang.QA;
 import com.mosaic.lang.reflect.ReflectionException;
 import com.mosaic.lang.time.Duration;
 import sun.misc.Unsafe;

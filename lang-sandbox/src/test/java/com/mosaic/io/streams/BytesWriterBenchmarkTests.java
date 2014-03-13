@@ -35,13 +35,13 @@ public class BytesWriterBenchmarkTests {
     // Answer:  10x difference
     //
     // Also of note,  running the test against off heap memory was noticeably
-    // faster than using an onheap byte array even though both used Unsafe under
+    // faster than using an on heap byte array even though both used Unsafe under
     // the hood.
 
 
 //    private Bytes bytes = Bytes.allocOffHeap( 8024 );
-    private Bytes bytes = Bytes.allocOnHeap( 8024 );
-    private BytesWriter out = new BytesWriter( bytes );
+    private Bytes       bytes = Bytes.allocOnHeap( 8024 );
+    private BytesWriter out   = new BytesWriter( bytes );
 /*
 3 byte array hack
     714.89ns per call
@@ -58,9 +58,43 @@ using Integer.toString and then getBytes
     6549.88ns per call
     6582.01ns per call
     6653.79ns per call
+
+converting a digit at a time (custom)
+    1737.58ns per call
+    1654.43ns per call
+    1674.50ns per call
+    1659.78ns per call
+    1648.56ns per call
+    1659.73ns per call
+
+with if statement to separate positive and negative paths
+    1628.38ns per call
+    1618.56ns per call
+    1631.85ns per call
+    1604.17ns per call
+    1631.47ns per call
+    1608.90ns per call
+
+using specialised MathUtils.charactersLengthOf for bytes
+    1081.05ns per call
+    1118.01ns per call
+    1127.53ns per call
+    1108.85ns per call
+    1122.90ns per call
+    1127.72ns per call
+
+reversed scan order of MathUtils.charactersLengthOf; positive bytes become faster to write
+    1077.36ns per call
+    1020.73ns per call
+    1018.71ns per call
+    1018.17ns per call
+    1008.95ns per call
+    1018.50ns per call
+
+Conclusion:  6.5x faster than the standard Java approach, and has no GC impact.
  */
     @Benchmark
-    public long writeBytes( int numIterations ) {
+    public long writeByte( int numIterations ) {
         long v = 0;
 
         while ( numIterations > 0 ) {
@@ -68,6 +102,81 @@ using Integer.toString and then getBytes
                 out.writeByte( (byte) i );
             }
             bytes.positionIndex(0);
+
+            v += bytes.readByte( 1 );
+
+            numIterations--;
+        }
+
+        return v;
+    }
+
+
+    private byte[] bytesConstant = new byte[] {1,2,3,4,5,6,7,8,9,10};
+
+/*
+first attempt, for loop indexes array and then calls writeByte
+    559.17ns per call
+    538.61ns per call
+    536.73ns per call
+    550.48ns per call
+    549.93ns per call
+    562.65ns per call
+
+uses Unsafe in an attempt to avoid bounds checking
+    615.49ns per call
+    607.34ns per call
+    608.71ns per call
+    624.50ns per call
+    614.30ns per call
+    610.28ns per call
+
+attempt 2 (reduced amount of calculation for offset while Unsafe)
+    596.66ns per call
+    571.74ns per call
+    580.97ns per call
+    568.19ns per call
+    566.64ns per call
+    577.31ns per call
+
+Conclusion:  Hotspot is doing a fine job of optimising the bounds check out for us  RAR :)
+ */
+    @Benchmark
+    public long writeIndexedBytes( int numIterations ) {
+        long v = 0;
+
+        while ( numIterations > 0 ) {
+            for ( int i=0; i<10; i++ ) {
+                out.writeBytes( bytesConstant, 2, 8 );
+            }
+            bytes.positionIndex(6);
+
+            v += bytes.readByte( 1 );
+
+            numIterations--;
+        }
+
+        return v;
+    }
+
+/*
+first stab (uses optimised code in UTF8Tools)
+    34.17ns per call
+    7.07ns per call
+    7.40ns per call
+    6.92ns per call
+    7.15ns per call
+    6.92ns per call
+ */
+    @Benchmark
+    public long writeCharacter( int numIterations ) {
+        long v = 0;
+
+        while ( numIterations > 0 ) {
+            for ( int i=0; i<10; i++ ) {
+                out.writeCharacter( (char) i );
+            }
+            bytes.positionIndex(2);
 
             v += bytes.readByte( 1 );
 

@@ -12,10 +12,10 @@ public interface WriterX {
     public void writeBoolean( boolean v );
     public void writeByte( byte v );
     public void writeBytes( byte[] bytes);
-    public void writeBytes( byte[] bytes, int fromIndexInc, int numBytes );
+    public void writeBytes( byte[] bytes, int fromIndexInc, int toExc );
     public void writeCharacter( char v );
     public void writeCharacters( char[] chars );
-    public void writeCharacters( char[] chars, int fromIndexInc, int numChars );
+    public void writeCharacters( char[] chars, int fromIndexInc, int toExc );
     public void writeShort( short v );
     public void writeUnsignedShort( int v );
     public void writeInt( int v );

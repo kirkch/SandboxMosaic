@@ -98,11 +98,47 @@ public class MathUtils {
         return buf;
     }
 
-    public static int charactersLengthOf( long v ) {
-        for ( int i=0; i<MAX_NUMBER_BOUNDARIES.length; i++ ) {
-            if ( v <= MAX_NUMBER_BOUNDARIES[i] ) {
-                return NUM_DIGITS_FOR_NUMBER_BOUNDARIES[i];
+//    private static final byte[] byteBoundaries        = new byte[] {-100,-10,-1,9,99,Byte.MAX_VALUE};
+//    private static final byte[] byteBoundariesLengths = new byte[] {  4,   3, 2,1, 2, 3};
+//
+//    public static int charactersLengthOf( byte v ) {
+//        for ( int i=0; i<byteBoundaries.length; i++ ) {   // array is too small to make a special case out of neg numbers
+//            if ( v <= byteBoundaries[i] ) {
+//                return byteBoundariesLengths[i];
+//            }
+//        }
+//
+//        throw new IllegalStateException( "MAX_NUMBER_BOUNDARIES is too small for " + v );
+//    }
+
+    private static final byte[] byteBoundaries        = new byte[] {-100,-10,-1,9,99,Byte.MAX_VALUE};
+    private static final byte[] byteBoundariesLengths = new byte[] {  4,   3, 2,1, 2, 3};
+
+    public static int charactersLengthOf( byte v ) {
+        for ( int i=byteBoundaries.length-2; i>=0; i-- ) {   // array is too small to make a special case out of neg numbers
+            if ( v > byteBoundaries[i] ) {
+                return byteBoundariesLengths[i+1];
             }
+        }
+
+        return byteBoundariesLengths[0];
+    }
+
+    public static int charactersLengthOf( long v ) {
+        if ( v >= 0 ) {
+            for ( int i=19; i<MAX_NUMBER_BOUNDARIES.length; i++ ) {
+                if ( v <= MAX_NUMBER_BOUNDARIES[i] ) {
+                    return NUM_DIGITS_FOR_NUMBER_BOUNDARIES[i];
+                }
+            }
+        } else {
+            for ( int i=17; i>=0; i-- ) {
+                if ( v > MAX_NUMBER_BOUNDARIES[i] ) {
+                    return NUM_DIGITS_FOR_NUMBER_BOUNDARIES[i+1];
+                }
+            }
+
+            return NUM_DIGITS_FOR_NUMBER_BOUNDARIES[0];
         }
 
         throw new IllegalStateException( "MAX_NUMBER_BOUNDARIES is too small for " + v );
