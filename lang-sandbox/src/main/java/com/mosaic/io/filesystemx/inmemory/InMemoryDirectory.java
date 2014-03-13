@@ -4,9 +4,8 @@ import com.mosaic.io.bytes.Bytes;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
-import com.mosaic.lang.system.SystemX;
-import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.Predicate;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.ArrayUtils;
 
 import java.util.ArrayList;
@@ -35,11 +34,10 @@ public class InMemoryDirectory implements DirectoryX {
     }
 
 
-    public FileX addFile( String fileName, String...contents ) {
-        Bytes        bytes = Bytes.wrap( ArrayUtils.makeString(contents, "\n") );
-        InMemoryFile file  = new InMemoryFile( this, fileName, bytes );
+    public FileX addFile( String filePath, String...contents ) {
+        InMemoryFile file = getOrCreateFile0( filePath );
 
-        files.add( file );
+        file.setBytes( Bytes.wrap(ArrayUtils.makeString(contents, "\n")) );
 
         return file;
     }
@@ -67,6 +65,9 @@ public class InMemoryDirectory implements DirectoryX {
     }
 
 
+    public boolean isEmpty() {
+        return directories.isEmpty() && files.isEmpty();
+    }
 
     public List<DirectoryX> directories() {
         return new ArrayList<DirectoryX>(directories);
@@ -127,18 +128,96 @@ public class InMemoryDirectory implements DirectoryX {
         return matchingFiles;
     }
 
-    public FileX getFile( String fileName ) {
+    public FileX getFile( String filePath ) {
+        return getFile0( filePath );
+    }
+
+    public FileX getOrCreateFile( String filePath ) {
+        return getOrCreateFile0( filePath );
+    }
+
+    private InMemoryFile getOrCreateFile0( String filePath ) {
+        QA.argNotBlank( filePath, "filePath" );
+
+        String[] path = filePath.split( "/" );
+        if ( filePath.length() == 1 ) {
+            return getOrCreateFileByName0( path[0] );
+        } else if ( filePath.startsWith("/") ) {
+            return rootDirectory().getOrCreateFile0( path, 1 );
+        } else {
+            return this.getOrCreateFile0( path, 0 );
+        }
+    }
+
+    private InMemoryFile getFile0( String filePath ) {
+        QA.argNotBlank( filePath, "filePath" );
+
+        String[] path = filePath.split( "/" );
+        if ( filePath.startsWith("/") ) {
+            return rootDirectory().getFile0( path, 1 );
+        } else {
+            return this.getFile0( path, 0 );
+        }
+    }
+
+    private InMemoryFile getOrCreateFile0( String[] path, int i ) {
+        if ( i + 1 == path.length ) {
+            return getOrCreateFileByName0( path[i] );
+        } else {
+            return getOrCreateDirectory0( path[i] ).getOrCreateFile0( path, i + 1 );
+        }
+    }
+
+    private InMemoryFile getFile0( String[] path, int i ) {
+        if ( i + 1 == path.length ) {
+            return getFileByName0( path[i] );
+        } else {
+            return getDirectory0( path[i] ).getFile0( path, i + 1 );
+        }
+    }
+
+    private InMemoryDirectory getOrCreateDirectory0( String directoryName ) {
+        for ( InMemoryDirectory d : directories ) {
+            if ( d.getDirectoryName().equals(directoryName) ) {
+                return d;
+            }
+        }
+
+        InMemoryDirectory newDirectory = new InMemoryDirectory( this, directoryName );
+
+        directories.add( newDirectory );
+
+        return newDirectory;
+    }
+
+
+    private InMemoryFile getFileByName0( String fileName ) {
         QA.argNotBlank( fileName, "fileName" );
 
-        for ( FileX d : files ) {
-            if ( d.getFileName().equals(fileName) ) {
-                return d;
+        for ( InMemoryFile f : files ) {
+            if ( f.getFileName().equals(fileName) ) {
+                return f;
             }
         }
 
         return null;
     }
 
+    private InMemoryFile getOrCreateFileByName0( String fileName ) {
+        QA.argNotBlank( fileName, "fileName" );
+
+        for ( InMemoryFile f : files ) {
+            if ( f.getFileName().equals(fileName) ) {
+                return f;
+            }
+        }
+
+        InMemoryFile newFile = new InMemoryFile( this, fileName );
+
+        files.add( newFile );
+
+        return newFile;
+    }
 
     void notificationThatChildDirectoryHasBeenDeleted( InMemoryDirectory d ) {
         directories.remove( d );

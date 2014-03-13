@@ -3,6 +3,8 @@ package com.mosaic.lang.system;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileSystemX;
 import com.mosaic.io.streams.WriterX;
+import com.mosaic.lang.IllegalStateExceptionX;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.time.SystemClock;
 
 import java.nio.charset.Charset;
@@ -108,6 +110,20 @@ public abstract class SystemX {
         return fileSystem.getDirectory( path );
     }
 
+    public DirectoryX getNonEmptyDirectory( String path ) {
+        QA.argNotBlank( path, "path" );
+
+        DirectoryX dir = getDirectory( path );
+
+        if ( dir == null ) {
+            throw new IllegalStateExceptionX( "Unable to proceed, '%s' does not exist", path );
+        } else if ( dir.isEmpty() ) {
+            throw new IllegalStateExceptionX( "Unable to proceed, no files found at '%s'", path );
+        }
+
+        return dir;
+    }
+
     public DirectoryX getOrCreateDirectory( String path ) {
         return fileSystem.getOrCreateDirectory( path );
     }
@@ -116,8 +132,25 @@ public abstract class SystemX {
         return clock.getCurrentMillis();
     }
 
-    public void error( String msg, String... args ) {
-        error.writeLine( String.format(msg,args) );
+    public void error( Throwable ex ) {
+        error.writeException( ex );
     }
+
+    public void info( String msg, String... args ) {
+        info.writeLine( String.format( msg, (Object[]) args ) );
+    }
+
+    public void warn( String msg, String... args ) {
+        warn.writeLine( String.format( msg, (Object[]) args ) );
+    }
+
+    public void error( String msg, String... args ) {
+        error.writeLine( String.format( msg, (Object[]) args ) );
+    }
+
+    public void debug( String msg, String... args ) {
+        debug.writeLine( String.format(msg,(Object[]) args) );
+    }
+
 
 }

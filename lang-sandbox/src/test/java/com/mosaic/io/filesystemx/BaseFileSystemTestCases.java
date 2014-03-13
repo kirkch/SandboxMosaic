@@ -106,6 +106,17 @@ public abstract class BaseFileSystemTestCases {
     }
 
     @Test
+    public void givenFileSystem_addNestedFile_expectItToBeVisibleViaGetFile() {
+        FileX newFile = fileSystem.addFile( "/foo/foo.txt", "abc", "123" );
+
+        assertEquals( newFile.getFullPath(), fileSystem.getFile( "/foo/foo.txt" ).getFullPath() );
+
+        assertNotNull( fileSystem.getDirectory("foo") );
+        assertNotNull( fileSystem.getDirectory("foo").getFile("foo.txt") );
+        assertNotNull( fileSystem.getDirectory("foo").getFile("/foo/foo.txt") );
+    }
+
+    @Test
     public void givenFile_deleteIt_expectItToNoLongerBeVisible() {
         FileX newFile = fileSystem.addFile( "foo.txt", "abc", "123" );
 

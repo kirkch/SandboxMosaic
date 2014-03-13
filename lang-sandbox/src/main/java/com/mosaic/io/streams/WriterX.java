@@ -22,10 +22,16 @@ public interface WriterX {
     public void writeUnsignedInt( long v );
     public void writeLong( long v );
     public void writeFloat( float v );
+    public void writeFloat( float v, int numDecimalPlaces );
     public void writeDouble( double v );
+    public void writeDouble( double v, int numDecimalPlaces );
     public void writeString( String v );
     public void writeLine( String v );
     public void writeUTF8( UTF8 v );
     public void writeLine( UTF8 v );
 
+    public void writeException( Throwable ex );
+    public void writeException( String msg, Throwable ex );
+
+    public void newLine();
 }

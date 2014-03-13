@@ -80,7 +80,7 @@ public interface InputBytes {
      */
     public long remaining();
 
-    public long size();
+    public long bufferLength();
 
 
     public boolean readBoolean();

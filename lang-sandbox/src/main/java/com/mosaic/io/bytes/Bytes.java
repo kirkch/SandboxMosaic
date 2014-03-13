@@ -3,7 +3,6 @@ package com.mosaic.io.bytes;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.SystemX;
-import com.mosaic.lang.QA;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -15,6 +14,8 @@ import java.io.InputStream;
  *
  */
 public abstract class Bytes implements OutputBytes, InputBytes {
+
+//    public static final Bytes EMPTY = wrap( "" );
 
     public static Bytes wrap( String str ) {
         return new ArrayBytes( str.getBytes(SystemX.UTF8) );

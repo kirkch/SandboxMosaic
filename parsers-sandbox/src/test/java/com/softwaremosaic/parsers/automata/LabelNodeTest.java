@@ -170,7 +170,7 @@ public class LabelNodeTest {
 //        assertCanWalk( start, "HeLlo" );
 //        assertCanWalk( start, "HeLlO" );
 //
-//        assertEquals( 0, start.walk("Heo").size() );
+//        assertEquals( 0, start.walk("Heo").sizeInBytes() );
 //    }
 //
 //    @Test

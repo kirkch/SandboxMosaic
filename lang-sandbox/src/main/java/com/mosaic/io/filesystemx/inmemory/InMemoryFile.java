@@ -5,7 +5,6 @@ import com.mosaic.io.bytes.WrappedBytes;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
-import com.mosaic.lang.QA;
 
 
 /**
@@ -19,6 +18,10 @@ public class InMemoryFile implements FileX {
 
     private boolean           hasBeenDeletedFlag;
 
+    InMemoryFile( InMemoryDirectory parentDirectory, String fileName ) {
+        this( parentDirectory, fileName, Bytes.wrap("") );
+    }
+
     InMemoryFile( InMemoryDirectory parentDirectory, String fileName, Bytes bytes ) {
         QA.argNotNull( parentDirectory, "parentDirectory" );
         QA.argNotBlank( fileName, "fileName" );
@@ -27,12 +30,20 @@ public class InMemoryFile implements FileX {
         this.parentDirectory = parentDirectory;
         this.fileName        = fileName;
         this.bytes           = bytes;
+
+        bytes.setName(fileName);
     }
 
     public String getFileName() {
         throwIfDeleted();
 
         return fileName;
+    }
+
+    public void setBytes( Bytes newBytes ) {
+        this.bytes = newBytes;
+
+        newBytes.setName( fileName );
     }
 
     public Bytes loadBytesRO() {
@@ -57,6 +68,10 @@ public class InMemoryFile implements FileX {
                 parentDirectory.decrementOpenFileCount();
             }
         };
+    }
+
+    public long sizeInBytes() {
+        return bytes == null ? 0 : bytes.bufferLength();
     }
 
     public String getFullPath() {

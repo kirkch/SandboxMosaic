@@ -3,7 +3,6 @@ package com.mosaic.io.bytes;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
-import com.mosaic.lang.QA;
 import com.mosaic.lang.text.DecodedCharacter;
 import com.mosaic.lang.text.UTF8Tools;
 

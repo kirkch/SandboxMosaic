@@ -80,7 +80,7 @@ public abstract class BaseBytesTest {
     public void allocateBytes_callSize_expectLengthToMatchRequestedNumberOfBytes() {
         Bytes b = createBytes( 5 );
 
-        assertEquals( 5, b.size() );
+        assertEquals( 5, b.bufferLength() );
     }
 
     @Test
@@ -113,7 +113,7 @@ public abstract class BaseBytesTest {
 
         assertAllBytesAreZero( b, 0, 4 );
         assertEquals( Byte.MAX_VALUE, b.readByte( 5 ) );
-        assertAllBytesAreZero( b, 6, b.size() );
+        assertAllBytesAreZero( b, 6, b.bufferLength() );
     }
 
     @Test
@@ -124,7 +124,7 @@ public abstract class BaseBytesTest {
 
         assertAllBytesAreZero( b, 0, 4 );
         assertEquals( Character.MAX_VALUE, b.readCharacter( 5 ) );
-        assertAllBytesAreZero( b, 7, b.size() );
+        assertAllBytesAreZero( b, 7, b.bufferLength() );
     }
 
     @Test
@@ -135,7 +135,7 @@ public abstract class BaseBytesTest {
 
         assertAllBytesAreZero( b, 0, 4 );
         assertEquals( Short.MAX_VALUE, b.readShort( 5 ) );
-        assertAllBytesAreZero( b, 7, b.size() );
+        assertAllBytesAreZero( b, 7, b.bufferLength() );
     }
 
     @Test
@@ -146,7 +146,7 @@ public abstract class BaseBytesTest {
 
         assertAllBytesAreZero( b, 0, 4 );
         assertEquals( Integer.MAX_VALUE, b.readInteger( 5 ) );
-        assertAllBytesAreZero( b, 9, b.size() );
+        assertAllBytesAreZero( b, 9, b.bufferLength() );
     }
 
     @Test
@@ -157,7 +157,7 @@ public abstract class BaseBytesTest {
 
         assertAllBytesAreZero( b, 0, 4 );
         assertEquals( Long.MAX_VALUE, b.readLong( 5 ) );
-        assertAllBytesAreZero( b, 13, b.size() );
+        assertAllBytesAreZero( b, 13, b.bufferLength() );
     }
 
     @Test
@@ -168,7 +168,7 @@ public abstract class BaseBytesTest {
 
         assertAllBytesAreZero( b, 0, 4 );
         assertEquals( Float.MAX_VALUE, b.readFloat( 5 ), 0.001 );
-        assertAllBytesAreZero( b, 9, b.size() );
+        assertAllBytesAreZero( b, 9, b.bufferLength() );
     }
 
     @Test
@@ -179,7 +179,7 @@ public abstract class BaseBytesTest {
 
         assertAllBytesAreZero( b, 0, 4 );
         assertEquals( Double.MAX_VALUE, b.readDouble( 5 ), 0.001 );
-        assertAllBytesAreZero( b, 13, b.size() );
+        assertAllBytesAreZero( b, 13, b.bufferLength() );
     }
 
     @Test
@@ -194,7 +194,7 @@ public abstract class BaseBytesTest {
 
         b.positionIndex( 3 );
         assertEquals( 'f', b.readSingleUTF8Character() );
-        assertAllBytesAreZero( b, 4, b.size() );
+        assertAllBytesAreZero( b, 4, b.bufferLength() );
     }
 
     @Test
@@ -209,7 +209,7 @@ public abstract class BaseBytesTest {
 
         b.positionIndex( 3 );
         assertEquals( '£', b.readSingleUTF8Character() );
-        assertAllBytesAreZero( b, 5, b.size() );
+        assertAllBytesAreZero( b, 5, b.bufferLength() );
     }
 
     @Test
@@ -224,7 +224,7 @@ public abstract class BaseBytesTest {
 
         b.positionIndex( 3 );
         assertEquals( 'グ', b.readSingleUTF8Character() );
-        assertAllBytesAreZero( b, 6, b.size() );
+        assertAllBytesAreZero( b, 6, b.bufferLength() );
     }
 
     @Test
@@ -241,7 +241,7 @@ public abstract class BaseBytesTest {
         assertEquals( 'e', buf.c );
         assertEquals( 1, buf.numBytesConsumed );
 
-        assertAllBytesAreZero( b, 4, b.size() );
+        assertAllBytesAreZero( b, 4, b.bufferLength() );
     }
 
     @Test
@@ -263,7 +263,7 @@ public abstract class BaseBytesTest {
         assertAllBytesAreZero( b, 0, 2 );
         assertEquals( "hello", buf.toString() );
 
-        assertAllBytesAreZero( b, 9, b.size() );
+        assertAllBytesAreZero( b, 9, b.bufferLength() );
     }
 
     @Test
@@ -285,7 +285,7 @@ public abstract class BaseBytesTest {
         assertAllBytesAreZero( b, 0, 2 );
         assertEquals( "h£グoグ", buf.toString() );
 
-        assertAllBytesAreZero( b, 16, b.size() );
+        assertAllBytesAreZero( b, 16, b.bufferLength() );
     }
 
     @Test
@@ -305,7 +305,7 @@ public abstract class BaseBytesTest {
         assertAllBytesAreZero( b, 0, 2 );
         assertEquals( "hello", buf.toString() );
         assertEquals( 0, b.positionIndex() );
-        assertAllBytesAreZero( b, 9, b.size() );
+        assertAllBytesAreZero( b, 9, b.bufferLength() );
     }
 
     @Test
@@ -324,7 +324,7 @@ public abstract class BaseBytesTest {
         assertAllBytesAreZero( b, 0, 2 );
         assertEquals( "h£グoグ", buf.toString() );
         assertEquals( 0, b.positionIndex() );
-        assertAllBytesAreZero( b, 16, b.size() );
+        assertAllBytesAreZero( b, 16, b.bufferLength() );
     }
 
 
@@ -341,7 +341,7 @@ public abstract class BaseBytesTest {
         assertEquals( 'a', b.readByte(2) );
         assertEquals( 'b', b.readByte(3) );
         assertEquals( 'c', b.readByte(4) );
-        assertAllBytesAreZero( b, 5, b.size() );
+        assertAllBytesAreZero( b, 5, b.bufferLength() );
 
         byte[] buf = new byte[3];
         b.positionIndex(2);
@@ -365,7 +365,7 @@ public abstract class BaseBytesTest {
         assertEquals( 'a', b.readByte(2) );
         assertEquals( 'b', b.readByte(3) );
         assertEquals( 'c', b.readByte(4) );
-        assertAllBytesAreZero( b, 5, b.size() );
+        assertAllBytesAreZero( b, 5, b.bufferLength() );
 
         byte[] buf = new byte[3];
         b.readBytes(2, buf);
@@ -395,8 +395,8 @@ public abstract class BaseBytesTest {
     private Bytes initBytes() {
         Bytes b = createBytes( 100 );
 
-        b.fill(0, b.size(), (byte) 0);
-        assertAllBytesAreZero( b, 0, b.size() );
+        b.fill(0, b.bufferLength(), (byte) 0);
+        assertAllBytesAreZero( b, 0, b.bufferLength() );
 
         return b;
     }

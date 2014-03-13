@@ -73,4 +73,35 @@ public class MathUtilsTest {
         assertFalse( isPowerOf2( 9 ) );
         assertFalse( isPowerOf2( 18 ) );
     }
+
+    @Test
+    public void testCharactersLengthOf() {
+        assertEquals( 1, charactersLengthOf( 0 ) );
+        assertEquals( 1, charactersLengthOf( 1 ) );
+        assertEquals( 1, charactersLengthOf( 2 ) );
+
+        for ( int i=0; i<10; i++ ) {
+            assertEquals( Integer.toString(i), 1, charactersLengthOf( i ) );
+        }
+        for ( int i=10; i<100; i++ ) {
+            assertEquals( 2, charactersLengthOf( i ) );
+        }
+        for ( int i=100; i<1000; i++ ) {
+            assertEquals( 3, charactersLengthOf( i ) );
+        }
+
+        assertEquals( 19, charactersLengthOf( Long.MAX_VALUE ) );
+
+        assertEquals( 2, charactersLengthOf( -1 ) );
+
+        for ( int i=-1; i>-10; i-- ) {
+            assertEquals( 2, charactersLengthOf( i ) );
+        }
+
+        for ( int i=-10; i>-100; i-- ) {
+            assertEquals( 3, charactersLengthOf( i ) );
+        }
+
+        assertEquals( 20, charactersLengthOf( Long.MIN_VALUE ) );
+    }
 }

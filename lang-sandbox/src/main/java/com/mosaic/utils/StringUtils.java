@@ -6,6 +6,8 @@ import com.mosaic.io.RuntimeIOException;
 import com.mosaic.lang.UTF8;
 
 import java.io.IOException;
+import java.util.List;
+
 
 /**
  *
@@ -30,8 +32,29 @@ public class StringUtils {
         return buf.toString();
     }
 
+    public static String concat( List elements, String prefix, String separator, String postfix ) {
+        StringBuilder buf = new StringBuilder(100);
+
+        buf.append( prefix );
+
+        for ( int i=0; i<elements.size(); i++ ) {
+            if ( i != 0 ) {
+                buf.append( separator );
+            }
+            buf.append( elements.get(i) );
+        }
+
+        buf.append( postfix );
+
+        return buf.toString();
+    }
+
     public static boolean isBlank( String chars ) {
         return chars == null || chars.trim().length() == 0;
+    }
+
+    public static boolean isBlank( String[] lines ) {
+        return lines == null || lines.length == 0 || (lines.length == 1 && isBlank(lines[0]));
     }
 
     public static boolean isBlank( UTF8 chars ) {

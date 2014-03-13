@@ -82,8 +82,24 @@ public class CapturingWriter implements WriterX {
         append( Float.toString( v ) );
     }
 
+    // todo research faster ways to write float and decimal numbers
+
+    public void writeFloat( float v, int numDecimalPlaces ) {
+        // this strangeness is because 3.145 (2dp) would be 3.14 without it :(
+        // that is, 3.145 becomes 3.1449 and so would round the wrong way, so we add 0.00001
+        // to correct for this
+        float roundingFudge = 1/(float) Math.pow( 10, numDecimalPlaces+2 );
+
+        append( String.format("%."+numDecimalPlaces+"f", v+roundingFudge) );
+    }
+
     public void writeDouble( double v ) {
         append( Double.toString( v ) );
+    }
+
+    public void writeDouble( double v, int numDecimalPlaces ) {
+        // decimals do not require rounding fudge as they are higher precision
+        append( String.format("%."+numDecimalPlaces+"f", v) );
     }
 
     public void writeString( String v ) {
@@ -93,7 +109,7 @@ public class CapturingWriter implements WriterX {
     public void writeLine( String v ) {
         append( v );
 
-        nextLine();
+        newLine();
     }
 
     public void writeUTF8( UTF8 v ) {
@@ -103,7 +119,24 @@ public class CapturingWriter implements WriterX {
     public void writeLine( UTF8 v ) {
         append( v.toString() );
 
-        nextLine();
+        newLine();
+    }
+
+    public void writeException( Throwable ex ) {
+        while ( ex != null ) {
+            writeLine( ex.getClass().getSimpleName() + ": " + ex.getMessage() );
+
+            ex = ex.getCause();
+        }
+    }
+
+    public void writeException( String msg, Throwable ex ) {
+        writeLine( msg );
+        writeException( ex );
+    }
+
+    public void newLine() {
+        audit.add("");
     }
 
 
@@ -112,9 +145,5 @@ public class CapturingWriter implements WriterX {
         String line  = audit.get( index ) + v;
 
         audit.set( index, line );
-    }
-
-    private void nextLine() {
-        audit.add("");
     }
 }

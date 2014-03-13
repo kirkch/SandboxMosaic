@@ -30,7 +30,7 @@ public interface FileX {
      *
      * Measurements:
      *   Jan 2014
-     *   on an SSD, mapped 1000 files (20-400kb in size - totalled 200MB) and
+     *   on an SSD, mapped 1000 files (20-400kb in sizeInBytes - totalled 200MB) and
      *   counted the number of lines in them.  It took 93.4s using
      *   java.lang.InputStream and 1.7s using this.
      */
@@ -42,4 +42,7 @@ public interface FileX {
 
     public InputBytes loadBytesRO();
     public InputBytes loadBytesRW();
+
+
+    public long sizeInBytes();
 }

@@ -5,7 +5,6 @@ import com.mosaic.io.bytes.WrappedBytes;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
-import com.mosaic.lang.QA;
 
 import java.io.File;
 
@@ -62,6 +61,10 @@ public class ActualFile implements FileX {
 
         this.file            = null;
         this.parentDirectory = null;
+    }
+
+    public long sizeInBytes() {
+        return file.length();
     }
 
 }

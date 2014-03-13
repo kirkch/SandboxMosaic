@@ -5,9 +5,8 @@ import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
-import com.mosaic.lang.system.SystemX;
-import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.Predicate;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.ArrayUtils;
 
 import java.io.File;
@@ -35,6 +34,12 @@ public class ActualDirectory implements DirectoryX {
 
     public String getFullPath() {
         return file.getAbsolutePath();
+    }
+
+    public boolean isEmpty() {
+        File[] contents = file.listFiles();
+
+        return contents == null || contents.length == 0;
     }
 
     public List<FileX> files() {
@@ -89,11 +94,22 @@ public class ActualDirectory implements DirectoryX {
     public FileX getFile( String fileName ) {
         QA.argNotBlank( fileName, "fileName" );
 
-        File child = new File(file, fileName);
+        File fromDirectory = fileName.startsWith( "/" ) ? rootDirectory().file : file;
+        File child         = new File( fromDirectory, fileName);
 
         if ( !child.exists() ) {
             return null;
         }
+
+        throwIfDirectory( child );
+
+        return new ActualFile( this, child );
+    }
+
+    public FileX getOrCreateFile( String fileName ) {
+        QA.argNotBlank( fileName, "fileName" );
+
+        File child = new File(file, fileName);
 
         throwIfDirectory( child );
 
@@ -155,11 +171,11 @@ public class ActualDirectory implements DirectoryX {
         return createDirectory( prefix+ SystemX.nextRandomLong()+postfix );
     }
 
-    public FileX addFile( String fileName, String... contents ) {
-        file.mkdirs();
-
-        File child = new File(file, fileName);
+    public FileX addFile( String filePath, String... contents ) {
+        File child = new File(file, filePath);
         throwIfDirectory( child );
+
+        child.getParentFile().mkdirs();
 
         String text  = ArrayUtils.makeString( contents, "\n" );
         byte[] bytes = text.getBytes( SystemX.UTF8 );
@@ -213,6 +229,14 @@ public class ActualDirectory implements DirectoryX {
     private void throwIfDirectory( File child ) {
         if ( child.isDirectory() ) {
             throw new IllegalStateException( "Did not expect "+child.getAbsoluteFile()+" to be a directory" );
+        }
+    }
+
+    private ActualDirectory rootDirectory() {
+        if ( parentDirectory == null ) {
+            return this;
+        } else {
+            return parentDirectory.rootDirectory();
         }
     }
 }

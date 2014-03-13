@@ -5,6 +5,9 @@ import com.mosaic.io.bytes.InputBytes;
 import com.mosaic.lang.NotThreadSafe;
 import com.mosaic.lang.QA;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * A Pull Parser parses only upon request, and then only as much as the request
@@ -20,6 +23,23 @@ public class PullParser {
         Bytes hdr = Bytes.wrap( txt );
 
         return new PullParser( name, hdr );
+    }
+
+    public static List<String> toLines( Bytes bytes ) {
+        List<String>  lines = new ArrayList<>();
+        PullParser    p     = new PullParser(bytes);
+
+        StringBuilder buf   = new StringBuilder(200);
+
+        while ( p.hasMore() ) {
+            p.pullLine(buf);
+
+            lines.add( buf.toString() );
+
+            buf.setLength( 0 );
+        }
+
+        return lines;
     }
 
 
@@ -53,9 +73,10 @@ public class PullParser {
     // collectOneOrMore
 
 
-    private ParserResult result = new ParserResult();
+    private ParserResult     result         = new ParserResult();
+    private DecodedCharacter charBuf        = new DecodedCharacter();
 
-    private ByteMatcher autoSkipParser = NoOpParser.INSTANCE;
+    private ByteMatcher      autoSkipParser = NoOpParser.INSTANCE;
 
     public void autoSkip( ByteMatcher skipParser ) {
         QA.argNotNull( skipParser, "skipParser" );
@@ -66,6 +87,37 @@ public class PullParser {
 
     public String getName() {
         return name;
+    }
+
+    public boolean hasMore() {
+        return position < source.bufferLength();
+    }
+
+    /**
+     *
+     * @return null if at the end of the file
+     */
+    public void pullLine( StringBuilder buf ) {
+        doAutoSkip();
+
+        long i=position;
+        for ( ; i<source.getEndIndexExc(); i+=charBuf.numBytesConsumed ) {
+            source.readSingleUTF8Character(i, charBuf );
+
+            if ( charBuf.c == '\n' ) {
+                i += charBuf.numBytesConsumed;
+
+                setPosition( i );
+
+                return;
+            } else if ( charBuf.c == '\r' ) {
+                // skip
+            } else {
+                buf.append(charBuf.c);
+            }
+        }
+
+        setPosition( i );
     }
 
     /**

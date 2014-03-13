@@ -3,7 +3,6 @@ package com.mosaic.io.bytes;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
-import com.mosaic.lang.QA;
 import com.mosaic.lang.text.DecodedCharacter;
 import com.mosaic.lang.text.UTF8Tools;
 
@@ -16,9 +15,10 @@ import java.io.IOException;
  */
 abstract class BaseBytes extends Bytes {
 
+    private long positionIndex;
+
     private DecodedCharacter myDecodedCharacterBuffer;
 
-    private long positionIndex;
 
     protected void throwIfReleased() {
         if ( positionIndex < 0 ) {
@@ -50,7 +50,7 @@ abstract class BaseBytes extends Bytes {
         return getEndIndexExc() - positionIndex();
     }
 
-    public long size() {
+    public long bufferLength() {
         return getEndIndexExc() - startIndex();
     }
 

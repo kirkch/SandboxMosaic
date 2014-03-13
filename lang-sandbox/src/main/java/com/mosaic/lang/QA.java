@@ -9,7 +9,8 @@ import com.mosaic.utils.StringUtils;
 
 /**
  * A suite of argument and state validations.  Use to enforce api contracts
- * with only one line per contract.  QA is short for Quality Assurance.
+ * with only one line per contract.  QA is short for Quality Assurance and
+ * the checks on this class are only invoked when -ea is passed to the JVM.
  */
 @SuppressWarnings("UnusedDeclaration")
 public class QA {

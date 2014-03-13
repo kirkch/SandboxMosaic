@@ -88,26 +88,12 @@ public interface OutputBytes {
      */
     public void rewindPositionIndex();
 
-    /**
-     * Marks the index of where the valid data that has been previously written
-     * comes to an end.  By convention this index is returned as being
-     * exclusive.  This means that the last index is actually watermarkIndexExc()-1.
-     */
-//    public long watermarkIndexExc();
+    // NB hummed and ahhed over the notion of adding a watermark.  As I do
+    // not want to add the overhead of maintaining the watermark for every
+    // write call, I have decided not to add it.  The position can be used
+    // for the same effect.
 
-    /**
-     * Marks a new position within the index as to where valid bytes have been
-     * written up to.
-     */
-//    public void watermarkIndexExc( long newIndex );
-
-    /**
-     * The number of bytes between position and the end of the buffer.
-     */
-    public long remaining();
-
-
-    public long size();
+    public long bufferLength();
 
 
     public void writeBoolean( boolean v );

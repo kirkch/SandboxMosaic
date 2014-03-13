@@ -6,8 +6,10 @@ import com.softwaremosaic.junit.JUnitMosaicRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 
 /**
@@ -516,6 +518,46 @@ public class PullParserTest {
 
         assertEquals( 5, parser.rewindLine() );
         assertEquals( 5, parser.getPosition() );
+    }
+
+
+// HAS MORE
+
+    @Test
+    public void givenBytes_expectHasMoreToOnlyReturnFalseWhenPositionIsAtTheEnd() {
+        Bytes      source = Bytes.wrap("123\r\n456\r\n789\rabc def\naaa");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        for ( int i=0; i<source.bufferLength()-1; i++ ) {
+            parser.setPosition( i );
+
+            assertTrue( parser.hasMore() );
+        }
+
+        parser.setPosition( source.bufferLength() );
+        assertFalse( parser.hasMore() );
+    }
+
+
+// PULL LINE
+
+
+    @Test
+    public void givenMultipleLinesOfText_expectPullLineToReturnEachInTurn() {
+        Bytes source = Bytes.wrap("123\r\n456\r\n789\n\n\rabc def\naaa");
+        source.setName( "test" );
+
+        List<String> expected = Arrays.asList(
+            "123",
+            "456",
+            "789",
+            "",
+            "abc def",
+            "aaa"
+        );
+
+
+        assertEquals( expected, PullParser.toLines(source) );
     }
 
 

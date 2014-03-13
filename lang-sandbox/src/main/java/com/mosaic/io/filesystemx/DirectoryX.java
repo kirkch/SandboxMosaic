@@ -12,10 +12,13 @@ public interface DirectoryX {
 
     public String getFullPath();
 
+    public boolean isEmpty();
+
     public List<FileX> files();
     public List<FileX> files( String targetFileExtension );
     public List<FileX> files( Predicate<FileX> matchingCondition );
     public FileX getFile( String fileName );
+    public FileX getOrCreateFile( String fileName );
 
     public List<DirectoryX> directories();
     public DirectoryX getDirectory( String dirPath );
@@ -28,7 +31,7 @@ public interface DirectoryX {
     /**
      * Add a text file to this directory.
      */
-    public FileX addFile( String fileName, String...contents );
+    public FileX addFile( String filePath, String...contents );
 
     public String getDirectoryName();
 
@@ -36,4 +39,6 @@ public interface DirectoryX {
 
 
     public DirectoryX getOrCreateDirectory( String directoryName );
+
+
 }

@@ -54,7 +54,7 @@
 //        List<ObjectNode> edges = startingNode.walk( 'a' );
 //        ObjectNode nextNode = edges.get(0);
 //
-//        assertEquals( 1, edges.size() );
+//        assertEquals( 1, edges.sizeInBytes() );
 //        assertNotSame( startingNode, nextNode );
 //        assertTrue( nextNode.isTerminal() );
 //        assertNull( nextNode.getPredicate() );

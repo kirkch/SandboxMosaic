@@ -80,8 +80,23 @@ public class PrintStreamWriterX implements WriterX {
         out.print( v );
     }
 
+    public void writeFloat( float v, int numDecimalPlaces ) {
+        // this strangeness is because 3.145 (2dp) would be 3.14 without it :(
+        // that is, 3.145 becomes 3.1449 and so would round the wrong way, so we add 0.00001
+        // to correct for this
+        float roundingFudge = 1/(float) Math.pow( 10, numDecimalPlaces+2 );
+
+        out.print( String.format("%."+numDecimalPlaces+"f", v+roundingFudge) );
+    }
+
     public void writeDouble( double v ) {
         out.print( v );
+    }
+
+    public void writeDouble( double v, int numDecimalPlaces ) {
+        // decimals do not require rounding fudge as they are higher precision
+
+        out.print( String.format("%."+numDecimalPlaces+"f", v) );
     }
 
     public void writeString( String v ) {
@@ -100,4 +115,16 @@ public class PrintStreamWriterX implements WriterX {
         out.println( v );
     }
 
+    public void writeException( Throwable ex ) {
+        ex.printStackTrace( out );
+    }
+
+    public void writeException( String msg, Throwable ex ) {
+        writeLine( msg );
+        ex.printStackTrace( out );
+    }
+
+    public void newLine() {
+        out.println();
+    }
 }
