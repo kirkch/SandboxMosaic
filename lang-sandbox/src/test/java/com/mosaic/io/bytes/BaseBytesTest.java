@@ -377,6 +377,38 @@ public abstract class BaseBytesTest {
     }
 
 
+// RESIZE
+
+    @Test
+    public void increaseSizeOfBytes_expectContentsToBeCopiedOver() {
+        Bytes b = initBytes();
+
+        b.fill( 0, b.bufferLength(), (byte) 7 );
+
+        b.resize( 200 );
+
+        assertEquals( 200, b.bufferLength() );
+
+        for ( int i=0; i<100; i++ ) {
+            assertEquals( i+"", 7, b.readByte(i) );
+        }
+    }
+
+    @Test
+    public void reduceSizeOfBytes_expectContentsToBeTruncated() {
+        Bytes b = initBytes();
+
+        b.fill( 0, b.bufferLength(), (byte) 7 );
+
+        b.resize( 51 );
+
+        assertEquals( 51, b.bufferLength() );
+
+        for ( int i=0; i<51; i++ ) {
+            assertEquals( i+"", 7, b.readByte(i) );
+        }
+    }
+
 
 //    public int writeBytes( byte[] array );
 //    public int writeBytes( byte[] array, int fromInc, int toExc );

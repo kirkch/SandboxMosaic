@@ -95,6 +95,8 @@ public interface OutputBytes {
 
     public long bufferLength();
 
+    public void resize( long newLength );
+
 
     public void writeBoolean( boolean v );
     public void writeByte( byte v );

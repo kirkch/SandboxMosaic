@@ -139,6 +139,18 @@ public class DebugSystem extends SystemX {
         }
     }
 
+    public void assertNoDebugs() {
+        if ( this.cDebug.audit.size() > 1 || this.cDebug.audit.get(0).length() > 0 ) {
+            throw new AssertionError( "Expected no debug messages, instead found: " + this.cDebug.audit );
+        }
+    }
+
+    public void assertNoInfos() {
+        if ( this.cInfo.audit.size() > 1 || this.cInfo.audit.get(0).length() > 0 ) {
+            throw new AssertionError( "Expected no info messages, instead found: " + this.cInfo.audit );
+        }
+    }
+
     public void assertHasFile( String filePath, String...expectedLines ) {
         FileX f = fileSystem.getFile( filePath );
 
@@ -162,4 +174,10 @@ public class DebugSystem extends SystemX {
         }
     }
 
+    public void assertNoMessages() {
+        assertNoErrors();
+        assertNoWarnings();
+        assertNoDebugs();
+        assertNoInfos();
+    }
 }

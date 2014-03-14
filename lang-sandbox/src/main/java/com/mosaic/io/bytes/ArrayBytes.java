@@ -16,7 +16,6 @@ import static com.mosaic.lang.system.SystemX.*;
  */
 public class ArrayBytes extends BaseBytes {
 
-    private String name;
     private byte[] array;
 
     private int min;
@@ -37,15 +36,6 @@ public class ArrayBytes extends BaseBytes {
         this.array  = array;
         this.min    = min;
         this.maxExc = maxExc;
-    }
-
-
-    public String name() {
-        return name;
-    }
-
-    public void setName( String name ) {
-        this.name = name;
     }
 
 
@@ -395,6 +385,17 @@ public class ArrayBytes extends BaseBytes {
         incrementPosition( LONG_SIZE );
     }
 
+    public void resize( long newLength ) {
+        QA.isInt( newLength, "newLength" );
+
+        byte[] newBackingArray = new byte[(int)newLength];
+        Backdoor.copyBytes( this.array, min, newBackingArray, 0, Math.min(maxExc-min,newLength) );
+
+        this.array  = newBackingArray;
+        this.min    = 0;
+        this.maxExc = newBackingArray.length;
+    }
+
 
     public void fill( long from, long toExc, byte v ) {
         long a        = min+from;
@@ -404,7 +405,7 @@ public class ArrayBytes extends BaseBytes {
         throwIfInvalidIndex( a, BYTE_SIZE );
         throwIfInvalidIndex( b, BYTE_SIZE );
 
-        Backdoor.fillArray( array, a, numBytes, (byte) 0 );
+        Backdoor.fillArray( array, a, numBytes, v );
     }
 
 

@@ -136,20 +136,20 @@ public abstract class SystemX {
         error.writeException( ex );
     }
 
-    public void info( String msg, String... args ) {
-        info.writeLine( String.format( msg, (Object[]) args ) );
+    public void info( String msg, Object... args ) {
+        info.writeLine( String.format(msg,args) );
     }
 
-    public void warn( String msg, String... args ) {
-        warn.writeLine( String.format( msg, (Object[]) args ) );
+    public void warn( String msg, Object... args ) {
+        warn.writeLine( String.format(msg,args) );
     }
 
-    public void error( String msg, String... args ) {
-        error.writeLine( String.format( msg, (Object[]) args ) );
+    public void error( String msg, Object... args ) {
+        error.writeLine( String.format(msg,args) );
     }
 
-    public void debug( String msg, String... args ) {
-        debug.writeLine( String.format(msg,(Object[]) args) );
+    public void debug( String msg, Object... args ) {
+        debug.writeLine( String.format(msg,args) );
     }
 
 

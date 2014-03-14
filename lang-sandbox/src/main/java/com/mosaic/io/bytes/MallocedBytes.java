@@ -3,7 +3,6 @@ package com.mosaic.io.bytes;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
-import com.mosaic.lang.QA;
 
 
 /**
@@ -50,4 +49,19 @@ public class MallocedBytes extends NativeBytes {
         Backdoor.free( releaseAddress );
     }
 
+    public void resize( long newLength ) {
+        QA.argIsGTZero( newLength, "newLength" );
+
+        long newBaseAddress    = Backdoor.alloc( newLength + SystemX.getCacheLineLengthBytes() );
+        long newAlignedAddress = Backdoor.alignAddress( newBaseAddress, SystemX.getCacheLineLengthBytes() );
+
+
+        Backdoor.copyBytes( getBaseAddress(), newAlignedAddress, Math.min(newLength,this.bufferLength()) );
+
+        Backdoor.free( releaseAddress );
+
+        this.releaseAddress = newBaseAddress;
+
+        super.resized( newBaseAddress, newAlignedAddress, newAlignedAddress+newLength );
+    }
 }

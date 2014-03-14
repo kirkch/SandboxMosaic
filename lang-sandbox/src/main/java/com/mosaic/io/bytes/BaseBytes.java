@@ -15,6 +15,7 @@ import java.io.IOException;
  */
 abstract class BaseBytes extends Bytes {
 
+    private String name;
     private long positionIndex;
 
     private DecodedCharacter myDecodedCharacterBuffer;
@@ -31,6 +32,15 @@ abstract class BaseBytes extends Bytes {
 
         this.positionIndex = Integer.MIN_VALUE;
     }
+
+    public String name() {
+        return name;
+    }
+
+    public void setName( String name ) {
+        this.name = name;
+    }
+
 
     public long positionIndex() {
         return positionIndex;

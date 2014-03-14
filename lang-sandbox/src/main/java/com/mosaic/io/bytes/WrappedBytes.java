@@ -1,14 +1,13 @@
 package com.mosaic.io.bytes;
 
 import com.mosaic.lang.QA;
-import com.mosaic.lang.QA;
 import com.mosaic.lang.text.DecodedCharacter;
 
 
 /**
  *
  */
-public class WrappedBytes extends BaseBytes {
+public class WrappedBytes extends Bytes {
 
     private Bytes delegate;
 
@@ -111,6 +110,26 @@ public class WrappedBytes extends BaseBytes {
         delegate.fill( from, toExc, v );
     }
 
+    public char readSingleUTF8Character() {
+        return delegate.readSingleUTF8Character();
+    }
+
+    public void readUTF8String( Appendable buf ) {
+        delegate.readUTF8String( buf );
+    }
+
+    public long readBytes( byte[] destinationArray ) {
+        return delegate.readBytes( destinationArray );
+    }
+
+    public void readBytes( byte[] destinationArray, int fromInc, int toExc ) {
+        delegate.readBytes( destinationArray, fromInc, toExc );
+    }
+
+    public void readBytes( long destinationAddress, int numBytes ) {
+        delegate.readBytes( destinationAddress, numBytes );
+    }
+
     public void readSingleUTF8Character( long index, DecodedCharacter output ) {
         delegate.readSingleUTF8Character( index, output );
     }
@@ -137,6 +156,10 @@ public class WrappedBytes extends BaseBytes {
 
     public void setName( String name ) {
         delegate.setName( name );
+    }
+
+    public void release() {
+        delegate.release();
     }
 
     public void writeBoolean( long index, boolean v ) {
@@ -187,6 +210,14 @@ public class WrappedBytes extends BaseBytes {
         return delegate.writeUTF8( index, v );
     }
 
+    public int writeUTF8String( long index, CharSequence characters ) {
+        return delegate.writeUTF8String( index, characters );
+    }
+
+    public void writeBytes( long index, byte[] array ) {
+        delegate.writeBytes( index, array );
+    }
+
     public void writeBytes( long index, byte[] array, int fromInc, int toExc ) {
         delegate.writeBytes( index, array, fromInc, toExc );
     }
@@ -201,6 +232,30 @@ public class WrappedBytes extends BaseBytes {
 
     public long getEndIndexExc() {
         return delegate.getEndIndexExc();
+    }
+
+    public long positionIndex() {
+        return delegate.positionIndex();
+    }
+
+    public void positionIndex( long newIndex ) {
+        delegate.positionIndex( newIndex );
+    }
+
+    public void rewindPositionIndex() {
+        delegate.rewindPositionIndex();
+    }
+
+    public long bufferLength() {
+        return delegate.bufferLength();
+    }
+
+    public long remaining() {
+        return delegate.remaining();
+    }
+
+    public void resize( long newLength ) {
+        delegate.resize( newLength );
     }
 
     public void writeBoolean( boolean v ) {
@@ -247,8 +302,35 @@ public class WrappedBytes extends BaseBytes {
         delegate.writeUnsignedInteger( v );
     }
 
+    public int writeUTF8( char v ) {
+        return delegate.writeUTF8( v );
+    }
+
+    public int writeUTF8String( CharSequence characters ) {
+        return delegate.writeUTF8String( characters );
+    }
+
+    public void writeBytes( byte[] array ) {
+        delegate.writeBytes( array );
+    }
+
+    public void writeBytes( byte[] array, int fromInc, int toExc ) {
+        delegate.writeBytes( array, fromInc, toExc );
+    }
+
     public void writeBytes( long fromAddress, int numBytes ) {
         delegate.writeBytes( fromAddress, numBytes );
     }
 
+    public String toString() {
+        return delegate.toString();
+    }
+
+    public int hashCode() {
+        return delegate.hashCode();
+    }
+
+    public boolean equals( Object o ) {
+        return delegate.equals( o );
+    }
 }

@@ -4,7 +4,6 @@ import com.mosaic.io.RuntimeIOException;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
-import com.mosaic.lang.QA;
 import sun.misc.Cleaner;
 import sun.nio.ch.DirectBuffer;
 
@@ -32,7 +31,7 @@ public class MemoryMappedBytes extends NativeBytes {
             DirectBuffer     db   = (DirectBuffer) buf;
             long             addr = db.address();
 
-            return new MemoryMappedBytes( raf, db, addr, addr, addr+buf.capacity() );
+            return new MemoryMappedBytes( raf, mode, db, addr, addr, addr+buf.capacity() );
         } catch ( IOException ex ) {
             throw RuntimeIOException.recast( ex );
         }
@@ -40,12 +39,15 @@ public class MemoryMappedBytes extends NativeBytes {
 
 
     private RandomAccessFile raf;
+    private FileModeEnum     mode;
     private DirectBuffer     buf;
 
-    private MemoryMappedBytes( RandomAccessFile raf, DirectBuffer buf, long baseAddress, long alignedAddress, long maxAddressExc ) {
+
+    private MemoryMappedBytes( RandomAccessFile raf, FileModeEnum mode, DirectBuffer buf, long baseAddress, long alignedAddress, long maxAddressExc ) {
         super( baseAddress, alignedAddress, maxAddressExc );
 
         this.raf = raf;
+        this.mode = mode;
         this.buf = buf;
     }
 
@@ -65,6 +67,30 @@ public class MemoryMappedBytes extends NativeBytes {
 
             this.raf = null;
             this.buf = null;
+        }
+    }
+
+    public void resize( long newLength ) {
+        QA.argIsGTZero( newLength, "newLength" );
+
+
+        try {
+            FileChannel      channel         = raf.getChannel();
+            MappedByteBuffer newBuf          = channel.map( mode.toMemoryMapMode(), 0, newLength );
+
+            DirectBuffer     newDirectBuffer = (DirectBuffer) newBuf;
+            long             newAddress      = newDirectBuffer.address();
+
+            Cleaner cleaner = this.buf.cleaner();
+            if ( cleaner != null ) {
+                cleaner.clean();
+            }
+
+            this.buf = newDirectBuffer;
+
+            super.resized( newAddress, newAddress, newAddress+newLength );
+        } catch ( IOException ex ) {
+            throw RuntimeIOException.recast( ex );
         }
     }
 

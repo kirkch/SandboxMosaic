@@ -3,7 +3,6 @@ package com.mosaic.io.bytes;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
-import com.mosaic.lang.QA;
 import com.mosaic.lang.text.DecodedCharacter;
 import com.mosaic.lang.text.UTF8Tools;
 
@@ -18,28 +17,21 @@ import static com.mosaic.lang.system.SystemX.*;
 public abstract class NativeBytes extends BaseBytes {
 
 
-    private String name;
     private long   baseAddress;
     private long   cacheAlignedBaseAddress;
     private long   maxAddressExc;
 
 
-//    private long watermarkIndexExc;
 
 
     protected NativeBytes( long baseAddress, long alignedAddress, long maxAddressExc ) {
+        resized( baseAddress, alignedAddress, maxAddressExc );
+    }
+
+    protected void resized( long baseAddress, long alignedAddress, long maxAddressExc ) {
         this.baseAddress             = baseAddress;
         this.cacheAlignedBaseAddress = alignedAddress;
         this.maxAddressExc           = maxAddressExc;
-    }
-
-
-    public String name() {
-        return name;
-    }
-
-    public void setName( String name ) {
-        this.name = name;
     }
 
 
@@ -420,7 +412,7 @@ public abstract class NativeBytes extends BaseBytes {
         throwIfInvalidAddress( a, BYTE_SIZE );
         throwIfInvalidAddress( b, BYTE_SIZE );
 
-        Backdoor.fill( a, numBytes, (byte) 0 );
+        Backdoor.fill( a, numBytes, v );
     }
 
 

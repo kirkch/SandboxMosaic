@@ -844,6 +844,12 @@ public class QA {
         }
     }
 
+    public static void argIsEqualTo( long a, long b, String argName1, String argName2 ) {
+        if ( a != b ) {
+            throwException(  "%s (%s) must be == %s (%s)", argName1, a, argName2, b );
+        }
+    }
+
     public static void argIsEqualTo( float a, float b, String argName, float tolerance ) {
         if ( Math.abs(a-b) <= tolerance ) {
             throwException(  "%s (%s) must be == %s", argName, a, b );
