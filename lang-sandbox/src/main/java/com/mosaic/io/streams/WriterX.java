@@ -21,9 +21,7 @@ public interface WriterX {
     public void writeInt( int v );
     public void writeUnsignedInt( long v );
     public void writeLong( long v );
-    public void writeFloat( float v );
     public void writeFloat( float v, int numDecimalPlaces );
-    public void writeDouble( double v );
     public void writeDouble( double v, int numDecimalPlaces );
     public void writeString( String v );
     public void writeLine( String v );

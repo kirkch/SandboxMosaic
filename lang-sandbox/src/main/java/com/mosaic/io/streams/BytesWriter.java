@@ -1,6 +1,7 @@
 package com.mosaic.io.streams;
 
 import com.mosaic.io.bytes.Bytes;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.UTF8;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.MathUtils;
@@ -13,6 +14,18 @@ public class BytesWriter implements WriterX {
 
     private static final byte[] FALSE = "false".getBytes(SystemX.UTF8);
     private static final byte[] TRUE  = "true".getBytes(SystemX.UTF8);
+
+    private static final double[] ROUNDING_OFFSETS_BY_PRECISION = precalculateRoundingOffsets();
+
+    private static final double[] precalculateRoundingOffsets() {
+        double[] roundingOffsets = new double[10];
+
+        for ( int i=1; i<roundingOffsets.length; i++ ) {
+            roundingOffsets[i] =  Math.pow(10,-i-2)*51;
+        }
+
+        return roundingOffsets;
+    }
 
 
 
@@ -86,34 +99,26 @@ public class BytesWriter implements WriterX {
         }
     }
 
-    @Override
     public void writeShort( short v ) {
-        
+        writeInt( v );
     }
 
-    @Override
     public void writeUnsignedShort( int v ) {
+        QA.isUnsignedShort( v, "v" );
+
+        writeInt( v );
     }
 
-    @Override
     public void writeInt( int v ) {
-        byte[] bytes1 = Integer.toString(v).getBytes( SystemX.UTF8 );
-
-        bytes.writeBytes( bytes1 );
-
-//        int i = 3;
-//        buf[0] = (byte) v;
-//        buf[1] = (byte) v;
-//        buf[2] = (byte) v;
-//
-//        bytes.writeBytes( buf, 0, i );
+        writeLong(v);
     }
 
-    @Override
     public void writeUnsignedInt( long v ) {
+        QA.isUnsignedInt( v, "v" );
+
+        writeLong( v );
     }
 
-    @Override
     public void writeLong( long v ) {
         int numBytes = MathUtils.charactersLengthOf( v );
 
@@ -139,55 +144,100 @@ public class BytesWriter implements WriterX {
             }
         }
 
-        bytes.writeBytes(formattingBuffer, 0, numBytes );
-    }
-
-    @Override
-    public void writeFloat( float v ) {
+        bytes.writeBytes( formattingBuffer, 0, numBytes );
     }
 
     public void writeFloat( float v, int numDecimalPlaces ) {
         int intPart = (int) v;
-        int decPart = (int) ((v - intPart) * Math.pow(10,numDecimalPlaces) + 0.5f);
 
         this.writeInt( intPart );
-        this.writeCharacter( '.' );
-        this.writeInt( decPart );
+
+        writeFractionalPart( v, numDecimalPlaces, intPart );
     }
 
-    @Override
-    public void writeDouble( double v ) {
-    }
-
-    @Override
     public void writeDouble( double v, int numDecimalPlaces ) {
+        long intPart = (long) v;
+
+        this.writeLong( intPart );
+
+        writeFractionalPart( v, numDecimalPlaces, intPart );
     }
 
-    @Override
     public void writeString( String v ) {
+        for ( int i=0; i<v.length(); i++ ) {
+            char c = v.charAt(i);
+
+            writeCharacter( c );
+        }
     }
 
-    @Override
     public void writeLine( String v ) {
+        writeString( v );
+        bytes.writeByte( (byte) '\n' );
     }
 
-    @Override
     public void writeUTF8( UTF8 v ) {
+        bytes.writeBytes( v.asBytes() );
     }
 
-    @Override
+
     public void writeLine( UTF8 v ) {
+        bytes.writeBytes( v.asBytes() );
+        bytes.writeByte( (byte) '\n' );
     }
 
-    @Override
     public void writeException( Throwable ex ) {
+        writeStackTrace( ex );
+
+        writeLine( "." );
     }
 
-    @Override
+    private void writeStackTrace( Throwable ex ) {
+        StackTraceElement[] trace = ex.getStackTrace();
+
+        writeString( ex.getClass().getName() );
+        writeString( ": " );
+        writeLine( ex.getMessage() );
+
+        for ( StackTraceElement e : trace ) {
+            writeString( "    " );
+            writeString( e.getClassName() );
+            writeString( " (" );
+            writeInt( e.getLineNumber() );
+            writeLine( ")" );
+        }
+
+        Throwable cause = ex.getCause();
+        if ( cause != null ) {
+            writeStackTrace( cause );
+        }
+    }
+
     public void writeException( String msg, Throwable ex ) {
+        writeString( msg );
+        writeException( ex );
     }
 
-    @Override
     public void newLine() {
+        bytes.writeByte( (byte) '\n' );
+    }
+
+
+    private void writeFractionalPart( double v, int numDecimalPlaces, long intPart ) {
+        if ( numDecimalPlaces > 0 ) {
+            this.writeCharacter( '.' );
+
+            double roundingOffset = ROUNDING_OFFSETS_BY_PRECISION[numDecimalPlaces];
+            double remainder      = Math.abs(v - intPart) + roundingOffset;
+
+            for ( int i=0; i<numDecimalPlaces; i++ ) {
+                remainder *= 10;
+
+                byte digit = (byte) remainder;
+                remainder -= digit;
+
+                this.writeByte( digit );
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.mosaic.io.streams;
 
 import com.mosaic.io.bytes.Bytes;
+import com.mosaic.lang.UTF8;
 import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Benchmark;
 import org.junit.runner.RunWith;
@@ -209,22 +210,56 @@ first stab (uses optimised code in UTF8Tools)
 
 /*
 writeBytes directly in binary
-    638.42ns per call   (1000 times each call)
-    614.19ns per call
-    615.00ns per call
-    609.55ns per call
-    609.94ns per call
-    613.00ns per call
+    14.40ns per call
+    7.99ns per call
+    11.56ns per call
+    7.85ns per call
+    8.08ns per call
+    8.06ns per call
 
+break the float into two parts and print separately
+    1059.46ns per call
+    1073.31ns per call
+    1083.51ns per call
+    1048.56ns per call
+    1063.20ns per call
+    1058.96ns per call
 
+Using String.format
+
+    11103.20ns per call
+    11059.84ns per call
+    10962.26ns per call
+    11122.60ns per call
+
+Using Float.toString  (no specifying dp)
+
+    854.01ns per call
+    824.72ns per call
+    821.48ns per call
+    844.28ns per call
+    830.27ns per call
+    832.71ns per call
+
+Precalculating rounding offsets
+
+    376.52ns per call
+    388.06ns per call
+    376.09ns per call
+    383.37ns per call
+    375.50ns per call
+    378.27ns per call
+
+Conclusion: over twice the speed of Float.toString, with no GC and the ability to
+specify the precision.  Five times faster than String.format().
 */
     @Benchmark
     public long writeFloat( int numIterations ) {
         long v = 0;
 
         while ( numIterations > 0 ) {
-            for ( int i=0; i<1000; i++ ) {
-                bytes.writeFloat( i + 0.3f );
+            for ( int i=0; i<10; i++ ) {
+                out.writeFloat( i + 0.3f, 2 );
             }
             bytes.positionIndex(0);
 
@@ -236,4 +271,67 @@ writeBytes directly in binary
         return v;
     }
 
+
+/*
+    350.11ns per call
+    222.06ns per call
+    217.14ns per call
+    214.27ns per call
+    217.87ns per call
+    226.73ns per call
+     */
+private String[] STRINGS = new String[] {"££foo bar££", "man of war", "man of the world",
+    "hello bob", "bring it on", "top of the morning", "top of the world"
+};
+    @Benchmark
+    public long writeString( int numIterations ) {
+        long v = 0;
+
+        while ( numIterations > 0 ) {
+            for ( String s : STRINGS ) {
+                out.writeString( s );
+            }
+            bytes.positionIndex(0);
+
+            v += bytes.readByte( 1 );
+
+            numIterations--;
+        }
+
+        return v;
+    }
+
+
+/*
+    62.84ns per call
+    57.11ns per call
+    60.72ns per call
+    61.67ns per call
+    58.76ns per call
+    57.21ns per call
+
+CONC: 4 times faster than writing java.lang.String.
+     */
+private UTF8[] UTF8S = new UTF8[] {
+    UTF8.wrap("££foo bar££"), UTF8.wrap("man of war"), UTF8.wrap("man of the world"),
+    UTF8.wrap("hello bob"), UTF8.wrap("bring it on"), UTF8.wrap("top of the morning"),
+    UTF8.wrap("top of the world")
+};
+    @Benchmark
+    public long writeUTF8( int numIterations ) {
+        long v = 0;
+
+        while ( numIterations > 0 ) {
+            for ( UTF8 s : UTF8S ) {
+                out.writeUTF8( s );
+            }
+            bytes.positionIndex(0);
+
+            v += bytes.readByte( 1 );
+
+            numIterations--;
+        }
+
+        return v;
+    }
 }
