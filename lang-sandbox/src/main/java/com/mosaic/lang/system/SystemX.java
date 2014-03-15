@@ -16,13 +16,16 @@ import java.util.Random;
  */
 public abstract class SystemX {
 
-    public static final int BYTE_SIZE   = 1;
-    public static final int SHORT_SIZE  = 2;
-    public static final int CHAR_SIZE   = 2;
-    public static final int INT_SIZE    = 4;
-    public static final int LONG_SIZE   = 8;
-    public static final int FLOAT_SIZE  = 4;
-    public static final int DOUBLE_SIZE = 8;
+    public static final int SIZEOF_BYTE           = 1;
+    public static final int SIZEOF_CHAR           = 2;
+    public static final int SIZEOF_SHORT          = 2;
+    public static final int SIZEOF_INT            = 4;
+    public static final int SIZEOF_LONG           = 8;
+    public static final int SIZEOF_FLOAT          = 4;
+    public static final int SIZEOF_DOUBLE         = 8;
+
+    public static final int SIZEOF_UNSIGNED_SHORT = 2;
+    public static final int SIZEOF_UNSIGED_INT    = 4;
 
 
     public static final int  UNSIGNED_BYTE_MASK  = 0xFF;

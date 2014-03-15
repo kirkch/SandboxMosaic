@@ -177,6 +177,49 @@ public class PullParser {
     }
 
     /**
+     * Matches numbers up with up to 2dp, and returns them as an integer multiplied by 100.
+     * Thus numbers in pounds and pence such as 4.23 pounds will be returned as 423 pence.
+     *
+     * This gives us the ability to store up to one million pounds in pennies, in an int.
+     */
+    public int pullSmallCash2dp() {
+        doAutoSkip();
+
+        ParserResult r = parse( SMALLCASH_PARSER );
+
+        if ( r.hasMatched() ) {
+            this.position = r.getToExc();
+
+            return r.getValueInt();
+        } else {
+            throw newParseException( "Expected 'smallcash'", position );
+        }
+    }
+
+    /**
+     * Matches numbers up with up to 4dp, and returns them as an integer multiplied by 10,000.
+     * Thus numbers in pounds and pence such as 4.23 pounds will be returned as 42300 pence.
+     *
+     * A long can reliably store 18 digits. Reserving two of them for pennies, and another
+     * two for fractions of a penny.  That leaves 14 digits for the main currency.  Thus
+     * the long can store up to 100 trillion pounds to four decimal places.  Large enough
+     * for most peoples finances.     (1, 000,000, 000,000, 00 0,000)
+     */
+    public long pullBigCash4dp() {
+        doAutoSkip();
+
+        ParserResult r = parse( BIGCASH_PARSER );
+
+        if ( r.hasMatched() ) {
+            this.position = r.getToExc();
+
+            return r.getValueLong();
+        } else {
+            throw newParseException( "Expected 'bigcash'", position );
+        }
+    }
+
+    /**
      * Matches and returns a float.  If no float is matched then an exception
      * will be thrown.
      */
@@ -386,6 +429,210 @@ public class PullParser {
 
         public String toString() {
             return "Int";
+        }
+    };
+
+    private static final ByteMatcher SMALLCASH_PARSER = new ByteMatcher() {
+        public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
+            int num = 0;
+
+            long i=fromInc;
+            byte v = source.readByte(i);
+
+            boolean isNeg = v == '-';
+            if ( isNeg ) {
+                i += 1;
+            }
+
+            for ( ; i<toExc; i++ ) {
+                v = source.readByte(i);
+
+                if ( v < '0' || v > '9' ) {
+                    break;
+                } else {
+                    num *= 10;
+                    num += v - '0';
+                }
+            }
+
+
+
+            if ( v == '.' ) {
+                long dpIndex  = i;
+                long maxIndex = Math.min(i+3,toExc);
+
+                i++;
+
+                for ( ; i<maxIndex; i++ ) {
+                    v = source.readByte(i);
+
+                    if ( v < '0' || v > '9' ) {
+                        break;
+                    } else {
+                        num *= 10;
+                        num += v - '0';
+                    }
+                }
+
+                if ( i == dpIndex+2 ) {
+                    num *= 10;
+                }
+
+                if ( i == dpIndex+1 ) {
+                    num *= 100;
+                }
+
+                if ( i<toExc ) {  // round the 3rd decimal place
+                    v = source.readByte(i);
+
+                    if ( v >= '5' && v <= '9' ) {
+                        i++;
+
+                        num += 1;
+                    }
+                }
+
+                for ( ; i<toExc; i++ ) {  // skip the rest of any digits
+                    v = source.readByte(i);
+
+                    if ( v < '0' || v > '9' ) {
+                        break;
+                    }
+                }
+            } else {
+                num *= 100;
+            }
+
+
+            if ( isNeg ) {
+                if ( i == fromInc+1 ) {
+                    result.resultNoMatch();
+                } else {
+                    int r = -num;
+
+                    QA.argIsLTEZero( r, "num" );
+
+                    result.resultMatchedInt( -num, fromInc, i );
+                }
+            } else {
+                QA.argIsGTEZero( num, "num" );
+
+                if ( i == fromInc  ) {
+                    result.resultNoMatch();
+                } else {
+                    result.resultMatchedInt( num, fromInc, i );
+                }
+            }
+        }
+
+        public String toString() {
+            return "smallcash";
+        }
+    };
+
+    private static final ByteMatcher BIGCASH_PARSER = new ByteMatcher() {
+        public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
+            long num = 0;
+
+            long i=fromInc;
+            byte v = source.readByte(i);
+
+            boolean isNeg = v == '-';
+            if ( isNeg ) {
+                i += 1;
+            }
+
+            for ( ; i<toExc; i++ ) {
+                v = source.readByte(i);
+
+                if ( v < '0' || v > '9' ) {
+                    break;
+                } else {
+                    num *= 10;
+                    num += v - '0';
+                }
+            }
+
+
+
+            if ( v == '.' ) {
+                long dpIndex  = i;
+                long maxIndex = Math.min(i+5,toExc);
+
+                i++;
+
+                for ( ; i<maxIndex; i++ ) {
+                    v = source.readByte(i);
+
+                    if ( v < '0' || v > '9' ) {
+                        break;
+                    } else {
+                        num *= 10;
+                        num += v - '0';
+                    }
+                }
+
+                switch ( (int) (i-dpIndex) ) {
+                    case 4:
+                        num *= 10;
+                        break;
+                    case 3:
+                        num *= 100;
+                        break;
+                    case 2:
+                        num *= 1000;
+                        break;
+                    case 1:
+                        num *= 10000;
+                        break;
+                }
+
+
+                if ( i<toExc ) {  // round the 3rd decimal place
+                    v = source.readByte(i);
+
+                    if ( v >= '5' && v <= '9' ) {
+                        i++;
+
+                        num += 1;
+                    }
+                }
+
+                for ( ; i<toExc; i++ ) {  // skip the rest of any digits
+                    v = source.readByte(i);
+
+                    if ( v < '0' || v > '9' ) {
+                        break;
+                    }
+                }
+            } else {
+                num *= 10000;
+            }
+
+
+            if ( isNeg ) {
+                if ( i == fromInc+1 ) {
+                    result.resultNoMatch();
+                } else {
+                    long r = -num;
+
+                    QA.argIsLTEZero( r, "num" );
+
+                    result.resultMatchedLong( -num, fromInc, i );
+                }
+            } else {
+                QA.argIsGTEZero( num, "num" );
+
+                if ( i == fromInc  ) {
+                    result.resultNoMatch();
+                } else {
+                    result.resultMatchedLong( num, fromInc, i );
+                }
+            }
+        }
+
+        public String toString() {
+            return "bigcash";
         }
     };
 

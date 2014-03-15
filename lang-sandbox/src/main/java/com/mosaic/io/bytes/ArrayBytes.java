@@ -48,7 +48,7 @@ public class ArrayBytes extends BaseBytes {
     public byte readByte( long index ) {
         long i = min + index;
 
-        throwIfInvalidIndex( index, BYTE_SIZE );
+        throwIfInvalidIndex( index, SIZEOF_BYTE );
 
         return Backdoor.getByteFrom( array, i );
     }
@@ -56,7 +56,7 @@ public class ArrayBytes extends BaseBytes {
     public short readShort( long index ) {
         long i = min + index;
 
-        throwIfInvalidIndex( index, SHORT_SIZE );
+        throwIfInvalidIndex( index, SIZEOF_SHORT );
 
         return Backdoor.getShortFrom( array, i );
     }
@@ -64,7 +64,7 @@ public class ArrayBytes extends BaseBytes {
     public char readCharacter( long index ) {
         long i = min + index;
 
-        throwIfInvalidIndex( index, CHAR_SIZE );
+        throwIfInvalidIndex( index, SIZEOF_CHAR );
 
         return Backdoor.getCharacterFrom( array, i );
     }
@@ -72,7 +72,7 @@ public class ArrayBytes extends BaseBytes {
     public int readInteger( long index ) {
         long i = min + index;
 
-        throwIfInvalidIndex( index, INT_SIZE );
+        throwIfInvalidIndex( index, SIZEOF_INT );
 
         return Backdoor.getIntegerFrom( array, i );
     }
@@ -80,7 +80,7 @@ public class ArrayBytes extends BaseBytes {
     public long readLong( long index ) {
         long i = min + index;
 
-        throwIfInvalidIndex( index, LONG_SIZE );
+        throwIfInvalidIndex( index, SIZEOF_LONG );
 
         return Backdoor.getLongFrom( array, i );
     }
@@ -88,7 +88,7 @@ public class ArrayBytes extends BaseBytes {
     public float readFloat( long index ) {
         long i = min + index;
 
-        throwIfInvalidIndex( index, FLOAT_SIZE );
+        throwIfInvalidIndex( index, SIZEOF_FLOAT );
 
         return Backdoor.getFloatFrom( array, i );
     }
@@ -96,7 +96,7 @@ public class ArrayBytes extends BaseBytes {
     public double readDouble( long index ) {
         long i = min + index;
 
-        throwIfInvalidIndex( index, DOUBLE_SIZE );
+        throwIfInvalidIndex( index, SIZEOF_DOUBLE );
 
         return Backdoor.getDoubleFrom( array, i );
     }
@@ -104,7 +104,7 @@ public class ArrayBytes extends BaseBytes {
     public short readUnsignedByte( long index ) {
         long i = min + index;
 
-        throwIfInvalidIndex( i, BYTE_SIZE );
+        throwIfInvalidIndex( i, SIZEOF_BYTE );
 
         return (short) (Backdoor.getByteFrom(array,i) & UNSIGNED_BYTE_MASK);
     }
@@ -112,7 +112,7 @@ public class ArrayBytes extends BaseBytes {
     public int readUnsignedShort( long index ) {
         long i = min + index;
 
-        throwIfInvalidIndex( i, SHORT_SIZE );
+        throwIfInvalidIndex( i, SIZEOF_SHORT );
 
         return Backdoor.getShortFrom(array,i) & UNSIGNED_SHORT_MASK;
     }
@@ -120,7 +120,7 @@ public class ArrayBytes extends BaseBytes {
     public long readUnsignedInteger( long index ) {
         long i = min + index;
 
-        throwIfInvalidIndex( i, INT_SIZE );
+        throwIfInvalidIndex( i, SIZEOF_INT );
 
         long v = Backdoor.getIntegerFrom(array,i);
 
@@ -134,7 +134,7 @@ public class ArrayBytes extends BaseBytes {
     public void writeByte( long index, byte v ) {
         long i = min + index;
 
-        throwIfInvalidIndex( i, BYTE_SIZE );
+        throwIfInvalidIndex( i, SIZEOF_BYTE );
 
         Backdoor.setByteIn( array, i, v );
     }
@@ -142,7 +142,7 @@ public class ArrayBytes extends BaseBytes {
     public void writeShort( long index, short v ) {
         long i = min + index;
 
-        throwIfInvalidIndex( i, SHORT_SIZE );
+        throwIfInvalidIndex( i, SIZEOF_SHORT );
 
         Backdoor.setShortIn( array, i, v );
     }
@@ -150,7 +150,7 @@ public class ArrayBytes extends BaseBytes {
     public void writeCharacter( long index, char v ) {
         long i = min + index;
 
-        throwIfInvalidIndex( i, CHAR_SIZE );
+        throwIfInvalidIndex( i, SIZEOF_CHAR );
 
         Backdoor.setCharacterIn( array, i, v );
     }
@@ -158,7 +158,7 @@ public class ArrayBytes extends BaseBytes {
     public void writeInteger( long index, int v ) {
         long i = min + index;
 
-        throwIfInvalidIndex( i, INT_SIZE );
+        throwIfInvalidIndex( i, SIZEOF_INT );
 
         Backdoor.setIntegerIn( array, i, v );
     }
@@ -166,7 +166,7 @@ public class ArrayBytes extends BaseBytes {
     public void writeLong( long index, long v ) {
         long i = min + index;
 
-        throwIfInvalidIndex( i, LONG_SIZE );
+        throwIfInvalidIndex( i, SIZEOF_LONG );
 
         Backdoor.setLongIn( array, i, v );
     }
@@ -174,7 +174,7 @@ public class ArrayBytes extends BaseBytes {
     public void writeFloat( long index, float v ) {
         long i = min + index;
 
-        throwIfInvalidIndex( i, FLOAT_SIZE );
+        throwIfInvalidIndex( i, SIZEOF_FLOAT );
 
         Backdoor.setFloatIn( array, i, v );
     }
@@ -182,7 +182,7 @@ public class ArrayBytes extends BaseBytes {
     public void writeDouble( long index, double v ) {
         long i = min + index;
 
-        throwIfInvalidIndex( i, DOUBLE_SIZE );
+        throwIfInvalidIndex( i, SIZEOF_DOUBLE );
 
         Backdoor.setDoubleIn( array, i, v );
     }
@@ -242,7 +242,7 @@ public class ArrayBytes extends BaseBytes {
     public byte readByte() {
         byte v = readByte( positionIndex() );
 
-        incrementPosition( BYTE_SIZE );
+        incrementPosition( SIZEOF_BYTE );
 
         return v;
     }
@@ -250,7 +250,7 @@ public class ArrayBytes extends BaseBytes {
     public short readShort() {
         short v = readShort( positionIndex() );
 
-        incrementPosition( SHORT_SIZE );
+        incrementPosition( SIZEOF_SHORT );
 
         return v;
     }
@@ -258,7 +258,7 @@ public class ArrayBytes extends BaseBytes {
     public char readCharacter() {
         char v = readCharacter( positionIndex() );
 
-        incrementPosition( CHAR_SIZE );
+        incrementPosition( SIZEOF_CHAR );
 
         return v;
     }
@@ -266,7 +266,7 @@ public class ArrayBytes extends BaseBytes {
     public int readInteger() {
         int v = readInteger( positionIndex() );
 
-        incrementPosition( INT_SIZE );
+        incrementPosition( SIZEOF_INT );
 
         return v;
     }
@@ -274,7 +274,7 @@ public class ArrayBytes extends BaseBytes {
     public long readLong() {
         long v = readLong( positionIndex() );
 
-        incrementPosition( LONG_SIZE );
+        incrementPosition( SIZEOF_LONG );
 
         return v;
     }
@@ -282,7 +282,7 @@ public class ArrayBytes extends BaseBytes {
     public float readFloat() {
         float v = readFloat( positionIndex() );
 
-        incrementPosition( FLOAT_SIZE );
+        incrementPosition( SIZEOF_FLOAT );
 
         return v;
     }
@@ -290,7 +290,7 @@ public class ArrayBytes extends BaseBytes {
     public double readDouble() {
         double v = readDouble( positionIndex() );
 
-        incrementPosition( DOUBLE_SIZE );
+        incrementPosition( SIZEOF_DOUBLE );
 
         return v;
     }
@@ -298,7 +298,7 @@ public class ArrayBytes extends BaseBytes {
     public short readUnsignedByte() {
         short v = readUnsignedByte( positionIndex() );
 
-        incrementPosition( BYTE_SIZE );
+        incrementPosition( SIZEOF_BYTE );
 
         return v;
     }
@@ -306,7 +306,7 @@ public class ArrayBytes extends BaseBytes {
     public int readUnsignedShort() {
         int v = readUnsignedShort( positionIndex() );
 
-        incrementPosition( SHORT_SIZE );
+        incrementPosition( SIZEOF_SHORT );
 
         return v;
     }
@@ -314,7 +314,7 @@ public class ArrayBytes extends BaseBytes {
     public long readUnsignedInteger() {
         long v = readUnsignedByte( positionIndex() );
 
-        incrementPosition( INT_SIZE );
+        incrementPosition( SIZEOF_INT );
 
         return v;
     }
@@ -322,74 +322,77 @@ public class ArrayBytes extends BaseBytes {
     public void writeBoolean( boolean v ) {
         writeBoolean( positionIndex(), v );
 
-        incrementPosition( BYTE_SIZE );
+        incrementPosition( SIZEOF_BYTE );
     }
 
     public void writeByte( byte v ) {
         writeByte( positionIndex(), v );
 
-        incrementPosition( BYTE_SIZE );
+        incrementPosition( SIZEOF_BYTE );
     }
 
     public void writeShort( short v ) {
         writeShort( positionIndex(), v );
 
-        incrementPosition( SHORT_SIZE );
+        incrementPosition( SIZEOF_SHORT );
     }
 
     public void writeCharacter( char v ) {
         writeCharacter( positionIndex(), v );
 
-        incrementPosition( CHAR_SIZE );
+        incrementPosition( SIZEOF_CHAR );
     }
 
     public void writeInteger( int v ) {
         writeInteger( positionIndex(), v );
 
-        incrementPosition( INT_SIZE );
+        incrementPosition( SIZEOF_INT );
     }
 
     public void writeLong( long v ) {
         writeLong( positionIndex(), v );
 
-        incrementPosition( LONG_SIZE );
+        incrementPosition( SIZEOF_LONG );
     }
 
     public void writeFloat( float v ) {
         writeFloat( positionIndex(), v );
 
-        incrementPosition( FLOAT_SIZE );
+        incrementPosition( SIZEOF_FLOAT );
     }
 
     public void writeDouble( double v ) {
         writeDouble( positionIndex(), v );
 
-        incrementPosition( DOUBLE_SIZE );
+        incrementPosition( SIZEOF_DOUBLE );
     }
 
     public void writeUnsignedByte( short v ) {
         writeUnsignedByte( positionIndex(), v );
 
-        incrementPosition( BYTE_SIZE );
+        incrementPosition( SIZEOF_BYTE );
     }
 
     public void writeUnsignedShort( int v ) {
         writeUnsignedShort( positionIndex(), v );
 
-        incrementPosition( SHORT_SIZE );
+        incrementPosition( SIZEOF_SHORT );
     }
 
     public void writeUnsignedInteger( long v ) {
         writeUnsignedInt( positionIndex(), v );
 
-        incrementPosition( LONG_SIZE );
+        incrementPosition( SIZEOF_LONG );
     }
 
     public void resize( long newLength ) {
         QA.isInt( newLength, "newLength" );
 
         byte[] newBackingArray = new byte[(int)newLength];
-        Backdoor.copyBytes( this.array, min, newBackingArray, 0, Math.min(maxExc-min,newLength) );
+
+        if ( maxExc-min > 0  ) {
+            Backdoor.copyBytes( this.array, min, newBackingArray, 0, Math.min(maxExc-min,newLength) );
+        }
 
         this.array  = newBackingArray;
         this.min    = 0;
@@ -402,8 +405,8 @@ public class ArrayBytes extends BaseBytes {
         long b        = min+toExc-1;
         long numBytes = toExc-from;
 
-        throwIfInvalidIndex( a, BYTE_SIZE );
-        throwIfInvalidIndex( b, BYTE_SIZE );
+        throwIfInvalidIndex( a, SIZEOF_BYTE );
+        throwIfInvalidIndex( b, SIZEOF_BYTE );
 
         Backdoor.fillArray( array, a, numBytes, v );
     }

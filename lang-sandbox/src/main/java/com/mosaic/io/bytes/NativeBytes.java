@@ -59,7 +59,7 @@ public abstract class NativeBytes extends BaseBytes {
     public byte readByte( long index ) {
         long address = cacheAlignedBaseAddress + index;
 
-        throwIfInvalidAddress( address, BYTE_SIZE );
+        throwIfInvalidAddress( address, SIZEOF_BYTE );
 
         return Backdoor.getByte( address );
     }
@@ -67,7 +67,7 @@ public abstract class NativeBytes extends BaseBytes {
     public short readShort( long index ) {
         long address = cacheAlignedBaseAddress + index;
 
-        throwIfInvalidAddress( address, SHORT_SIZE );
+        throwIfInvalidAddress( address, SIZEOF_SHORT );
 
         return Backdoor.getShort( address );
     }
@@ -75,7 +75,7 @@ public abstract class NativeBytes extends BaseBytes {
     public char readCharacter( long index ) {
         long address = cacheAlignedBaseAddress + index;
 
-        throwIfInvalidAddress( address, CHAR_SIZE );
+        throwIfInvalidAddress( address, SIZEOF_CHAR );
 
         return Backdoor.getCharacter( address );
     }
@@ -83,7 +83,7 @@ public abstract class NativeBytes extends BaseBytes {
     public int readInteger( long index ) {
         long address = cacheAlignedBaseAddress + index;
 
-        throwIfInvalidAddress( address, INT_SIZE );
+        throwIfInvalidAddress( address, SIZEOF_INT );
 
         return Backdoor.getInteger( address );
     }
@@ -91,7 +91,7 @@ public abstract class NativeBytes extends BaseBytes {
     public long readLong( long index ) {
         long address = cacheAlignedBaseAddress + index;
 
-        throwIfInvalidAddress( address, LONG_SIZE );
+        throwIfInvalidAddress( address, SIZEOF_LONG );
 
         return Backdoor.getLong( address );
     }
@@ -99,7 +99,7 @@ public abstract class NativeBytes extends BaseBytes {
     public float readFloat( long index ) {
         long address = cacheAlignedBaseAddress + index;
 
-        throwIfInvalidAddress( address, FLOAT_SIZE );
+        throwIfInvalidAddress( address, SIZEOF_FLOAT );
 
         return Backdoor.getFloat( address );
     }
@@ -107,7 +107,7 @@ public abstract class NativeBytes extends BaseBytes {
     public double readDouble( long index ) {
         long address = cacheAlignedBaseAddress + index;
 
-        throwIfInvalidAddress( address, DOUBLE_SIZE );
+        throwIfInvalidAddress( address, SIZEOF_DOUBLE );
 
         return Backdoor.getDouble( address );
     }
@@ -115,7 +115,7 @@ public abstract class NativeBytes extends BaseBytes {
     public short readUnsignedByte( long index ) {
         long address = cacheAlignedBaseAddress + index;
 
-        throwIfInvalidAddress( address, BYTE_SIZE );
+        throwIfInvalidAddress( address, SIZEOF_BYTE );
 
         return (short) (Backdoor.getByte( address ) & UNSIGNED_BYTE_MASK);
     }
@@ -123,7 +123,7 @@ public abstract class NativeBytes extends BaseBytes {
     public int readUnsignedShort( long index ) {
         long address = cacheAlignedBaseAddress + index;
 
-        throwIfInvalidAddress( address, SHORT_SIZE );
+        throwIfInvalidAddress( address, SIZEOF_SHORT );
 
         return Backdoor.getShort( address ) & UNSIGNED_SHORT_MASK;
     }
@@ -131,7 +131,7 @@ public abstract class NativeBytes extends BaseBytes {
     public long readUnsignedInteger( long index ) {
         long address = cacheAlignedBaseAddress + index;
 
-        throwIfInvalidAddress( address, INT_SIZE );
+        throwIfInvalidAddress( address, SIZEOF_INT );
 
         long v = Backdoor.getInteger( address );
 
@@ -145,7 +145,7 @@ public abstract class NativeBytes extends BaseBytes {
     public void writeByte( long index, byte v ) {
         long address = cacheAlignedBaseAddress + index;
 
-        throwIfInvalidAddress( address, BYTE_SIZE );
+        throwIfInvalidAddress( address, SIZEOF_BYTE );
 
         Backdoor.setByte( address, v );
     }
@@ -153,7 +153,7 @@ public abstract class NativeBytes extends BaseBytes {
     public void writeShort( long index, short v ) {
         long address = cacheAlignedBaseAddress + index;
 
-        throwIfInvalidAddress( address, SHORT_SIZE );
+        throwIfInvalidAddress( address, SIZEOF_SHORT );
 
         Backdoor.setShort( address, v );
     }
@@ -161,7 +161,7 @@ public abstract class NativeBytes extends BaseBytes {
     public void writeCharacter( long index, char v ) {
         long address = cacheAlignedBaseAddress + index;
 
-        throwIfInvalidAddress( address, CHAR_SIZE );
+        throwIfInvalidAddress( address, SIZEOF_CHAR );
 
         Backdoor.setCharacter( address, v );
     }
@@ -169,7 +169,7 @@ public abstract class NativeBytes extends BaseBytes {
     public void writeInteger( long index, int v ) {
         long address = cacheAlignedBaseAddress + index;
 
-        throwIfInvalidAddress( address, INT_SIZE );
+        throwIfInvalidAddress( address, SIZEOF_INT );
 
         Backdoor.setInteger( address, v );
     }
@@ -177,7 +177,7 @@ public abstract class NativeBytes extends BaseBytes {
     public void writeLong( long index, long v ) {
         long address = cacheAlignedBaseAddress + index;
 
-        throwIfInvalidAddress( address, LONG_SIZE );
+        throwIfInvalidAddress( address, SIZEOF_LONG );
 
         Backdoor.setLong( address, v );
     }
@@ -185,7 +185,7 @@ public abstract class NativeBytes extends BaseBytes {
     public void writeFloat( long index, float v ) {
         long address = cacheAlignedBaseAddress + index;
 
-        throwIfInvalidAddress( address, FLOAT_SIZE );
+        throwIfInvalidAddress( address, SIZEOF_FLOAT );
 
         Backdoor.setFloat( address, v );
     }
@@ -193,7 +193,7 @@ public abstract class NativeBytes extends BaseBytes {
     public void writeDouble( long index, double v ) {
         long address = cacheAlignedBaseAddress + index;
 
-        throwIfInvalidAddress( address, DOUBLE_SIZE );
+        throwIfInvalidAddress( address, SIZEOF_DOUBLE );
 
         Backdoor.setDouble( address, v );
     }
@@ -250,7 +250,7 @@ public abstract class NativeBytes extends BaseBytes {
     public byte readByte() {
         byte v = readByte( positionIndex() );
 
-        incrementPosition(  BYTE_SIZE );
+        incrementPosition( SIZEOF_BYTE );
 
         return v;
     }
@@ -258,7 +258,7 @@ public abstract class NativeBytes extends BaseBytes {
     public short readShort() {
         short v = readShort( positionIndex() );
 
-        incrementPosition(  SHORT_SIZE );
+        incrementPosition( SIZEOF_SHORT );
 
         return v;
     }
@@ -266,7 +266,7 @@ public abstract class NativeBytes extends BaseBytes {
     public char readCharacter() {
         char v = readCharacter( positionIndex() );
 
-        incrementPosition(  CHAR_SIZE );
+        incrementPosition( SIZEOF_CHAR );
 
         return v;
     }
@@ -274,7 +274,7 @@ public abstract class NativeBytes extends BaseBytes {
     public int readInteger() {
         int v = readInteger( positionIndex() );
 
-        incrementPosition(  INT_SIZE );
+        incrementPosition( SIZEOF_INT );
 
         return v;
     }
@@ -282,7 +282,7 @@ public abstract class NativeBytes extends BaseBytes {
     public long readLong() {
         long v = readLong( positionIndex() );
 
-        incrementPosition(  LONG_SIZE );
+        incrementPosition( SIZEOF_LONG );
 
         return v;
     }
@@ -290,7 +290,7 @@ public abstract class NativeBytes extends BaseBytes {
     public float readFloat() {
         float v = readFloat( positionIndex() );
 
-        incrementPosition(  FLOAT_SIZE );
+        incrementPosition( SIZEOF_FLOAT );
 
         return v;
     }
@@ -298,7 +298,7 @@ public abstract class NativeBytes extends BaseBytes {
     public double readDouble() {
         double v = readDouble( positionIndex() );
 
-        incrementPosition(  DOUBLE_SIZE );
+        incrementPosition( SIZEOF_DOUBLE );
 
         return v;
     }
@@ -306,7 +306,7 @@ public abstract class NativeBytes extends BaseBytes {
     public short readUnsignedByte() {
         short v = readUnsignedByte( positionIndex() );
 
-        incrementPosition(  BYTE_SIZE );
+        incrementPosition( SIZEOF_BYTE );
 
         return v;
     }
@@ -314,7 +314,7 @@ public abstract class NativeBytes extends BaseBytes {
     public int readUnsignedShort() {
         int v = readUnsignedShort( positionIndex() );
 
-        incrementPosition(  SHORT_SIZE );
+        incrementPosition( SIZEOF_SHORT );
 
         return v;
     }
@@ -322,7 +322,7 @@ public abstract class NativeBytes extends BaseBytes {
     public long readUnsignedInteger() {
         long v = readUnsignedByte( positionIndex() );
 
-        incrementPosition(  INT_SIZE );
+        incrementPosition( SIZEOF_INT );
 
         return v;
     }
@@ -330,67 +330,67 @@ public abstract class NativeBytes extends BaseBytes {
     public void writeBoolean( boolean v ) {
         writeBoolean( positionIndex(), v );
 
-        incrementPosition(  BYTE_SIZE );
+        incrementPosition( SIZEOF_BYTE );
     }
 
     public void writeByte( byte v ) {
         writeByte( positionIndex(), v );
 
-        incrementPosition(  BYTE_SIZE );
+        incrementPosition( SIZEOF_BYTE );
     }
 
     public void writeShort( short v ) {
         writeShort( positionIndex(), v );
 
-        incrementPosition(  SHORT_SIZE );
+        incrementPosition( SIZEOF_SHORT );
     }
 
     public void writeCharacter( char v ) {
         writeCharacter( positionIndex(), v );
 
-        incrementPosition(  CHAR_SIZE );
+        incrementPosition( SIZEOF_CHAR );
     }
 
     public void writeInteger( int v ) {
         writeInteger( positionIndex(), v );
 
-        incrementPosition(  INT_SIZE );
+        incrementPosition( SIZEOF_INT );
     }
 
     public void writeLong( long v ) {
         writeLong( positionIndex(), v );
 
-        incrementPosition(  LONG_SIZE );
+        incrementPosition( SIZEOF_LONG );
     }
 
     public void writeFloat( float v ) {
         writeFloat( positionIndex(), v );
 
-        incrementPosition(  FLOAT_SIZE );
+        incrementPosition( SIZEOF_FLOAT );
     }
 
     public void writeDouble( double v ) {
         writeDouble( positionIndex(), v );
 
-        incrementPosition(  DOUBLE_SIZE );
+        incrementPosition( SIZEOF_DOUBLE );
     }
 
     public void writeUnsignedByte( short v ) {
         writeUnsignedByte( positionIndex(), v );
 
-        incrementPosition(  BYTE_SIZE );
+        incrementPosition( SIZEOF_BYTE );
     }
 
     public void writeUnsignedShort( int v ) {
         writeUnsignedShort( positionIndex(), v );
 
-        incrementPosition(  SHORT_SIZE );
+        incrementPosition( SIZEOF_SHORT );
     }
 
     public void writeUnsignedInteger( long v ) {
         writeUnsignedInt( positionIndex(), v );
 
-        incrementPosition(  LONG_SIZE );
+        incrementPosition( SIZEOF_LONG );
     }
 
     public void writeBytes( long fromAddress, int numBytes ) {
@@ -409,8 +409,8 @@ public abstract class NativeBytes extends BaseBytes {
         long b        = cacheAlignedBaseAddress+toExc-1;
         long numBytes = toExc-from;
 
-        throwIfInvalidAddress( a, BYTE_SIZE );
-        throwIfInvalidAddress( b, BYTE_SIZE );
+        throwIfInvalidAddress( a, SIZEOF_BYTE );
+        throwIfInvalidAddress( b, SIZEOF_BYTE );
 
         Backdoor.fill( a, numBytes, v );
     }

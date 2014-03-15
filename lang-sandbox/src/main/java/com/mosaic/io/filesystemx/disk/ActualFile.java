@@ -40,6 +40,16 @@ public class ActualFile implements FileX {
     public Bytes loadBytes( FileModeEnum mode ) {
         Bytes bytes = Bytes.memoryMapFile( file, mode );
 
+        return wrapMemoryMappedBytes( bytes );
+    }
+
+    public Bytes loadBytes( FileModeEnum mode, int sizeInBytes ) {
+        Bytes bytes = Bytes.memoryMapFile( file, mode, sizeInBytes );
+
+        return wrapMemoryMappedBytes( bytes );
+    }
+
+    private Bytes wrapMemoryMappedBytes( final Bytes bytes ) {
         parentDirectory.incrementOpenFileCount();
 
         return new WrappedBytes(bytes) {

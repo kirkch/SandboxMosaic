@@ -36,6 +36,8 @@ public interface FileX {
      */
     public Bytes loadBytes( FileModeEnum mode );
 
+    public Bytes loadBytes( FileModeEnum mode, int sizeInBytes );
+
     public String getFullPath();
 
     public void delete();

@@ -66,6 +66,12 @@ public class InMemoryFile implements FileX {
         };
     }
 
+    public Bytes loadBytes( FileModeEnum mode, int sizeInBytes ) {
+        bytes.resize( sizeInBytes );
+
+        return loadBytes( mode );
+    }
+
     public long sizeInBytes() {
         return bytes == null ? 0 : bytes.bufferLength();
     }
