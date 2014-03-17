@@ -1,7 +1,10 @@
 package com.mosaic.io.streams;
 
+import com.mosaic.lang.BigCashType;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.SmallCashType;
 import com.mosaic.lang.UTF8;
+import com.mosaic.utils.MathUtils;
 
 import java.io.PrintStream;
 
@@ -64,6 +67,46 @@ public class PrintStreamWriterX implements WriterX {
 
     public void writeInt( int v ) {
         out.print( v );
+    }
+
+    public void writeFixedWidthInt( int v, int fixedWidth, byte paddingByte ) {
+        int numBytes     = MathUtils.charactersLengthOf( v );
+        int prefixLength = fixedWidth-numBytes;
+
+        StringBuilder buf = new StringBuilder(numBytes);
+        for ( int i=0; i<prefixLength; i++ ) {
+            buf.append( (char) paddingByte );
+        }
+
+        buf.append( Integer.toString( v ) );
+
+        writeString( buf.toString() );
+    }
+
+    public void writeSmallCashMajorUnit( int v ) {
+        int major = SmallCashType.extractMajorComponent( v );
+        int minor = SmallCashType.extractMinorComponent( v );
+
+        writeInt(major);
+        writeCharacter( '.' );
+        writeFixedWidthInt( minor, 2, (byte) '0' );
+    }
+
+    public void writeSmallCashMinorUnit( int v ) {
+        throw new UnsupportedOperationException(  );
+    }
+
+    public void writeBigCashMajorUnit( long v ) {
+        long major = BigCashType.extractMajorComponent( v );
+        long minor = BigCashType.extractMinorComponent( v );
+
+        writeLong( major );
+        writeCharacter( '.' );
+        writeFixedWidthInt( (int) minor, 2, (byte) '0' );
+    }
+
+    public void writeBigCashMinorUnit( long v ) {
+        throw new UnsupportedOperationException(  );
     }
 
     public void writeUnsignedInt( long v ) {

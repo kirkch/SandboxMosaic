@@ -48,27 +48,39 @@ public class FixedWidthRecordStoreTest {
         store.select( 0 );
         store.writeInteger( 0, 1 );
         store.writeInteger( 4, 2 );
+        store.writeCharacter( 9, '-' );
+        store.writeUnsignedShort( 11, 99 );
 
         store.select( 1 );
         store.writeInteger( 0, 3 );
         store.writeInteger( 4, 4 );
+        store.writeCharacter( 9, '-' );
+        store.writeUnsignedShort( 11, 99 );
 
         store.select( 2 );
         store.writeInteger( 0, 5 );
         store.writeInteger( 4, 6 );
+        store.writeCharacter( 9, '-' );
+        store.writeUnsignedShort( 11, 99 );
 
 
         store.select( 0 );
         assertEquals( 1, store.readInteger(0) );
         assertEquals( 2, store.readInteger(4) );
+        assertEquals( '-', store.readCharacter(9) );
+        assertEquals( 99, store.readUnsignedShort(11) );
 
         store.select( 1 );
         assertEquals( 3, store.readInteger(0) );
         assertEquals( 4, store.readInteger(4) );
+        assertEquals( '-', store.readCharacter(9) );
+        assertEquals( 99, store.readUnsignedShort(11) );
 
         store.select( 2 );
         assertEquals( 5, store.readInteger(0) );
         assertEquals( 6, store.readInteger(4) );
+        assertEquals( '-', store.readCharacter(9) );
+        assertEquals( 99, store.readUnsignedShort(11) );
     }
 
     @Test
@@ -111,4 +123,40 @@ public class FixedWidthRecordStoreTest {
         assertEquals( 5, store.readInteger(0) );
         assertEquals( 6, store.readInteger(4) );
     }
+
+
+// CLEAR ALL
+
+
+    @Test
+    public void clearAll() {
+        FixedWidthRecordStore store = FixedWidthRecordStore.allocOnHeap( 1024,  20 );
+
+        store.allocate( 3 );
+
+        store.select( 0 );
+        store.writeInteger( 0, 1 );
+        store.writeInteger( 4, 2 );
+        store.writeCharacter( 9, '-' );
+        store.writeUnsignedShort( 11, 99 );
+
+        store.select( 1 );
+        store.writeInteger( 0, 3 );
+        store.writeInteger( 4, 4 );
+        store.writeCharacter( 9, '-' );
+        store.writeUnsignedShort( 11, 99 );
+
+        store.select( 2 );
+        store.writeInteger( 0, 5 );
+        store.writeInteger( 4, 6 );
+        store.writeCharacter( 9, '-' );
+        store.writeUnsignedShort( 11, 99 );
+
+        store.clearAll();
+
+        assertEquals( 0, store.elementCount() );
+        assertFalse( store.select(0) );
+        assertFalse( store.hasNext() );
+    }
+
 }

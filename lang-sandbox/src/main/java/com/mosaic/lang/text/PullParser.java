@@ -176,16 +176,17 @@ public class PullParser {
         }
     }
 
+
+
     /**
-     * Matches numbers up with up to 2dp, and returns them as an integer multiplied by 100.
-     * Thus numbers in pounds and pence such as 4.23 pounds will be returned as 423 pence.
-     *
-     * This gives us the ability to store up to one million pounds in pennies, in an int.
+     * Matches numbers up with up to 3dp, and returns them as an integer in
+     * tenths of the minor currency.  Thus numbers in pounds and pence such as
+     * 4.23 pounds will be returned as 4230 (tenths of a pence).
      */
-    public int pullSmallCash2dp() {
+    public int pullSmallCashMajorUnit() {
         doAutoSkip();
 
-        ParserResult r = parse( SMALLCASH_PARSER );
+        ParserResult r = parse( SMALLCASHMAJOR_PARSER );
 
         if ( r.hasMatched() ) {
             this.position = r.getToExc();
@@ -197,18 +198,52 @@ public class PullParser {
     }
 
     /**
-     * Matches numbers up with up to 4dp, and returns them as an integer multiplied by 10,000.
-     * Thus numbers in pounds and pence such as 4.23 pounds will be returned as 42300 pence.
-     *
-     * A long can reliably store 18 digits. Reserving two of them for pennies, and another
-     * two for fractions of a penny.  That leaves 14 digits for the main currency.  Thus
-     * the long can store up to 100 trillion pounds to four decimal places.  Large enough
-     * for most peoples finances.     (1, 000,000, 000,000, 00 0,000)
+     * Matches numbers up with up to 1dp, and returns them as an integer
+     * in tenths of the minor currency.  Thus numbers in pence such as 4.23 pence
+     * will be returned as 42 (tenths of a pence).
      */
-    public long pullBigCash4dp() {
+    public int pullSmallCashMinorUnit() {
         doAutoSkip();
 
-        ParserResult r = parse( BIGCASH_PARSER );
+        ParserResult r = parse( SMALLCASHMINOR_PARSER );
+
+        if ( r.hasMatched() ) {
+            this.position = r.getToExc();
+
+            return r.getValueInt();
+        } else {
+            throw newParseException( "Expected 'smallcash'", position );
+        }
+    }
+
+    /**
+     * Matches numbers up with up to 4dp, and returns them as a long in
+     * hundredths of the minor currency.  Thus numbers in pounds and pence such as
+     * 4.23 pounds will be returned as 42300 (hundredths of a pence).
+     */
+    public long pullBigCashMajorUnit() {
+        doAutoSkip();
+
+        ParserResult r = parse( BIGCASHMAJOR_PARSER );
+
+        if ( r.hasMatched() ) {
+            this.position = r.getToExc();
+
+            return r.getValueLong();
+        } else {
+            throw newParseException( "Expected 'bigcash'", position );
+        }
+    }
+
+    /**
+     * Matches numbers up with up to 2dp, and returns them as a long in
+     * hundredths of the minor currency.  Thus numbers in pence such as
+     * 4.23 pence will be returned as 423 (hundredths of a pence).
+     */
+    public long pullBigCashMinorUnit() {
+        doAutoSkip();
+
+        ParserResult r = parse( BIGCASHMINOR_PARSER );
 
         if ( r.hasMatched() ) {
             this.position = r.getToExc();
@@ -432,7 +467,24 @@ public class PullParser {
         }
     };
 
-    private static final ByteMatcher SMALLCASH_PARSER = new ByteMatcher() {
+
+    private static final ByteMatcher SMALLCASHMAJOR_PARSER = new SmallCashParser(3);
+    private static final ByteMatcher SMALLCASHMINOR_PARSER = new SmallCashParser(1);
+
+    private static class SmallCashParser implements ByteMatcher {
+        private int[] dpMultipliers;
+
+        public SmallCashParser( int numDP ) {
+            dpMultipliers = new int[numDP+1];
+
+            int mult = 1;
+            for ( int i=numDP; i>=0; i-- ) {
+                dpMultipliers[i] = mult;
+
+                mult *= 10;
+            }
+        }
+
         public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
             int num = 0;
 
@@ -456,12 +508,11 @@ public class PullParser {
             }
 
 
-
             if ( v == '.' ) {
-                long dpIndex  = i;
-                long maxIndex = Math.min(i+3,toExc);
-
                 i++;
+
+                long firstDecimalDigit = i;
+                long maxIndex          = Math.min(i+dpMultipliers.length-1,toExc);
 
                 for ( ; i<maxIndex; i++ ) {
                     v = source.readByte(i);
@@ -474,15 +525,10 @@ public class PullParser {
                     }
                 }
 
-                if ( i == dpIndex+2 ) {
-                    num *= 10;
-                }
+                int numDecimalDigitsParsed = (int) (i-firstDecimalDigit);
+                num *= dpMultipliers[numDecimalDigitsParsed];
 
-                if ( i == dpIndex+1 ) {
-                    num *= 100;
-                }
-
-                if ( i<toExc ) {  // round the 3rd decimal place
+                if ( i<toExc ) {  // if we have truncated the input, round the last decimal place
                     v = source.readByte(i);
 
                     if ( v >= '5' && v <= '9' ) {
@@ -500,7 +546,7 @@ public class PullParser {
                     }
                 }
             } else {
-                num *= 100;
+                num *= dpMultipliers[0];
             }
 
 
@@ -530,7 +576,116 @@ public class PullParser {
         }
     };
 
-    private static final ByteMatcher BIGCASH_PARSER = new ByteMatcher() {
+    private static final ByteMatcher BIGCASHMAJOR_PARSER = new BigCashParser(4);
+    private static final ByteMatcher BIGCASHMINOR_PARSER = new BigCashParser(2);
+
+    private static class BigCashParser implements ByteMatcher {
+        private long[] dpMultipliers;
+
+        public BigCashParser( int numDP ) {
+            dpMultipliers = new long[numDP+1];
+
+            int mult = 1;
+            for ( int i=numDP; i>=0; i-- ) {
+                dpMultipliers[i] = mult;
+
+                mult *= 10;
+            }
+        }
+
+        public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
+            long num = 0;
+
+            long i=fromInc;
+            byte v = source.readByte(i);
+
+            boolean isNeg = v == '-';
+            if ( isNeg ) {
+                i += 1;
+            }
+
+            for ( ; i<toExc; i++ ) {
+                v = source.readByte(i);
+
+                if ( v < '0' || v > '9' ) {
+                    break;
+                } else {
+                    num *= 10;
+                    num += v - '0';
+                }
+            }
+
+
+            if ( v == '.' ) {
+                i++;
+
+                long firstDecimalDigit = i;
+                long maxIndex          = Math.min(i+dpMultipliers.length-1,toExc);
+
+                for ( ; i<maxIndex; i++ ) {
+                    v = source.readByte(i);
+
+                    if ( v < '0' || v > '9' ) {
+                        break;
+                    } else {
+                        num *= 10;
+                        num += v - '0';
+                    }
+                }
+
+                int numDecimalDigitsParsed = (int) (i-firstDecimalDigit);
+                num *= dpMultipliers[numDecimalDigitsParsed];
+
+                if ( i<toExc ) {  // if we have truncated the input, round the last decimal place
+                    v = source.readByte(i);
+
+                    if ( v >= '5' && v <= '9' ) {
+                        i++;
+
+                        num += 1;
+                    }
+                }
+
+                for ( ; i<toExc; i++ ) {  // skip the rest of any digits
+                    v = source.readByte(i);
+
+                    if ( v < '0' || v > '9' ) {
+                        break;
+                    }
+                }
+            } else {
+                num *= dpMultipliers[0];
+            }
+
+
+            if ( isNeg ) {
+                if ( i == fromInc+1 ) {
+                    result.resultNoMatch();
+                } else {
+                    long r = -num;
+
+                    QA.argIsLTEZero( r, "num" );
+
+                    result.resultMatchedLong( -num, fromInc, i );
+                }
+            } else {
+                QA.argIsGTEZero( num, "num" );
+
+                if ( i == fromInc  ) {
+                    result.resultNoMatch();
+                } else {
+                    result.resultMatchedLong( num, fromInc, i );
+                }
+            }
+        }
+
+        public String toString() {
+            return "bigcash";
+        }
+    };
+
+
+    private static final ByteMatcher BIGCASH_PARSEROLD = new ByteMatcher() {
         public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
             long num = 0;
 

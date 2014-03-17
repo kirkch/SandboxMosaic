@@ -334,4 +334,39 @@ private UTF8[] UTF8S = new UTF8[] {
 
         return v;
     }
+
+/*
+First stab
+    422.84ns per call
+    418.91ns per call
+    420.79ns per call
+    431.09ns per call
+    426.85ns per call
+    445.71ns per call
+
+rewrote to be simpler (less if/elseif/else logic)
+    342.58ns per call
+    332.96ns per call
+    325.42ns per call
+    330.13ns per call
+    331.02ns per call
+    339.18ns per call
+ */
+    @Benchmark
+    public long writeSmallCash( int numIterations ) {
+        long v = 0;
+
+        while ( numIterations > 0 ) {
+            for ( int i=0; i<20; i++ ) {
+                out.writeSmallCashMajorUnit( i );
+            }
+            bytes.positionIndex(0);
+
+            v += bytes.readByte( 1 );
+
+            numIterations--;
+        }
+
+        return v;
+    }
 }

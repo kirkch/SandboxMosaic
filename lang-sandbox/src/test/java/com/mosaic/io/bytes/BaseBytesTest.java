@@ -377,6 +377,26 @@ public abstract class BaseBytesTest {
     }
 
 
+
+    @Test
+    public void writeBytesFromOneBytesClassToAnother() {
+        Bytes source = initBytes();
+        source.writeBytes( 0, new byte[] {'a','b','c'} );
+
+
+        Bytes sink = initBytes();
+        sink.writeBytes(2, source, 0, 3);
+
+
+        assertEquals( 0, sink.positionIndex() );
+        assertAllBytesAreZero( sink, 0, 2 );
+        assertEquals( 'a', sink.readByte(2) );
+        assertEquals( 'b', sink.readByte(3) );
+        assertEquals( 'c', sink.readByte(4) );
+        assertAllBytesAreZero( sink, 5, sink.bufferLength() );
+    }
+
+
 // RESIZE
 
     @Test

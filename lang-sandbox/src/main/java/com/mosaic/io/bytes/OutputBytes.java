@@ -59,6 +59,8 @@ public interface OutputBytes {
 
     public void writeBytes( long index, long fromAddress, int numBytes );
 
+    public void writeBytes( long index, Bytes source, long fromInc, long toExc );
+
 
     /**
      * The starting point for these bytes.  The minimum index that may be used.

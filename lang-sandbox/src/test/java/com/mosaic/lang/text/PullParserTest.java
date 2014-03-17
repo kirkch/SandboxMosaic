@@ -144,136 +144,136 @@ public class PullParserTest {
         }
     }
 
-// pullSmallCash
+// pullSmallCashMajorCurrency
 
     @Test
-    public void given12303pence_pullSmallCash_expectResult() {
+    public void given12303pence_pullSmallCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("123.03");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        int v = parser.pullSmallCash2dp();
+        int v = parser.pullSmallCashMajorUnit();
 
-        assertEquals( 12303, v );
+        assertEquals( 123030, v );
         assertEquals( 6, parser.getPosition() );
     }
 
     @Test
-    public void given1233pence_pullSmallCash_expectResult() {
+    public void given1233pence_pullSmallCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("123.3");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        int v = parser.pullSmallCash2dp();
+        int v = parser.pullSmallCashMajorUnit();
 
-        assertEquals( 12330, v );
+        assertEquals( 123300, v );
         assertEquals( 5, parser.getPosition() );
     }
 
     @Test
-    public void given123dpence_pullSmallCash_expectResult() {
+    public void given123dpence_pullSmallCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("123.");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        int v = parser.pullSmallCash2dp();
+        int v = parser.pullSmallCashMajorUnit();
 
-        assertEquals( 12300, v );
+        assertEquals( 123000, v );
         assertEquals( 4, parser.getPosition() );
     }
 
     @Test
-    public void given123124pence_pullSmallCash_expectResult() {
+    public void given123124pence_pullSmallCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("123.124");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        int v = parser.pullSmallCash2dp();
+        int v = parser.pullSmallCashMajorUnit();
 
-        assertEquals( 12312, v );
+        assertEquals( 123124, v );
         assertEquals( 7, parser.getPosition() );
     }
 
     @Test
-    public void given123125pence_pullSmallCash_expectResult() {
+    public void given123125pence_pullSmallCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("123.125");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        int v = parser.pullSmallCash2dp();
+        int v = parser.pullSmallCashMajorUnit();
 
-        assertEquals( 12313, v );
+        assertEquals( 123125, v );
         assertEquals( 7, parser.getPosition() );
     }
 
     @Test
-    public void given1231246pence_pullSmallCash_expectResult() {
-        Bytes      source = Bytes.wrap("123.124");
+    public void given1231246pence_pullSmallCashMajor_expectResult() {
+        Bytes      source = Bytes.wrap("123.1246");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        int v = parser.pullSmallCash2dp();
+        int v = parser.pullSmallCashMajorUnit();
 
-        assertEquals( 12312, v );
-        assertEquals( 7, parser.getPosition() );
+        assertEquals( 123125, v );
+        assertEquals( 8, parser.getPosition() );
     }
 
     @Test
-    public void given123_pullSmallCash_expectResult() {
+    public void given123_pullSmallCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("123");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        int v = parser.pullSmallCash2dp();
+        int v = parser.pullSmallCashMajorUnit();
 
-        assertEquals( 12300, v );
+        assertEquals( 123000, v );
         assertEquals( 3, parser.getPosition() );
     }
 
     @Test
-    public void givenNeg12303pence_pullSmallCash_expectResult() {
+    public void givenNeg12303pence_pullSmallCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("-123.03");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        long v = parser.pullSmallCash2dp();
+        long v = parser.pullSmallCashMajorUnit();
 
-        assertEquals( -12303, v );
+        assertEquals( -123030, v );
         assertEquals( 7, parser.getPosition() );
     }
 
     @Test
-    public void givenMaxSmallCash_pullSmallCash_expectResult() {
+    public void givenMaxSmallCash_pullSmallCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("1999999.99");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        long v = parser.pullSmallCash2dp();
+        long v = parser.pullSmallCashMajorUnit();
 
-        assertEquals( 199999999, v );
+        assertEquals( 1999999990, v );
         assertEquals( 10, parser.getPosition() );
     }
 
     @Test
-    public void givenMinSmallCash_pullSmallCash_expectResult() {
+    public void givenMinSmallCash_pullSmallCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("-1999999.99");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        long v = parser.pullSmallCash2dp();
+        long v = parser.pullSmallCashMajorUnit();
 
-        assertEquals( -199999999, v );
+        assertEquals( -1999999990, v );
         assertEquals( 11, parser.getPosition() );
     }
 
     @Test
-    public void givenSmallCashFollowedByText_pullSmallCash_expectResult() {
+    public void givenSmallCashFollowedByTextMajor_pullSmallCash_expectResult() {
         Bytes      source = Bytes.wrap("1234abc");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        long v = parser.pullSmallCash2dp();
+        long v = parser.pullSmallCashMajorUnit();
 
-        assertEquals( 123400, v );
+        assertEquals( 1234000, v );
         assertEquals( 4, parser.getPosition() );
     }
 
     @Test
-    public void givenNonSmallCash_pullSmallCash_expectError() {
+    public void givenNonSmallCash_pullSmallCashMajor_expectError() {
         Bytes      source = Bytes.wrap("abc");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
         try {
-            parser.pullSmallCash2dp();
+            parser.pullSmallCashMajorUnit();
             fail("expected exception" );
         } catch ( ParseException ex ) {
 
@@ -281,148 +281,297 @@ public class PullParserTest {
     }
 
     @Test
-    public void givenDoubleNeg_pullSmallCash_expectError() {
+    public void givenDoubleNeg_pullSmallCashMajor_expectError() {
         Bytes      source = Bytes.wrap("--123");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
         try {
-            parser.pullSmallCash2dp();
+            parser.pullSmallCashMajorUnit();
             fail("expected exception" );
         } catch ( ParseException ex ) {
 
         }
     }
 
-// pullBigCash
+// pullSmallCashMinorCurrency
 
     @Test
-    public void given12303pence_pullBigCash_expectResult() {
+    public void given12303pence_pullSmallCashMinor_expectResult() {
         Bytes      source = Bytes.wrap("123.03");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        long v = parser.pullBigCash4dp();
+        int v = parser.pullSmallCashMinorUnit();
+
+        assertEquals( 1230, v );
+        assertEquals( 6, parser.getPosition() );
+    }
+
+    @Test
+    public void given1233pence_pullSmallCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("123.3");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        int v = parser.pullSmallCashMinorUnit();
+
+        assertEquals( 1233, v );
+        assertEquals( 5, parser.getPosition() );
+    }
+
+    @Test
+    public void given123dpence_pullSmallCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("123.");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        int v = parser.pullSmallCashMinorUnit();
+
+        assertEquals( 1230, v );
+        assertEquals( 4, parser.getPosition() );
+    }
+
+    @Test
+    public void given123124pence_pullSmallCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("123.124");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        int v = parser.pullSmallCashMinorUnit();
+
+        assertEquals( 1231, v );
+        assertEquals( 7, parser.getPosition() );
+    }
+
+    @Test
+    public void given123125pence_pullSmallCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("123.125");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        int v = parser.pullSmallCashMinorUnit();
+
+        assertEquals( 1231, v );
+        assertEquals( 7, parser.getPosition() );
+    }
+
+    @Test
+    public void given1231246pence_pullSmallCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("123.124");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        int v = parser.pullSmallCashMinorUnit();
+
+        assertEquals( 1231, v );
+        assertEquals( 7, parser.getPosition() );
+    }
+
+    @Test
+    public void given123_pullSmallCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("123");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        int v = parser.pullSmallCashMinorUnit();
+
+        assertEquals( 1230, v );
+        assertEquals( 3, parser.getPosition() );
+    }
+
+    @Test
+    public void givenNeg12303pence_pullSmallCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("-123.03");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        long v = parser.pullSmallCashMinorUnit();
+
+        assertEquals( -1230, v );
+        assertEquals( 7, parser.getPosition() );
+    }
+
+    @Test
+    public void givenMaxSmallCash_pullSmallCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("1999999.99");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        long v = parser.pullSmallCashMinorUnit();
+
+        assertEquals( 20000000, v );
+        assertEquals( 10, parser.getPosition() );
+    }
+
+    @Test
+    public void givenMinSmallCash_pullSmallCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("-1999999.99");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        long v = parser.pullSmallCashMinorUnit();
+
+        assertEquals( -20000000, v );
+        assertEquals( 11, parser.getPosition() );
+    }
+
+    @Test
+    public void givenSmallCashFollowedByText_pullSmallCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("1234abc");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        long v = parser.pullSmallCashMinorUnit();
+
+        assertEquals( 12340, v );
+        assertEquals( 4, parser.getPosition() );
+    }
+
+    @Test
+    public void givenNonSmallCash_pullSmallCashMinor_expectError() {
+        Bytes      source = Bytes.wrap("abc");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        try {
+            parser.pullSmallCashMinorUnit();
+            fail("expected exception" );
+        } catch ( ParseException ex ) {
+
+        }
+    }
+
+    @Test
+    public void givenDoubleNeg_pullSmallCashMinor_expectError() {
+        Bytes      source = Bytes.wrap("--123");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        try {
+            parser.pullSmallCashMinorUnit();
+            fail("expected exception" );
+        } catch ( ParseException ex ) {
+
+        }
+    }
+
+// pullBigCashMajorUnit
+
+    @Test
+    public void given12303pence_pullBigCashMajor_expectResult() {
+        Bytes      source = Bytes.wrap("123.03");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        long v = parser.pullBigCashMajorUnit();
 
         assertEquals( 1230300, v );
         assertEquals( 6, parser.getPosition() );
     }
 
     @Test
-    public void given1233pence_pullBigCash_expectResult() {
+    public void given1233pence_pullBigCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("123.3");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        long v = parser.pullBigCash4dp();
+        long v = parser.pullBigCashMajorUnit();
 
         assertEquals( 1233000, v );
         assertEquals( 5, parser.getPosition() );
     }
 
     @Test
-    public void given123dpence_pullBigCash_expectResult() {
+    public void given123dpence_pullBigCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("123.");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        long v = parser.pullBigCash4dp();
+        long v = parser.pullBigCashMajorUnit();
 
         assertEquals( 1230000, v );
         assertEquals( 4, parser.getPosition() );
     }
 
     @Test
-    public void given123124pence_pullBigCash_expectResult() {
+    public void given123124pence_pullBigCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("123.12344");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        long v = parser.pullBigCash4dp();
+        long v = parser.pullBigCashMajorUnit();
 
         assertEquals( 1231234, v );
         assertEquals( 9, parser.getPosition() );
     }
 
     @Test
-    public void given123125pence_pullBigCash_expectResult() {
+    public void given123125pence_pullBigCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("123.12345");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        long v = parser.pullBigCash4dp();
+        long v = parser.pullBigCashMajorUnit();
 
         assertEquals( 1231235, v );
         assertEquals( 9, parser.getPosition() );
     }
 
     @Test
-    public void given1231246pence_pullBigCash_expectResult() {
+    public void given1231246pence_pullBigCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("123.124");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        long v = parser.pullBigCash4dp();
+        long v = parser.pullBigCashMajorUnit();
 
         assertEquals( 1231240, v );
         assertEquals( 7, parser.getPosition() );
     }
 
     @Test
-    public void given123_pullBigCash_expectResult() {
+    public void given123_pullBigCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("123");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        long v = parser.pullBigCash4dp();
+        long v = parser.pullBigCashMajorUnit();
 
         assertEquals( 1230000, v );
         assertEquals( 3, parser.getPosition() );
     }
 
     @Test
-    public void givenNeg12303pence_pullBigCash_expectResult() {
+    public void givenNeg12303pence_pullBigCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("-123.03");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        long v = parser.pullBigCash4dp();
+        long v = parser.pullBigCashMajorUnit();
 
         assertEquals( -1230300, v );
         assertEquals( 7, parser.getPosition() );
     }
 
     @Test
-    public void givenMaxBigCash_pullBigCash_expectResult() {
+    public void givenMaxBigCash_pullBigCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("1999999.99");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        long v = parser.pullBigCash4dp();
+        long v = parser.pullBigCashMajorUnit();
 
         assertEquals( 19999999900L, v );
         assertEquals( 10, parser.getPosition() );
     }
 
     @Test
-    public void givenMinBigCash_pullBigCash_expectResult() {
+    public void givenMinBigCash_pullBigCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("-1999999.99");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        long v = parser.pullBigCash4dp();
+        long v = parser.pullBigCashMajorUnit();
 
         assertEquals( -19999999900L, v );
         assertEquals( 11, parser.getPosition() );
     }
 
     @Test
-    public void givenBigCashFollowedByText_pullBigCash_expectResult() {
+    public void givenBigCashFollowedByText_pullBigCashMajor_expectResult() {
         Bytes      source = Bytes.wrap("1234abc");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
-        long v = parser.pullBigCash4dp();
+        long v = parser.pullBigCashMajorUnit();
 
         assertEquals( 12340000, v );
         assertEquals( 4, parser.getPosition() );
     }
 
     @Test
-    public void givenNonBigCash_pullBigCash_expectError() {
+    public void givenNonBigCash_pullBigCashMajor_expectError() {
         Bytes      source = Bytes.wrap("abc");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
         try {
-            parser.pullBigCash4dp();
+            parser.pullBigCashMajorUnit();
             fail("expected exception" );
         } catch ( ParseException ex ) {
 
@@ -430,12 +579,172 @@ public class PullParserTest {
     }
 
     @Test
-    public void givenDoubleNeg_pullBigCash_expectError() {
+    public void givenDoubleNeg_pullBigCashMajor_expectError() {
         Bytes      source = Bytes.wrap("--123");
         PullParser parser = new PullParser( "/tmp/file/x", source );
 
         try {
-            parser.pullBigCash4dp();
+            parser.pullBigCashMajorUnit();
+            fail("expected exception" );
+        } catch ( ParseException ex ) {
+
+        }
+    }
+
+// pullBigCashMinorUnit
+
+    @Test
+    public void given12303pence_pullBigCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("123.03");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        long v = parser.pullBigCashMinorUnit();
+
+        assertEquals( 12303, v );
+        assertEquals( 6, parser.getPosition() );
+    }
+
+    @Test
+    public void given1233pence_pullBigCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("123.3");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        long v = parser.pullBigCashMinorUnit();
+
+        assertEquals( 12330, v );
+        assertEquals( 5, parser.getPosition() );
+    }
+
+    @Test
+    public void given123dpence_pullBigCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("123.");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        long v = parser.pullBigCashMinorUnit();
+
+        assertEquals( 12300, v );
+        assertEquals( 4, parser.getPosition() );
+    }
+
+    @Test
+    public void given123124pence_pullBigCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("123.12344");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        long v = parser.pullBigCashMinorUnit();
+
+        assertEquals( 12312, v );
+        assertEquals( 9, parser.getPosition() );
+    }
+
+    @Test
+    public void given123125pence_pullBigCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("123.12345");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        long v = parser.pullBigCashMinorUnit();
+
+        assertEquals( 12312, v );
+        assertEquals( 9, parser.getPosition() );
+    }
+
+    @Test
+    public void given1231246pence_pullBigCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("123.124");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        long v = parser.pullBigCashMinorUnit();
+
+        assertEquals( 12312, v );
+        assertEquals( 7, parser.getPosition() );
+    }
+
+    @Test
+    public void given123_pullBigCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("123");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        long v = parser.pullBigCashMinorUnit();
+
+        assertEquals( 12300, v );
+        assertEquals( 3, parser.getPosition() );
+    }
+
+    @Test
+    public void givenNeg12303pence_pullBigCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("-123.03");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        long v = parser.pullBigCashMinorUnit();
+
+        assertEquals( -12303, v );
+        assertEquals( 7, parser.getPosition() );
+    }
+
+    @Test
+    public void givenMaxBigCashLotsOfNines_pullBigCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("1999999.999");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        long v = parser.pullBigCashMinorUnit();
+
+        assertEquals( 200000000L, v );
+        assertEquals( 11, parser.getPosition() );
+    }
+
+    @Test
+    public void givenMaxBigCash_pullBigCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("920999999999999.99");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        long v = parser.pullBigCashMinorUnit();
+
+        assertEquals( 92099999999999999L, v );
+        assertEquals( 18, parser.getPosition() );
+    }
+
+    @Test
+    public void givenMinBigCash_pullBigCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("-920999999999999.99");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        long v = parser.pullBigCashMinorUnit();
+
+        assertEquals( -92099999999999999L, v );
+        assertEquals( 19, parser.getPosition() );
+    }
+
+    @Test
+    public void givenBigCashFollowedByText_pullBigCashMinor_expectResult() {
+        Bytes      source = Bytes.wrap("1234abc");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        long v = parser.pullBigCashMinorUnit();
+
+        assertEquals( 123400, v );
+        assertEquals( 4, parser.getPosition() );
+    }
+
+    @Test
+    public void givenNonBigCash_pullBigCashMinor_expectError() {
+        Bytes      source = Bytes.wrap("abc");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        try {
+            parser.pullBigCashMinorUnit();
+            fail("expected exception" );
+        } catch ( ParseException ex ) {
+
+        }
+    }
+
+    @Test
+    public void givenDoubleNeg_pullBigCashMinor_expectError() {
+        Bytes      source = Bytes.wrap("--123");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        try {
+            parser.pullBigCashMinorUnit();
             fail("expected exception" );
         } catch ( ParseException ex ) {
 

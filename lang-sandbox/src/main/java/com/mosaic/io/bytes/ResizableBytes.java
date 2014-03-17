@@ -118,6 +118,12 @@ public class ResizableBytes extends WrappedBytes {
         super.writeBytes( index, fromAddress, numBytes );
     }
 
+    public void writeBytes( long index, Bytes source, long fromInc, long toExc ) {
+        resizeIfNeeded( index+toExc-fromInc );
+
+        super.writeBytes( index, source, fromInc, toExc );
+    }
+
 
     public void writeBoolean( boolean v ) {
         resizeIfNeeded( super.positionIndex()+1 );
@@ -228,9 +234,6 @@ public class ResizableBytes extends WrappedBytes {
     }
 
     private void resizeIfNeeded( long requiredEndExc ) {
-        System.out.println( "requiredEndExc = " + requiredEndExc );
-        System.out.println( "super.getEndIndexExc = " + super.getEndIndexExc() );
-
         while ( requiredEndExc > super.getEndIndexExc() ) {
             long originalSize = super.bufferLength();
             long newLength    = originalSize * 2;

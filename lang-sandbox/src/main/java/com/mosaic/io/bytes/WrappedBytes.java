@@ -226,6 +226,10 @@ public class WrappedBytes extends Bytes {
         delegate.writeBytes( index, fromAddress, numBytes );
     }
 
+    public void writeBytes( long index, Bytes source, long fromInc, long toExc ) {
+        delegate.writeBytes( index, source, fromInc, toExc );
+    }
+
     public long startIndex() {
         return delegate.startIndex();
     }

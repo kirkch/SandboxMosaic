@@ -233,6 +233,12 @@ public abstract class NativeBytes extends BaseBytes {
         Backdoor.copyBytes( fromAddress, toAddress, numBytes );
     }
 
+    public void writeBytes( long index, Bytes source, long fromInc, long toExc ) {
+        QA.argIsBetween( 0, index, Integer.MAX_VALUE, "index" );
+
+        long toAddress = cacheAlignedBaseAddress+index;
+        source.readBytes( fromInc, toAddress, (int) (index+toExc-fromInc) );
+    }
 
     public long startIndex() {
         return 0;

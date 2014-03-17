@@ -218,6 +218,12 @@ public class ArrayBytes extends BaseBytes {
         Backdoor.copyBytes( fromAddress, array, (int) index, numBytes );
     }
 
+    public void writeBytes( long index, Bytes source, long fromInc, long toExc ) {
+        QA.argIsBetween( 0, index, Integer.MAX_VALUE, "index" );
+
+        source.readBytes( fromInc, this.array, (int) index, (int) (index+toExc-fromInc) );
+    }
+
     public void writeBytes( long fromAddress, int numBytes ) {
         QA.argIsBetween( 0, positionIndex(), Integer.MAX_VALUE, "positionIndex()" );
 

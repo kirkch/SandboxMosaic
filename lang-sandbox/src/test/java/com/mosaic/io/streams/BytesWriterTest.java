@@ -1,6 +1,8 @@
 package com.mosaic.io.streams;
 
 import com.mosaic.io.bytes.Bytes;
+import com.mosaic.lang.BigCashType;
+import com.mosaic.lang.SmallCashType;
 import com.mosaic.lang.UTF8;
 import org.junit.Test;
 
@@ -44,8 +46,8 @@ public class BytesWriterTest {
 
     @Test
     public void writeIndexedBytes() {
-        out.writeBytes( new byte[] { 0, 1, 2, -1, Byte.MIN_VALUE, Byte.MAX_VALUE}, 1,4 );
-        out.writeBytes( new byte[] { -3,-2,-100,100}, 0, 1 );
+        out.writeBytes( new byte[]{0, 1, 2, -1, Byte.MIN_VALUE, Byte.MAX_VALUE}, 1, 4 );
+        out.writeBytes( new byte[]{-3, -2, -100, 100}, 0, 1 );
 
         assertBytes( "12-1-3" );
     }
@@ -76,8 +78,8 @@ public class BytesWriterTest {
     @Test
     public void writeIndexedCharacters() {
         out.writeCharacters( new char[] {'a','b','c'}, 0,1 );
-        out.writeCharacters( new char[] {'a','b','c'}, 1,1 );
-        out.writeCharacters( new char[] {'グ','£','グ'},1,3 );
+        out.writeCharacters( new char[]{'a', 'b', 'c'}, 1, 1 );
+        out.writeCharacters( new char[]{'グ', '£', 'グ'}, 1, 3 );
 
         assertBytes( "a£グ" );
     }
@@ -126,6 +128,138 @@ public class BytesWriterTest {
         out.writeInt( Integer.MAX_VALUE );
 
         assertBytes( "012-1-2-10-111011-21474836482147483647" );
+    }
+
+    @Test
+    public void writeFixedWidthInt() {
+        out.writeFixedWidthInt( 0, 3, (byte) '0' );
+        out.writeCharacter( ' ' );
+        out.writeFixedWidthInt( 1, 3, (byte) '0' );
+        out.writeCharacter( ' ' );
+        out.writeFixedWidthInt( -1, 3, (byte) '0' );
+        out.writeCharacter( ' ' );
+        out.writeFixedWidthInt( 123, 3, (byte) '0' );
+
+
+        assertBytes( "000 001 -01 123" );
+    }
+
+    @Test
+    public void writeSmallCashMajor() {
+        out.writeSmallCashMajorUnit( 1030 );
+        out.writeCharacter( ' ' );
+        out.writeSmallCashMajorUnit( 422 );
+        out.writeCharacter( ' ' );
+        out.writeSmallCashMajorUnit( 0 );
+        out.writeCharacter( ' ' );
+        out.writeSmallCashMajorUnit( 26 );
+        out.writeCharacter( ' ' );
+        out.writeSmallCashMajorUnit( -77 );
+        out.writeCharacter( ' ' );
+        out.writeSmallCashMajorUnit( -101201 );
+        out.writeCharacter( ' ' );
+        out.writeSmallCashMajorUnit( SmallCashType.MAX_VALUE );
+        out.writeCharacter( ' ' );
+        out.writeSmallCashMajorUnit( SmallCashType.MIN_VALUE );
+
+
+        assertBytes( "1.03 0.42 0.00 0.02 -0.07 -101.20 2147483.64 -2147483.64" );
+    }
+
+    @Test
+    public void writeSmallCashMinor() {
+        out.writeSmallCashMinorUnit( 1030 );
+        out.writeCharacter( ' ' );
+        out.writeSmallCashMinorUnit( 422 );
+        out.writeCharacter( ' ' );
+        out.writeSmallCashMinorUnit( 0 );
+        out.writeCharacter( ' ' );
+        out.writeSmallCashMinorUnit( 26 );
+        out.writeCharacter( ' ' );
+        out.writeSmallCashMinorUnit( -77 );
+        out.writeCharacter( ' ' );
+        out.writeSmallCashMinorUnit( -101201 );
+        out.writeCharacter( ' ' );
+        out.writeSmallCashMinorUnit( SmallCashType.MAX_VALUE );
+        out.writeCharacter( ' ' );
+        out.writeSmallCashMinorUnit( SmallCashType.MIN_VALUE );
+
+
+        assertBytes( "103.0 42.2 0.0 2.6 -7.7 -10120.1 214748364.7 -214748364.8" );
+    }
+
+    @Test
+    public void writeBigCashMajor() {
+        out.writeBigCashMajorUnit( 10300 );
+        out.writeCharacter( ' ' );
+        out.writeBigCashMajorUnit( 4200 );
+        out.writeCharacter( ' ' );
+        out.writeBigCashMajorUnit( 0 );
+        out.writeCharacter( ' ' );
+        out.writeBigCashMajorUnit( 200 );
+
+        // test rounding
+        out.writeCharacter( ' ' );
+        out.writeBigCashMajorUnit( 249 );
+        out.writeCharacter( ' ' );
+        out.writeBigCashMajorUnit( 250 );
+
+
+        out.writeCharacter( ' ' );
+        out.writeBigCashMajorUnit( -700 );
+        out.writeCharacter( ' ' );
+        out.writeBigCashMajorUnit( -749 );
+        out.writeCharacter( ' ' );
+        out.writeBigCashMajorUnit( -750 );
+
+
+
+        out.writeCharacter( ' ' );
+        out.writeBigCashMajorUnit( -1012000 );
+        out.writeCharacter( ' ' );
+        out.writeBigCashMajorUnit( BigCashType.MAX_VALUE );
+        out.writeCharacter( ' ' );
+        out.writeBigCashMajorUnit( BigCashType.MIN_VALUE );
+
+
+        assertBytes( "1.03 0.42 0.00 0.02 0.02 0.02 -0.07 -0.07 -0.07 -101.20 922337203685477.58 -922337203685477.58" );
+    }
+
+    @Test
+    public void writeBigCashMinor() {
+        out.writeBigCashMinorUnit( 10300 );
+        out.writeCharacter( ' ' );
+        out.writeBigCashMinorUnit( 4200 );
+        out.writeCharacter( ' ' );
+        out.writeBigCashMinorUnit( 0 );
+        out.writeCharacter( ' ' );
+        out.writeBigCashMinorUnit( 200 );
+
+        // test rounding
+        out.writeCharacter( ' ' );
+        out.writeBigCashMinorUnit( 249 );
+        out.writeCharacter( ' ' );
+        out.writeBigCashMinorUnit( 250 );
+
+
+        out.writeCharacter( ' ' );
+        out.writeBigCashMinorUnit( -700 );
+        out.writeCharacter( ' ' );
+        out.writeBigCashMinorUnit( -749 );
+        out.writeCharacter( ' ' );
+        out.writeBigCashMinorUnit( -750 );
+
+
+
+        out.writeCharacter( ' ' );
+        out.writeBigCashMinorUnit( -1012000 );
+        out.writeCharacter( ' ' );
+        out.writeBigCashMinorUnit( BigCashType.MAX_VALUE );
+        out.writeCharacter( ' ' );
+        out.writeBigCashMinorUnit( BigCashType.MIN_VALUE );
+
+
+        assertBytes( "103.00 42.00 0.00 2.00 2.49 2.50 -7.00 -7.49 -7.50 -10120.00 92233720368547758.07 -92233720368547758.08" );
     }
 
     @Test

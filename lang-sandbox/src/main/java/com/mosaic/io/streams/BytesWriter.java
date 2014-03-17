@@ -1,7 +1,9 @@
 package com.mosaic.io.streams;
 
 import com.mosaic.io.bytes.Bytes;
+import com.mosaic.lang.BigCashType;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.SmallCashType;
 import com.mosaic.lang.UTF8;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.MathUtils;
@@ -110,23 +112,22 @@ public class BytesWriter implements WriterX {
     }
 
     public void writeInt( int v ) {
-        writeLong(v);
-    }
-
-    public void writeUnsignedInt( long v ) {
-        QA.isUnsignedInt( v, "v" );
-
         writeLong( v );
     }
 
-    public void writeLong( long v ) {
+    public void writeFixedWidthInt( int v, int fixedWidth, byte paddingByte ) {
         int numBytes = MathUtils.charactersLengthOf( v );
+
+        int prefixLength = fixedWidth-numBytes;
+        for ( int i=0; i<prefixLength; i++ ) {
+            formattingBuffer[i] = paddingByte;
+        }
 
         if ( v < 0 ) {
             formattingBuffer[0] = '-';
 
             long reducingNumber = v;
-            for ( int i=numBytes-1; i>0; i-- ) {
+            for ( int i=fixedWidth-1; i>prefixLength; i-- ) {
                 long digit = reducingNumber % 10;
 
                 formattingBuffer[i] = (byte) ('0' - digit);
@@ -135,7 +136,7 @@ public class BytesWriter implements WriterX {
             }
         } else {
             long reducingNumber = v;
-            for ( int i=numBytes-1; i>=0; i-- ) {
+            for ( int i=fixedWidth-1; i>=prefixLength; i-- ) {
                 long digit = reducingNumber % 10;
 
                 formattingBuffer[i] = (byte) ('0' + digit);
@@ -144,7 +145,160 @@ public class BytesWriter implements WriterX {
             }
         }
 
+        bytes.writeBytes( formattingBuffer, 0, fixedWidth );
+    }
+
+    public void writeSmallCashMajorUnit( int v ) {
+        int i = 0;
+
+        int major = SmallCashType.extractMajorComponent( v );
+        int minor = SmallCashType.extractMinorComponent( v );
+
+        if ( v < 0 ) {
+            formattingBuffer[i++] = '-';
+
+            major = Math.abs(major);
+        }
+
+        i = writeToBufferPositiveNumber( formattingBuffer, i, major );
+
+        formattingBuffer[i++] = '.';
+
+        i = writeToBufferPositiveNumber( formattingBuffer, i, minor, 2 );
+
+        bytes.writeBytes( formattingBuffer, 0, i );
+    }
+
+    public void writeSmallCashMinorUnit( int v ) {
+        int i = 0;
+
+        int major = v / 10;
+        int minor = Math.abs( v % 10 );
+
+        if ( v < 0 ) {
+            formattingBuffer[i++] = '-';
+
+            major = Math.abs(major);
+        }
+
+        i = writeToBufferPositiveNumber( formattingBuffer, i, major );
+
+        formattingBuffer[i++] = '.';
+
+        i = writeToBufferPositiveNumber( formattingBuffer, i, minor, 1 );
+
+        bytes.writeBytes( formattingBuffer, 0, i );
+    }
+
+    /**
+     * Prints the BigCash format in the major currency, rounding down.
+     * Thus a BigCash value of 1050 represents 10.5 pence, and will be printed
+     * as 0.10.
+     */
+    public void writeBigCashMajorUnit( long v ) {
+        int i = 0;
+
+        long major = BigCashType.extractMajorComponent( v );
+        long minor = BigCashType.extractMinorComponent( v );
+
+        if ( v < 0 ) {
+            formattingBuffer[i++] = '-';
+
+            major = Math.abs(major);
+        }
+
+        i = writeToBufferPositiveNumber( formattingBuffer, i, major );
+
+        formattingBuffer[i++] = '.';
+
+        i = writeToBufferPositiveNumber( formattingBuffer, i, minor, 2 );
+
+        bytes.writeBytes( formattingBuffer, 0, i );
+    }
+
+    /**
+     * Prints the BigCash format in the minor currency, rounding down.
+     * Thus a BigCash value of 1050 represents 10.5 pence, and will be printed
+     * as 10.50.
+     */
+    public void writeBigCashMinorUnit( long v ) {
+        int i = 0;
+
+        long major = v / 100;
+        long minor = Math.abs(v % 100);
+
+        if ( v < 0 ) {
+            formattingBuffer[i++] = '-';
+
+            major = Math.abs(major);
+        }
+
+        i = writeToBufferPositiveNumber( formattingBuffer, i, major );
+
+        formattingBuffer[i++] = '.';
+
+        i = writeToBufferPositiveNumber( formattingBuffer, i, minor, 2 );
+
+        bytes.writeBytes( formattingBuffer, 0, i );
+    }
+
+    private static int writeToBufferPositiveNumber( byte[] buf, int toInc, long value ) {
+        int numDigits = MathUtils.charactersLengthOf( value );
+
+        return writeToBufferPositiveNumber( buf, toInc, value, numDigits );
+    }
+
+    private static int writeToBufferPositiveNumber( byte[] buf, int toInc, long value, int numDigits ) {
+        long v = value;
+
+        for ( int i=numDigits-1; i>=0; i-- ) {
+            buf[toInc+i] = (byte) ('0' + (v%10));
+
+            v /= 10;
+        }
+
+        return toInc+numDigits;
+    }
+
+
+    public void writeUnsignedInt( long v ) {
+        QA.isUnsignedInt( v, "v" );
+
+        writeLong( v );
+    }
+
+    public void writeLong( long v ) {
+        int numBytes = writeToBuffer( formattingBuffer, v );
+
         bytes.writeBytes( formattingBuffer, 0, numBytes );
+    }
+
+    private static int writeToBuffer( byte[] buf, long v ) {
+        int numBytes = MathUtils.charactersLengthOf( v );
+
+        if ( v < 0 ) {
+            buf[0] = '-';
+
+            long reducingNumber = v;
+            for ( int i=numBytes-1; i>0; i-- ) {
+                long digit = reducingNumber % 10;
+
+                buf[i] = (byte) ('0' - digit);
+
+                reducingNumber /= 10;
+            }
+        } else {
+            long reducingNumber = v;
+            for ( int i=numBytes-1; i>=0; i-- ) {
+                long digit = reducingNumber % 10;
+
+                buf[i] = (byte) ('0' + digit);
+
+                reducingNumber /= 10;
+            }
+        }
+
+        return numBytes;
     }
 
     public void writeFloat( float v, int numDecimalPlaces ) {

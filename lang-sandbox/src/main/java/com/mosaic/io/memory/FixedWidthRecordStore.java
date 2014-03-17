@@ -19,6 +19,10 @@ public class FixedWidthRecordStore {
         return new FixedWidthRecordStore( Bytes.allocOnHeap(initialRecordStoreSize),  recordWidth );
     }
 
+    public static FixedWidthRecordStore allocResizingOnHeap( SystemX system, long initialRecordStoreSize, int recordWidth, long maxExpectedSize ) {
+        return new FixedWidthRecordStore( Bytes.allocAutoResizingOnHeap( system, initialRecordStoreSize, maxExpectedSize ),  recordWidth );
+    }
+
 
     private static final int HEADER_WIDTH = SIZEOF_LONG;
 
@@ -72,11 +76,10 @@ public class FixedWidthRecordStore {
 
     public boolean select( long index ) {
         QA.argIsGTEZero( index, "index" );
-        QA.argIsLT( index, elementCount(), "index" );
 
         long nextOffset = index * elementWidth + HEADER_WIDTH;
 
-        if ( nextOffset < bytes.bufferLength() ) {
+        if ( nextOffset < maxByteIndexExc ) {
             selectedRecordByteOffset = nextOffset;
 
             return true;
@@ -105,7 +108,7 @@ public class FixedWidthRecordStore {
         allocatedRecordCount += numElements;
         maxByteIndexExc = (allocatedRecordCount*elementWidth) + HEADER_WIDTH;
 
-        bytes.writeLong( allocatedRecordCount );
+        bytes.writeLong( 0, Long.MAX_VALUE ); //allocatedRecordCount );
 
         long requiredBufferSize = allocatedRecordCount * elementWidth + HEADER_WIDTH;
         if ( bytes.bufferLength() < requiredBufferSize ) {
@@ -121,6 +124,14 @@ public class FixedWidthRecordStore {
         this.bytes.release();
 
         this.bytes = null;
+    }
+
+    public void clearAll() {
+        this.allocatedRecordCount = 0;
+        bytes.writeLong(0, 0);
+
+        this.maxByteIndexExc          = HEADER_WIDTH;
+        this.selectedRecordByteOffset = HEADER_WIDTH - elementWidth;
     }
 
 
