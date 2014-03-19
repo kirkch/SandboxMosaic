@@ -68,4 +68,15 @@ public class BigCashType {
         }
     }
 
+    public static String toStringMinor( long amt ) {
+        long major = amt/100;
+        long minor = Math.abs(amt%100);
+
+        if ( amt < 0 && (major == 0 && minor != 0)  ) {
+            return String.format("-%d.%02d", major, minor);
+        } else {
+            return String.format("%d.%02d", major, minor);
+        }
+    }
+
 }

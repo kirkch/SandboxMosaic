@@ -24,16 +24,34 @@ public class FixedWidthRecordStore {
     }
 
 
+//    public static void swapRecords( Bytes tmpBuffer, FlyWeight f, long sourceIndex, long destinationIndex ) {
+//
+//    }
+//
+//    public static <T extends FlyWeight> void quickSortAll( Bytes tmpBuffer, T f, Comparator<T> d ) {
+//
+//    }
+//
+//    public static <T extends FlyWeight> void forkJoinAll( T f, ForkJoinJob job ) {
+//
+//    }
+
+
+
+
+
+
+
     private static final int HEADER_WIDTH = SIZEOF_LONG;
 
     /**
      * Bytes layout: the number of records allocated followed by the records.
      *
      * numAllocatedRecords  record*
-     * 8 bytes              elementWidth
+     * 8 bytes              recordWidth
      */
     private Bytes       bytes;
-    private final int   elementWidth;
+    private final int recordWidth;
 
     private long selectedRecordByteOffset;
     private long allocatedRecordCount;
@@ -41,32 +59,32 @@ public class FixedWidthRecordStore {
 
 
 
-    protected FixedWidthRecordStore( Bytes bytes, int elementWidth ) {
+    protected FixedWidthRecordStore( Bytes bytes, int recordWidth ) {
         QA.argNotNull( bytes, "bytes" );
-        QA.argIsGTZero( elementWidth, "elementWidth" );
+        QA.argIsGTZero( recordWidth, "recordWidth" );
 
 
         this.bytes                    = bytes;
-        this.elementWidth             = elementWidth;
+        this.recordWidth = recordWidth;
 
         this.allocatedRecordCount     = bytes.readLong(0);
-        this.maxByteIndexExc          = (allocatedRecordCount*elementWidth) + HEADER_WIDTH;
-        this.selectedRecordByteOffset = HEADER_WIDTH - elementWidth;
+        this.maxByteIndexExc          = (allocatedRecordCount* recordWidth) + HEADER_WIDTH;
+        this.selectedRecordByteOffset = HEADER_WIDTH - recordWidth;
 
-        QA.isLTE( allocatedRecordCount *elementWidth+HEADER_WIDTH, bytes.bufferLength(), "Allocation count is greater than capacity" );
+        QA.isLTE( allocatedRecordCount * recordWidth +HEADER_WIDTH, bytes.bufferLength(), "Allocation count is greater than capacity" );
     }
 
-    public int elementWidth() {
-        return elementWidth;
+    public int recordWidth() {
+        return recordWidth;
     }
 
     public boolean hasNext() {
-        return (selectedRecordByteOffset+elementWidth) < maxByteIndexExc;
+        return (selectedRecordByteOffset+ recordWidth) < maxByteIndexExc;
     }
 
     public boolean next() {
         if ( hasNext() ) {
-            selectedRecordByteOffset += elementWidth;
+            selectedRecordByteOffset += recordWidth;
 
             return true;
         } else {
@@ -74,10 +92,10 @@ public class FixedWidthRecordStore {
         }
     }
 
-    public boolean select( long index ) {
-        QA.argIsGTEZero( index, "index" );
+    public boolean select( long recordIndex ) {
+        QA.argIsGTEZero( recordIndex, "recordIndex" );
 
-        long nextOffset = index * elementWidth + HEADER_WIDTH;
+        long nextOffset = calcByteOffsetForRecordIndex( recordIndex );
 
         if ( nextOffset < maxByteIndexExc ) {
             selectedRecordByteOffset = nextOffset;
@@ -89,10 +107,19 @@ public class FixedWidthRecordStore {
     }
 
     /**
+     * Which record is currently selected?
+     *
+     * @return -1 if no record has been selected
+     */
+    public long selectedIndex() {
+        return (selectedRecordByteOffset-HEADER_WIDTH)/recordWidth;
+    }
+
+    /**
      * The number of elements accessible from this flyweight.  They are indexed
      * from zero to count (exclusive).
      */
-    public long elementCount() {
+    public long recordCount() {
         return allocatedRecordCount;
     }
 
@@ -100,17 +127,17 @@ public class FixedWidthRecordStore {
      * Declare an extra n records.  The elements will be indexed from the end
      * of the current set of records.
      */
-    public long allocate( int numElements ) {
+    public long allocateNewRecord( int numElements ) {
         QA.isGTZero( numElements, "numElements" );
 
         long from = allocatedRecordCount;
 
         allocatedRecordCount += numElements;
-        maxByteIndexExc = (allocatedRecordCount*elementWidth) + HEADER_WIDTH;
+        maxByteIndexExc = (allocatedRecordCount* recordWidth) + HEADER_WIDTH;
 
         bytes.writeLong( 0, Long.MAX_VALUE ); //allocatedRecordCount );
 
-        long requiredBufferSize = allocatedRecordCount * elementWidth + HEADER_WIDTH;
+        long requiredBufferSize = allocatedRecordCount * recordWidth + HEADER_WIDTH;
         if ( bytes.bufferLength() < requiredBufferSize ) {
             assert bytes.bufferLength() < Long.MAX_VALUE/2;
 
@@ -128,11 +155,35 @@ public class FixedWidthRecordStore {
 
     public void clearAll() {
         this.allocatedRecordCount = 0;
-        bytes.writeLong(0, 0);
+        bytes.writeLong( 0, 0 );
 
         this.maxByteIndexExc          = HEADER_WIDTH;
-        this.selectedRecordByteOffset = HEADER_WIDTH - elementWidth;
+        this.selectedRecordByteOffset = HEADER_WIDTH - recordWidth;
     }
+
+    public void moveSelectedRecordTo( long toIndex ) {
+        QA.isGTEZero( selectedIndex(), "selectedIndex()" );
+        QA.argIsLT( toIndex, recordCount(), "toIndex", "recordCount()" );
+        QA.argIsGTEZero( toIndex, "toIndex" );
+
+        long destinationOffsetBytes = calcByteOffsetForRecordIndex( toIndex );
+
+        bytes.writeBytes( destinationOffsetBytes, bytes, selectedRecordByteOffset, selectedRecordByteOffset+recordWidth );
+    }
+
+    public void copySelectedRecordTo( Bytes destinationBytes, long destinationOffsetBytes ) {
+        QA.isGTEZero( selectedIndex(), "selectedIndex()" );
+
+        destinationBytes.writeBytes( destinationOffsetBytes, bytes, selectedRecordByteOffset, selectedRecordByteOffset+recordWidth );
+    }
+
+    public void copySelectedRecordFrom( Bytes sourceBytes, long sourceOffsetBytes ) {
+        QA.isGTEZero( selectedIndex(), "selectedIndex()" );
+
+        bytes.writeBytes( selectedRecordByteOffset, sourceBytes, sourceOffsetBytes, sourceOffsetBytes+recordWidth );
+    }
+
+
 
 
 
@@ -325,9 +376,13 @@ public class FixedWidthRecordStore {
         if ( SystemX.isDebugRun() ) {
             if ( address < selectedRecordByteOffset ) {
                 throw new IllegalArgumentException( "Address has under shot the allocated region" );
-            } else if ( address+numBytes > selectedRecordByteOffset+elementWidth ) {
+            } else if ( address+numBytes > selectedRecordByteOffset+ recordWidth ) {
                 throw new IllegalArgumentException( "Address has over shot the allocated region" );
             }
         }
+    }
+
+    private long calcByteOffsetForRecordIndex( long recordIndex ) {
+        return recordIndex * recordWidth + HEADER_WIDTH;
     }
 }

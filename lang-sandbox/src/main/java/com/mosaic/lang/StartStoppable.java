@@ -6,7 +6,7 @@ package com.mosaic.lang;
 public interface StartStoppable<T extends StartStoppable<T>> {
 
     /**
-     * Tell this object to allocate any resources that it needs.  It may be
+     * Tell this object to allocateNewRecord any resources that it needs.  It may be
      * called multiple times, so only do the work if it is not already ready.
      */
     public T start();

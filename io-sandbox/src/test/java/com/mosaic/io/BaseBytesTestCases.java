@@ -243,7 +243,7 @@ public abstract class BaseBytesTestCases {
 
 
 
-//        ByteBuffer buf = ByteBuffer.allocate( 2 );
+//        ByteBuffer buf = ByteBuffer.allocateNewRecord( 2 );
 //        bytes3.writeTo( buf );
 //        buf.flip();
 //

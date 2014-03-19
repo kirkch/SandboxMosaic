@@ -100,28 +100,28 @@ public class ResizableBytes extends WrappedBytes {
         super.writeUnsignedInt( index, v );
     }
 
-    public int writeUTF8( long index, char v ) {
-        resizeIfNeeded( index+3 );
+    public int writeUTF8( long destinationIndex, char v ) {
+        resizeIfNeeded( destinationIndex +3 );
 
-        return super.writeUTF8( index, v );
+        return super.writeUTF8( destinationIndex, v );
     }
 
-    public void writeBytes( long index, byte[] array, int fromInc, int toExc ) {
-        resizeIfNeeded( index+(toExc-fromInc) );
+    public void writeBytes( long destinationIndex, byte[] sourceArray, int sourceFromInc, int sourceToExc ) {
+        resizeIfNeeded( destinationIndex +(sourceToExc - sourceFromInc) );
 
-        super.writeBytes( index, array, fromInc, toExc );
+        super.writeBytes( destinationIndex, sourceArray, sourceFromInc, sourceToExc );
     }
 
-    public void writeBytes( long index, long fromAddress, int numBytes ) {
-        resizeIfNeeded( index+numBytes );
+    public void writeBytes( long destinationIndex, long sourceFromAddress, int numBytes ) {
+        resizeIfNeeded( destinationIndex +numBytes );
 
-        super.writeBytes( index, fromAddress, numBytes );
+        super.writeBytes( destinationIndex, sourceFromAddress, numBytes );
     }
 
-    public void writeBytes( long index, Bytes source, long fromInc, long toExc ) {
-        resizeIfNeeded( index+toExc-fromInc );
+    public void writeBytes( long destinationIndex, Bytes source, long sourceFromInc, long sourceToExc ) {
+        resizeIfNeeded( destinationIndex + sourceToExc - sourceFromInc );
 
-        super.writeBytes( index, source, fromInc, toExc );
+        super.writeBytes( destinationIndex, source, sourceFromInc, sourceToExc );
     }
 
 
@@ -221,16 +221,16 @@ public class ResizableBytes extends WrappedBytes {
         super.writeBytes( array );
     }
 
-    public void writeBytes( long index, byte[] array ) {
-        resizeIfNeeded( super.positionIndex()+array.length );
+    public void writeBytes( long destinationIndex, byte[] sourceArray ) {
+        resizeIfNeeded( super.positionIndex()+ sourceArray.length );
 
-        super.writeBytes( index, array );
+        super.writeBytes( destinationIndex, sourceArray );
     }
 
-    public int writeUTF8String( long index, CharSequence characters ) {
-        resizeIfNeeded( super.positionIndex()+characters.length()*3 );
+    public int writeUTF8String( long destinationIndex, CharSequence sourceCharacters ) {
+        resizeIfNeeded( super.positionIndex()+ sourceCharacters.length()*3 );
 
-        return super.writeUTF8String( index, characters );
+        return super.writeUTF8String( destinationIndex, sourceCharacters );
     }
 
     private void resizeIfNeeded( long requiredEndExc ) {

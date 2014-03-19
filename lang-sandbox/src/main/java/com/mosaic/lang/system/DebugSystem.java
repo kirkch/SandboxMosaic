@@ -1,6 +1,7 @@
 package com.mosaic.lang.system;
 
 import com.mosaic.io.bytes.Bytes;
+import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.io.filesystemx.inmemory.InMemoryFileSystem;
@@ -166,6 +167,19 @@ public class DebugSystem extends SystemX {
             Arrays.asList(expectedLines),
             actualLines
         );
+    }
+
+    public void assertEmptyDirectory( String dirPath ) {
+        DirectoryX dir = fileSystem.getDirectory( dirPath );
+
+        if ( dir != null ) {
+            List<FileX> files = dir.files();
+
+            if ( files.size() > 0 ) {
+                throw new ComparisonFailure( "Expected "+dirPath+" to be empty", "[]", files.toString() );
+            }
+        }
+
     }
 
     private void assertEquals( String msg, List<String> expectedLines, List<String> actualLines ) {

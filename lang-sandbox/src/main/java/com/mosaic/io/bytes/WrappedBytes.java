@@ -206,28 +206,28 @@ public class WrappedBytes extends Bytes {
         delegate.writeUnsignedInt( index, v );
     }
 
-    public int writeUTF8( long index, char v ) {
-        return delegate.writeUTF8( index, v );
+    public int writeUTF8( long destinationIndex, char v ) {
+        return delegate.writeUTF8( destinationIndex, v );
     }
 
-    public int writeUTF8String( long index, CharSequence characters ) {
-        return delegate.writeUTF8String( index, characters );
+    public int writeUTF8String( long destinationIndex, CharSequence sourceCharacters ) {
+        return delegate.writeUTF8String( destinationIndex, sourceCharacters );
     }
 
-    public void writeBytes( long index, byte[] array ) {
-        delegate.writeBytes( index, array );
+    public void writeBytes( long destinationIndex, byte[] sourceArray ) {
+        delegate.writeBytes( destinationIndex, sourceArray );
     }
 
-    public void writeBytes( long index, byte[] array, int fromInc, int toExc ) {
-        delegate.writeBytes( index, array, fromInc, toExc );
+    public void writeBytes( long destinationIndex, byte[] sourceArray, int sourceFromInc, int sourceToExc ) {
+        delegate.writeBytes( destinationIndex, sourceArray, sourceFromInc, sourceToExc );
     }
 
-    public void writeBytes( long index, long fromAddress, int numBytes ) {
-        delegate.writeBytes( index, fromAddress, numBytes );
+    public void writeBytes( long destinationIndex, long sourceFromAddress, int numBytes ) {
+        delegate.writeBytes( destinationIndex, sourceFromAddress, numBytes );
     }
 
-    public void writeBytes( long index, Bytes source, long fromInc, long toExc ) {
-        delegate.writeBytes( index, source, fromInc, toExc );
+    public void writeBytes( long destinationIndex, Bytes source, long sourceFromInc, long sourceToExc ) {
+        delegate.writeBytes( destinationIndex, source, sourceFromInc, sourceToExc );
     }
 
     public long startIndex() {

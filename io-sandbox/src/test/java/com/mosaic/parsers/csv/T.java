@@ -1,10 +1,7 @@
 package com.mosaic.parsers.csv;
 
 import sun.misc.Unsafe;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
@@ -84,7 +81,7 @@ public final class T
 
                     new PerformanceTestCase("ByteBuffer", REPETITIONS, ITEM)
                     {
-//                        ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+//                        ByteBuffer byteBuffer = ByteBuffer.allocateNewRecord(1024);
                         ByteBuffer byteBuffer = ByteBuffer.allocateDirect(1024).order(ByteOrder.nativeOrder());
 
                         public void testWrite(ObjectToBeSerialised item) throws Exception

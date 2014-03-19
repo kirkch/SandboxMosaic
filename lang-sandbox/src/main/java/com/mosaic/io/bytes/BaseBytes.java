@@ -76,20 +76,20 @@ abstract class BaseBytes extends Bytes {
         writeBytes( array, 0, array.length );
     }
 
-    public int writeUTF8String( long index, CharSequence characters ) {
-        int utf8ByteLength = UTF8Tools.countBytesFor( characters );
+    public int writeUTF8String( long destinationIndex, CharSequence sourceCharacters ) {
+        int utf8ByteLength = UTF8Tools.countBytesFor( sourceCharacters );
         int byteCount      = 2;
 
         if ( !SystemX.isRecklessRun() ) {
             QA.isLTE( utf8ByteLength, remaining(), "%s bytes are required, but only %s remain", utf8ByteLength, remaining() );
         }
 
-        writeUnsignedShort( index, utf8ByteLength );
+        writeUnsignedShort( destinationIndex, utf8ByteLength );
 
-        for ( int i=0; i<characters.length(); i++ ) {
-            char c = characters.charAt(i);
+        for ( int i=0; i< sourceCharacters.length(); i++ ) {
+            char c = sourceCharacters.charAt(i);
 
-            byteCount += writeUTF8( index+byteCount, c );
+            byteCount += writeUTF8( destinationIndex +byteCount, c );
         }
 
         return byteCount;
@@ -122,8 +122,8 @@ abstract class BaseBytes extends Bytes {
         positionIndex += numBytes;
     }
 
-    public void writeBytes( long index, byte[] array ) {
-        writeBytes( index, array, 0, array.length );
+    public void writeBytes( long destinationIndex, byte[] sourceArray ) {
+        writeBytes( destinationIndex, sourceArray, 0, sourceArray.length );
     }
 
 

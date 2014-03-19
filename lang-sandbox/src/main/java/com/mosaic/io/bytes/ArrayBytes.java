@@ -199,29 +199,29 @@ public class ArrayBytes extends BaseBytes {
         writeInteger( index, (int) (v & UNSIGNED_INT_MASK) );
     }
 
-    public int writeUTF8( long index, char v ) {
-        QA.argIsLTE( index, Integer.MAX_VALUE, "index" );
+    public int writeUTF8( long destinationIndex, char v ) {
+        QA.argIsLTE( destinationIndex, Integer.MAX_VALUE, "index" );
 
-        return UTF8Tools.write( array, (int) index, v );
+        return UTF8Tools.write( array, (int) destinationIndex, v );
     }
 
 
-    public void writeBytes( long index, byte[] sourceArray, int fromInc, int toExc ) {
-        QA.argIsBetween( 0, index, Integer.MAX_VALUE, "index" );
+    public void writeBytes( long destinationIndex, byte[] sourceArray, int sourceFromInc, int sourceToExc ) {
+        QA.argIsBetween( 0, destinationIndex, Integer.MAX_VALUE, "index" );
 
-        Backdoor.copyBytes( sourceArray, fromInc, array, (int) index, toExc-fromInc );
+        Backdoor.copyBytes( sourceArray, sourceFromInc, array, (int) destinationIndex, sourceToExc - sourceFromInc );
     }
 
-    public void writeBytes( long index, long fromAddress, int numBytes ) {
-        QA.argIsBetween( 0, index, Integer.MAX_VALUE, "index" );
+    public void writeBytes( long destinationIndex, long sourceFromAddress, int numBytes ) {
+        QA.argIsBetween( 0, destinationIndex, Integer.MAX_VALUE, "index" );
 
-        Backdoor.copyBytes( fromAddress, array, (int) index, numBytes );
+        Backdoor.copyBytes( sourceFromAddress, array, (int) destinationIndex, numBytes );
     }
 
-    public void writeBytes( long index, Bytes source, long fromInc, long toExc ) {
-        QA.argIsBetween( 0, index, Integer.MAX_VALUE, "index" );
+    public void writeBytes( long destinationIndex, Bytes source, long sourceFromInc, long sourceToExc ) {
+        QA.argIsBetween( 0, destinationIndex, Integer.MAX_VALUE, "index" );
 
-        source.readBytes( fromInc, this.array, (int) index, (int) (index+toExc-fromInc) );
+        source.readBytes( sourceFromInc, this.array, (int) destinationIndex, (int) (destinationIndex + sourceToExc - sourceFromInc) );
     }
 
     public void writeBytes( long fromAddress, int numBytes ) {

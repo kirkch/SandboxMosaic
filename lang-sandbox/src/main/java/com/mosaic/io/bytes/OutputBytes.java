@@ -39,27 +39,27 @@ public interface OutputBytes {
      *
      * @return the number of bytes used
      */
-    public int writeUTF8( long index, char v );
+    public int writeUTF8( long destinationIndex, char v );
 
     /**
      * Writes the specified string encoded in UTF-8.  UTF-8 is a variable
-     * width encoding, for most latin characters it uses only one byte.  For the
+     * width encoding, for most latin sourceCharacters it uses only one byte.  For the
      * rest it will use two or three.
      *
      * @return the number of bytes used
      */
-    public int writeUTF8String( long index, CharSequence characters );
+    public int writeUTF8String( long destinationIndex, CharSequence sourceCharacters );
 
     /**
-     * Writes all of the bytes within the array.
+     * Writes all of the bytes within the sourceArray.
      */
-    public void writeBytes( long index, byte[] array );
+    public void writeBytes( long destinationIndex, byte[] sourceArray );
 
-    public void writeBytes( long index, byte[] array, int fromInc, int toExc );
+    public void writeBytes( long destinationIndex, byte[] sourceArray, int sourceFromInc, int sourceToExc );
 
-    public void writeBytes( long index, long fromAddress, int numBytes );
+    public void writeBytes( long destinationIndex, long sourceFromAddress, int numBytes );
 
-    public void writeBytes( long index, Bytes source, long fromInc, long toExc );
+    public void writeBytes( long destinationIndex, Bytes source, long sourceFromInc, long sourceToExc );
 
 
     /**

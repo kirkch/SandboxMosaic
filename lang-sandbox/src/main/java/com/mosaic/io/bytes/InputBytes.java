@@ -153,7 +153,7 @@ public interface InputBytes {
      * Reads a single UTF-8 encoded character from the specified index.  Uses
      * DecodedCharacter as an OUT param so that the character can be returned
      * with a count of how many bytes were used to hold the character without
-     * having to allocate any extra objects.
+     * having to allocateNewRecord any extra objects.
      */
     public void readSingleUTF8Character( long index, DecodedCharacter output );
 

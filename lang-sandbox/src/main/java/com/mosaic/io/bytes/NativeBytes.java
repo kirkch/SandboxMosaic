@@ -210,34 +210,34 @@ public abstract class NativeBytes extends BaseBytes {
         writeInteger( index, (int) (v & UNSIGNED_INT_MASK) );
     }
 
-    public int writeUTF8( long index, char v ) {
-        long toAddress = cacheAlignedBaseAddress+index;
+    public int writeUTF8( long destinationIndex, char v ) {
+        long toAddress = cacheAlignedBaseAddress+ destinationIndex;
 
         return UTF8Tools.write( toAddress, maxAddressExc, v );
     }
 
-    public void writeBytes( long index, byte[] sourceArray, int fromInc, int toExc ) {
-        long toAddress = cacheAlignedBaseAddress+index;
-        int  numBytes  = toExc-fromInc;
+    public void writeBytes( long destinationIndex, byte[] sourceArray, int sourceFromInc, int sourceToExc ) {
+        long toAddress = cacheAlignedBaseAddress+ destinationIndex;
+        int  numBytes  = sourceToExc - sourceFromInc;
 
         throwIfInvalidAddress( toAddress, numBytes );
 
-        Backdoor.copyBytes( sourceArray, fromInc, toAddress, numBytes );
+        Backdoor.copyBytes( sourceArray, sourceFromInc, toAddress, numBytes );
     }
 
-    public void writeBytes( long index, long fromAddress, int numBytes ) {
-        long toAddress = cacheAlignedBaseAddress+index;
+    public void writeBytes( long destinationIndex, long sourceFromAddress, int numBytes ) {
+        long toAddress = cacheAlignedBaseAddress+ destinationIndex;
 
         throwIfInvalidAddress( toAddress, numBytes );
 
-        Backdoor.copyBytes( fromAddress, toAddress, numBytes );
+        Backdoor.copyBytes( sourceFromAddress, toAddress, numBytes );
     }
 
-    public void writeBytes( long index, Bytes source, long fromInc, long toExc ) {
-        QA.argIsBetween( 0, index, Integer.MAX_VALUE, "index" );
+    public void writeBytes( long destinationIndex, Bytes source, long sourceFromInc, long sourceToExc ) {
+        QA.argIsBetween( 0, destinationIndex, Integer.MAX_VALUE, "index" );
 
-        long toAddress = cacheAlignedBaseAddress+index;
-        source.readBytes( fromInc, toAddress, (int) (index+toExc-fromInc) );
+        long toAddress = cacheAlignedBaseAddress+ destinationIndex;
+        source.readBytes( sourceFromInc, toAddress, (int) (destinationIndex + sourceToExc - sourceFromInc) );
     }
 
     public long startIndex() {
