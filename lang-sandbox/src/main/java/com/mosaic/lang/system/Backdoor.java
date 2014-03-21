@@ -41,8 +41,12 @@ public class Backdoor {
         return mallocCounter.get();
     }
 
-    public static void throwException( Throwable ex ) {
+    public static <T> T throwException( Throwable ex ) {
         unsafe.throwException( ex );
+
+        // returns null so that callers can write 'return Backdoor.throwException(ex)'
+        // all to avoid compiler errors, bah.
+        return null;
     }
 
     public static void sleep( Duration sleepFor ) {

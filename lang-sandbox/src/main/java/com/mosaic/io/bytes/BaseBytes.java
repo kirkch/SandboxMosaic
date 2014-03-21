@@ -23,7 +23,7 @@ abstract class BaseBytes extends Bytes {
 
     protected void throwIfReleased() {
         if ( positionIndex < 0 ) {
-            throw new IllegalStateException( name() + " has been released()" );
+            throw new IllegalStateException( getName() + " has been released()" );
         }
     }
 
@@ -33,7 +33,7 @@ abstract class BaseBytes extends Bytes {
         this.positionIndex = Integer.MIN_VALUE;
     }
 
-    public String name() {
+    public String getName() {
         return name;
     }
 

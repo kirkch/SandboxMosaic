@@ -49,7 +49,7 @@ public class PullParser {
 
 
     public PullParser( InputBytes bytes ) {
-        this( bytes.name(), bytes );
+        this( bytes.getName(), bytes );
     }
 
     public PullParser( String name, InputBytes bytes ) {

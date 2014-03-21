@@ -150,8 +150,8 @@ public class WrappedBytes extends Bytes {
         delegate.readBytes( index, toAddress, numBytes );
     }
 
-    public String name() {
-        return delegate.name();
+    public String getName() {
+        return delegate.getName();
     }
 
     public void setName( String name ) {

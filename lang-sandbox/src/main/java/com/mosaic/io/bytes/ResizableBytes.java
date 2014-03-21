@@ -240,12 +240,12 @@ public class ResizableBytes extends WrappedBytes {
 
             super.resize( newLength );
 
-            system.debug( "ResizableBytes '%s' has been resized from %s to %s bytes", name(), originalSize, newLength );
+            system.debug( "ResizableBytes '%s' has been resized from %s to %s bytes", getName(), originalSize, newLength );
 
             QA.argIsEqualTo( newLength, super.bufferLength(), "newLength", "super.bufferLength()" );
 
             if ( newLength > maxExpectedSize ) {
-                system.warn( "ResizableBytes '%s' has grown beyond the max expected size of '%s' bytes", name(), maxExpectedSize );
+                system.warn( "ResizableBytes '%s' has grown beyond the max expected size of '%s' bytes", getName(), maxExpectedSize );
             }
         }
     }

@@ -14,7 +14,7 @@ public interface InputBytes {
     /**
      * Helps to identify where the bytes came from/what they are used for.
      */
-    public String name();
+    public String getName();
     public void setName( String name );
 
 
