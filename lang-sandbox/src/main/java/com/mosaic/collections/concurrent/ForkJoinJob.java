@@ -1,6 +1,8 @@
 package com.mosaic.collections.concurrent;
 
+import com.mosaic.lang.MergeOp;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.functional.Function2;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +20,7 @@ import java.util.concurrent.RecursiveTask;
  * A note on types.  I is the type of the input data set, and O is the result
  * of the output.
  */
+@SuppressWarnings("unchecked")
 public abstract class ForkJoinJob<I,O> {
 
     private static final ForkJoinPool FORK_JOIN_POOL = new ForkJoinPool();
@@ -36,16 +39,37 @@ public abstract class ForkJoinJob<I,O> {
     }
 
     /**
-     * Perform the work on the specified data.
+     * Perform the work on the specified data.  This version of processData
+     * will require O to implement MergeOp&lt;O>.
      */
     protected abstract O processData( I data );
 
     /**
-     * Merge the specified result data sets together.  This is undoing the
-     * splitting of the input data set that was carried out by forkData.
+     * Dispatch the specified data to the Fork/Join framework.  This method will
+     * not return until processing is complete.  If the data set is suitably large
+     * and the processing takes suitably long then multiple threads will be
+     * used.<p/>
+     *
+     * Expects O to implement MergeOp&lt;O>
      */
-    protected abstract O joinData( O r1, O r2 );
+    public O exec( I data ) {
+        return this.exec( data, new Function2<O,O,O>() {
+            public O invoke( O arg1, O arg2 ) {
+                MergeOp<O> a = (MergeOp<O>) arg1;
+                MergeOp<O> b = (MergeOp<O>) arg2;
 
+                if ( a.size() <= b.size() ) {
+                    a.merge( arg2 );
+
+                    return arg1;
+                } else {
+                    b.merge(arg1);
+
+                    return arg2;
+                }
+            }
+        });
+    }
 
     /**
      * Dispatch the specified data to the Fork/Join framework.  This method will
@@ -53,10 +77,10 @@ public abstract class ForkJoinJob<I,O> {
      * and the processing takes suitably long then multiple threads will be
      * used.
      */
-    public O exec( I data ) {
+    public O exec( I data, Function2<O,O,O> mergeOp ) {
         QA.notNull( data, "data" );
 
-        FJTask job = new FJTask(data);
+        FJTask job = new FJTask(data, mergeOp);
 
         return FORK_JOIN_POOL.invoke( job );
     }
@@ -66,12 +90,16 @@ public abstract class ForkJoinJob<I,O> {
 
     @SuppressWarnings("unchecked")
     private class FJTask extends RecursiveTask<O> {
-        private I inputData;
+        private I                  inputData;
+        private Function2<O, O, O> mergeOp;
 
-        public FJTask( I inputData ) {
+
+        public FJTask( I inputData, Function2<O,O,O> mergeOp ) {
             QA.notNull( inputData, "inputData" );
+            QA.notNull( mergeOp, "mergeOp" );
 
             this.inputData = inputData;
+            this.mergeOp   = mergeOp;
         }
 
         public O compute() {
@@ -102,7 +130,7 @@ public abstract class ForkJoinJob<I,O> {
             List<FJTask> childTasks = new ArrayList( forkedDataSets.size() );
 
             for ( I dataSet : forkedDataSets ) {
-                childTasks.add( new FJTask(dataSet) );
+                childTasks.add( new FJTask(dataSet, mergeOp) );
             }
 
             return childTasks;
@@ -117,7 +145,7 @@ public abstract class ForkJoinJob<I,O> {
             while ( it.hasNext() ) {
                 O r2 = it.next().getRawResult();
 
-                resultSoFar = joinData( resultSoFar, r2 );
+                resultSoFar = mergeOp.invoke( resultSoFar, r2 );
             }
 
             return resultSoFar;

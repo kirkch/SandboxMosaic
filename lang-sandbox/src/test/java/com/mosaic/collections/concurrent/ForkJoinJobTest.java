@@ -1,5 +1,6 @@
 package com.mosaic.collections.concurrent;
 
+import com.mosaic.lang.functional.Function2;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class ForkJoinJobTest {
         ParseNumbersJob job = new ParseNumbersJob();
 
         int dataSetSize = MAX_BATCH_SIZE * 10;
-        List<Long> results = job.exec( createInputDataSet( dataSetSize ) );
+        List<Long> results = job.exec( createInputDataSet(dataSetSize), new ListMerge() );
 
         assertEquals( createExpectedResults(dataSetSize), results );
         assertTrue( job.numThreadsUsed() > 1 );
@@ -89,7 +90,7 @@ public class ForkJoinJobTest {
 
         List<Long> actualResults = job.exec( createInputDataSet(dataSetSize) );
 
-        assertEquals( createExpectedResults(dataSetSize), actualResults );
+        assertEquals( createExpectedResults( dataSetSize ), actualResults );
     }
 
     @Test
@@ -139,23 +140,23 @@ public class ForkJoinJobTest {
 
     @Test
     public void givenAJobThatAnExceptionFromMergeData_expectException() {
+        ParseNumbersJob job = new ParseNumbersJob();
+
         final Thread jUnitThread = Thread.currentThread();
-
-        ParseNumbersJob job = new ParseNumbersJob() {
-            protected List<Long> joinData( List<Long> r1, List<Long> r2 ) {
-                //ensure that the exception propagates across threads
-                if ( Thread.currentThread() != jUnitThread ) {
-                    throw new RuntimeException( "splat" );
-                }
-
-                return super.joinData( r1, r2 );
-            }
-        };
 
         int dataSetSize = MAX_BATCH_SIZE*10;
 
         try {
-            job.exec( createInputDataSet( dataSetSize ) );
+            job.exec( createInputDataSet( dataSetSize ), new Function2<List<Long>,List<Long>,List<Long>>() {
+                public List<Long> invoke( List<Long> arg1, List<Long> arg2 ) {
+                    //ensure that the exception propagates across threads
+                    if ( Thread.currentThread() != jUnitThread ) {
+                        throw new RuntimeException( "splat" );
+                    }
+
+                    return new ListMerge().invoke( arg1, arg2 );
+                }
+            });
 
             fail( "expected RuntimeException" );
         } catch ( RuntimeException ex ) {
@@ -188,9 +189,18 @@ public class ForkJoinJobTest {
         return dataSet;
     }
 
+    private static class ListMerge implements Function2<List<Long>,List<Long>,List<Long>> {
+        public List<Long> invoke( List<Long> r1, List<Long> r2 ) {
+            r1.addAll( r2 );
+
+            Collections.sort(r1);
+
+            return r1;
+        }
+    }
+
 
     private static class ParseNumbersJob extends ForkJoinJob<List<String>,List<Long>> {
-
         private Set<Thread> threadCounter = new HashSet<>();
 
         public int numThreadsUsed() {
@@ -224,14 +234,6 @@ public class ForkJoinJobTest {
             }
 
             return parsedData;
-        }
-
-        protected List<Long> joinData( List<Long> r1, List<Long> r2 ) {
-            r1.addAll( r2 );
-
-            Collections.sort(r1);
-
-            return r1;
         }
     }
 }
