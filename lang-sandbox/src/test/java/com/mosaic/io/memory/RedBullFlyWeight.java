@@ -48,5 +48,9 @@ public class RedBullFlyWeight extends FlyWeight<RedBullFlyWeight> {
         super.writeFloat( WEIGHT_OFFSET, weight );
     }
 
+
+    public String toString() {
+        return Integer.toString(getAge());
+    }
 }
 

@@ -20,7 +20,7 @@ import static com.mosaic.lang.system.SystemX.SIZEOF_LONG;
  */
 @NotThreadSafe
 @SuppressWarnings("unchecked")
-public abstract class FlyWeight<T extends FlyWeight> implements Cloneable {
+public abstract class FlyWeight<T extends FlyWeight<T>> implements Cloneable {
 
     private static final long RECORD_COUNT_INDEX = 0;
     private static final long MAX_OFFSET_INDEX   = RECORD_COUNT_INDEX+SIZEOF_LONG;
@@ -93,7 +93,7 @@ public abstract class FlyWeight<T extends FlyWeight> implements Cloneable {
         return (selectedRecordByteOffset-HEADER_WIDTH)/recordWidth;
     }
 
-    public boolean select( long recordIndex ) {
+    public T select( long recordIndex ) {
         QA.argIsGTEZero( recordIndex, "recordIndex" );
 
         long nextOffset = calcByteOffsetForRecordIndex( recordIndex );
@@ -101,9 +101,9 @@ public abstract class FlyWeight<T extends FlyWeight> implements Cloneable {
         if ( nextOffset < getMaxByteIndexExc() ) {
             selectedRecordByteOffset = nextOffset;
 
-            return true;
+            return (T) this;
         } else {
-            return false;
+            throw new IndexOutOfBoundsException( recordIndex + " is >= the number of records available ("+getRecordCount()+")"  );
         }
     }
 
@@ -145,7 +145,7 @@ public abstract class FlyWeight<T extends FlyWeight> implements Cloneable {
 
     public void clearAll() {
         records.writeLong( RECORD_COUNT_INDEX, 0 );
-        records.writeLong( MAX_OFFSET_INDEX,   HEADER_WIDTH );
+        records.writeLong( MAX_OFFSET_INDEX, HEADER_WIDTH );
     }
 
     public void copySelectedRecordTo( long toDestinationIndex ) {
@@ -170,9 +170,141 @@ public abstract class FlyWeight<T extends FlyWeight> implements Cloneable {
         records.writeBytes( selectedRecordByteOffset, sourceBytes, sourceOffsetBytes, sourceOffsetBytes + recordWidth );
     }
 
+    /**
+     * Swap recordIndex1 and recordIndex2 over.  Use the specified tmpBuffer during the
+     * swap;  this gives us the opportunity to reuse the same buffer thus keeping GC
+     * down.
+     *
+     * @param tmpBuffer        temporarily use this buffer while copying the records between each other
+     * @param tmpBufferOffset  will use bytes tmpBufferOffset to tmpBufferOffset+recordWidth (exc) of tmpBuffer
+     */
+    public void swapRecords( long recordIndex1, long recordIndex2, Bytes tmpBuffer, long tmpBufferOffset ) {
+        QA.argIsBetween( 0, recordIndex1, getRecordCount(), "recordIndex1" );
+        QA.argIsBetween( 0, recordIndex2, getRecordCount(), "recordIndex2" );
+
+        long recordOffset1 = calcByteOffsetForRecordIndex( recordIndex1 );
+        long recordOffset2 = calcByteOffsetForRecordIndex( recordIndex2 );
 
 
+        // record 1 to buffer
+        tmpBuffer.writeBytes( tmpBufferOffset, records, recordOffset1, recordOffset1 + recordWidth );
 
+        // record 2 to record 1
+        records.writeBytes( recordOffset1, records, recordOffset2, recordOffset2 + recordWidth );
+
+        // buffer to record 2
+        records.writeBytes( recordOffset2, tmpBuffer, tmpBufferOffset, tmpBufferOffset + recordWidth );
+    }
+
+    /**
+     * Sorts all of the records within this store.  Does not preserve the selected
+     * index.
+     */
+    public void inplaceQuickSort( FlyWeightComparator<T> comparator ) {
+        Bytes tmpBuffer = Bytes.allocOnHeap( recordWidth );
+
+        inplaceQuickSort( comparator, 0, getRecordCount(), tmpBuffer, 0 );
+    }
+
+    /**
+     * Sorts all of the records within this store.  Does not preserve the selected
+     * index.
+     */
+    public void inplaceQuickSort( FlyWeightComparator<T> comparator, Bytes tmpBuffer, long tmpBufferOffset ) {
+        inplaceQuickSort( comparator, 0, getRecordCount(), tmpBuffer, tmpBufferOffset );
+    }
+
+    /**
+     * Sorts all of the records within this store.  Does not preserve the selected
+     * index.
+     */
+    public void inplaceQuickSort( FlyWeightComparator<T> comparator, long fromInc, long toExc, Bytes tmpBuffer, long tmpBufferOffset ) {
+        long lhs = fromInc;
+        long rhs = toExc-1;
+
+        if ( lhs >= rhs ) {
+            return;
+        }
+        else if ( rhs-lhs == 1 ) {
+            if ( comparator.compare((T)this,lhs,rhs).isGT() ) {
+                swapRecords( lhs,rhs, tmpBuffer, tmpBufferOffset );
+            }
+
+            return;
+        }
+
+        long m = partitionForQuickSort( comparator, lhs, rhs, tmpBuffer, tmpBufferOffset );
+
+        inplaceQuickSort( comparator, fromInc, m, tmpBuffer, tmpBufferOffset );
+
+        long m2 = skipIdenticalRecords( comparator, m, toExc );
+
+        if ( m2 < toExc ) {
+            inplaceQuickSort( comparator, m2, toExc, tmpBuffer, tmpBufferOffset );
+        }
+    }
+
+    private long skipIdenticalRecords( FlyWeightComparator<T> comparator, long m, long toExc ) {
+        for ( long i=m; i<toExc; i++ ) {
+            if ( !comparator.compare((T) this,m,i).isEQ() ) {   // todo are these (T) casts costing us anything?
+                return i;
+            }
+        }
+
+        return toExc;
+    }
+
+    private long partitionForQuickSort( FlyWeightComparator<T> comparator, long lhs, long rhs, Bytes tmpBuffer, long tmpBufferOffset ) {
+        QA.argIsLT( lhs, rhs, "lhs", "rhs" );
+        long m = lhs + (rhs-lhs)/2;
+
+        // we are going to sort all records >= midpoint to the RHS
+        // move the midpoint to the very end of the region;  reduces edge cases and always passes
+        // the target criteria
+        swapRecords( m, rhs, tmpBuffer, tmpBufferOffset );
+
+        m = rhs;
+        rhs--;  // 4 3 5  -> 4 5 3
+
+        while ( lhs < rhs ) {
+            lhs = skipLHSRecordsThatAreLTMidPoint( comparator, m, lhs, rhs );
+            rhs = skipRHSRecordsThatAreGTEMidPoint( comparator, m, lhs, rhs );
+
+            if ( lhs < rhs ) {
+                swapRecords( lhs, rhs, tmpBuffer, tmpBufferOffset );
+                lhs++;
+            }
+
+        }
+
+        // move m to the point where lhs and rhs crossed.. this will become
+        // the point to divide and recurse the from
+        if ( lhs < m ) {
+            swapRecords( lhs, m, tmpBuffer, tmpBufferOffset );
+        }
+
+        return lhs;
+    }
+
+    private long skipLHSRecordsThatAreLTMidPoint( FlyWeightComparator<T> comparator, long m, long lhs, long rhs ) {
+        for ( long i=lhs; i<=rhs; i++ ) {
+            if ( !comparator.compare((T) this,i,m).isLT() ) {
+                return i;
+            }
+        }
+
+        return rhs+1;
+    }
+
+    private long skipRHSRecordsThatAreGTEMidPoint( FlyWeightComparator<T> comparator, long m, long lhs, long rhs ) {
+        for ( long i=rhs; i>=lhs; i-- ) {
+            if ( !comparator.compare((T) this,i,m).isGTE() ) {
+                return i;
+            }
+        }
+
+        return lhs-1;
+    }
 
 
     protected boolean readBoolean( long offsetWithinSelectedRecord ) {

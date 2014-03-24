@@ -1,6 +1,7 @@
 package com.mosaic.io.memory;
 
 import com.mosaic.io.bytes.Bytes;
+import com.mosaic.lang.ComparisonResult;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.DebugSystem;
 import org.junit.Test;
@@ -24,16 +25,16 @@ public class FlyWeightTest {
         allocateAndPopulateBulls( 3 );
 
 
-        assertTrue( flyweight.select( 0 ) );
+        flyweight.select(0);
         assertSelectedRecordEqualsAlgorithmicExpectationOf(0);
 
-        assertTrue( flyweight.select( 1 ) );
+        flyweight.select(1);
         assertSelectedRecordEqualsAlgorithmicExpectationOf(1);
 
-        assertTrue( flyweight.select( 2 ) );
+        flyweight.select(2);
         assertSelectedRecordEqualsAlgorithmicExpectationOf(2);
 
-        assertFalse( flyweight.select( 3 ) );
+        assertOutOfBoundsIndexIsNotSelectable(3);
     }
 
     @Test
@@ -41,14 +42,14 @@ public class FlyWeightTest {
         allocateAndPopulateBulls( 3 );
 
 
-        assertTrue( flyweight.select( 0 ) );
-        assertSelectedRecordEqualsAlgorithmicExpectationOf(0);
+        flyweight.select(0);
+        assertSelectedRecordEqualsAlgorithmicExpectationOf( 0 );
 
         assertTrue( flyweight.next() );
-        assertSelectedRecordEqualsAlgorithmicExpectationOf(1);
+        assertSelectedRecordEqualsAlgorithmicExpectationOf( 1 );
 
         assertTrue( flyweight.next() );
-        assertSelectedRecordEqualsAlgorithmicExpectationOf(2);
+        assertSelectedRecordEqualsAlgorithmicExpectationOf( 2 );
 
         assertFalse( flyweight.next() );
     }
@@ -60,7 +61,7 @@ public class FlyWeightTest {
         flyweight.clearAll();
 
 
-        assertFalse( flyweight.select(0) );
+        assertOutOfBoundsIndexIsNotSelectable(0);
     }
 
     @Test
@@ -85,16 +86,16 @@ public class FlyWeightTest {
         flyweight.copySelectedRecordTo( 2 );
 
 
-        assertTrue( flyweight.select( 0 ) );
-        assertSelectedRecordEqualsAlgorithmicExpectationOf(0);
+        flyweight.select(0);
+        assertSelectedRecordEqualsAlgorithmicExpectationOf( 0 );
 
-        assertTrue( flyweight.select( 1 ) );
+        flyweight.select(1);
         assertSelectedRecordEqualsAlgorithmicExpectationOf(1);
 
-        assertTrue( flyweight.select( 2 ) );
+        flyweight.select(2);
         assertSelectedRecordEqualsAlgorithmicExpectationOf(0);
 
-        assertFalse( flyweight.select( 3 ) );
+        assertOutOfBoundsIndexIsNotSelectable(3);
     }
 
     @Test
@@ -105,16 +106,16 @@ public class FlyWeightTest {
         flyweight.copySelectedRecordTo( 0 );
 
 
-        assertTrue( flyweight.select( 0 ) );
+        flyweight.select(0);
+        assertSelectedRecordEqualsAlgorithmicExpectationOf( 1 );
+
+        flyweight.select(1);
         assertSelectedRecordEqualsAlgorithmicExpectationOf(1);
 
-        assertTrue( flyweight.select( 1 ) );
-        assertSelectedRecordEqualsAlgorithmicExpectationOf(1);
+        flyweight.select(2);
+        assertSelectedRecordEqualsAlgorithmicExpectationOf( 2 );
 
-        assertTrue( flyweight.select( 2 ) );
-        assertSelectedRecordEqualsAlgorithmicExpectationOf(2);
-
-        assertFalse( flyweight.select( 3 ) );
+        assertOutOfBoundsIndexIsNotSelectable(3);
     }
 
     @Test
@@ -125,18 +126,17 @@ public class FlyWeightTest {
         flyweight.copySelectedRecordTo( 1 );
 
 
-        assertTrue( flyweight.select( 0 ) );
+        flyweight.select(0);
         assertSelectedRecordEqualsAlgorithmicExpectationOf(0);
 
-        assertTrue( flyweight.select( 1 ) );
+        flyweight.select(1);
         assertSelectedRecordEqualsAlgorithmicExpectationOf(1);
 
-        assertTrue( flyweight.select( 2 ) );
+        flyweight.select(2);
         assertSelectedRecordEqualsAlgorithmicExpectationOf(2);
 
-        assertFalse( flyweight.select( 3 ) );
+        assertOutOfBoundsIndexIsNotSelectable(3);
     }
-
 
     @Test
     public void copySelectedRecordTo_bytes() {
@@ -149,9 +149,9 @@ public class FlyWeightTest {
         flyweight.copySelectedRecordTo( buf, 3 );
 
 
-        assertEquals( true, buf.readBoolean(3) );
-        assertEquals( 2, buf.readInteger(3+1) );
-        assertEquals( 4.13f*3, buf.readFloat(3+5), 0.0001 );
+        assertEquals( true, buf.readBoolean( 3 ) );
+        assertEquals( 2, buf.readInteger( 3 + 1 ) );
+        assertEquals( 4.13f*3, buf.readFloat( 3 + 5 ), 0.0001 );
     }
 
     @Test
@@ -167,16 +167,108 @@ public class FlyWeightTest {
         flyweight.copySelectedRecordFrom( buf, 3 );
 
 
-        assertTrue( flyweight.select( 0 ) );
+        flyweight.select(0);
         assertSelectedRecordEqualsAlgorithmicExpectationOf(0);
 
-        assertTrue( flyweight.select( 1 ) );
+        flyweight.select(1);
         assertSelectedRecordEqualsAlgorithmicExpectationOf(1);
 
-        assertTrue( flyweight.select( 2 ) );
+        flyweight.select(2);
         assertSelectedRecordEqualsAlgorithmicExpectationOf(1);
 
-        assertFalse( flyweight.select( 3 ) );
+        assertOutOfBoundsIndexIsNotSelectable(3);
+    }
+
+    @Test
+    public void swapRecords() {
+        allocateAndPopulateBulls( 3 );
+
+        Bytes buf = Bytes.allocOnHeap( 3+9 );
+
+        flyweight.select( 1 );
+        flyweight.swapRecords( 1, 2, buf, 3 );
+
+
+        flyweight.select(0);
+        assertSelectedRecordEqualsAlgorithmicExpectationOf(0);
+
+        flyweight.select(1);
+        assertSelectedRecordEqualsAlgorithmicExpectationOf(2);
+
+        flyweight.select(2);
+        assertSelectedRecordEqualsAlgorithmicExpectationOf(1);
+
+        assertOutOfBoundsIndexIsNotSelectable(3);
+    }
+
+
+    @Test
+    public void inplaceQuickSort() {
+        allocateAndPopulateBulls( 3 );
+
+        flyweight.inplaceQuickSort( new FlyWeightComparator<RedBullFlyWeight>() {
+            public ComparisonResult compare( RedBullFlyWeight f, long a, long b ) {
+                int ageA = f.select(a).getAge();
+                int ageB = f.select(b).getAge();
+
+                return ComparisonResult.compare(ageB, ageA); // age DESCENDING;  will reverse the order of the records
+            }
+        } );
+
+
+        flyweight.select(0);
+        assertSelectedRecordEqualsAlgorithmicExpectationOf( 2 );
+
+        flyweight.select(1);
+        assertSelectedRecordEqualsAlgorithmicExpectationOf(1);
+
+        flyweight.select(2);
+        assertSelectedRecordEqualsAlgorithmicExpectationOf(0);
+
+        assertOutOfBoundsIndexIsNotSelectable(3);
+    }
+
+    @Test
+    public void f() {
+//        inplaceQuickSortTest(1);
+//        inplaceQuickSortTest(2);
+//        inplaceQuickSortTest(3);
+//        inplaceQuickSortTest(4);
+//        inplaceQuickSortTest(5);
+
+        for ( int i=1; i<200; i++ ) {
+            inplaceQuickSortTest(i);
+        }
+    }
+
+
+    private void dumpAges() {
+        for ( long i=0;i<flyweight.getRecordCount(); i++ ) {
+            System.out.print(" ");
+            System.out.print(flyweight.select(i).getAge());
+        }
+        System.out.println(" ");
+    }
+
+
+    private void inplaceQuickSortTest( int length ) {
+        flyweight.clearAll();
+        allocateAndPopulateBulls( length );
+
+        flyweight.inplaceQuickSort( new FlyWeightComparator<RedBullFlyWeight>() {
+            public ComparisonResult compare( RedBullFlyWeight f, long a, long b ) {
+                int ageA = f.select(a).getAge();
+                int ageB = f.select(b).getAge();
+
+                return ComparisonResult.compare(ageB, ageA); // age DESCENDING;  will reverse the order of the records
+            }
+        } );
+
+
+        for ( int i=0; i<length; i++ ) {
+            flyweight.select( i );
+            assertSelectedRecordEqualsAlgorithmicExpectationOf( length-i-1 );
+        }
     }
 
 
@@ -207,4 +299,13 @@ public class FlyWeightTest {
         assertEquals( 4.13f*(expectation+1), flyweight.getWeight(), 0.001 );
     }
 
+    private void assertOutOfBoundsIndexIsNotSelectable( long i) {
+        try {
+            flyweight.select(i);
+
+            fail( "expected out of bounds exception" );
+        } catch ( IndexOutOfBoundsException e ) {
+            assertEquals( i+" is >= the number of records available ("+flyweight.getRecordCount()+")", e.getMessage() );
+        }
+    }
 }
