@@ -19,7 +19,6 @@ import static org.junit.Assert.*;
 @SuppressWarnings("unchecked")
 public class ForkJoinJobTest {
 
-
     private static final int MAX_BATCH_SIZE = 10000;
 
 
@@ -63,47 +62,40 @@ public class ForkJoinJobTest {
 
 
     @Test
-    public void givenAJobThatReturnsEmptyDataSetsFromSplitData_expectException() {
+    public void givenAJobThatReturnsEmptyDataSetsFromSplitData_expectItToNotForkAndToBeProcessedByItself() {
         ParseNumbersJob job = new ParseNumbersJob() {
-            protected Collection<List<String>> splitData( List<String> data ) {
+            protected Collection<List<String>> forkData( List<String> data ) {
                 return Collections.EMPTY_LIST;
             }
         };
 
         int dataSetSize = MAX_BATCH_SIZE;
 
-        try {
-            job.exec( createInputDataSet( dataSetSize ) );
 
-            fail( "expected IllegalStateException" );
-        } catch ( IllegalStateException ex ) {
-            assertEquals( "java.lang.IllegalStateException: splitData() returned an empty list", ex.getMessage() );
-        }
+        List<Long> actualResults = job.exec( createInputDataSet(dataSetSize) );
+
+        assertEquals( createExpectedResults(dataSetSize), actualResults );
     }
 
     @Test
-    public void givenAJobThatReturnsNullDataSetsFromSplitData_expectException() {
+    public void givenAJobThatReturnsNullDataSetsFromSplitData_expectItToNotBeSplitAndProcessedDirectly() {
         ParseNumbersJob job = new ParseNumbersJob() {
-            protected Collection<List<String>> splitData( List<String> data ) {
+            protected Collection<List<String>> forkData( List<String> data ) {
                 return null;
             }
         };
 
         int dataSetSize = MAX_BATCH_SIZE;
 
-        try {
-            job.exec( createInputDataSet( dataSetSize ) );
+        List<Long> actualResults = job.exec( createInputDataSet(dataSetSize) );
 
-            fail( "expected IllegalStateException" );
-        } catch ( IllegalStateException ex ) {
-            assertEquals( "java.lang.IllegalStateException: splitData() returned an empty list", ex.getMessage() );
-        }
+        assertEquals( createExpectedResults(dataSetSize), actualResults );
     }
 
     @Test
     public void givenAJobThatThrowsAnExceptionFromSplitData_expectException() {
         ParseNumbersJob job = new ParseNumbersJob() {
-            protected Collection<List<String>> splitData( List<String> data ) {
+            protected Collection<List<String>> forkData( List<String> data ) {
                 throw new RuntimeException( "splat" );
             }
         };
@@ -150,13 +142,13 @@ public class ForkJoinJobTest {
         final Thread jUnitThread = Thread.currentThread();
 
         ParseNumbersJob job = new ParseNumbersJob() {
-            protected List<Long> mergeData( List<Long> r1, List<Long> r2 ) {
+            protected List<Long> joinData( List<Long> r1, List<Long> r2 ) {
                 //ensure that the exception propagates across threads
                 if ( Thread.currentThread() != jUnitThread ) {
                     throw new RuntimeException( "splat" );
                 }
 
-                return super.mergeData( r1, r2 );
+                return super.joinData( r1, r2 );
             }
         };
 
@@ -206,7 +198,7 @@ public class ForkJoinJobTest {
         }
 
 
-        protected Collection<List<String>> splitData( List<String> data ) {
+        protected Collection<List<String>> forkData( List<String> data ) {
             int numElements = data.size();
 
             if ( numElements > MAX_BATCH_SIZE ) {
@@ -234,7 +226,7 @@ public class ForkJoinJobTest {
             return parsedData;
         }
 
-        protected List<Long> mergeData( List<Long> r1, List<Long> r2 ) {
+        protected List<Long> joinData( List<Long> r1, List<Long> r2 ) {
             r1.addAll( r2 );
 
             Collections.sort(r1);

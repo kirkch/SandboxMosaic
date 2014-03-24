@@ -226,15 +226,9 @@ public class FlyWeightTest {
         assertSelectedRecordEqualsAlgorithmicExpectationOf(0);
 
         assertOutOfBoundsIndexIsNotSelectable(3);
-    }
 
-    @Test
-    public void f() {
-//        inplaceQuickSortTest(1);
-//        inplaceQuickSortTest(2);
-//        inplaceQuickSortTest(3);
-//        inplaceQuickSortTest(4);
-//        inplaceQuickSortTest(5);
+
+
 
         for ( int i=1; i<200; i++ ) {
             inplaceQuickSortTest(i);

@@ -1,7 +1,6 @@
 package com.mosaic.collections.concurrent;
 
 import com.mosaic.lang.QA;
-import com.mosaic.lang.QA;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,8 +28,12 @@ public abstract class ForkJoinJob<I,O> {
      * small enough to process efficiently on a single thread then do not
      * split it any further and return a single element collection containing
      * the unmodified data in it.
+     *
+     * @return null or empty list to not fork
      */
-    protected abstract Collection<I> splitData( I data );
+    protected Collection<I> forkData( I data ) {
+        return null;
+    }
 
     /**
      * Perform the work on the specified data.
@@ -39,9 +42,9 @@ public abstract class ForkJoinJob<I,O> {
 
     /**
      * Merge the specified result data sets together.  This is undoing the
-     * splitting of the input data set that was carried out by splitData.
+     * splitting of the input data set that was carried out by forkData.
      */
-    protected abstract O mergeData( O r1, O r2 );
+    protected abstract O joinData( O r1, O r2 );
 
 
     /**
@@ -72,14 +75,14 @@ public abstract class ForkJoinJob<I,O> {
         }
 
         public O compute() {
-            Collection<I> jobs = splitData( inputData );
+            Collection<I> jobs = forkData( inputData );
             if ( jobs == null ) {
-                throw new IllegalStateException( "splitData() returned an empty list" );
+                return processData( inputData );
             }
 
             switch ( jobs.size() ) {
                 case 0:
-                    throw new IllegalStateException( "splitData() returned an empty list" );
+                    return processData( inputData );
                 case 1:
                     return processData( jobs.iterator().next() );
                 default:
@@ -114,7 +117,7 @@ public abstract class ForkJoinJob<I,O> {
             while ( it.hasNext() ) {
                 O r2 = it.next().getRawResult();
 
-                resultSoFar = mergeData( resultSoFar, r2 );
+                resultSoFar = joinData( resultSoFar, r2 );
             }
 
             return resultSoFar;
