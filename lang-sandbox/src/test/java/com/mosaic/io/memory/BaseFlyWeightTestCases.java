@@ -3,7 +3,7 @@ package com.mosaic.io.memory;
 import com.mosaic.io.bytes.Bytes;
 import com.mosaic.lang.ComparisonResult;
 import com.mosaic.lang.QA;
-import com.mosaic.lang.system.DebugSystem;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -12,12 +12,16 @@ import static org.junit.Assert.*;
 /**
  *
  */
-public class FlyWeightTest {
+public abstract class BaseFlyWeightTestCases {
 
-    private DebugSystem      system    = new DebugSystem();
-    private Bytes            bytes     = Bytes.allocOnHeap( 1024 );
-    private RedBullFlyWeight flyweight = new RedBullFlyWeight( system, bytes );
+    private RedBullFlyWeight flyweight;
 
+    protected abstract RedBullFlyWeight createNewFlyWeight();
+
+    @Before
+    public void setup() {
+        flyweight = createNewFlyWeight();
+    }
 
 
     @Test
@@ -206,12 +210,12 @@ public class FlyWeightTest {
     public void inplaceQuickSort() {
         allocateAndPopulateBulls( 3 );
 
-        flyweight.inplaceQuickSort( new FlyWeightComparator<RedBullFlyWeight>() {
+        flyweight.sort( new FlyWeightComparator<RedBullFlyWeight>() {
             public ComparisonResult compare( RedBullFlyWeight f, long a, long b ) {
-                int ageA = f.select(a).getAge();
-                int ageB = f.select(b).getAge();
+                int ageA = f.select( a ).getAge();
+                int ageB = f.select( b ).getAge();
 
-                return ComparisonResult.compare(ageB, ageA); // age DESCENDING;  will reverse the order of the records
+                return ComparisonResult.compare( ageB, ageA ); // age DESCENDING;  will reverse the order of the records
             }
         } );
 
@@ -249,12 +253,12 @@ public class FlyWeightTest {
         flyweight.clearAll();
         allocateAndPopulateBulls( length );
 
-        flyweight.inplaceQuickSort( new FlyWeightComparator<RedBullFlyWeight>() {
+        flyweight.sort( new FlyWeightComparator<RedBullFlyWeight>() {
             public ComparisonResult compare( RedBullFlyWeight f, long a, long b ) {
-                int ageA = f.select(a).getAge();
-                int ageB = f.select(b).getAge();
+                int ageA = f.select( a ).getAge();
+                int ageB = f.select( b ).getAge();
 
-                return ComparisonResult.compare(ageB, ageA); // age DESCENDING;  will reverse the order of the records
+                return ComparisonResult.compare( ageB, ageA ); // age DESCENDING;  will reverse the order of the records
             }
         } );
 
@@ -302,4 +306,5 @@ public class FlyWeightTest {
             assertEquals( i+" is >= the number of records available ("+flyweight.getRecordCount()+")", e.getMessage() );
         }
     }
+
 }

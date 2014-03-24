@@ -9,7 +9,7 @@ import static com.mosaic.lang.system.SystemX.*;
 /**
  * Used for testing of FlyWeight.
  */
-public class RedBullFlyWeight extends FlyWeight<RedBullFlyWeight> {
+public class RedBullFlyWeight extends FlyWeightBytes<RedBullFlyWeight> {
 
     private static final int HASWINGS_OFFSET = 0;
     private static final int AGE_OFFSET      = HASWINGS_OFFSET  + SIZEOF_BOOLEAN;
@@ -50,7 +50,7 @@ public class RedBullFlyWeight extends FlyWeight<RedBullFlyWeight> {
 
 
     public String toString() {
-        return Integer.toString(getAge());
+        return Integer.toString( getAge() );
     }
 }
 
