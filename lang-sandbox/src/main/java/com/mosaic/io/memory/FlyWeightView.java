@@ -1,6 +1,7 @@
 package com.mosaic.io.memory;
 
 import com.mosaic.io.bytes.Bytes;
+import com.mosaic.lang.QA;
 
 
 /**
@@ -30,6 +31,14 @@ public class FlyWeightView<T extends FlyWeight<T>> implements FlyWeight<T> {
         return toExc - fromInc;
     }
 
+    public boolean isEmpty() {
+        return getRecordCount() == 0;
+    }
+
+    public long getRecordWidth() {
+        return wrappedFlyweight.getRecordWidth();
+    }
+
     public boolean hasNext() {
         return selectedIndex() < toExc;
     }
@@ -56,6 +65,13 @@ public class FlyWeightView<T extends FlyWeight<T>> implements FlyWeight<T> {
 
     public long allocateNewRecords( int numElements ) {
         throw new UnsupportedOperationException( "Unable to allocate new records from a view" );
+    }
+
+    public FlyWeight<T> subview( long fromInc, long toExc ) {
+        QA.argIsBetween( 0, fromInc, this.getRecordCount(), "fromInc" );
+        QA.argIsBetween( 0, toExc, this.getRecordCount()+1, "toExc" );
+
+        return new FlyWeightView( wrappedFlyweight, this.fromInc + fromInc, this.fromInc+toExc );
     }
 
     public void copySelectedRecordTo( long toDestinationIndex ) {

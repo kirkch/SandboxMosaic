@@ -3,14 +3,15 @@ package com.mosaic.collections.concurrent;
 import com.mosaic.lang.MergeOp;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.Function2;
+import com.mosaic.lang.system.SystemX;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
+
 
 /**
  * Parallelise the processing of a data set that is suitable for 'divide and
@@ -22,9 +23,6 @@ import java.util.concurrent.RecursiveTask;
  */
 @SuppressWarnings("unchecked")
 public abstract class ForkJoinJob<I,O> {
-
-    private static final ForkJoinPool FORK_JOIN_POOL = new ForkJoinPool();
-
 
     /**
      * Split the data set up into smaller data sets.  If the data set is already
@@ -82,7 +80,7 @@ public abstract class ForkJoinJob<I,O> {
 
         FJTask job = new FJTask(data, mergeOp);
 
-        return FORK_JOIN_POOL.invoke( job );
+        return SystemX.FORK_JOIN_POOL.invoke( job );
     }
 
 

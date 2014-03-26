@@ -9,6 +9,7 @@ import com.mosaic.lang.time.SystemClock;
 
 import java.nio.charset.Charset;
 import java.util.Random;
+import java.util.concurrent.ForkJoinPool;
 
 
 /**
@@ -39,6 +40,9 @@ public abstract class SystemX {
 
     public static Charset UTF8  = Charset.forName( "UTF8" );
     public static Charset ASCII = Charset.forName( "ASCII" );
+
+
+    public static final ForkJoinPool FORK_JOIN_POOL = new ForkJoinPool();
 
 
     private static final Random RND = new Random();
@@ -74,6 +78,7 @@ public abstract class SystemX {
     public static long nextRandomLong() {
         return RND.nextLong();
     }
+
 
 
     // The latest Intel processors have 3 layers (L1D, L2, and L3); with

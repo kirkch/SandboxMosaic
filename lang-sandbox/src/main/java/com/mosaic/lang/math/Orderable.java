@@ -1,14 +1,12 @@
 package com.mosaic.lang.math;
 
-import com.mosaic.lang.Immutable;
-
 import java.io.Serializable;
 
 /**
  *
  */
 @SuppressWarnings("unchecked")
-public abstract class Orderable <T extends Orderable> implements Comparable<T>, Serializable, Immutable {
+public abstract class Orderable <T extends Orderable> implements Comparable<T>, Serializable {
     private static final long serialVersionUID = 3657918383685576118L;
 
     public T max( T b ) {

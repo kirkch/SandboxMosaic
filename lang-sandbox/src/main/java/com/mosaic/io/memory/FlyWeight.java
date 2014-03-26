@@ -11,6 +11,7 @@ public interface FlyWeight<T extends FlyWeight<T>> extends Cloneable {
     T clone();
 
     long getRecordCount();
+    long getRecordWidth();
 
     boolean hasNext();
 
@@ -26,6 +27,8 @@ public interface FlyWeight<T extends FlyWeight<T>> extends Cloneable {
     T select( long recordIndex );
 
     long allocateNewRecords( int numElements );
+
+    public FlyWeight<T> subview( long fromInc, long toExc );
 
     void copySelectedRecordTo( long toDestinationIndex );
 
@@ -57,4 +60,5 @@ public interface FlyWeight<T extends FlyWeight<T>> extends Cloneable {
 
     void sort( FlyWeightComparator<T> comparator, long fromInc, long toExc, Bytes tmpBuffer, long tmpBufferOffset );
 
+    boolean isEmpty();
 }

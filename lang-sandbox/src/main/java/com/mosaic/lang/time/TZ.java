@@ -8,7 +8,8 @@ import java.util.TimeZone;
 /**
  *
  */
-public class TZ implements Serializable, Immutable {
+@Immutable
+public class TZ implements Serializable {
 
     private static final long serialVersionUID = 1289461083540L;
 

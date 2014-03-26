@@ -1,10 +1,18 @@
 package com.mosaic.lang;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.TYPE;
+
+
 /**
- * A marker interface for classes that are designed to never alter their state after the constructor
- * has completed. This indicating that the class is both thread safe, and capable of having any equivalent
- * instance swapped out for another instance. Replacing multiple equivalent copies of an object with a
- * single instance is the job of the GlobalInterner, and it is done to reduce the memory footprint of applications.
+ * A marker annotation for classes that are designed to never alter their state after the constructor
+ * has completed.
  */
-public interface Immutable {
+@Target(TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Immutable {
+    public String value() default "";
 }

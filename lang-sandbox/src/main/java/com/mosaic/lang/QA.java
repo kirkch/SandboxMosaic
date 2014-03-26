@@ -1,5 +1,6 @@
 package com.mosaic.lang;
 
+import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.math.MathematicalNumber;
 import com.mosaic.lang.reflect.ReflectionException;
 import com.mosaic.lang.system.SystemX;
@@ -1000,6 +1001,22 @@ public class QA {
         if ( SystemX.isDebugRun() ) {
             if ( (v & 0xFFFF) != v ) {
                 throwException( "%s (%s) is out of bounds of an unsigned short", argName, v );
+            }
+        }
+    }
+
+    /**
+     * Fails if the supplied function returns a String.  The string is a failure message.
+     * Because function0 is invoked 'lazily', use this method when the arguments
+     * to a normal call to QA cannot be hard coded.  Thus when checks are disabled, there
+     * will be no runtime cost.
+     */
+    public static void assertCondition( Function0<String> function0 ) {
+        if ( SystemX.isDebugRun() ) {
+            String failureMessage = function0.invoke();
+
+            if ( failureMessage != null ) {
+                throwException( failureMessage );
             }
         }
     }

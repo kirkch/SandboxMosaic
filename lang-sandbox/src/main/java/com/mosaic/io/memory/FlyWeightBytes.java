@@ -65,6 +65,14 @@ public abstract class FlyWeightBytes<T extends FlyWeightBytes<T>> implements Fly
         return records.readLong( RECORD_COUNT_INDEX );
     }
 
+    public boolean isEmpty() {
+        return getRecordCount() == 0;
+    }
+
+    public long getRecordWidth() {
+        return recordWidth;
+    }
+
     private long getMaxByteIndexExc() {
         return records.readLong( MAX_OFFSET_INDEX );
     }
@@ -119,6 +127,13 @@ public abstract class FlyWeightBytes<T extends FlyWeightBytes<T>> implements Fly
 
 
         return currentRecordCount;
+    }
+
+    public FlyWeight<T> subview( long fromInc, long toExc ) {
+        QA.argIsBetween( 0, fromInc, this.getRecordCount(), "fromInc" );
+        QA.argIsBetween( 0, toExc, this.getRecordCount()+1, "toExc" );
+
+        return new FlyWeightView( this, fromInc, toExc );
     }
 
     private void extendRecordBuffer( long newMaxOffsetExc ) {
@@ -484,9 +499,9 @@ public abstract class FlyWeightBytes<T extends FlyWeightBytes<T>> implements Fly
     private void throwIfInvalidAddress( long address, int numBytes ) {
         if ( SystemX.isDebugRun() ) {
             if ( address < selectedRecordByteOffset ) {
-                throw new IllegalArgumentException( "Address has under shot the allocated region" );
+                throw new IllegalArgumentException( "Address has under shot the allocated region. selectedIndex="+selectedIndex()+" recordCount="+getRecordCount() );
             } else if ( address+numBytes > selectedRecordByteOffset+ recordWidth ) {
-                throw new IllegalArgumentException( "Address has over shot the allocated region" );
+                throw new IllegalArgumentException( "Address has over shot the allocated region. selectedIndex="+selectedIndex()+" recordCount="+getRecordCount() );
             }
         }
     }
