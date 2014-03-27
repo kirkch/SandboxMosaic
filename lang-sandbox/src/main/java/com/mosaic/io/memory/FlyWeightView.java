@@ -63,7 +63,7 @@ public class FlyWeightView<T extends FlyWeight<T>> implements FlyWeight<T> {
         return (T) this;
     }
 
-    public long allocateNewRecords( int numElements ) {
+    public long allocateNewRecords( long numElements ) {
         throw new UnsupportedOperationException( "Unable to allocate new records from a view" );
     }
 

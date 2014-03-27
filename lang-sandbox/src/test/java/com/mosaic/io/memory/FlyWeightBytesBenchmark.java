@@ -173,34 +173,69 @@ public class FlyWeightBytesBenchmark {
     }
 
 /*
-    420.52ms per call
-    417.36ms per call
-    422.37ms per call
-    416.22ms per call
-    417.08ms per call
-    423.91ms per call
+compact storage
+    420.37ms per call
+    415.71ms per call
+    426.34ms per call
+    426.55ms per call
+    419.82ms per call
+    416.00ms per call
+
+spread out to avoid records crossing cache lines
+    404.04ms per call
+    406.29ms per call
+    411.05ms per call
+    418.96ms per call
+    413.98ms per call
+    415.05ms per call
+
      */
     @Benchmark(value = 10)
     public void superLargeQuickSort(int itCount) {
         allocateAndPopulateBulls( 5000000 );
 
 
-        for ( int i=0; i<itCount; i++ ) {
-            if ( i%2 == 0 ) {
-                flyweight.sort( comparator1 );
-            } else {
-                flyweight.sort( comparator2 );
-            }
+        for ( int i=0; i<itCount/2; i++ ) {
+            flyweight.sort( comparator1 );
+            flyweight.sort( comparator2 );
         }
     }
 
 /*
-    302.07ms per call
-    305.38ms per call
-    308.64ms per call
-    316.04ms per call
-    319.59ms per call
-    333.84ms per call
+compact storage
+    294.90ms per call
+    291.86ms per call
+    295.79ms per call
+    307.54ms per call
+    309.30ms per call
+    312.82ms per call
+
+spaced out so that records did not cross cache lines
+    425.82ms per call
+    435.08ms per call
+    437.94ms per call
+    448.79ms per call
+    442.58ms per call
+    443.26ms per call
+
+
+    ---
+compact
+    436.41ms per call
+    428.49ms per call
+    439.32ms per call
+    438.66ms per call
+    441.07ms per call
+    445.40ms per call
+
+spread out
+    412.01ms per call
+    427.43ms per call
+    440.57ms per call
+    459.69ms per call
+    478.09ms per call
+    447.86ms per call
+
      */
     @Benchmark(value = 10)
     public void superLargeQuickSortParallel(int itCount) {
@@ -209,12 +244,9 @@ public class FlyWeightBytesBenchmark {
         FlyWeightQuickSortOp op1 = new FlyWeightQuickSortOp( comparator1 );
         FlyWeightQuickSortOp op2 = new FlyWeightQuickSortOp( comparator2 );
 
-        for ( int i=0; i<itCount; i++ ) {
-            if ( i%2 == 0 ) {
-                op1.execute( flyweight );
-            } else {
-                op2.execute( flyweight );
-            }
+        for ( int i=0; i<itCount/2; i++ ) {
+            op1.execute( flyweight );
+            op2.execute( flyweight );
         }
     }
 

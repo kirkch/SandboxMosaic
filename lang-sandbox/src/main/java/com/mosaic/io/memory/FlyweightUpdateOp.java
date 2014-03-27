@@ -13,6 +13,7 @@ import java.util.concurrent.RecursiveAction;
  * Performs bulk updates operations in parallel against a FlyWeight data
  * structure.
  */
+@SuppressWarnings("unchecked")
 public abstract class FlyWeightUpdateOp<T extends FlyWeight<T>> {
 
     /**
@@ -108,17 +109,6 @@ public abstract class FlyWeightUpdateOp<T extends FlyWeight<T>> {
                     childTasks.add( new FJTask(subregion) );
                 }
             }
-
-//            Collection<FJTask> childTasks = ListUtils.map(
-//                subregions,
-//                new Function1<FlyWeightRegion, FJTask>() {
-//                    public FJTask invoke( FlyWeightRegion subregion ) {
-//                        assertIsSubRegion( region, subregion );
-//
-//                        return new FJTask(subregion);
-//                    }
-//                }
-//            );
 
             if ( !childTasks.isEmpty() ) {
                 invokeAll( childTasks );

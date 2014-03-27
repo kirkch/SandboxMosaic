@@ -109,7 +109,7 @@ public abstract class FlyWeightBytes<T extends FlyWeightBytes<T>> implements Fly
         }
     }
 
-    public long allocateNewRecords( int numElements ) {
+    public long allocateNewRecords( long numElements ) {
         QA.isGTZero( numElements, "numElements" );
 
 

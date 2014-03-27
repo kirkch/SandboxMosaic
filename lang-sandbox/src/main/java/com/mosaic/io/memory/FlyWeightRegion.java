@@ -9,14 +9,14 @@ import com.mosaic.lang.system.SystemX;
  * Describes a range of elements within a FlyWeight data structure.
  */
 @Immutable
-public class FlyWeightRegion {
+public class FlyWeightRegion<T extends FlyWeight<T>> {
 
-    private FlyWeight flyWeight;
-    private long      fromInc;
-    private long      toExc;
+    private T    flyWeight;
+    private long fromInc;
+    private long toExc;
 
 
-    public FlyWeightRegion( FlyWeight flyWeight, long fromInc, long toExc ) {
+    public FlyWeightRegion( T flyWeight, long fromInc, long toExc ) {
         QA.argNotNull( flyWeight, "flyWeight" );
         QA.argIsBetween( 0, fromInc, flyWeight.getRecordCount(), "fromInc" );
         QA.argIsBetween( 0, toExc, flyWeight.getRecordCount()+1, "toExc" );
@@ -26,7 +26,7 @@ public class FlyWeightRegion {
         this.toExc     = toExc;
     }
 
-    public FlyWeight getFlyWeight() {
+    public T getFlyWeight() {
         return flyWeight;
     }
 

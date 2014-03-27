@@ -26,7 +26,7 @@ public interface FlyWeight<T extends FlyWeight<T>> extends Cloneable {
 
     T select( long recordIndex );
 
-    long allocateNewRecords( int numElements );
+    long allocateNewRecords( long numElements );
 
     public FlyWeight<T> subview( long fromInc, long toExc );
 
