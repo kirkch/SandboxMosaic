@@ -4,6 +4,7 @@ import com.mosaic.io.streams.PrettyPrinter;
 import com.mosaic.lang.reflect.ReflectionUtils;
 import com.mosaic.lang.system.LiveSystem;
 import com.mosaic.lang.system.SystemX;
+import com.mosaic.lang.time.Duration;
 import com.mosaic.utils.StringUtils;
 
 import java.lang.reflect.Method;
@@ -14,7 +15,7 @@ import java.lang.reflect.Method;
  */
 public abstract class CLApp {
 
-    public SystemX system = new LiveSystem();
+    public SystemX system = LiveSystem.newSystem();
 
     public final void runApp( String...args ) {
         Method m = ReflectionUtils.findFirstPublicMethodByName( this.getClass(), "run" );
@@ -26,15 +27,45 @@ public abstract class CLApp {
 
             printUsage();
         } else {
-            try {
-                ReflectionUtils.invoke( this, m, (Object[]) args );
-            } catch ( IllegalArgumentException ex ) {
-                system.error( "Unable to proceed: %s", ex.getMessage() );
+            invokeRunCommand( m, args );
+        }
+    }
 
-                printUsage();
-            } catch ( Throwable ex ) {
-                system.error( ex );
+    private void invokeRunCommand( Method m, String[] args ) {
+        long   startMillis = System.currentTimeMillis();
+        String commandName = this.getClass().getSimpleName();
+
+        try {
+            system.info.newLine();
+
+            system.audit.writeString( "Running command '" );
+            system.audit.writeString( commandName );
+            system.audit.writeString( "'" );
+
+            for ( Object arg : args ) {
+                system.audit.writeString( " '" );
+                system.audit.writeString( arg.toString() );
+                system.audit.writeString( "'" );
             }
+
+            system.audit.newLine();
+            system.info.newLine();
+
+
+            ReflectionUtils.invoke( this, m, (Object[]) args );
+
+        } catch ( IllegalArgumentException ex ) {
+            system.error( "Unable to proceed: %s", ex.getMessage() );
+            system.error( ex );
+
+            printUsage();
+        } catch ( Throwable ex ) {
+            system.error( ex );
+        } finally {
+            long     endMillis = System.currentTimeMillis();
+            Duration duration  = Duration.millis( endMillis-startMillis );
+
+            system.audit( "Completed %s in %s", commandName, duration );
         }
     }
 

@@ -21,7 +21,7 @@ public class ResizableMemoryMappedBytesTest extends BaseBytesTest {
     protected Bytes doCreateBytes( long numBytes ) throws IOException {
         file = File.createTempFile( "MemoryMappedBytesTest", ".dat" );
 
-        return Bytes.memoryAutoResizingMapFile( system, file, FileModeEnum.READ_WRITE, numBytes, numBytes + 500 );
+        return Bytes.memoryAutoResizingMapFile( "test", system, file, FileModeEnum.READ_WRITE, numBytes, numBytes + 500 );
     }
 
     @After

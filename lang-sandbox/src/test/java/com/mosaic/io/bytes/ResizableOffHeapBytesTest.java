@@ -15,7 +15,7 @@ public class ResizableOffHeapBytesTest extends BaseBytesTest {
 
 
     protected Bytes doCreateBytes( long numBytes ) throws IOException {
-        return Bytes.allocAutoResizingOffHeap( system, numBytes, numBytes+500 );
+        return Bytes.allocAutoResizingOffHeap( "test", system, numBytes, numBytes+500 );
     }
 
 }

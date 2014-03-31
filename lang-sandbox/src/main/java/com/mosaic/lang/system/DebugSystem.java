@@ -20,7 +20,8 @@ import java.util.List;
  */
 public class DebugSystem extends SystemX {
 
-    private CapturingWriter cInfo;  // files used to avoid ugly casting from the assert methods
+    private CapturingWriter cAudit;  // files used to avoid ugly casting from the assert methods
+    private CapturingWriter cInfo;
     private CapturingWriter cWarn;
     private CapturingWriter cError;
     private CapturingWriter cDebug;
@@ -30,6 +31,7 @@ public class DebugSystem extends SystemX {
         this(
             new InMemoryFileSystem(),
             new SystemClock(),
+            new CapturingWriter(), // audit,
             new CapturingWriter(), // info,
             new CapturingWriter(), // warn,
             new CapturingWriter(), // error,
@@ -38,9 +40,10 @@ public class DebugSystem extends SystemX {
     }
 
 
-    private DebugSystem( InMemoryFileSystem system, SystemClock clock, CapturingWriter info, CapturingWriter warn, CapturingWriter error, CapturingWriter debug) {
-        super(system,clock,info,warn,error,debug);
+    private DebugSystem( InMemoryFileSystem system, SystemClock clock, CapturingWriter audit, CapturingWriter info, CapturingWriter warn, CapturingWriter error, CapturingWriter debug) {
+        super(system,clock,audit,info,warn,error,debug);
 
+        this.cAudit = audit;
         this.cInfo  = info;
         this.cWarn  = warn;
         this.cError = error;
@@ -63,7 +66,7 @@ public class DebugSystem extends SystemX {
 
         throw new AssertionError(
             String.format(
-                "Failed to find '%s' amongst the error messages \n'%s'",
+                "Failed to find '%s' amongst the info messages \n'%s'",
                 expectedMessage,
                 StringUtils.concat( cInfo.audit, "[\n", "\n", "]" )
             )
@@ -81,7 +84,7 @@ public class DebugSystem extends SystemX {
 
         throw new AssertionError(
             String.format(
-                "Failed to find '%s' amongst the error messages '%s'",
+                "Failed to find '%s' amongst the warn messages '%s'",
                 expectedMessage,
                 cWarn.audit
             )
@@ -121,7 +124,7 @@ public class DebugSystem extends SystemX {
 
         throw new AssertionError(
             String.format(
-                "Failed to find '%s' amongst the error messages '%s'",
+                "Failed to find '%s' amongst the debug messages '%s'",
                 expectedMessage,
                 cDebug.audit
             )

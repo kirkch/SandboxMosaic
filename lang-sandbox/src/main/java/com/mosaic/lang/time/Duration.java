@@ -79,6 +79,10 @@ public class Duration {
     }
 
     private long append( StringBuilder buf, long v, long denominator, String postfix ) {
+        if ( buf.length() != 0 ) {
+            buf.append( " " );
+        }
+
         long quotient = v/denominator;
 
         if ( quotient > 0 ) {

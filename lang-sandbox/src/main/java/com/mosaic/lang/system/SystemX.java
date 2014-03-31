@@ -99,6 +99,7 @@ public abstract class SystemX {
     public final FileSystemX fileSystem;
     public final SystemClock clock;
 
+    public final WriterX     audit;
     public final WriterX     info;
     public final WriterX     warn;
     public final WriterX     error;
@@ -107,10 +108,11 @@ public abstract class SystemX {
     // NB stdin, when needed will be done by subscription with callbacks and not the Java blocking approach
 
 
-    protected SystemX( FileSystemX fileSystem, SystemClock clock, WriterX info, WriterX warn, WriterX error, WriterX debug ) {
+    protected SystemX( FileSystemX fileSystem, SystemClock clock, WriterX audit, WriterX info, WriterX warn, WriterX error, WriterX debug ) {
         this.fileSystem = fileSystem;
         this.clock      = clock;
 
+        this.audit      = audit;
         this.info       = info;
         this.warn       = warn;
         this.error      = error;
@@ -146,6 +148,10 @@ public abstract class SystemX {
 
     public void error( Throwable ex ) {
         error.writeException( ex );
+    }
+
+    public void audit( String msg, Object... args ) {
+        audit.writeLine( String.format(msg,args) );
     }
 
     public void info( String msg, Object... args ) {

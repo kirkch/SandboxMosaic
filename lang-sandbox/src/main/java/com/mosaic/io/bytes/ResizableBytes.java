@@ -18,11 +18,13 @@ public class ResizableBytes extends WrappedBytes {
      * @param system used for logging
      * @param wrappedBytes will be copied then released as it gets close to overflowing
      */
-    public ResizableBytes( SystemX system, Bytes wrappedBytes, long maxExpectedSize ) {
+    public ResizableBytes( String name, SystemX system, Bytes wrappedBytes, long maxExpectedSize ) {
         super( wrappedBytes );
 
         QA.argNotNull(  system,          "system"          );
         QA.argIsGTZero( maxExpectedSize, "maxExpectedSize" );
+
+        this.setName( name );
 
         this.system          = system;
         this.maxExpectedSize = maxExpectedSize;

@@ -27,6 +27,37 @@ public class PrettyPrinter {
         }
     }
 
+    public static void printPleural( WriterX out, String noun, int count ) {
+        out.writeString( noun );
+
+        if ( count > 1 ) {
+            out.writeString( "s" );
+        }
+    }
+
+    public static void englishList( WriterX out, String[] nouns ) {
+        englishList( out, nouns, 0, nouns.length );
+    }
+
+    public static void englishList( WriterX out, String[] nouns, int fromInc, int toExc ) {
+        if ( toExc-fromInc <= 0 ) {
+            return;
+        }
+
+        out.writeString( nouns[fromInc] );
+
+        for ( int i=fromInc+1; i<toExc-1; i++ ) {
+            out.writeString( ", " );
+            out.writeString( nouns[i] );
+        }
+
+        if ( toExc > fromInc+1 ) {
+            out.writeString( " and " );
+            out.writeString( nouns[toExc-1] );
+        }
+    }
+
+
 
 
     private WriterX out;
@@ -60,36 +91,5 @@ public class PrettyPrinter {
         }
 
         out.writeLine( "" );
-    }
-
-
-    public static void printPleural( WriterX out, String noun, int count ) {
-        out.writeString( noun );
-
-        if ( count > 1 ) {
-            out.writeString( "s" );
-        }
-    }
-
-    public static void englishList( WriterX out, String[] nouns ) {
-        englishList( out, nouns, 0, nouns.length );
-    }
-
-    public static void englishList( WriterX out, String[] nouns, int fromInc, int toExc ) {
-        if ( toExc-fromInc <= 0 ) {
-            return;
-        }
-
-        out.writeString( nouns[fromInc] );
-
-        for ( int i=fromInc+1; i<toExc-1; i++ ) {
-            out.writeString( ", " );
-            out.writeString( nouns[i] );
-        }
-
-        if ( toExc > fromInc+1 ) {
-            out.writeString( " and " );
-            out.writeString( nouns[toExc-1] );
-        }
     }
 }

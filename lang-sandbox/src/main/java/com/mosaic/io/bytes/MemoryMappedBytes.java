@@ -31,7 +31,7 @@ public class MemoryMappedBytes extends NativeBytes {
             DirectBuffer     db   = (DirectBuffer) buf;
             long             addr = db.address();
 
-            return new MemoryMappedBytes( raf, mode, db, addr, addr, addr+buf.capacity() );
+            return new MemoryMappedBytes( f.getName(), raf, mode, db, addr, addr, addr+buf.capacity() );
         } catch ( IOException ex ) {
             throw RuntimeIOException.recast( ex );
         }
@@ -43,12 +43,14 @@ public class MemoryMappedBytes extends NativeBytes {
     private DirectBuffer     buf;
 
 
-    private MemoryMappedBytes( RandomAccessFile raf, FileModeEnum mode, DirectBuffer buf, long baseAddress, long alignedAddress, long maxAddressExc ) {
+    private MemoryMappedBytes( String name, RandomAccessFile raf, FileModeEnum mode, DirectBuffer buf, long baseAddress, long alignedAddress, long maxAddressExc ) {
         super( baseAddress, alignedAddress, maxAddressExc );
 
         this.raf = raf;
         this.mode = mode;
         this.buf = buf;
+
+        setName( name );
     }
 
 

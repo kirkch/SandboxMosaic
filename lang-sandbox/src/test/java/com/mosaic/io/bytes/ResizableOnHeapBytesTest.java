@@ -17,7 +17,7 @@ public class ResizableOnHeapBytesTest extends BaseBytesTest {
 
 
     protected Bytes doCreateBytes( long numBytes ) throws IOException {
-        Bytes bytes = Bytes.allocAutoResizingOnHeap( system, numBytes, numBytes + 500 );
+        Bytes bytes = Bytes.allocAutoResizingOnHeap( "test", system, numBytes, numBytes + 500 );
 
         bytes.setName( "testMem" );
 
