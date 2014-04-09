@@ -1,15 +1,17 @@
 package com.mosaic.io.bytes;
 
 import com.mosaic.lang.QA;
+import com.mosaic.lang.reflect.ReflectionUtils;
+import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.text.DecodedCharacter;
 
 
 /**
  *
  */
-public class WrappedBytes extends Bytes {
+public abstract class WrappedBytes extends Bytes implements Cloneable {
 
-    private Bytes delegate;
+    protected Bytes delegate;
 
     public WrappedBytes( Bytes delegate ) {
         QA.argNotNull( delegate, "delegate" );
@@ -17,6 +19,13 @@ public class WrappedBytes extends Bytes {
         this.delegate = delegate;
     }
 
+    public Bytes narrow( long fromInc, long toExc ) {
+        WrappedBytes clone = ReflectionUtils.clone( this );
+
+        clone.delegate = this.delegate.narrow( fromInc, toExc );
+
+        return clone;
+    }
 
     public boolean readBoolean( long index ) {
         return delegate.readBoolean(index);

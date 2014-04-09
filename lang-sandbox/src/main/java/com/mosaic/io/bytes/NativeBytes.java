@@ -1,6 +1,7 @@
 package com.mosaic.io.bytes;
 
 import com.mosaic.lang.QA;
+import com.mosaic.lang.reflect.ReflectionUtils;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.text.DecodedCharacter;
@@ -14,18 +15,29 @@ import static com.mosaic.lang.system.SystemX.*;
 /**
  *
  */
-public abstract class NativeBytes extends BaseBytes {
+public abstract class NativeBytes extends BaseBytes implements Cloneable {
 
 
     private long   baseAddress;
     private long   cacheAlignedBaseAddress;
     private long   maxAddressExc;
 
+    private boolean isOwner = true;
 
 
 
     protected NativeBytes( long baseAddress, long alignedAddress, long maxAddressExc ) {
         resized( baseAddress, alignedAddress, maxAddressExc );
+    }
+
+    public Bytes narrow( long fromInc, long toExc ) {
+        NativeBytes clone = ReflectionUtils.clone( this );
+
+        clone.isOwner                  = false;
+        clone.cacheAlignedBaseAddress += fromInc;
+        clone.maxAddressExc            = this.cacheAlignedBaseAddress + toExc;
+
+        return clone;
     }
 
     protected void resized( long baseAddress, long alignedAddress, long maxAddressExc ) {
@@ -42,6 +54,7 @@ public abstract class NativeBytes extends BaseBytes {
 
     public void release() {
         QA.isNotZero( baseAddress, "The memory has already been freed" );
+        QA.isTrue( isOwner, "This object does not own the allocated memory" );
 
         super.release();
 

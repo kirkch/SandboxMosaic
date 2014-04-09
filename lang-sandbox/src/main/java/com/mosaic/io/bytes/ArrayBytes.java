@@ -38,6 +38,11 @@ public class ArrayBytes extends BaseBytes {
         this.maxExc = maxExc;
     }
 
+    public Bytes narrow( long fromInc, long toExc ) {
+        throwIfInvalidIndex( min+fromInc, (int) (toExc-fromInc) );
+
+        return new ArrayBytes( array, (int) (min+fromInc), (int) (min+toExc) );
+    }
 
     public boolean readBoolean( long index ) {
         byte v = readByte( index );
@@ -48,7 +53,7 @@ public class ArrayBytes extends BaseBytes {
     public byte readByte( long index ) {
         long i = min + index;
 
-        throwIfInvalidIndex( index, SIZEOF_BYTE );
+        throwIfInvalidIndex( i, SIZEOF_BYTE );
 
         return Backdoor.getByteFrom( array, i );
     }
@@ -56,7 +61,7 @@ public class ArrayBytes extends BaseBytes {
     public short readShort( long index ) {
         long i = min + index;
 
-        throwIfInvalidIndex( index, SIZEOF_SHORT );
+        throwIfInvalidIndex( i, SIZEOF_SHORT );
 
         return Backdoor.getShortFrom( array, i );
     }
@@ -64,7 +69,7 @@ public class ArrayBytes extends BaseBytes {
     public char readCharacter( long index ) {
         long i = min + index;
 
-        throwIfInvalidIndex( index, SIZEOF_CHAR );
+        throwIfInvalidIndex( i, SIZEOF_CHAR );
 
         return Backdoor.getCharacterFrom( array, i );
     }
@@ -72,7 +77,7 @@ public class ArrayBytes extends BaseBytes {
     public int readInteger( long index ) {
         long i = min + index;
 
-        throwIfInvalidIndex( index, SIZEOF_INT );
+        throwIfInvalidIndex( i, SIZEOF_INT );
 
         return Backdoor.getIntegerFrom( array, i );
     }
@@ -80,7 +85,7 @@ public class ArrayBytes extends BaseBytes {
     public long readLong( long index ) {
         long i = min + index;
 
-        throwIfInvalidIndex( index, SIZEOF_LONG );
+        throwIfInvalidIndex( i, SIZEOF_LONG );
 
         return Backdoor.getLongFrom( array, i );
     }
@@ -88,7 +93,7 @@ public class ArrayBytes extends BaseBytes {
     public float readFloat( long index ) {
         long i = min + index;
 
-        throwIfInvalidIndex( index, SIZEOF_FLOAT );
+        throwIfInvalidIndex( i, SIZEOF_FLOAT );
 
         return Backdoor.getFloatFrom( array, i );
     }
@@ -96,7 +101,7 @@ public class ArrayBytes extends BaseBytes {
     public double readDouble( long index ) {
         long i = min + index;
 
-        throwIfInvalidIndex( index, SIZEOF_DOUBLE );
+        throwIfInvalidIndex( i, SIZEOF_DOUBLE );
 
         return Backdoor.getDoubleFrom( array, i );
     }

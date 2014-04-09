@@ -89,4 +89,6 @@ public abstract class Bytes implements OutputBytes, InputBytes {
         return (int) count;
     }
 
+
+    public abstract Bytes narrow( long fromInc, long toExc );
 }

@@ -335,6 +335,15 @@ public class MemoryRegionImpl implements MemoryRegion {
         return data.readUTF8String( dataAddress + offset, out );
     }
 
+    public Bytes asBytes( int baseAddress ) {
+        long baseIndexPtr = ((long) baseAddress)*SIZEOF_INDEXRECORD;
+
+        long baseDataPtr = index.readLong( baseIndexPtr + INDEXOFFSET_DATAADDRESS );
+        int  numBytes    = index.readInteger( baseIndexPtr + INDEXOFFSET_BYTECOUNT );
+
+//        return data.narrow( baseDataPtr, baseDataPtr+numBytes );
+        return null;
+    }
 
 
 

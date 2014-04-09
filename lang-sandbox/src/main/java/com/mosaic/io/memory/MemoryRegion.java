@@ -1,6 +1,7 @@
 package com.mosaic.io.memory;
 
 
+import com.mosaic.io.bytes.Bytes;
 import com.mosaic.lang.text.DecodedCharacter;
 
 
@@ -76,4 +77,5 @@ public interface MemoryRegion {
     public int writeUTF8String( int baseAddress, int offset, CharSequence newValue );
     public int readUTF8String( int baseAddress, int offset, Appendable out );
 
+    public Bytes asBytes( int baseAddress );
 }

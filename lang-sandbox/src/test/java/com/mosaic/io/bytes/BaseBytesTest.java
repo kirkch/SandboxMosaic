@@ -439,6 +439,39 @@ public abstract class BaseBytesTest {
 //    public void writeBytes( long index, long fromAddress, int numBytes );
 
 
+// NARROW
+
+    @Test
+    public void narrow_checkLengthHasBeenReduced() {
+        Bytes b = initBytes();
+        Bytes n = b.narrow( 2, 4 );
+
+        assertEquals( 2, n.bufferLength() );
+    }
+
+    @Test
+    public void narrow_checkThatWritingToTheOriginalIsVisibleInTheView() {
+        Bytes b = initBytes();
+        Bytes n = b.narrow( 2, 4 );
+
+
+        b.writeShort( 2, (short) 42 );
+
+        assertEquals( 42, n.readShort(0) );
+    }
+
+    @Test
+    public void narrow_checkThatWritingToTheViewIsVisibleInTheOriginal() {
+        Bytes b = initBytes();
+        Bytes n = b.narrow( 2, 4 );
+
+
+        n.writeShort( 0, (short) 42 );
+
+        assertEquals( 42, n.readShort(0) );
+        assertEquals( 42, b.readShort(2) );
+    }
+
 
 
 

@@ -9,6 +9,16 @@ import java.lang.reflect.Method;
 @SuppressWarnings("unchecked")
 public class ReflectionUtils {
 
+    private static final Method CLONE_METHOD = ReflectionUtils.findFirstInstanceMethodByName( Object.class, "clone" );
+
+    static {
+        CLONE_METHOD.setAccessible( true );
+    }
+
+    public static <T extends Cloneable> T clone( T obj ) {
+        return (T) invoke( obj, CLONE_METHOD );
+    }
+
     public static Object invoke( Object instance, Method method, Object...args ) {
         try {
             return method.invoke( instance, args );
