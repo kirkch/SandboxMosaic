@@ -117,7 +117,7 @@ public class ArrayBytes extends BaseBytes {
         return Backdoor.getShortFrom(array,i) & UNSIGNED_SHORT_MASK;
     }
 
-    public long readUnsignedInteger( long index ) {
+    public long readUnsignedInt( long index ) {
         long i = min + index;
 
         throwIfInvalidIndex( i, SIZEOF_INT );
@@ -199,7 +199,7 @@ public class ArrayBytes extends BaseBytes {
         writeInteger( index, (int) (v & UNSIGNED_INT_MASK) );
     }
 
-    public int writeUTF8( long destinationIndex, char v ) {
+    public int writeUTF8Character( long destinationIndex, char v ) {
         QA.argIsLTE( destinationIndex, Integer.MAX_VALUE, "index" );
 
         return UTF8Tools.write( array, (int) destinationIndex, v );
@@ -418,7 +418,7 @@ public class ArrayBytes extends BaseBytes {
     }
 
 
-    public void readSingleUTF8Character( long index, DecodedCharacter output ) {
+    public void readUTF8Character( long index, DecodedCharacter output ) {
         throwIfInvalidIndex( index, 1 );
 
         UTF8Tools.decode( array, (int) index, output );
@@ -436,7 +436,7 @@ public class ArrayBytes extends BaseBytes {
         throwIfInvalidIndex( from, numUTF8Bytes );
 
         while( from < toExc ) {
-            readSingleUTF8Character( from, buf );
+            readUTF8Character( from, buf );
 
             from += buf.numBytesConsumed;
 

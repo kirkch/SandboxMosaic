@@ -30,6 +30,16 @@ public class MathUtils {
         return n;
     }
 
+    public static long roundUpToClosestPowerOf2( long v ) {
+        long n = 2;
+
+        while ( v > n ) {
+            n *= 2;
+        }
+
+        return n;
+    }
+
     public static int roundDownToClosestPowerOf2( int v ) {
         int n = 2;
 
@@ -41,6 +51,10 @@ public class MathUtils {
     }
 
     public static boolean isPowerOf2( int v ) {
+        return v == roundUpToClosestPowerOf2( v );
+    }
+
+    public static boolean isPowerOf2( long v ) {
         return v == roundUpToClosestPowerOf2( v );
     }
 

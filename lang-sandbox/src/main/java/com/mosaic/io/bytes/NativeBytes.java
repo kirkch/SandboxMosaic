@@ -128,7 +128,7 @@ public abstract class NativeBytes extends BaseBytes {
         return Backdoor.getShort( address ) & UNSIGNED_SHORT_MASK;
     }
 
-    public long readUnsignedInteger( long index ) {
+    public long readUnsignedInt( long index ) {
         long address = cacheAlignedBaseAddress + index;
 
         throwIfInvalidAddress( address, SIZEOF_INT );
@@ -210,7 +210,7 @@ public abstract class NativeBytes extends BaseBytes {
         writeInteger( index, (int) (v & UNSIGNED_INT_MASK) );
     }
 
-    public int writeUTF8( long destinationIndex, char v ) {
+    public int writeUTF8Character( long destinationIndex, char v ) {
         long toAddress = cacheAlignedBaseAddress+ destinationIndex;
 
         return UTF8Tools.write( toAddress, maxAddressExc, v );
@@ -422,7 +422,7 @@ public abstract class NativeBytes extends BaseBytes {
     }
 
 
-    public void readSingleUTF8Character( long index, DecodedCharacter output ) {
+    public void readUTF8Character( long index, DecodedCharacter output ) {
         UTF8Tools.decode( cacheAlignedBaseAddress+index, maxAddressExc, output );
     }
 

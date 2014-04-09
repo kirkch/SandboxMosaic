@@ -65,7 +65,7 @@ abstract class BaseBytes extends Bytes {
     }
 
     public int writeUTF8( char v ) {
-        int byteCount = writeUTF8( positionIndex, v );
+        int byteCount = writeUTF8Character( positionIndex, v );
 
         positionIndex += byteCount;
 
@@ -89,7 +89,7 @@ abstract class BaseBytes extends Bytes {
         for ( int i=0; i< sourceCharacters.length(); i++ ) {
             char c = sourceCharacters.charAt(i);
 
-            byteCount += writeUTF8( destinationIndex +byteCount, c );
+            byteCount += writeUTF8Character( destinationIndex + byteCount, c );
         }
 
         return byteCount;
@@ -130,7 +130,7 @@ abstract class BaseBytes extends Bytes {
 
 
     public char readSingleUTF8Character() {
-        readSingleUTF8Character( positionIndex, myDecodedCharacterBuffer() );
+        readUTF8Character( positionIndex, myDecodedCharacterBuffer() );
 
         incrementPosition( myDecodedCharacterBuffer.numBytesConsumed );
 

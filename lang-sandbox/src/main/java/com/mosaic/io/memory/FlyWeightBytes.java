@@ -26,7 +26,7 @@ public abstract class FlyWeightBytes<T extends FlyWeightBytes<T>> implements Fly
     private static final long MAX_OFFSET_INDEX   = RECORD_COUNT_INDEX+SIZEOF_LONG;
 
 
-    private static final int HEADER_WIDTH = SIZEOF_LONG*2;
+    public static final int HEADER_WIDTH = SIZEOF_LONG*2;
 
 
     /* Record Structure:
@@ -395,7 +395,7 @@ public abstract class FlyWeightBytes<T extends FlyWeightBytes<T>> implements Fly
 
         throwIfInvalidAddress( offset, 4 );
 
-        return records.readUnsignedInteger( offset );
+        return records.readUnsignedInt( offset );
     }
 
 

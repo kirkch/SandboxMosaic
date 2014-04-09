@@ -102,7 +102,7 @@ public class PullParser {
 
         long i=position;
         for ( ; i<source.getEndIndexExc(); i+=charBuf.numBytesConsumed ) {
-            source.readSingleUTF8Character(i, charBuf );
+            source.readUTF8Character( i, charBuf );
 
             if ( charBuf.c == '\n' ) {
                 i += charBuf.numBytesConsumed;

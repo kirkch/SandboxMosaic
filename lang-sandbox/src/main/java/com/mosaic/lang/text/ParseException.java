@@ -20,7 +20,7 @@ public class ParseException extends RuntimeException {
         long i=0;
         DecodedCharacter buf = new DecodedCharacter();
         while ( i<position ) {
-            b.readSingleUTF8Character( i, buf );
+            b.readUTF8Character( i, buf );
 
             char c = buf.c;
             if ( c == '\n' ) {

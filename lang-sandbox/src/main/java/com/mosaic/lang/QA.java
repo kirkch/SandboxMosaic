@@ -664,7 +664,13 @@ public class QA {
 /////////
 
     public static void isMultipleOf2( int v, String argName ) {
-        if ( !MathUtils.isPowerOf2( v ) ) {
+        if ( !MathUtils.isPowerOf2(v) ) {
+            throwException( "%s (%s) must be a power of 2", argName, v);
+        }
+    }
+
+    public static void isMultipleOf2( long v, String argName ) {
+        if ( !MathUtils.isPowerOf2(v) ) {
             throwException( "%s (%s) must be a power of 2", argName, v);
         }
     }
@@ -965,6 +971,18 @@ public class QA {
      * The specified range must equal or be within specified range.
      */
     public static void argIsWithinRange( int minInc, int minValue, int maxValue, int maxExc, String minValueName, String maxValueName ) {
+        argIsBetween( minInc, minValue, maxExc, minValueName );
+        argIsBetween( minInc, maxValue, maxExc + 1, maxValueName );
+
+        if ( !(minValue < maxValue) ) {
+            throwException( "%s (%s) < %s (%s)", minValueName, minValue, maxValueName, maxValue );
+        }
+    }
+
+    /**
+     * The specified range must equal or be within specified range.
+     */
+    public static void argIsWithinRange( long minInc, long minValue, long maxValue, long maxExc, String minValueName, String maxValueName ) {
         argIsBetween( minInc, minValue, maxExc, minValueName );
         argIsBetween( minInc, maxValue, maxExc + 1, maxValueName );
 

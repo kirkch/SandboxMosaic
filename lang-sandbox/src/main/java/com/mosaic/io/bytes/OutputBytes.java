@@ -39,7 +39,7 @@ public interface OutputBytes {
      *
      * @return the number of bytes used
      */
-    public int writeUTF8( long destinationIndex, char v );
+    public int writeUTF8Character( long destinationIndex, char v );
 
     /**
      * Writes the specified string encoded in UTF-8.  UTF-8 is a variable

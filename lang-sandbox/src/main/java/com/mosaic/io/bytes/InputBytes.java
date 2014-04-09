@@ -31,7 +31,7 @@ public interface InputBytes {
 
     public short readUnsignedByte( long index );
     public int readUnsignedShort( long index );
-    public long readUnsignedInteger( long index );
+    public long readUnsignedInt( long index );
 
 
     /**
@@ -155,7 +155,7 @@ public interface InputBytes {
      * with a count of how many bytes were used to hold the character without
      * having to allocateNewRecord any extra objects.
      */
-    public void readSingleUTF8Character( long index, DecodedCharacter output );
+    public void readUTF8Character( long index, DecodedCharacter output );
 
     /**
      * Reads the specified string encoded in UTF-8 into the supplied StringBuilder.

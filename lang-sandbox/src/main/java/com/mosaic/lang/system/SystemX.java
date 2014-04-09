@@ -29,8 +29,9 @@ public abstract class SystemX {
     public static final int SIZEOF_FLOAT          = 4;
     public static final int SIZEOF_DOUBLE         = 8;
 
+    public static final int SIZEOF_UNSIGNED_BYTE  = 1;
     public static final int SIZEOF_UNSIGNED_SHORT = 2;
-    public static final int SIZEOF_UNSIGED_INT    = 4;
+    public static final int SIZEOF_UNSIGNED_INT   = 4;
 
 
     public static final int  UNSIGNED_BYTE_MASK  = 0xFF;

@@ -102,10 +102,10 @@ public class ResizableBytes extends WrappedBytes {
         super.writeUnsignedInt( index, v );
     }
 
-    public int writeUTF8( long destinationIndex, char v ) {
+    public int writeUTF8Character( long destinationIndex, char v ) {
         resizeIfNeeded( destinationIndex +3 );
 
-        return super.writeUTF8( destinationIndex, v );
+        return super.writeUTF8Character( destinationIndex, v );
     }
 
     public void writeBytes( long destinationIndex, byte[] sourceArray, int sourceFromInc, int sourceToExc ) {

@@ -58,8 +58,8 @@ public class WrappedBytes extends Bytes {
         return delegate.readUnsignedShort(index);
     }
 
-    public long readUnsignedInteger( long index ) {
-        return delegate.readUnsignedInteger(index);
+    public long readUnsignedInt( long index ) {
+        return delegate.readUnsignedInt( index );
     }
 
     public boolean readBoolean() {
@@ -130,8 +130,8 @@ public class WrappedBytes extends Bytes {
         delegate.readBytes( destinationAddress, numBytes );
     }
 
-    public void readSingleUTF8Character( long index, DecodedCharacter output ) {
-        delegate.readSingleUTF8Character( index, output );
+    public void readUTF8Character( long index, DecodedCharacter output ) {
+        delegate.readUTF8Character( index, output );
     }
 
     public int readUTF8String( long index, Appendable buf ) {
@@ -206,8 +206,8 @@ public class WrappedBytes extends Bytes {
         delegate.writeUnsignedInt( index, v );
     }
 
-    public int writeUTF8( long destinationIndex, char v ) {
-        return delegate.writeUTF8( destinationIndex, v );
+    public int writeUTF8Character( long destinationIndex, char v ) {
+        return delegate.writeUTF8Character( destinationIndex, v );
     }
 
     public int writeUTF8String( long destinationIndex, CharSequence sourceCharacters ) {

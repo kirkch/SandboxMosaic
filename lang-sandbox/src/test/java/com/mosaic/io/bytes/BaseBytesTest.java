@@ -232,12 +232,12 @@ public abstract class BaseBytesTest {
         Bytes            b   = initBytes();
         DecodedCharacter buf = new DecodedCharacter();
 
-        assertEquals( 1, b.writeUTF8( 3, 'e' ) );
+        assertEquals( 1, b.writeUTF8Character( 3, 'e' ) );
 
         assertEquals( 0, b.positionIndex() );
         assertAllBytesAreZero( b, 0, 3 );
 
-        b.readSingleUTF8Character( 3, buf );
+        b.readUTF8Character( 3, buf );
         assertEquals( 'e', buf.c );
         assertEquals( 1, buf.numBytesConsumed );
 
