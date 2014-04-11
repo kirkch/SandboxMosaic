@@ -4,6 +4,7 @@ import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.text.DecodedCharacter;
+import com.mosaic.lang.text.UTF8;
 import com.mosaic.lang.text.UTF8Tools;
 
 import java.io.IOException;
@@ -81,7 +82,9 @@ abstract class BaseBytes extends Bytes {
         int byteCount      = 2;
 
         if ( !SystemX.isRecklessRun() ) {
-            QA.isLTE( utf8ByteLength, remaining(), "%s bytes are required, but only %s remain", utf8ByteLength, remaining() );
+            long spaceLeft = getEndIndexExc()-destinationIndex;
+
+            QA.isLTE( utf8ByteLength, spaceLeft, "%s bytes are required, but only %s remain", utf8ByteLength, spaceLeft );
         }
 
         writeUnsignedShort( destinationIndex, utf8ByteLength );
@@ -93,6 +96,21 @@ abstract class BaseBytes extends Bytes {
         }
 
         return byteCount;
+    }
+
+    public int writeUTF8String( long destinationIndex, UTF8 sourceCharacters ) {
+        int width = sourceCharacters.getByteCount() + 2;
+
+        if ( !SystemX.isRecklessRun() ) {
+            long spaceLeft = getEndIndexExc()-destinationIndex;
+
+            QA.isLTE( width, spaceLeft, "%s bytes are required, but only %s remain", width, spaceLeft );
+        }
+
+        writeUnsignedShort( destinationIndex, sourceCharacters.getByteCount() );
+        writeBytes( destinationIndex + 2, sourceCharacters.getBytes() );
+
+        return width;
     }
 
     public int writeUTF8String( CharSequence characters ) {

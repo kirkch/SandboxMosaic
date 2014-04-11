@@ -7,11 +7,11 @@ import com.mosaic.lang.UTF8;
 /**
  *
  */
-public class WrapperWriterX implements WriterX {
+public class WrapperCharacterStream implements CharacterStream {
 
-    private WriterX delegate;
+    private CharacterStream delegate;
 
-    public WrapperWriterX( WriterX delegate ) {
+    public WrapperCharacterStream( CharacterStream delegate ) {
         QA.argNotNull( delegate, "delegate" );
 
         this.delegate = delegate;
@@ -21,16 +21,16 @@ public class WrapperWriterX implements WriterX {
         delegate.writeBoolean(v);
     }
 
-    public void writeByte( byte v ) {
-        delegate.writeByte(v);
+    public void writeByteAsNumber( byte v ) {
+        delegate.writeByteAsNumber( v );
     }
 
-    public void writeBytes( byte[] bytes ) {
-        delegate.writeBytes(bytes);
+    public void writeUTF8Bytes( byte[] bytes ) {
+        delegate.writeUTF8Bytes( bytes );
     }
 
-    public void writeBytes( byte[] bytes, int fromIndexInc, int toExc ) {
-        delegate.writeBytes(bytes, fromIndexInc, toExc);
+    public void writeUTF8Bytes( byte[] bytes, int fromIndexInc, int toExc ) {
+        delegate.writeUTF8Bytes( bytes, fromIndexInc, toExc );
     }
 
     public void writeCharacter( char v ) {

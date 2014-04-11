@@ -12,12 +12,12 @@ import java.io.PrintStream;
 /**
  * PrintStream adapter for the WriterX interface.
  */
-public class PrintStreamWriterX implements WriterX {
+public class PrintStreamCharacterStream implements CharacterStream {
 
     private PrintStream out;
 
 
-    public PrintStreamWriterX( PrintStream out ) {
+    public PrintStreamCharacterStream( PrintStream out ) {
         QA.argNotNull( out, "out" );
 
         this.out = out;
@@ -29,15 +29,15 @@ public class PrintStreamWriterX implements WriterX {
         out.print( v );
     }
 
-    public void writeByte( byte v ) {
+    public void writeByteAsNumber( byte v ) {
         out.write( v );
     }
 
-    public void writeBytes( byte[] bytes ) {
+    public void writeUTF8Bytes( byte[] bytes ) {
         out.write( bytes, 0, bytes.length );
     }
 
-    public void writeBytes( byte[] bytes, int fromIndexInc, int numBytes ) {
+    public void writeUTF8Bytes( byte[] bytes, int fromIndexInc, int numBytes ) {
         out.write( bytes, fromIndexInc, numBytes );
     }
 

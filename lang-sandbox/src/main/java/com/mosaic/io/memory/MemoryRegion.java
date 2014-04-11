@@ -3,6 +3,7 @@ package com.mosaic.io.memory;
 
 import com.mosaic.io.bytes.Bytes;
 import com.mosaic.lang.text.DecodedCharacter;
+import com.mosaic.lang.text.UTF8;
 
 
 /**
@@ -30,7 +31,7 @@ public interface MemoryRegion {
      * Decrements the addresses ref count.  When the ref count reaches zero, the address will
      * become invalid and open to being reallocated.
      */
-    public void release( int address );
+    public void free( int address );
 
     public short getCurrentRetainCountFor( int address );
 
@@ -75,6 +76,7 @@ public interface MemoryRegion {
     public long readUnsignedInt( int baseAddress, int offset );
 
     public int writeUTF8String( int baseAddress, int offset, CharSequence newValue );
+    public int writeUTF8String( int baseAddress, int offset, UTF8 newValue );
     public int readUTF8String( int baseAddress, int offset, Appendable out );
 
     public Bytes asBytes( int baseAddress );

@@ -26,7 +26,7 @@ public interface FileX {
      * system.  This approach is generally at least 50 times faster than using
      * java.io.InputStream.
      *
-     * Be sure to release() the bytes when done.
+     * Be sure to free() the bytes when done.
      *
      * Measurements:
      *   Jan 2014

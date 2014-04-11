@@ -1,6 +1,6 @@
 package com.mosaic.lang.system;
 
-import com.mosaic.io.streams.WriterX;
+import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.UTF8;
 import com.mosaic.lang.time.SystemClock;
@@ -9,16 +9,16 @@ import com.mosaic.lang.time.SystemClock;
 /**
  *
  */
-public class LogWriter implements WriterX {
+public class LogWriter implements CharacterStream {
 
     private SystemClock clock;
     private String      logLevel;
-    private WriterX     out;
+    private CharacterStream out;
 
     private boolean startOfLineFlag = true;
 
 
-    public LogWriter( SystemClock clock, String logLevel, WriterX out ) {
+    public LogWriter( SystemClock clock, String logLevel, CharacterStream out ) {
         QA.argNotNull( clock, "clock" );
         QA.argNotNull( out,   "out"   );
 
@@ -35,22 +35,22 @@ public class LogWriter implements WriterX {
         out.writeBoolean( v );
     }
 
-    public void writeByte( byte v ) {
+    public void writeByteAsNumber( byte v ) {
         printLinePrefix();
 
-        out.writeByte( v );
+        out.writeByteAsNumber( v );
     }
 
-    public void writeBytes( byte[] bytes ) {
+    public void writeUTF8Bytes( byte[] bytes ) {
         printLinePrefix();
 
-        out.writeBytes( bytes );
+        out.writeUTF8Bytes( bytes );
     }
 
-    public void writeBytes( byte[] bytes, int fromIndexInc, int toExc ) {
+    public void writeUTF8Bytes( byte[] bytes, int fromIndexInc, int toExc ) {
         printLinePrefix();
 
-        out.writeBytes( bytes, fromIndexInc, toExc );
+        out.writeUTF8Bytes( bytes, fromIndexInc, toExc );
     }
 
     public void writeCharacter( char v ) {

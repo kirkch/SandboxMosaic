@@ -424,15 +424,19 @@ public class ArrayBytes extends BaseBytes {
 
 
     public void readUTF8Character( long index, DecodedCharacter output ) {
-        throwIfInvalidIndex( index, 1 );
+        long i = min + index;
 
-        UTF8Tools.decode( array, (int) index, output );
+        throwIfInvalidIndex( i, 1 );
+
+        UTF8Tools.decode( array, (int) i, output );
     }
 
     public int readUTF8String( long index, Appendable out ) {
-        throwIfInvalidIndex( index, 2 );
+        long i = min + index;
 
-        long from         = index+2;
+        throwIfInvalidIndex( i, 2 );
+
+        long from         = i+2;
         int  numUTF8Bytes = readUnsignedShort( index );
         long toExc        = from+numUTF8Bytes;
 
@@ -458,11 +462,12 @@ public class ArrayBytes extends BaseBytes {
     }
 
     public int readBytes( long index, byte[] destinationArray ) {
-        int numBytes = (int) Math.min( remaining(), destinationArray.length );
+        int  numBytes = (int) Math.min( remaining(), destinationArray.length );
+        long i        = min + index;
 
-        throwIfInvalidIndex( index, numBytes );
+        throwIfInvalidIndex( i, numBytes );
 
-        Backdoor.copyBytes( array, (int) index, destinationArray, 0, numBytes );
+        Backdoor.copyBytes( array, (int) i, destinationArray, 0, numBytes );
 
         return numBytes;
     }
@@ -473,17 +478,20 @@ public class ArrayBytes extends BaseBytes {
         QA.argIsBetweenInc( 0, toExc, destinationArray.length, "toExc" );
 
 
-        int numBytes = toExc - fromInc;
+        int  numBytes = toExc - fromInc;
+        long i        = min + index;
 
-        throwIfInvalidIndex( index, numBytes );
+        throwIfInvalidIndex( i, numBytes );
 
-        Backdoor.copyBytes( array, (int) index, destinationArray, fromInc, numBytes );
+        Backdoor.copyBytes( array, (int) i, destinationArray, fromInc, numBytes );
     }
 
     public void readBytes( long index, long toAddress, int numBytes ) {
-        throwIfInvalidIndex( index, numBytes );
+        long i = min + index;
 
-        Backdoor.copyBytes( array, (int) index, toAddress, numBytes );
+        throwIfInvalidIndex( i, numBytes );
+
+        Backdoor.copyBytes( array, (int) i, toAddress, numBytes );
     }
 
 

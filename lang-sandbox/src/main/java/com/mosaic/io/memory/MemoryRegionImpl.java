@@ -4,6 +4,7 @@ import com.mosaic.io.bytes.Bytes;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.text.DecodedCharacter;
+import com.mosaic.lang.text.UTF8;
 
 import static com.mosaic.lang.system.SystemX.*;
 
@@ -53,7 +54,7 @@ public class MemoryRegionImpl implements MemoryRegion {
     private Bytes index;
 
 
-    private MemoryRegionImpl( Bytes data, Bytes index ) {
+    public MemoryRegionImpl( Bytes data, Bytes index ) {
         this.data = data;
         this.index = index;
 
@@ -91,7 +92,7 @@ public class MemoryRegionImpl implements MemoryRegion {
         index.writeUnsignedByte( retainPtr, retainCount );
     }
 
-    public void release( int address ) {
+    public void free( int address ) {
         errorIfInvalidRecordAddress(address);
 
         long baseAddress = ((long)address)*SIZEOF_INDEXRECORD;
@@ -315,6 +316,14 @@ public class MemoryRegionImpl implements MemoryRegion {
         return data.readUnsignedInt( dataAddress + offset );
     }
 
+    public int writeUTF8String( int baseAddress, int offset, UTF8 newValue ) {
+        errorIfInvalidRecordAddress( baseAddress, offset, newValue.getByteCount() + 2 );
+
+        long dataAddress = getDataAddressFor( baseAddress );
+
+        return data.writeUTF8String( dataAddress+offset, newValue );
+    }
+
     public int writeUTF8String( int baseAddress, int offset, CharSequence newValue ) {
         errorIfInvalidRecordAddress( baseAddress, offset, newValue.length() );
 
@@ -336,13 +345,14 @@ public class MemoryRegionImpl implements MemoryRegion {
     }
 
     public Bytes asBytes( int baseAddress ) {
+        errorIfInvalidRecordAddress( baseAddress, 0, 1 );
+
         long baseIndexPtr = ((long) baseAddress)*SIZEOF_INDEXRECORD;
 
         long baseDataPtr = index.readLong( baseIndexPtr + INDEXOFFSET_DATAADDRESS );
         int  numBytes    = index.readInteger( baseIndexPtr + INDEXOFFSET_BYTECOUNT );
 
-//        return data.narrow( baseDataPtr, baseDataPtr+numBytes );
-        return null;
+        return data.narrow( baseDataPtr, baseDataPtr+numBytes );
     }
 
 

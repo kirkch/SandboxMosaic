@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 /**
  *
  */
-public class CapturingWriterTest {
+public class CapturingCharacterStreamTest {
 
     @Test
     public void writeFloat() {
@@ -39,7 +39,7 @@ public class CapturingWriterTest {
 
 
     private void assertWriteFloat( String expected, float v, int dp ) {
-        CapturingWriter out = new CapturingWriter();
+        CapturingCharacterStream out = new CapturingCharacterStream();
 
         out.writeFloat( v, dp );
 
@@ -47,7 +47,7 @@ public class CapturingWriterTest {
     }
 
     private void assertWriteDouble( String expected, double v, int dp ) {
-        CapturingWriter out = new CapturingWriter();
+        CapturingCharacterStream out = new CapturingCharacterStream();
 
         out.writeDouble( v, dp );
 

@@ -15,7 +15,7 @@ public class PrettyPrinterTest {
 
     @Test
     public void writeColumns() {
-        CapturingWriter out = new CapturingWriter();
+        CapturingCharacterStream out = new CapturingCharacterStream();
         PrettyPrinter p = new PrettyPrinter( out, 3,10 );
 
         p.write( 1,"hello" );
@@ -32,7 +32,7 @@ public class PrettyPrinterTest {
 
     @Test
     public void printWrapped() {
-        CapturingWriter out = new CapturingWriter();
+        CapturingCharacterStream out = new CapturingCharacterStream();
 
         PrettyPrinter.printWrapped( out, "data" , 10 );
         PrettyPrinter.printWrapped( out, "over flow", 3 );
@@ -51,7 +51,7 @@ public class PrettyPrinterTest {
 
     @Test
     public void printPleural() {
-        CapturingWriter out = new CapturingWriter();
+        CapturingCharacterStream out = new CapturingCharacterStream();
 
         PrettyPrinter.printPleural( out, "container", 1 );
         out.newLine();
@@ -69,7 +69,7 @@ public class PrettyPrinterTest {
 
     @Test
     public void englishList() {
-        CapturingWriter out = new CapturingWriter();
+        CapturingCharacterStream out = new CapturingCharacterStream();
 
         PrettyPrinter.englishList( out, new String[] {"a","b","c"} );
         out.newLine();

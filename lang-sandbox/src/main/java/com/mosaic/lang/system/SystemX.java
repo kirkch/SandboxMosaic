@@ -2,7 +2,7 @@ package com.mosaic.lang.system;
 
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileSystemX;
-import com.mosaic.io.streams.WriterX;
+import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.IllegalStateExceptionX;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.time.SystemClock;
@@ -38,9 +38,13 @@ public abstract class SystemX {
     public static final int  UNSIGNED_SHORT_MASK = 0xFFFF;
     public static final long UNSIGNED_INT_MASK   = 0xFFFFFFFF;
 
+    public static final int MAX_UNSIGNED_INT = (Short.MAX_VALUE << 1)+1;
+
 
     public static Charset UTF8  = Charset.forName( "UTF8" );
     public static Charset ASCII = Charset.forName( "ASCII" );
+
+    public static String NEWLINE = "\n";
 
 
     public static final ForkJoinPool FORK_JOIN_POOL = new ForkJoinPool();
@@ -100,16 +104,16 @@ public abstract class SystemX {
     public final FileSystemX fileSystem;
     public final SystemClock clock;
 
-    public final WriterX     audit;
-    public final WriterX     info;
-    public final WriterX     warn;
-    public final WriterX     error;
-    public final WriterX     debug;
+    public final CharacterStream audit;
+    public final CharacterStream info;
+    public final CharacterStream warn;
+    public final CharacterStream error;
+    public final CharacterStream debug;
 
     // NB stdin, when needed will be done by subscription with callbacks and not the Java blocking approach
 
 
-    protected SystemX( FileSystemX fileSystem, SystemClock clock, WriterX audit, WriterX info, WriterX warn, WriterX error, WriterX debug ) {
+    protected SystemX( FileSystemX fileSystem, SystemClock clock, CharacterStream audit, CharacterStream info, CharacterStream warn, CharacterStream error, CharacterStream debug ) {
         this.fileSystem = fileSystem;
         this.clock      = clock;
 

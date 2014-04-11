@@ -135,7 +135,7 @@ scan byte boundaries positive to negative
     1.68ns per call
 
 NB above shows now real change for scan order; however using them both
-from BytesWriter.writeByte and scanning positive to negative is faster
+from BytesWriter.writeByteAsNumber and scanning positive to negative is faster
 in aggregate.
 */
     @Benchmark

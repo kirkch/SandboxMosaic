@@ -2,6 +2,7 @@ package com.mosaic.io.bytes;
 
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.SystemX;
+import com.mosaic.lang.text.UTF8;
 
 
 /**
@@ -231,6 +232,12 @@ public class ResizableBytes extends WrappedBytes {
 
     public int writeUTF8String( long destinationIndex, CharSequence sourceCharacters ) {
         resizeIfNeeded( super.positionIndex()+ sourceCharacters.length()*3 );
+
+        return super.writeUTF8String( destinationIndex, sourceCharacters );
+    }
+
+    public int writeUTF8String( long destinationIndex, UTF8 sourceCharacters ) {
+        resizeIfNeeded( destinationIndex+ sourceCharacters.getByteCount() );
 
         return super.writeUTF8String( destinationIndex, sourceCharacters );
     }

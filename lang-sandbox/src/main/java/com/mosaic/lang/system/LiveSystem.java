@@ -1,8 +1,8 @@
 package com.mosaic.lang.system;
 
 import com.mosaic.io.filesystemx.disk.ActualFileSystem;
-import com.mosaic.io.streams.NullWriter;
-import com.mosaic.io.streams.PrintStreamWriterX;
+import com.mosaic.io.streams.NullCharacterStream;
+import com.mosaic.io.streams.PrintStreamCharacterStream;
 import com.mosaic.lang.time.SystemClock;
 
 
@@ -21,11 +21,11 @@ public class LiveSystem extends SystemX {
         super(
             new ActualFileSystem(),
             clock,
-            new LogWriter(clock, "audit",  new PrintStreamWriterX(System.err)),
-            new PrintStreamWriterX(System.out),
-            new LogWriter(clock, "warn",  new PrintStreamWriterX(System.err)),
-            new LogWriter(clock, "error", new PrintStreamWriterX(System.err)),
-            new NullWriter() //new LogWriter(clock, "debug", new PrintStreamWriterX(System.out))
+            new LogWriter(clock, "audit",  new PrintStreamCharacterStream(System.err)),
+            new PrintStreamCharacterStream(System.out),
+            new LogWriter(clock, "warn",  new PrintStreamCharacterStream(System.err)),
+            new LogWriter(clock, "error", new PrintStreamCharacterStream(System.err)),
+            new NullCharacterStream() //new LogWriter(clock, "debug", new PrintStreamWriterX(System.out))
         );
     }
 

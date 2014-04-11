@@ -5,7 +5,7 @@ import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.io.filesystemx.inmemory.InMemoryFileSystem;
-import com.mosaic.io.streams.CapturingWriter;
+import com.mosaic.io.streams.CapturingCharacterStream;
 import com.mosaic.lang.text.PullParser;
 import com.mosaic.lang.time.SystemClock;
 import com.mosaic.utils.StringUtils;
@@ -20,27 +20,27 @@ import java.util.List;
  */
 public class DebugSystem extends SystemX {
 
-    private CapturingWriter cAudit;  // files used to avoid ugly casting from the assert methods
-    private CapturingWriter cInfo;
-    private CapturingWriter cWarn;
-    private CapturingWriter cError;
-    private CapturingWriter cDebug;
+    private CapturingCharacterStream cAudit;  // files used to avoid ugly casting from the assert methods
+    private CapturingCharacterStream cInfo;
+    private CapturingCharacterStream cWarn;
+    private CapturingCharacterStream cError;
+    private CapturingCharacterStream cDebug;
 
 
     public DebugSystem() {
         this(
             new InMemoryFileSystem(),
             new SystemClock(),
-            new CapturingWriter(), // audit,
-            new CapturingWriter(), // info,
-            new CapturingWriter(), // warn,
-            new CapturingWriter(), // error,
-            new CapturingWriter()  // debug
+            new CapturingCharacterStream(), // audit,
+            new CapturingCharacterStream(), // info,
+            new CapturingCharacterStream(), // warn,
+            new CapturingCharacterStream(), // error,
+            new CapturingCharacterStream()  // debug
         );
     }
 
 
-    private DebugSystem( InMemoryFileSystem system, SystemClock clock, CapturingWriter audit, CapturingWriter info, CapturingWriter warn, CapturingWriter error, CapturingWriter debug) {
+    private DebugSystem( InMemoryFileSystem system, SystemClock clock, CapturingCharacterStream audit, CapturingCharacterStream info, CapturingCharacterStream warn, CapturingCharacterStream error, CapturingCharacterStream debug) {
         super(system,clock,audit,info,warn,error,debug);
 
         this.cAudit = audit;

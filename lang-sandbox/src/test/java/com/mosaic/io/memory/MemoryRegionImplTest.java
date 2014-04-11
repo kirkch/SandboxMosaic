@@ -1,7 +1,10 @@
 package com.mosaic.io.memory;
 
+import com.mosaic.io.bytes.Bytes;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.text.DecodedCharacter;
+import com.mosaic.lang.text.UTF8;
+import com.mosaic.lang.text.UTF8Tools;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -23,6 +26,22 @@ public class MemoryRegionImplTest {
         int recordAddress = region.malloc( 8 );
 
         assertEquals( 1, region.getCurrentRetainCountFor(recordAddress) );
+    }
+
+// AS BYTES
+
+    @Test
+    public void asBytes() {
+        String text = "hello";
+
+        int recordAddress = region.malloc( UTF8Tools.countBytesFor("hello")+2 );
+
+        region.writeUTF8String( recordAddress, 0, "hello" );
+
+        Bytes bytes = region.asBytes( recordAddress );
+        UTF8 utf8 = new UTF8( bytes, 2, bytes.bufferLength() );
+
+        assertEquals( text, utf8.toString() );
     }
 
 // BOOLEAN
@@ -202,7 +221,7 @@ public class MemoryRegionImplTest {
 
             int recordAddress = region.malloc( 4 );
 
-            region.release( recordAddress );
+            region.free( recordAddress );
 
             try {
                 region.writeInt( recordAddress, 0, 42 );
@@ -220,7 +239,7 @@ public class MemoryRegionImplTest {
 
             int recordAddress = region.malloc( 4 );
 
-            region.release( recordAddress );
+            region.free( recordAddress );
 
             try {
                 region.readInt( recordAddress, 0 );

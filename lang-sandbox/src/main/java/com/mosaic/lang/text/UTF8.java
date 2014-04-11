@@ -51,6 +51,10 @@ public class UTF8 implements Text {
         return encodedCharacters;
     }
 
+    public int getByteCount() {
+        return encodedCharacters.length;
+    }
+
     public int hashCode() {
         int h = hashCode;
         if ( h == 0 ) {

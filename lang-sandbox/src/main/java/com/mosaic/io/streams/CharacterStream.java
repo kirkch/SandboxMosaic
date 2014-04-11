@@ -7,12 +7,12 @@ import com.mosaic.lang.UTF8;
  * Offers similar functionality to Java io streams; but without the heavy lashings
  * of synchronization.
  */
-public interface WriterX {
+public interface CharacterStream {
 
     public void writeBoolean( boolean v );
-    public void writeByte( byte v );
-    public void writeBytes( byte[] bytes);
-    public void writeBytes( byte[] bytes, int fromIndexInc, int toExc );
+    public void writeByteAsNumber( byte v );
+    public void writeUTF8Bytes( byte[] bytes );
+    public void writeUTF8Bytes( byte[] bytes, int fromIndexInc, int toExc );
     public void writeCharacter( char v );
     public void writeCharacters( char[] chars );
     public void writeCharacters( char[] chars, int fromIndexInc, int toExc );

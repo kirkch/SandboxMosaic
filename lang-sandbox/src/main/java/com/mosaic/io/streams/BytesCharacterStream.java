@@ -12,7 +12,7 @@ import com.mosaic.utils.MathUtils;
 /**
  * Writes UTF8 characters to an instance of Bytes.
  */
-public class BytesWriter implements WriterX {
+public class BytesCharacterStream implements CharacterStream {
 
     private static final byte[] FALSE = "false".getBytes(SystemX.UTF8);
     private static final byte[] TRUE  = "true".getBytes(SystemX.UTF8);
@@ -31,21 +31,21 @@ public class BytesWriter implements WriterX {
 
 
 
-    private Bytes bytes;
+    private Bytes destinationBytes;
 
     private final byte[] formattingBuffer = new byte[40];
 
 
-    public BytesWriter( Bytes bytes ) {
-        this.bytes = bytes;
+    public BytesCharacterStream( Bytes destinationBytes ) {
+        this.destinationBytes = destinationBytes;
     }
 
 
     public void writeBoolean( boolean v ) {
-        bytes.writeBytes( v ? TRUE : FALSE );
+        destinationBytes.writeBytes( v ? TRUE : FALSE );
     }
 
-    public void writeByte( final byte v ) {
+    public void writeByteAsNumber( final byte v ) {
         int numBytes = MathUtils.charactersLengthOf( v );
 
         if ( v < 0 ) {  // if statement lets us avoid using abs to handle negative numbers; thus the net effect is faster
@@ -70,23 +70,19 @@ public class BytesWriter implements WriterX {
             }
         }
 
-        bytes.writeBytes(formattingBuffer, 0, numBytes );
+        destinationBytes.writeBytes( formattingBuffer, 0, numBytes );
     }
 
-    public void writeBytes( byte[] bytes ) {
-        for ( byte b : bytes ) {
-            writeByte( b );
-        }
+    public void writeUTF8Bytes( byte[] sourceBytes ) {
+        this.destinationBytes.writeBytes( sourceBytes );
     }
 
-    public void writeBytes( byte[] bytes, int fromIndexInc, int toExc ) {
-        for ( int i=fromIndexInc; i<toExc; i++ ) {
-            writeByte( bytes[i] );  // NB Hotspot is optimising the bounds checking out for us just fine
-        }
+    public void writeUTF8Bytes( byte[] sourceBytes, int fromIndexInc, int toExc ) {
+        this.destinationBytes.writeBytes( sourceBytes, fromIndexInc, toExc );
     }
 
     public void writeCharacter( char c ) {
-        bytes.writeUTF8( c );
+        destinationBytes.writeUTF8( c );
     }
 
     public void writeCharacters( char[] chars ) {
@@ -145,7 +141,7 @@ public class BytesWriter implements WriterX {
             }
         }
 
-        bytes.writeBytes( formattingBuffer, 0, fixedWidth );
+        destinationBytes.writeBytes( formattingBuffer, 0, fixedWidth );
     }
 
     public void writeSmallCashMajorUnit( int v ) {
@@ -166,7 +162,7 @@ public class BytesWriter implements WriterX {
 
         i = writeToBufferPositiveNumber( formattingBuffer, i, minor, 2 );
 
-        bytes.writeBytes( formattingBuffer, 0, i );
+        destinationBytes.writeBytes( formattingBuffer, 0, i );
     }
 
     public void writeSmallCashMinorUnit( int v ) {
@@ -187,7 +183,7 @@ public class BytesWriter implements WriterX {
 
         i = writeToBufferPositiveNumber( formattingBuffer, i, minor, 1 );
 
-        bytes.writeBytes( formattingBuffer, 0, i );
+        destinationBytes.writeBytes( formattingBuffer, 0, i );
     }
 
     /**
@@ -213,7 +209,7 @@ public class BytesWriter implements WriterX {
 
         i = writeToBufferPositiveNumber( formattingBuffer, i, minor, 2 );
 
-        bytes.writeBytes( formattingBuffer, 0, i );
+        destinationBytes.writeBytes( formattingBuffer, 0, i );
     }
 
     /**
@@ -239,7 +235,7 @@ public class BytesWriter implements WriterX {
 
         i = writeToBufferPositiveNumber( formattingBuffer, i, minor, 2 );
 
-        bytes.writeBytes( formattingBuffer, 0, i );
+        destinationBytes.writeBytes( formattingBuffer, 0, i );
     }
 
     private static int writeToBufferPositiveNumber( byte[] buf, int toInc, long value ) {
@@ -270,7 +266,7 @@ public class BytesWriter implements WriterX {
     public void writeLong( long v ) {
         int numBytes = writeToBuffer( formattingBuffer, v );
 
-        bytes.writeBytes( formattingBuffer, 0, numBytes );
+        destinationBytes.writeBytes( formattingBuffer, 0, numBytes );
     }
 
     private static int writeToBuffer( byte[] buf, long v ) {
@@ -327,17 +323,17 @@ public class BytesWriter implements WriterX {
 
     public void writeLine( String v ) {
         writeString( v );
-        bytes.writeByte( (byte) '\n' );
+        destinationBytes.writeByte( (byte) '\n' );
     }
 
     public void writeUTF8( UTF8 v ) {
-        bytes.writeBytes( v.asBytes() );
+        destinationBytes.writeBytes( v.asBytes() );
     }
 
 
     public void writeLine( UTF8 v ) {
-        bytes.writeBytes( v.asBytes() );
-        bytes.writeByte( (byte) '\n' );
+        destinationBytes.writeBytes( v.asBytes() );
+        destinationBytes.writeByte( (byte) '\n' );
     }
 
     public void writeException( Throwable ex ) {
@@ -373,7 +369,7 @@ public class BytesWriter implements WriterX {
     }
 
     public void newLine() {
-        bytes.writeByte( (byte) '\n' );
+        destinationBytes.writeByte( (byte) '\n' );
     }
 
 
@@ -390,7 +386,7 @@ public class BytesWriter implements WriterX {
                 byte digit = (byte) remainder;
                 remainder -= digit;
 
-                this.writeByte( digit );
+                this.writeByteAsNumber( digit );
             }
         }
     }

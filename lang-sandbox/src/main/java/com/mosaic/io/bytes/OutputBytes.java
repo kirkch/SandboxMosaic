@@ -1,6 +1,7 @@
 package com.mosaic.io.bytes;
 
 import com.mosaic.lang.NotThreadSafe;
+import com.mosaic.lang.text.UTF8;
 
 
 /**
@@ -49,6 +50,7 @@ public interface OutputBytes {
      * @return the number of bytes used
      */
     public int writeUTF8String( long destinationIndex, CharSequence sourceCharacters );
+    public int writeUTF8String( long destinationIndex, UTF8 sourceCharacters );
 
     /**
      * Writes all of the bytes within the sourceArray.

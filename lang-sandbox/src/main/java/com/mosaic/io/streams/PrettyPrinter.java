@@ -15,7 +15,7 @@ public class PrettyPrinter {
         return longest;
     }
 
-    public static void printWrapped( WriterX info, String text, int maxLineWidth ) {
+    public static void printWrapped( CharacterStream info, String text, int maxLineWidth ) {
         for ( int i=0; i<text.length(); i += maxLineWidth) {
             int endIndexExc = i + maxLineWidth;
 
@@ -27,7 +27,7 @@ public class PrettyPrinter {
         }
     }
 
-    public static void printPleural( WriterX out, String noun, int count ) {
+    public static void printPleural( CharacterStream out, String noun, int count ) {
         out.writeString( noun );
 
         if ( count > 1 ) {
@@ -35,11 +35,11 @@ public class PrettyPrinter {
         }
     }
 
-    public static void englishList( WriterX out, String[] nouns ) {
+    public static void englishList( CharacterStream out, String[] nouns ) {
         englishList( out, nouns, 0, nouns.length );
     }
 
-    public static void englishList( WriterX out, String[] nouns, int fromInc, int toExc ) {
+    public static void englishList( CharacterStream out, String[] nouns, int fromInc, int toExc ) {
         if ( toExc-fromInc <= 0 ) {
             return;
         }
@@ -60,10 +60,10 @@ public class PrettyPrinter {
 
 
 
-    private WriterX out;
+    private CharacterStream out;
     private int[]   fixedColumnWidths;
 
-    public PrettyPrinter( WriterX out, int...fixedColumnWidths ) {
+    public PrettyPrinter( CharacterStream out, int...fixedColumnWidths ) {
         this.out               = out;
         this.fixedColumnWidths = fixedColumnWidths;
     }

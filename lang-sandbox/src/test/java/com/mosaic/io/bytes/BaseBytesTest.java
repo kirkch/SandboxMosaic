@@ -2,6 +2,7 @@ package com.mosaic.io.bytes;
 
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.text.DecodedCharacter;
+import com.mosaic.lang.text.UTF8;
 import com.softwaremosaic.junit.JUnitMosaic;
 import org.junit.After;
 import org.junit.Before;
@@ -52,7 +53,7 @@ public abstract class BaseBytesTest {
         allocatedBytes.clear();
 
         // using a spin lock incase the tests are run in parallel.  If there
-        // is a test that does not release their memory then one of the tests
+        // is a test that does not free their memory then one of the tests
         // will fail.. rerunning the tests in serial will then identify which
         // of the classes under test had been naughty.
         JUnitMosaic.spinUntilTrue( new Callable<Boolean>() {
@@ -182,6 +183,8 @@ public abstract class BaseBytesTest {
         assertAllBytesAreZero( b, 13, b.bufferLength() );
     }
 
+// WRITE UTF8
+
     @Test
     public void writeUTF8CharRelativeSingleByte_thenReadItBack() {
         Bytes b = initBytes();
@@ -289,12 +292,32 @@ public abstract class BaseBytesTest {
     }
 
     @Test
-    public void writeUTF8String_thenReadItBack() {
+    public void writeStringAsUTF8_thenReadItBack() {
         Bytes         b   = initBytes();
         StringBuilder buf = new StringBuilder();
 
 
         assertEquals( 7, b.writeUTF8String( 2, "hello" ) );
+
+        assertEquals( 0, b.positionIndex() );
+        assertAllBytesAreZero( b, 0, 2 );
+
+
+        b.readUTF8String( 2, buf );
+
+        assertAllBytesAreZero( b, 0, 2 );
+        assertEquals( "hello", buf.toString() );
+        assertEquals( 0, b.positionIndex() );
+        assertAllBytesAreZero( b, 9, b.bufferLength() );
+    }
+
+    @Test
+    public void writeUTF8String_thenReadItBack() {
+        Bytes         b   = initBytes();
+        StringBuilder buf = new StringBuilder();
+
+
+        assertEquals( 7, b.writeUTF8String( 2, new UTF8("hello") ) );
 
         assertEquals( 0, b.positionIndex() );
         assertAllBytesAreZero( b, 0, 2 );
@@ -430,13 +453,13 @@ public abstract class BaseBytesTest {
     }
 
 
-//    public int writeBytes( byte[] array );
-//    public int writeBytes( byte[] array, int fromInc, int toExc );
-//    public void writeBytes( long fromAddress, int numBytes );
+//    public int writeUTF8Bytes( byte[] array );
+//    public int writeUTF8Bytes( byte[] array, int fromInc, int toExc );
+//    public void writeUTF8Bytes( long fromAddress, int numBytes );
 //
-//    public int writeBytes( long index, byte[] array );
-//    public void writeBytes( long index, byte[] array, int fromInc, int toExc );
-//    public void writeBytes( long index, long fromAddress, int numBytes );
+//    public int writeUTF8Bytes( long index, byte[] array );
+//    public void writeUTF8Bytes( long index, byte[] array, int fromInc, int toExc );
+//    public void writeUTF8Bytes( long index, long fromAddress, int numBytes );
 
 
 // NARROW
@@ -457,7 +480,7 @@ public abstract class BaseBytesTest {
 
         b.writeShort( 2, (short) 42 );
 
-        assertEquals( 42, n.readShort(0) );
+        assertEquals( 42, n.readShort( 0 ) );
     }
 
     @Test
@@ -468,8 +491,8 @@ public abstract class BaseBytesTest {
 
         n.writeShort( 0, (short) 42 );
 
-        assertEquals( 42, n.readShort(0) );
-        assertEquals( 42, b.readShort(2) );
+        assertEquals( 42, n.readShort( 0 ) );
+        assertEquals( 42, b.readShort( 2 ) );
     }
 
 

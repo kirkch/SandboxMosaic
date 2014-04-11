@@ -2,8 +2,8 @@ package com.mosaic.io.bytes;
 
 import com.mosaic.lang.QA;
 import com.mosaic.lang.reflect.ReflectionUtils;
-import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.text.DecodedCharacter;
+import com.mosaic.lang.text.UTF8;
 
 
 /**
@@ -220,6 +220,10 @@ public abstract class WrappedBytes extends Bytes implements Cloneable {
     }
 
     public int writeUTF8String( long destinationIndex, CharSequence sourceCharacters ) {
+        return delegate.writeUTF8String( destinationIndex, sourceCharacters );
+    }
+
+    public int writeUTF8String( long destinationIndex, UTF8 sourceCharacters ) {
         return delegate.writeUTF8String( destinationIndex, sourceCharacters );
     }
 

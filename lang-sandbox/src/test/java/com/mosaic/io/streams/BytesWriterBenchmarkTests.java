@@ -24,13 +24,13 @@ public class BytesWriterBenchmarkTests {
     //    buf[1] = (byte) v;
     //    buf[2] = (byte) v;
     //
-    //    bytes.writeBytes( buf, 0, i );
+    //    bytes.writeUTF8Bytes( buf, 0, i );
     //
     // compare to
     //
     //        byte[] bytes1 = Integer.toString(v).getBytes( SystemX.UTF8 );
     //
-    //        bytes.writeBytes( bytes1 );
+    //        bytes.writeUTF8Bytes( bytes1 );
     //
     //
     // Answer:  10x difference
@@ -42,7 +42,7 @@ public class BytesWriterBenchmarkTests {
 
 //    private Bytes bytes = Bytes.allocOffHeap( 8024 );
     private Bytes       bytes = Bytes.allocOnHeap( 8024 );
-    private BytesWriter out   = new BytesWriter( bytes );
+    private BytesCharacterStream out   = new BytesCharacterStream( bytes );
 /*
 3 byte array hack
     714.89ns per call
@@ -100,7 +100,7 @@ Conclusion:  6.5x faster than the standard Java approach, and has no GC impact.
 
         while ( numIterations > 0 ) {
             for ( int i=0; i<100; i++ ) {
-                out.writeByte( (byte) i );
+                out.writeByteAsNumber( (byte) i );
             }
             bytes.positionIndex(0);
 
@@ -116,7 +116,7 @@ Conclusion:  6.5x faster than the standard Java approach, and has no GC impact.
     private byte[] bytesConstant = new byte[] {1,2,3,4,5,6,7,8,9,10};
 
 /*
-first attempt, for loop indexes array and then calls writeByte
+first attempt, for loop indexes array and then calls writeByteAsNumber
     559.17ns per call
     538.61ns per call
     536.73ns per call
@@ -148,7 +148,7 @@ Conclusion:  Hotspot is doing a fine job of optimising the bounds check out for 
 
         while ( numIterations > 0 ) {
             for ( int i=0; i<10; i++ ) {
-                out.writeBytes( bytesConstant, 2, 8 );
+                out.writeUTF8Bytes( bytesConstant, 2, 8 );
             }
             bytes.positionIndex(6);
 
@@ -209,7 +209,7 @@ first stab (uses optimised code in UTF8Tools)
     }
 
 /*
-writeBytes directly in binary
+writeUTF8Bytes directly in binary
     14.40ns per call
     7.99ns per call
     11.56ns per call

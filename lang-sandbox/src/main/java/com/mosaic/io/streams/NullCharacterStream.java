@@ -6,18 +6,18 @@ import com.mosaic.lang.UTF8;
 /**
  *
  */
-public class NullWriter implements WriterX {
+public class NullCharacterStream implements CharacterStream {
 
     public void writeBoolean( boolean v ) {
     }
 
-    public void writeByte( byte v ) {
+    public void writeByteAsNumber( byte v ) {
     }
 
-    public void writeBytes( byte[] bytes ) {
+    public void writeUTF8Bytes( byte[] bytes ) {
     }
 
-    public void writeBytes( byte[] bytes, int fromIndexInc, int toExc ) {
+    public void writeUTF8Bytes( byte[] bytes, int fromIndexInc, int toExc ) {
     }
 
     public void writeCharacter( char v ) {

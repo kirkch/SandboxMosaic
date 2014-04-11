@@ -12,8 +12,8 @@ public interface StartStoppable<T extends StartStoppable<T>> {
     public T start();
 
     /**
-     * Tell this object to release its resources.  It must be called exactly
-     * the same number of times as start() before it will release resources.
+     * Tell this object to free its resources.  It must be called exactly
+     * the same number of times as start() before it will free resources.
      */
     public T stop();
 

@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Captures the information written to a List of Strings.  Useful for tests.
  */
-public class CapturingWriter implements WriterX {
+public class CapturingCharacterStream implements CharacterStream {
 
     public List<String> audit = new ArrayList<>();
 
@@ -25,19 +25,19 @@ public class CapturingWriter implements WriterX {
         append( Boolean.toString(v) );
     }
 
-    public void writeByte( byte v ) {
+    public void writeByteAsNumber( byte v ) {
         append( Byte.toString(v) );
     }
 
-    public void writeBytes( byte[] bytes ) {
+    public void writeUTF8Bytes( byte[] bytes ) {
         for ( byte b : bytes ) {
-            writeByte( b );
+            writeByteAsNumber( b );
         }
     }
 
-    public void writeBytes( byte[] bytes, int fromIndexInc, int numBytes ) {
-        for ( int i=fromIndexInc; i<fromIndexInc+numBytes; i++ ) {
-            writeByte( bytes[i] );
+    public void writeUTF8Bytes( byte[] bytes, int fromIndexInc, int toExc ) {
+        for ( int i=fromIndexInc; i<toExc; i++ ) {
+            writeByteAsNumber( bytes[i] );
         }
     }
 
