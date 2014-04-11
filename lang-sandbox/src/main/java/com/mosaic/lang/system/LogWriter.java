@@ -1,8 +1,9 @@
 package com.mosaic.lang.system;
 
+import com.mosaic.io.bytes.Bytes;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.QA;
-import com.mosaic.lang.UTF8;
+import com.mosaic.lang.text.UTF8;
 import com.mosaic.lang.time.SystemClock;
 
 
@@ -39,6 +40,18 @@ public class LogWriter implements CharacterStream {
         printLinePrefix();
 
         out.writeByteAsNumber( v );
+    }
+
+    public void writeUTF8Bytes( Bytes bytes ) {
+        printLinePrefix();
+
+        out.writeUTF8Bytes( bytes );
+    }
+
+    public void writeUTF8Bytes( Bytes bytes, int fromIndexInc, int toExc ) {
+        printLinePrefix();
+
+        out.writeUTF8Bytes( bytes, fromIndexInc, toExc );
     }
 
     public void writeUTF8Bytes( byte[] bytes ) {

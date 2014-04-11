@@ -4,8 +4,8 @@ import com.mosaic.io.bytes.Bytes;
 import com.mosaic.lang.BigCashType;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.SmallCashType;
-import com.mosaic.lang.UTF8;
 import com.mosaic.lang.system.SystemX;
+import com.mosaic.lang.text.UTF8;
 import com.mosaic.utils.MathUtils;
 
 
@@ -79,6 +79,14 @@ public class BytesCharacterStream implements CharacterStream {
 
     public void writeUTF8Bytes( byte[] sourceBytes, int fromIndexInc, int toExc ) {
         this.destinationBytes.writeBytes( sourceBytes, fromIndexInc, toExc );
+    }
+
+    public void writeUTF8Bytes( Bytes bytes ) {
+        this.destinationBytes.writeBytes( bytes );
+    }
+
+    public void writeUTF8Bytes( Bytes bytes, int fromIndexInc, int toExc ) {
+        this.destinationBytes.writeBytes( bytes, fromIndexInc, toExc );
     }
 
     public void writeCharacter( char c ) {
@@ -327,12 +335,12 @@ public class BytesCharacterStream implements CharacterStream {
     }
 
     public void writeUTF8( UTF8 v ) {
-        destinationBytes.writeBytes( v.asBytes() );
+        destinationBytes.writeBytes( v.getBytes() );
     }
 
 
     public void writeLine( UTF8 v ) {
-        destinationBytes.writeBytes( v.asBytes() );
+        destinationBytes.writeBytes( v.getBytes() );
         destinationBytes.writeByte( (byte) '\n' );
     }
 

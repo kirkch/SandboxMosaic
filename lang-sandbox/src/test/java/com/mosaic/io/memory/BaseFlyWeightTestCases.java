@@ -154,7 +154,7 @@ public abstract class BaseFlyWeightTestCases {
 
 
         assertEquals( true, buf.readBoolean( 3 ) );
-        assertEquals( 2, buf.readInteger( 3 + 1 ) );
+        assertEquals( 2, buf.readInt( 3 + 1 ) );
         assertEquals( 4.13f*3, buf.readFloat( 3 + 5 ), 0.0001 );
     }
 

@@ -91,7 +91,7 @@ public abstract class BaseBytesTest {
         b.writeByte( 0, (byte) 1 );
         b.writeCharacter( 1, (char) 2 );
         b.writeShort( 3, (short) 3 );
-        b.writeInteger( 5, 4 );
+        b.writeInt( 5, 4 );
         b.writeLong( 9, 5 );
         b.writeFloat( 17, 6.1f );
         b.writeDouble( 21, 7.1 );
@@ -100,7 +100,7 @@ public abstract class BaseBytesTest {
         assertEquals( 1, b.readByte( 0 ) );
         assertEquals( 2, b.readCharacter( 1 ) );
         assertEquals( 3, b.readShort( 3 ) );
-        assertEquals( 4, b.readInteger( 5 ) );
+        assertEquals( 4, b.readInt( 5 ) );
         assertEquals( 5, b.readLong( 9 ) );
         assertEquals( 6.1, b.readFloat( 17 ), 0.0001 );
         assertEquals( 7.1, b.readDouble( 21 ), 0.0001 );
@@ -143,10 +143,10 @@ public abstract class BaseBytesTest {
     public void writeInt_ensureThatItCanBeReadBackAndThatNoOtherByteIsChangedUnintentionally() {
         Bytes b = initBytes();
 
-        b.writeInteger( 5, Integer.MAX_VALUE );
+        b.writeInt( 5, Integer.MAX_VALUE );
 
         assertAllBytesAreZero( b, 0, 4 );
-        assertEquals( Integer.MAX_VALUE, b.readInteger( 5 ) );
+        assertEquals( Integer.MAX_VALUE, b.readInt( 5 ) );
         assertAllBytesAreZero( b, 9, b.bufferLength() );
     }
 
@@ -417,6 +417,24 @@ public abstract class BaseBytesTest {
         assertEquals( 'b', sink.readByte(3) );
         assertEquals( 'c', sink.readByte(4) );
         assertAllBytesAreZero( sink, 5, sink.bufferLength() );
+    }
+
+    @Test
+    public void writeBytesPositionalFromOneBytesClassToAnother() {
+        Bytes source = initBytes();
+        source.writeBytes( 0, new byte[] {'a','b','c'} );
+
+
+        Bytes sink = initBytes();
+        sink.writeBytes(source);
+
+
+        assertEquals( 0, sink.positionIndex() );
+        assertAllBytesAreZero( sink, 3, 5 );
+        assertEquals( 'a', sink.readByte(0) );
+        assertEquals( 'b', sink.readByte(1) );
+        assertEquals( 'c', sink.readByte(2) );
+        assertAllBytesAreZero( sink, 3, sink.bufferLength() );
     }
 
 

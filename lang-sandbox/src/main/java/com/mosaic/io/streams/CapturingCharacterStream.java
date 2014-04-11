@@ -1,9 +1,10 @@
 package com.mosaic.io.streams;
 
+import com.mosaic.io.bytes.Bytes;
 import com.mosaic.lang.BigCashType;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.SmallCashType;
-import com.mosaic.lang.UTF8;
+import com.mosaic.lang.text.UTF8;
 import com.mosaic.utils.MathUtils;
 
 import java.util.ArrayList;
@@ -27,6 +28,14 @@ public class CapturingCharacterStream implements CharacterStream {
 
     public void writeByteAsNumber( byte v ) {
         append( Byte.toString(v) );
+    }
+
+    public void writeUTF8Bytes( Bytes bytes ) {
+        append( new UTF8(bytes, 0, bytes.getEndIndexExc()).toString() );
+    }
+
+    public void writeUTF8Bytes( Bytes bytes, int fromIndexInc, int toExc ) {
+        append( new UTF8(bytes, fromIndexInc, toExc).toString() );
     }
 
     public void writeUTF8Bytes( byte[] bytes ) {

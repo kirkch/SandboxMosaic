@@ -1,5 +1,7 @@
 package com.mosaic.io.memory;
 
+import com.mosaic.io.streams.CharacterStream;
+import com.mosaic.io.streams.WriterCharacterStream;
 import com.mosaic.lang.text.UTF8;
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,7 +16,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class StringsTest {
 
-    private MemoryRegion region  = MemoryRegionImpl.createOnHeap( 1024 );
+    private MemoryRegion region  = MemoryRegionImpl.allocOnHeap( 1024 );
     private Strings      strings = new Strings( region );
 
 
@@ -87,8 +89,14 @@ public class StringsTest {
 
     @Test
     public void givenString_writeToWriter() {
-        new StringWriter();
-//        WriterX out = new PrintStreamWriterX(  );
+        StringWriter stringWriter = new StringWriter();
+        CharacterStream stream = new WriterCharacterStream( stringWriter );
+
+        int address = strings.allocate( "foo" );
+        strings.writeTo( address, stream );
+
+
+        assertEquals( "foo", stringWriter.toString() );
     }
 
 }

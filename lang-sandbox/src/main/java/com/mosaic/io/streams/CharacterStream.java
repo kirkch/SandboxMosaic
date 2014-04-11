@@ -1,6 +1,7 @@
 package com.mosaic.io.streams;
 
-import com.mosaic.lang.UTF8;
+import com.mosaic.io.bytes.Bytes;
+import com.mosaic.lang.text.UTF8;
 
 
 /**
@@ -11,6 +12,8 @@ public interface CharacterStream {
 
     public void writeBoolean( boolean v );
     public void writeByteAsNumber( byte v );
+    public void writeUTF8Bytes( Bytes bytes );
+    public void writeUTF8Bytes( Bytes bytes, int fromIndexInc, int toExc );
     public void writeUTF8Bytes( byte[] bytes );
     public void writeUTF8Bytes( byte[] bytes, int fromIndexInc, int toExc );
     public void writeCharacter( char v );

@@ -1,9 +1,10 @@
 package com.mosaic.io.streams;
 
+import com.mosaic.io.bytes.Bytes;
 import com.mosaic.lang.BigCashType;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.SmallCashType;
-import com.mosaic.lang.UTF8;
+import com.mosaic.lang.text.UTF8;
 import com.mosaic.utils.MathUtils;
 
 import java.io.PrintStream;
@@ -31,6 +32,14 @@ public class PrintStreamCharacterStream implements CharacterStream {
 
     public void writeByteAsNumber( byte v ) {
         out.write( v );
+    }
+
+    public void writeUTF8Bytes( Bytes bytes ) {
+        out.append( new UTF8(bytes,0,bytes.bufferLength()).toString() );
+    }
+
+    public void writeUTF8Bytes( Bytes bytes, int fromIndexInc, int toExc ) {
+        out.append( new UTF8(bytes,fromIndexInc,toExc).toString() );
     }
 
     public void writeUTF8Bytes( byte[] bytes ) {

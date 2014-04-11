@@ -16,7 +16,7 @@ import static org.junit.Assert.fail;
  */
 public class MemoryRegionImplTest {
 
-    private MemoryRegion region = MemoryRegionImpl.createOnHeap(100);
+    private MemoryRegion region = MemoryRegionImpl.allocOnHeap( 100 );
 
 // MALLOC/RETAIN
 

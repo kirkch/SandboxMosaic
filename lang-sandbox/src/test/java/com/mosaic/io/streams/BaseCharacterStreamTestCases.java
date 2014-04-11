@@ -2,8 +2,8 @@ package com.mosaic.io.streams;
 
 import com.mosaic.lang.BigCashType;
 import com.mosaic.lang.SmallCashType;
-import com.mosaic.lang.UTF8;
 import com.mosaic.lang.system.SystemX;
+import com.mosaic.lang.text.UTF8;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -346,20 +346,20 @@ public abstract class BaseCharacterStreamTestCases {
 
     @Test
     public void writeUTF8() {
-        out.writeUTF8( UTF8.wrap( "foo bar" ) );
-        out.writeUTF8( UTF8.wrap(" tar") );
-        out.writeUTF8( UTF8.wrap("£グf") );
-        out.writeUTF8( UTF8.wrap("123") );
+        out.writeUTF8( new UTF8( "foo bar" ) );
+        out.writeUTF8( new UTF8(" tar") );
+        out.writeUTF8( new UTF8("£グf") );
+        out.writeUTF8( new UTF8("123") );
 
         assertStreamEquals( "foo bar tar£グf123" );
     }
 
     @Test
     public void writeUTF8Line() {
-        out.writeLine( UTF8.wrap("foo bar") );
-        out.writeLine( UTF8.wrap(" tar") );
-        out.writeLine( UTF8.wrap("£グf") );
-        out.writeLine( UTF8.wrap("123") );
+        out.writeLine( new UTF8("foo bar") );
+        out.writeLine( new UTF8(" tar") );
+        out.writeLine( new UTF8("£グf") );
+        out.writeLine( new UTF8("123") );
 
         assertStreamEquals( "foo bar\n tar\n£グf\n123\n" );
     }

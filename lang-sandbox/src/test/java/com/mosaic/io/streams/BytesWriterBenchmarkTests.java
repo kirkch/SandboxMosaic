@@ -1,7 +1,7 @@
 package com.mosaic.io.streams;
 
 import com.mosaic.io.bytes.Bytes;
-import com.mosaic.lang.UTF8;
+import com.mosaic.lang.text.UTF8;
 import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Benchmark;
 import org.junit.runner.RunWith;
@@ -313,9 +313,9 @@ private String[] STRINGS = new String[] {"££foo bar££", "man of war", "man o
 CONC: 4 times faster than writing java.lang.String.
      */
 private UTF8[] UTF8S = new UTF8[] {
-    UTF8.wrap("££foo bar££"), UTF8.wrap("man of war"), UTF8.wrap("man of the world"),
-    UTF8.wrap("hello bob"), UTF8.wrap("bring it on"), UTF8.wrap("top of the morning"),
-    UTF8.wrap("top of the world")
+    new UTF8("££foo bar££"), new UTF8("man of war"), new UTF8("man of the world"),
+    new UTF8("hello bob"), new UTF8("bring it on"), new UTF8("top of the morning"),
+    new UTF8("top of the world")
 };
     @Benchmark
     public long writeUTF8( int numIterations ) {

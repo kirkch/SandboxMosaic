@@ -24,7 +24,7 @@ public interface OutputBytes {
     public void writeByte( long index, byte v );
     public void writeShort( long index, short v );
     public void writeCharacter( long index, char v );
-    public void writeInteger( long index, int v );
+    public void writeInt( long index, int v );
     public void writeLong( long index, long v );
     public void writeFloat( long index, float v );
     public void writeDouble( long index, double v );
@@ -62,6 +62,7 @@ public interface OutputBytes {
     public void writeBytes( long destinationIndex, long sourceFromAddress, int numBytes );
 
     public void writeBytes( long destinationIndex, Bytes source, long sourceFromInc, long sourceToExc );
+
 
 
     /**
@@ -133,6 +134,9 @@ public interface OutputBytes {
      */
     public void writeBytes( byte[] array );
     public void writeBytes( byte[] array, int fromInc, int toExc );
+
+    public void writeBytes( Bytes source );
+    public void writeBytes( Bytes source, long sourceFromInc, long sourceToExc );
 
     public void writeBytes( long fromAddress, int numBytes );
 

@@ -61,10 +61,10 @@ public class ResizableBytes extends WrappedBytes {
         super.writeCharacter( index, v );
     }
 
-    public void writeInteger( long index, int v ) {
+    public void writeInt( long index, int v ) {
         resizeIfNeeded( index+4 );
 
-        super.writeInteger( index, v );
+        super.writeInt( index, v );
     }
 
     public void writeLong( long index, long v ) {
@@ -125,6 +125,18 @@ public class ResizableBytes extends WrappedBytes {
         resizeIfNeeded( destinationIndex + sourceToExc - sourceFromInc );
 
         super.writeBytes( destinationIndex, source, sourceFromInc, sourceToExc );
+    }
+
+    public void writeBytes( Bytes source ) {
+        resizeIfNeeded( positionIndex() + source.bufferLength() );
+
+        super.writeBytes( source );
+    }
+
+    public void writeBytes( Bytes source, long sourceFromInc, long sourceToExc ) {
+        resizeIfNeeded( positionIndex() + sourceToExc - sourceFromInc );
+
+        super.writeBytes( positionIndex(), source, sourceFromInc, sourceToExc );
     }
 
 

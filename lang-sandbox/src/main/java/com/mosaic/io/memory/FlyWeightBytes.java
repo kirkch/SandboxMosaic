@@ -347,7 +347,7 @@ public abstract class FlyWeightBytes<T extends FlyWeightBytes<T>> implements Fly
 
         throwIfInvalidAddress( offset, 4 );
 
-        return records.readInteger( offset );
+        return records.readInt( offset );
     }
 
     protected long readLong( long offsetWithinSelectedRecord ) {
@@ -441,7 +441,7 @@ public abstract class FlyWeightBytes<T extends FlyWeightBytes<T>> implements Fly
 
         throwIfInvalidAddress( offset, 4 );
 
-        records.writeInteger( offset, v );
+        records.writeInt( offset, v );
     }
 
     protected void writeLong( long offsetWithinSelectedRecord, long v ) {

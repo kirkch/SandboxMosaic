@@ -32,7 +32,7 @@ public class ResizableOnHeapBytesTest extends BaseBytesTest {
 
         b.writeInteger( 42 );
 
-        assertEquals( 42, b.readInteger(0) );
+        assertEquals( 42, b.readInt( 0 ) );
 
         system.assertNoMessages();
     }
@@ -43,7 +43,7 @@ public class ResizableOnHeapBytesTest extends BaseBytesTest {
 
         b.writeInteger( 42 );
 
-        assertEquals( 42, b.readInteger(0) );
+        assertEquals( 42, b.readInt( 0 ) );
 
         system.assertDebug( "ResizableBytes 'testMem' has been resized from 3 to 6 bytes" );
     }

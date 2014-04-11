@@ -1,7 +1,8 @@
 package com.mosaic.io.streams;
 
+import com.mosaic.io.bytes.Bytes;
 import com.mosaic.lang.QA;
-import com.mosaic.lang.UTF8;
+import com.mosaic.lang.text.UTF8;
 
 
 /**
@@ -23,6 +24,14 @@ public class WrapperCharacterStream implements CharacterStream {
 
     public void writeByteAsNumber( byte v ) {
         delegate.writeByteAsNumber( v );
+    }
+
+    public void writeUTF8Bytes( Bytes bytes ) {
+        delegate.writeUTF8Bytes( bytes );
+    }
+
+    public void writeUTF8Bytes( Bytes bytes, int fromIndexInc, int toExc ) {
+        delegate.writeUTF8Bytes( bytes, fromIndexInc, toExc );
     }
 
     public void writeUTF8Bytes( byte[] bytes ) {

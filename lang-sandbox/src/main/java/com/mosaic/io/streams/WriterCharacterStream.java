@@ -1,11 +1,12 @@
 package com.mosaic.io.streams;
 
 import com.mosaic.io.RuntimeIOException;
+import com.mosaic.io.bytes.Bytes;
 import com.mosaic.lang.BigCashType;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.SmallCashType;
-import com.mosaic.lang.UTF8;
 import com.mosaic.lang.system.SystemX;
+import com.mosaic.lang.text.UTF8;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -40,6 +41,22 @@ public class WriterCharacterStream implements CharacterStream {
     public void writeByteAsNumber( byte v ) {
         try {
             out.append( Byte.toString(v) );
+        } catch ( IOException ex ) {
+            throw new RuntimeIOException( ex );
+        }
+    }
+
+    public void writeUTF8Bytes( Bytes bytes ) {
+        try {
+            out.write( new UTF8(bytes,0,bytes.bufferLength()).toString() );
+        } catch ( IOException ex ) {
+            throw new RuntimeIOException( ex );
+        }
+    }
+
+    public void writeUTF8Bytes( Bytes bytes, int fromIndexInc, int toExc ) {
+        try {
+            out.write( new UTF8(bytes,fromIndexInc,toExc).toString() );
         } catch ( IOException ex ) {
             throw new RuntimeIOException( ex );
         }

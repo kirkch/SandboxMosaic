@@ -74,7 +74,7 @@ public class ArrayBytes extends BaseBytes {
         return Backdoor.getCharacterFrom( array, i );
     }
 
-    public int readInteger( long index ) {
+    public int readInt( long index ) {
         long i = min + index;
 
         throwIfInvalidIndex( i, SIZEOF_INT );
@@ -160,7 +160,7 @@ public class ArrayBytes extends BaseBytes {
         Backdoor.setCharacterIn( array, i, v );
     }
 
-    public void writeInteger( long index, int v ) {
+    public void writeInt( long index, int v ) {
         long i = min + index;
 
         throwIfInvalidIndex( i, SIZEOF_INT );
@@ -201,7 +201,7 @@ public class ArrayBytes extends BaseBytes {
     }
 
     public void writeUnsignedInt( long index, long v ) {
-        writeInteger( index, (int) (v & UNSIGNED_INT_MASK) );
+        writeInt( index, (int) (v & UNSIGNED_INT_MASK) );
     }
 
     public int writeUTF8Character( long destinationIndex, char v ) {
@@ -227,6 +227,18 @@ public class ArrayBytes extends BaseBytes {
         QA.argIsBetween( 0, destinationIndex, Integer.MAX_VALUE, "index" );
 
         source.readBytes( sourceFromInc, this.array, (int) destinationIndex, (int) (destinationIndex + sourceToExc - sourceFromInc) );
+    }
+
+    public void writeBytes( Bytes source ) {
+        QA.argIsBetween( 0, positionIndex(), Integer.MAX_VALUE, "index" );
+
+        source.readBytes( 0, this.array, (int) positionIndex(), (int) (positionIndex() + source.bufferLength()) );
+    }
+
+    public void writeBytes( Bytes source, long sourceFromInc, long sourceToExc ) {
+        QA.argIsBetween( 0, positionIndex(), Integer.MAX_VALUE, "index" );
+
+        source.readBytes( sourceFromInc, this.array, (int) positionIndex(), (int) (positionIndex() + sourceToExc - sourceFromInc) );
     }
 
     public void writeBytes( long fromAddress, int numBytes ) {
@@ -275,7 +287,7 @@ public class ArrayBytes extends BaseBytes {
     }
 
     public int readInteger() {
-        int v = readInteger( positionIndex() );
+        int v = readInt( positionIndex() );
 
         incrementPosition( SIZEOF_INT );
 
@@ -355,7 +367,7 @@ public class ArrayBytes extends BaseBytes {
     }
 
     public void writeInteger( int v ) {
-        writeInteger( positionIndex(), v );
+        writeInt( positionIndex(), v );
 
         incrementPosition( SIZEOF_INT );
     }

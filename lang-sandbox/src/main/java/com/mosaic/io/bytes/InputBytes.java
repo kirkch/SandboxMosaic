@@ -24,7 +24,7 @@ public interface InputBytes {
     public byte readByte( long index );
     public short readShort( long index );
     public char readCharacter( long index );
-    public int readInteger( long index );
+    public int readInt( long index );
     public long readLong( long index );
     public float readFloat( long index );
     public double readDouble( long index );

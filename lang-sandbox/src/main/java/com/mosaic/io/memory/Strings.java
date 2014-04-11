@@ -13,6 +13,12 @@ import com.mosaic.lang.text.UTF8Tools;
  */
 public class Strings {
 
+    public static Strings allocOnHeap( long sizeBytes ) {
+        MemoryRegion memoryRegion = MemoryRegionImpl.allocOnHeap( sizeBytes );
+
+        return new Strings(memoryRegion);
+    }
+
     private MemoryRegion region;
 
     public Strings( MemoryRegion region ) {
@@ -49,8 +55,10 @@ public class Strings {
         return new UTF8( bytes, 2, bytes.bufferLength() );
     }
 
-    public void writeTo( CharacterStream out ) {
+    public void writeTo( int address, CharacterStream out ) {
+        Bytes bytes = region.asBytes( address );
 
+        out.writeUTF8Bytes( bytes, 2, (int) bytes.bufferLength() );
     }
 
 }

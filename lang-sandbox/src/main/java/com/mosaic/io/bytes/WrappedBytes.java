@@ -43,8 +43,8 @@ public abstract class WrappedBytes extends Bytes implements Cloneable {
         return delegate.readCharacter(index);
     }
 
-    public int readInteger( long index ) {
-        return delegate.readInteger(index);
+    public int readInt( long index ) {
+        return delegate.readInt( index );
     }
 
     public long readLong( long index ) {
@@ -187,8 +187,8 @@ public abstract class WrappedBytes extends Bytes implements Cloneable {
         delegate.writeCharacter( index, v );
     }
 
-    public void writeInteger( long index, int v ) {
-        delegate.writeInteger( index, v );
+    public void writeInt( long index, int v ) {
+        delegate.writeInt( index, v );
     }
 
     public void writeLong( long index, long v ) {
@@ -241,6 +241,14 @@ public abstract class WrappedBytes extends Bytes implements Cloneable {
 
     public void writeBytes( long destinationIndex, Bytes source, long sourceFromInc, long sourceToExc ) {
         delegate.writeBytes( destinationIndex, source, sourceFromInc, sourceToExc );
+    }
+
+    public void writeBytes( Bytes source ) {
+        delegate.writeBytes( source );
+    }
+
+    public void writeBytes( Bytes source, long sourceFromInc, long sourceToExc ) {
+        delegate.writeBytes( source, sourceFromInc, sourceToExc );
     }
 
     public long startIndex() {

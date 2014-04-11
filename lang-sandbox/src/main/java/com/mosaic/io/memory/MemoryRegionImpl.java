@@ -28,7 +28,7 @@ public class MemoryRegionImpl implements MemoryRegion {
     private static long SIZEOF_DATAHEADER  = SIZEOF_LONG + SIZEOF_INT;
 
 
-    public static MemoryRegion createOnHeap( int maxSize ) {
+    public static MemoryRegion allocOnHeap( long maxSize ) {
         QA.argIsGTZero( maxSize, "maxSize" );
 
         Bytes data  = Bytes.allocOnHeap( maxSize );
@@ -209,7 +209,7 @@ public class MemoryRegionImpl implements MemoryRegion {
 
         long dataAddress = getDataAddressFor( baseAddress );
 
-        data.writeInteger( dataAddress + offset, newValue );
+        data.writeInt( dataAddress + offset, newValue );
     }
 
     public int readInt( int baseAddress, int offset ) {
@@ -217,7 +217,7 @@ public class MemoryRegionImpl implements MemoryRegion {
 
         long dataAddress = getDataAddressFor( baseAddress );
 
-        return data.readInteger( dataAddress+offset );
+        return data.readInt( dataAddress + offset );
     }
 
     public void writeLong( int baseAddress, int offset, long newValue ) {
@@ -350,7 +350,7 @@ public class MemoryRegionImpl implements MemoryRegion {
         long baseIndexPtr = ((long) baseAddress)*SIZEOF_INDEXRECORD;
 
         long baseDataPtr = index.readLong( baseIndexPtr + INDEXOFFSET_DATAADDRESS );
-        int  numBytes    = index.readInteger( baseIndexPtr + INDEXOFFSET_BYTECOUNT );
+        int  numBytes    = index.readInt( baseIndexPtr + INDEXOFFSET_BYTECOUNT );
 
         return data.narrow( baseDataPtr, baseDataPtr+numBytes );
     }
@@ -369,13 +369,13 @@ public class MemoryRegionImpl implements MemoryRegion {
     }
 
     private int getNextIndexOffset() {
-        return data.readInteger( DATAOFFSET_NEXTINDEXOFFSET );
+        return data.readInt( DATAOFFSET_NEXTINDEXOFFSET );
     }
 
     private void setNextIndexOffset( int nextIndexOffset ) {
         QA.argIsGTEZero( nextIndexOffset, "nextIndexOffset" );
 
-        data.writeInteger( DATAOFFSET_NEXTINDEXOFFSET, nextIndexOffset );
+        data.writeInt( DATAOFFSET_NEXTINDEXOFFSET, nextIndexOffset );
     }
 
     /**
@@ -388,7 +388,7 @@ public class MemoryRegionImpl implements MemoryRegion {
         long baseAddress = indexOffset*SIZEOF_INDEXRECORD;
 
         index.writeLong(         baseAddress+INDEXOFFSET_DATAADDRESS, dataAddress );
-        index.writeInteger(      baseAddress + INDEXOFFSET_BYTECOUNT, numBytes );
+        index.writeInt( baseAddress + INDEXOFFSET_BYTECOUNT, numBytes );
         index.writeUnsignedByte( baseAddress + INDEXOFFSET_RETAINCOUNT, (short) 1 );
     }
 
@@ -421,7 +421,7 @@ public class MemoryRegionImpl implements MemoryRegion {
             errorIfInvalidRecordAddress( indexOffset );
 
             long ptr           = ((long) indexOffset)*SIZEOF_INDEXRECORD;
-            long allocatedSize = index.readInteger( ptr + INDEXOFFSET_BYTECOUNT );
+            long allocatedSize = index.readInt( ptr + INDEXOFFSET_BYTECOUNT );
 
             if ( offset < 0 ) {
                 throw new IllegalArgumentException( "Offset must not be negative" );

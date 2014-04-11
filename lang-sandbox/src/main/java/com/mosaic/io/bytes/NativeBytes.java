@@ -93,7 +93,7 @@ public abstract class NativeBytes extends BaseBytes implements Cloneable {
         return Backdoor.getCharacter( address );
     }
 
-    public int readInteger( long index ) {
+    public int readInt( long index ) {
         long address = cacheAlignedBaseAddress + index;
 
         throwIfInvalidAddress( address, SIZEOF_INT );
@@ -179,7 +179,7 @@ public abstract class NativeBytes extends BaseBytes implements Cloneable {
         Backdoor.setCharacter( address, v );
     }
 
-    public void writeInteger( long index, int v ) {
+    public void writeInt( long index, int v ) {
         long address = cacheAlignedBaseAddress + index;
 
         throwIfInvalidAddress( address, SIZEOF_INT );
@@ -220,7 +220,7 @@ public abstract class NativeBytes extends BaseBytes implements Cloneable {
     }
 
     public void writeUnsignedInt( long index, long v ) {
-        writeInteger( index, (int) (v & UNSIGNED_INT_MASK) );
+        writeInt( index, (int) (v & UNSIGNED_INT_MASK) );
     }
 
     public int writeUTF8Character( long destinationIndex, char v ) {
@@ -251,6 +251,20 @@ public abstract class NativeBytes extends BaseBytes implements Cloneable {
 
         long toAddress = cacheAlignedBaseAddress+ destinationIndex;
         source.readBytes( sourceFromInc, toAddress, (int) (destinationIndex + sourceToExc - sourceFromInc) );
+    }
+
+    public void writeBytes( Bytes source ) {
+        QA.argIsBetween( 0, positionIndex(), Integer.MAX_VALUE, "index" );
+
+        long toAddress = cacheAlignedBaseAddress + positionIndex();
+        source.readBytes( 0, toAddress, (int) (positionIndex() + source.bufferLength()) );
+    }
+
+    public void writeBytes( Bytes source, long sourceFromInc, long sourceToExc ) {
+        QA.argIsBetween( 0, positionIndex(), Integer.MAX_VALUE, "index" );
+
+        long toAddress = cacheAlignedBaseAddress + positionIndex();
+        source.readBytes( sourceFromInc, toAddress, (int) (positionIndex() + sourceToExc - sourceFromInc) );
     }
 
     public long startIndex() {
@@ -291,7 +305,7 @@ public abstract class NativeBytes extends BaseBytes implements Cloneable {
     }
 
     public int readInteger() {
-        int v = readInteger( positionIndex() );
+        int v = readInt( positionIndex() );
 
         incrementPosition( SIZEOF_INT );
 
@@ -371,7 +385,7 @@ public abstract class NativeBytes extends BaseBytes implements Cloneable {
     }
 
     public void writeInteger( int v ) {
-        writeInteger( positionIndex(), v );
+        writeInt( positionIndex(), v );
 
         incrementPosition( SIZEOF_INT );
     }
