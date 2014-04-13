@@ -91,4 +91,17 @@ public abstract class Bytes implements OutputBytes, InputBytes {
 
 
     public abstract Bytes narrow( long fromInc, long toExc );
+
+
+
+
+    public long incrementUnsignedInt( long index ) {
+        long initialValue = readUnsignedInt( index );
+        long updatedValue = initialValue + 1;
+
+        writeUnsignedInt( index, updatedValue );
+
+        return updatedValue;
+    }
+
 }
