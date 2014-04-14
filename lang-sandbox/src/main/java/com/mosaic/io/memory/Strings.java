@@ -1,8 +1,11 @@
 package com.mosaic.io.memory;
 
 import com.mosaic.io.bytes.Bytes;
+import com.mosaic.io.bytes.MallocedBytes;
+import com.mosaic.io.bytes.ResizableBytes;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.text.UTF8;
 import com.mosaic.lang.text.UTF8Tools;
 
@@ -18,6 +21,13 @@ public class Strings {
 
         return new Strings(memoryRegion);
     }
+
+    public static Strings allocAutoResizingOffHeap( String name, SystemX system, long numBytes, long maxExpectedSize ) {
+        MemoryRegion memoryRegion = MemoryRegionImpl.allocAutoResizingOffHeap( name, system, numBytes, maxExpectedSize );
+
+        return new Strings(memoryRegion);
+    }
+
 
     private MemoryRegion region;
 

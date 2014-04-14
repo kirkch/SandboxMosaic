@@ -19,6 +19,7 @@ public abstract class SystemX {
 
     public static final int KILOBYTE              = 1024;
     public static final int MEGABYTE              = KILOBYTE*1024;
+    public static final int GIGABYTE              = MEGABYTE*1024;
 
     public static final int SIZEOF_BOOLEAN        = 1;
     public static final int SIZEOF_BYTE           = 1;

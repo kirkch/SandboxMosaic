@@ -32,8 +32,22 @@ public abstract class CLApp {
     }
 
     private void invokeRunCommand( Method m, String[] args ) {
-        long   startMillis = System.currentTimeMillis();
-        String commandName = this.getClass().getSimpleName();
+        final long   startMillis = System.currentTimeMillis();
+        final String commandName = this.getClass().getSimpleName();
+
+
+        Runtime.getRuntime().addShutdownHook( new Thread() {
+            public void run() {
+                long     endMillis = System.currentTimeMillis();
+                Duration duration  = Duration.millis( endMillis-startMillis );
+
+                system.audit( "Completed %s in %s", commandName, duration );
+            }
+        });
+
+
+
+
 
         try {
             system.info.newLine();
@@ -61,11 +75,6 @@ public abstract class CLApp {
             printUsage();
         } catch ( Throwable ex ) {
             system.error( ex );
-        } finally {
-            long     endMillis = System.currentTimeMillis();
-            Duration duration  = Duration.millis( endMillis-startMillis );
-
-            system.audit( "Completed %s in %s", commandName, duration );
         }
     }
 

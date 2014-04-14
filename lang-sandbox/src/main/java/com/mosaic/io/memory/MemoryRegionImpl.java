@@ -1,6 +1,8 @@
 package com.mosaic.io.memory;
 
 import com.mosaic.io.bytes.Bytes;
+import com.mosaic.io.bytes.MallocedBytes;
+import com.mosaic.io.bytes.ResizableBytes;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.text.DecodedCharacter;
@@ -32,12 +34,21 @@ public class MemoryRegionImpl implements MemoryRegion {
         QA.argIsGTZero( maxSize, "maxSize" );
 
         Bytes data  = Bytes.allocOnHeap( maxSize );
-        Bytes index = Bytes.allocOnHeap( (maxSize/10) * SIZEOF_INDEXRECORD );
+        Bytes index = Bytes.allocOnHeap( toApxIndexSize(maxSize) );
 
         return new MemoryRegionImpl( data, index );
     }
 
+    public static MemoryRegion allocAutoResizingOffHeap( String name, SystemX system, long numBytes, long maxExpectedSize ) {
+        Bytes data  = Bytes.allocAutoResizingOffHeap( name+"-data", system, numBytes, maxExpectedSize );
+        Bytes index = Bytes.allocAutoResizingOffHeap( name+"-index", system, toApxIndexSize(numBytes), toApxIndexSize(maxExpectedSize) );
 
+        return new MemoryRegionImpl( data, index );
+    }
+
+    private static long toApxIndexSize( long s ) {
+        return (s/10) * SIZEOF_INDEXRECORD;
+    }
 
     /**
      *
