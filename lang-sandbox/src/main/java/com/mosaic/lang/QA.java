@@ -4,6 +4,7 @@ import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.math.MathematicalNumber;
 import com.mosaic.lang.reflect.ReflectionException;
 import com.mosaic.lang.system.SystemX;
+import com.mosaic.lang.text.UTF8;
 import com.mosaic.utils.MathUtils;
 import com.mosaic.utils.StringUtils;
 

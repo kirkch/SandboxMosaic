@@ -3,7 +3,7 @@ package com.mosaic.utils;
 import com.mosaic.io.Formatter;
 import com.mosaic.io.Formatters;
 import com.mosaic.io.RuntimeIOException;
-import com.mosaic.lang.UTF8;
+import com.mosaic.lang.text.UTF8;
 
 import java.io.IOException;
 import java.util.List;
@@ -58,7 +58,7 @@ public class StringUtils {
     }
 
     public static boolean isBlank( UTF8 chars ) {
-        return chars == null || chars.getSizeInBytes() == 0;
+        return chars == null || chars.getByteCount() == 0;
     }
 
     public static <T> String join( Iterable<T> elements, String separator ) {
