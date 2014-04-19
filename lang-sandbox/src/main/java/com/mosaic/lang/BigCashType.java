@@ -57,6 +57,16 @@ public class BigCashType {
         return ((amt+delta)/100)*100;
     }
 
+    /**
+     * Very likely to be cause confusion/be lossy.  Use with care.
+     */
+    public static float toFloat( long amt ) {
+        float f = (float) amt;
+
+        return f/100;
+    }
+
+
     public static String toString( long amt ) {
         long major = extractMajorComponent( amt );
         long minor = extractMinorComponent( amt );
