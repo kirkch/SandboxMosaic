@@ -73,7 +73,7 @@ public abstract class BaseFlyWeightTestCases {
         flyweight.allocateNewRecords( 3 );
 
 
-        assertEquals( -1, flyweight.selectedIndex() );
+        assertTrue( flyweight.selectedIndex() < 0 );
 
         flyweight.select( 0 );
         assertEquals( 0, flyweight.selectedIndex() );
@@ -270,7 +270,7 @@ public abstract class BaseFlyWeightTestCases {
     }
 
 
-    private long allocateAndPopulateBulls( int numRecords ) {
+    protected long allocateAndPopulateBulls( int numRecords ) {
         QA.isGTZero( numRecords, "numRecords" );
 
         // 0-15 header

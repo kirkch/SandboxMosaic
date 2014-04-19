@@ -34,6 +34,7 @@ public abstract class FlyWeightBytes<T extends FlyWeightBytes<T>> implements Fly
      * |long recordCount|long maxAddressExc| ... records, each recordWidth bytes long ... |
      */
     private final Bytes records;
+    private final long  startOffset;
     private final int   recordWidth;
 
 
@@ -45,11 +46,16 @@ public abstract class FlyWeightBytes<T extends FlyWeightBytes<T>> implements Fly
      * @param recordWidth  in bytes
      */
     protected FlyWeightBytes( SystemX system, Bytes records, int recordWidth ) {
+        this( system, 0, records, recordWidth );
+    }
+
+    protected FlyWeightBytes( SystemX system, long startOffset, Bytes records, int recordWidth ) {
         QA.argNotNull( system,  "system"  );
         QA.argNotNull( records, "records" );
 
         this.system      = system;
         this.records     = records;
+        this.startOffset = startOffset;
         this.recordWidth = recordWidth;
     }
 
@@ -62,7 +68,7 @@ public abstract class FlyWeightBytes<T extends FlyWeightBytes<T>> implements Fly
     }
 
     public long getRecordCount() {
-        return records.readLong( RECORD_COUNT_INDEX );
+        return records.readLong( RECORD_COUNT_INDEX+startOffset );
     }
 
     public boolean isEmpty() {
@@ -74,7 +80,7 @@ public abstract class FlyWeightBytes<T extends FlyWeightBytes<T>> implements Fly
     }
 
     private long getMaxByteIndexExc() {
-        return records.readLong( MAX_OFFSET_INDEX );
+        return records.readLong( MAX_OFFSET_INDEX+startOffset );
     }
 
     public boolean hasNext() {
@@ -92,7 +98,7 @@ public abstract class FlyWeightBytes<T extends FlyWeightBytes<T>> implements Fly
     }
 
     public long selectedIndex() {
-        return (selectedRecordByteOffset-HEADER_WIDTH)/recordWidth;
+        return (selectedRecordByteOffset-HEADER_WIDTH-startOffset)/recordWidth;
     }
 
     public T select( long recordIndex ) {
@@ -122,8 +128,8 @@ public abstract class FlyWeightBytes<T extends FlyWeightBytes<T>> implements Fly
         extendRecordBuffer( newMaxOffsetExc );
 
 
-        records.writeLong( RECORD_COUNT_INDEX, newRecordCount );
-        records.writeLong( MAX_OFFSET_INDEX,   newMaxOffsetExc );
+        records.writeLong( RECORD_COUNT_INDEX+startOffset, newRecordCount );
+        records.writeLong( MAX_OFFSET_INDEX+startOffset,   newMaxOffsetExc );
 
 
         return currentRecordCount;
@@ -153,8 +159,8 @@ public abstract class FlyWeightBytes<T extends FlyWeightBytes<T>> implements Fly
     }
 
     public void clearAll() {
-        records.writeLong( RECORD_COUNT_INDEX, 0 );
-        records.writeLong( MAX_OFFSET_INDEX, HEADER_WIDTH );
+        records.writeLong( RECORD_COUNT_INDEX+startOffset, 0 );
+        records.writeLong( MAX_OFFSET_INDEX+startOffset, HEADER_WIDTH );
     }
 
     public void copySelectedRecordTo( long toDestinationIndex ) {
@@ -507,7 +513,7 @@ public abstract class FlyWeightBytes<T extends FlyWeightBytes<T>> implements Fly
     }
 
     private long calcByteOffsetForRecordIndex( long recordIndex ) {
-        return recordIndex * recordWidth + HEADER_WIDTH;
+        return recordIndex * recordWidth + HEADER_WIDTH + startOffset;
     }
 
 }

@@ -23,6 +23,10 @@ public class RedBullFlyWeight extends FlyWeightBytes<RedBullFlyWeight> {
         super( system, records, SIZEOF_BULL );
     }
 
+    public RedBullFlyWeight( SystemX system, long startFromOffset, Bytes records ) {
+        super( system, startFromOffset, records, SIZEOF_BULL );
+    }
+
 
     public boolean getHasWings() {
         return super.readBoolean( HASWINGS_OFFSET );
