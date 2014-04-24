@@ -38,7 +38,9 @@ public abstract class Bytes implements OutputBytes, InputBytes {
     }
 
     public static Bytes allocAutoResizingOffHeap( String name, SystemX system, long numBytes, long maxExpectedSize ) {
-        return new ResizableBytes(name, system, MallocedBytes.alloc(numBytes), maxExpectedSize);
+        Bytes alloc = MallocedBytes.alloc( numBytes );
+
+        return new ResizableBytes(name, system, alloc, maxExpectedSize);
     }
 
     public static Bytes allocAutoResizingOnHeap( String name, SystemX system, long numBytes, long maxExpectedSize ) {
@@ -95,11 +97,40 @@ public abstract class Bytes implements OutputBytes, InputBytes {
 
 
 
+    public short incrementUnsignedByte( long index ) {
+        short initialValue = readUnsignedByte( index );
+        short updatedValue = (short) (initialValue + 1);
+
+        QA.isLT( initialValue, 0xFF, "initialValue" );
+
+        writeUnsignedByte( index, updatedValue );
+
+        return updatedValue;
+    }
+
     public long incrementUnsignedInt( long index ) {
         long initialValue = readUnsignedInt( index );
         long updatedValue = initialValue + 1;
 
         writeUnsignedInt( index, updatedValue );
+
+        return updatedValue;
+    }
+
+    public int incrementInt( long index ) {
+        int initialValue = readInt( index );
+        int updatedValue = initialValue + 1;
+
+        writeInt( index, updatedValue );
+
+        return updatedValue;
+    }
+
+    public long incrementLong( long index ) {
+        long initialValue = readLong( index );
+        long updatedValue = initialValue + 1;
+
+        writeLong( index, updatedValue );
 
         return updatedValue;
     }

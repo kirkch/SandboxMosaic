@@ -63,4 +63,12 @@ public class ReflectionUtils {
 
         throw ReflectionException.recast( new NoSuchFieldException(fieldName) );
     }
+
+    public static Class findClass( String className ) {
+        try {
+            return Class.forName( className );
+        } catch ( ClassNotFoundException e ) {
+            throw ReflectionException.recast( e );
+        }
+    }
 }
