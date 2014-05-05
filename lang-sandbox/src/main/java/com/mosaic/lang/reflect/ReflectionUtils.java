@@ -1,7 +1,12 @@
 package com.mosaic.lang.reflect;
 
+import com.mosaic.lang.text.UTF8;
+
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+
 
 /**
  *
@@ -9,6 +14,7 @@ import java.lang.reflect.Method;
 @SuppressWarnings("unchecked")
 public class ReflectionUtils {
 
+    // TODO move to using MethodHandle instead (it is faster)
     private static final Method CLONE_METHOD = ReflectionUtils.findFirstInstanceMethodByName( Object.class, "clone" );
 
     static {
@@ -17,6 +23,36 @@ public class ReflectionUtils {
 
     public static <T extends Cloneable> T clone( T obj ) {
         return (T) invoke( obj, CLONE_METHOD );
+    }
+
+    public static <T> Constructor<T> findConstructor( Class<T> clazz, Object...args ) {
+        Constructor<T>[] candidates = (Constructor<T>[]) clazz.getConstructors();
+
+        for ( Constructor<T> c : candidates ) {
+            Class<?>[] parameterTypes = c.getParameterTypes();
+
+            if ( parameterTypes.length == args.length ) {
+                return c;
+            }
+        }
+
+        throw ReflectionException.create( "Unable to find constructor " + clazz.getSimpleName() + "(" + Arrays.asList( args ) + ")" );
+    }
+
+    public static <T> T newInstance( UTF8 clazz, Object...args ) {
+        Class c = findClass( clazz.toString() );
+
+        return (T) newInstance( c, args );
+    }
+
+    public static <T> T newInstance( Class<T> clazz, Object...args ) {
+        try {
+            Constructor<T> c = findConstructor( clazz, args );
+
+            return c.newInstance( args );
+        } catch ( Throwable e ) {
+            throw ReflectionException.recast(e);
+        }
     }
 
     public static Object invoke( Object instance, Method method, Object...args ) {

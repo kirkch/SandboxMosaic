@@ -10,6 +10,10 @@ public final class ReflectionException extends RuntimeException {
         return new ReflectionException( e, msg );
     }
 
+    public static RuntimeException create( String msg ) {
+        return new ReflectionException( null, msg );
+    }
+
     public static RuntimeException recast( Throwable e ) {
         if ( e instanceof RuntimeException ) {
             return (RuntimeException) e;
