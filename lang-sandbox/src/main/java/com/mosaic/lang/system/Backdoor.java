@@ -2,13 +2,14 @@ package com.mosaic.lang.system;
 
 import com.mosaic.lang.QA;
 import com.mosaic.lang.reflect.ReflectionException;
-import com.mosaic.lang.reflect.ReflectionUtils;
 import com.mosaic.lang.time.Duration;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static com.mosaic.lang.system.SystemX.*;
+
 
 /**
  * A utility wrapper around sun.misc.Unsafe.  Until such time that Unsafe
@@ -109,34 +110,50 @@ public class Backdoor {
 //    }
 
     public static void setByte( long address, byte v ) {
+        debugAddress( address, SIZEOF_BYTE );
+
         unsafe.putByte( address, v );
     }
 
     public static void setCharacter( long address, char v ) {
+        debugAddress( address, SIZEOF_CHAR );
+
         unsafe.putChar( address, v );
     }
 
     public static void setShort( long address, short v ) {
+        debugAddress( address, SIZEOF_SHORT );
+
         unsafe.putShort( address, v );
     }
 
     public static void setInteger( long address, int v ) {
+        debugAddress( address, SIZEOF_INT );
+
         unsafe.putInt( address, v );
     }
 
     public static void setLong( long address, long v ) {
+        debugAddress( address, SIZEOF_LONG );
+
         unsafe.putLong( address, v );
     }
 
     public static void setFloat( long address, float v ) {
+        debugAddress( address, SIZEOF_FLOAT );
+
         unsafe.putFloat( address, v );
     }
 
     public static void setDouble( long address, double v ) {
+        debugAddress( address, SIZEOF_DOUBLE );
+
         unsafe.putDouble( address, v );
     }
 
     public static void copyBytes( long fromAddress, long toAddress, long numBytes ) {
+        debugAddress( toAddress, numBytes );
+
         unsafe.copyMemory( fromAddress, toAddress, numBytes );
     }
 
@@ -144,6 +161,8 @@ public class Backdoor {
         if ( SystemX.isDebugRun() ) {
             QA.argIsBetweenInc( 0, fromInc, fromArray.length, "fromInc" );
             QA.argIsBetweenInc( 0, fromInc + numBytes, fromArray.length, "fromInc+numBytes" );
+
+            debugAddress( toAddress, numBytes );
         }
 
         unsafe.copyMemory( fromArray, BYTE_ARRAY_BASE_OFFSET+fromInc, null, toAddress, numBytes );
@@ -153,6 +172,8 @@ public class Backdoor {
         if ( SystemX.isDebugRun() ) {
             QA.argIsBetween( 0, arrayIndex, toArray.length, "arrayIndex" );
             QA.argIsBetweenInc( 0, arrayIndex + numBytes, toArray.length, "arrayIndex+numBytes" );
+
+            debugAddress( arrayIndex, numBytes );
         }
 
         unsafe.copyMemory( null, fromAddress, toArray, BYTE_ARRAY_BASE_OFFSET+arrayIndex, numBytes );
@@ -165,6 +186,8 @@ public class Backdoor {
 
             QA.argIsBetween( 0, toArrayIndex, toArray.length, "toArrayIndex" );
             QA.argIsBetweenInc( 0, toArrayIndex + numBytes, toArray.length, "toArrayIndex+numBytes" );
+
+            debugAddress( toArrayIndex, numBytes );
         }
 
         unsafe.copyMemory( fromArray, BYTE_ARRAY_BASE_OFFSET+fromArrayIndex, toArray, BYTE_ARRAY_BASE_OFFSET+toArrayIndex, numBytes );
@@ -204,6 +227,8 @@ public class Backdoor {
     }
 
     public static void fill( long ptr, long numBytes, byte v ) {
+        debugAddress( ptr, numBytes );
+
         unsafe.setMemory( ptr, numBytes, v );
     }
 
@@ -212,6 +237,8 @@ public class Backdoor {
     }
 
     public static void fillArray( byte[] array, long offset, long numBytes, byte v ) {
+        debugAddress( offset, numBytes );
+
         unsafe.setMemory( array, BYTE_ARRAY_BASE_OFFSET +offset, numBytes, v );
     }
 
@@ -255,31 +282,62 @@ public class Backdoor {
 
 
     public static void setByteIn( byte[] array, long offset, byte v ) {
+        debugAddress( offset, SIZEOF_BYTE );
+
         unsafe.putByte( array, BYTE_ARRAY_BASE_OFFSET + offset*BYTE_ARRAY_SCALE, v );
     }
 
     public static void setCharacterIn( byte[] array, long offset, char v ) {
+        debugAddress( offset, SIZEOF_CHAR );
+
         unsafe.putChar( array, BYTE_ARRAY_BASE_OFFSET + offset * BYTE_ARRAY_SCALE, v );
     }
 
     public static void setShortIn( byte[] array, long offset, short v ) {
+        debugAddress( offset, SIZEOF_SHORT );
+
         unsafe.putShort( array, BYTE_ARRAY_BASE_OFFSET + offset * BYTE_ARRAY_SCALE, v );
     }
 
     public static void setIntegerIn( byte[] array, long offset, int v ) {
+        debugAddress( offset, SIZEOF_INT );
+
         unsafe.putInt( array, BYTE_ARRAY_BASE_OFFSET + offset * BYTE_ARRAY_SCALE, v );
     }
 
     public static void setLongIn( byte[] array, long offset, long v ) {
+        debugAddress( offset, SIZEOF_LONG );
+
         unsafe.putLong( array, BYTE_ARRAY_BASE_OFFSET + offset * BYTE_ARRAY_SCALE, v );
     }
 
     public static void setFloatIn( byte[] array, long offset, float v ) {
+        debugAddress( offset, SIZEOF_FLOAT );
+
         unsafe.putFloat( array, BYTE_ARRAY_BASE_OFFSET + offset * BYTE_ARRAY_SCALE, v );
     }
 
     public static void setDoubleIn( byte[] array, long offset, double v ) {
+        debugAddress( offset, SIZEOF_DOUBLE );
+
         unsafe.putDouble( array, BYTE_ARRAY_BASE_OFFSET + offset * BYTE_ARRAY_SCALE, v );
+    }
+
+
+    // NB I found setting a watch break point too slow; so to track down memory corrupts set this field instead
+    public volatile static long targetAddress = 0;
+    /**
+     * This function is used as a place to capture writes to a memory address via a debugger.
+     *
+     *
+     * offset <= 4681707554L && (offset+numBytes) >= 4681707554L
+     */
+    private static void debugAddress( long offset, long numBytes ) {
+        if ( SystemX.isDebugRun() ) {
+            if ( targetAddress > 0 && offset <= targetAddress && (offset+numBytes) > targetAddress ) {
+                new RuntimeException( "wrote to "+offset+" "+numBytes+" bytes (was watching "+targetAddress+")" ).printStackTrace();
+            }
+        }
     }
 
     public static int toInt( long v ) {
