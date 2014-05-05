@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
  *
  */
 @SuppressWarnings("unchecked")
-public class ForkJoinJobTest {
+public class ForkJoinQueryTest {
 
     private static final int MAX_BATCH_SIZE = 10000;
 
@@ -200,7 +200,7 @@ public class ForkJoinJobTest {
     }
 
 
-    private static class ParseNumbersJob extends ForkJoinJob<List<String>,List<Long>> {
+    private static class ParseNumbersJob extends ForkJoinQuery<List<String>,List<Long>> {
         private Set<Thread> threadCounter = new HashSet<>();
 
         public int numThreadsUsed() {

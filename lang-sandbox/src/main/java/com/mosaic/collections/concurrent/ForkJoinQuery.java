@@ -22,7 +22,7 @@ import java.util.concurrent.RecursiveTask;
  * of the output.
  */
 @SuppressWarnings("unchecked")
-public abstract class ForkJoinJob<I,O> {
+public abstract class ForkJoinQuery<I,O> {
 
     /**
      * Split the data set up into smaller data sets.  If the data set is already
