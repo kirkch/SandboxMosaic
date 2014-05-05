@@ -876,6 +876,48 @@ public class QA {
         }
     }
 
+    public static void isEqualTo( byte a, byte b, String msg ) {
+        if ( a != b ) {
+            throwIllegalStateException(  msg, a, b );
+        }
+    }
+
+    public static void isEqualTo( short a, short b, String msg ) {
+        if ( a != b ) {
+            throwIllegalStateException(  msg, a, b );
+        }
+    }
+
+    public static void isEqualTo( int a, int b, String msg ) {
+        if ( a != b ) {
+            throwIllegalStateException(  msg, a, b );
+        }
+    }
+
+    public static void isEqualTo( long a, long b, String msg ) {
+        if ( a != b ) {
+            throwIllegalStateException(  msg, a, b );
+        }
+    }
+
+    public static void isEqualTo( float a, float b, String msg, float tolerance ) {
+        if ( Math.abs(a-b) <= tolerance ) {
+            throwIllegalStateException(  msg, a, b );
+        }
+    }
+
+    public static void isEqualTo( double a, double b, String msg, double tolerance ) {
+        if ( Math.abs(a-b) <= tolerance ) {
+            throwIllegalStateException(  msg, a, b );
+        }
+    }
+
+    public static <T extends Comparable<T>> void isEqualTo( T a, T b, String msg ) {
+        if ( a.compareTo(b) != 0 ) {
+            throwIllegalStateException(  msg, a, b );
+        }
+    }
+
 
 
     /**
