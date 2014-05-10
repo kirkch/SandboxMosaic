@@ -28,4 +28,12 @@ public enum FileModeEnum {
     public FileChannel.MapMode toMemoryMapMode() {
         return mapMode;
     }
+
+    public boolean isWritable() {
+        return this == READ_WRITE || this == WRITE_ONLY;
+    }
+
+    public boolean isReadable() {
+        return this == READ_ONLY || this == READ_WRITE;
+    }
 }

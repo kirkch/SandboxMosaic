@@ -57,7 +57,11 @@ public abstract class Bytes implements OutputBytes, InputBytes {
      *
      * @return null if the resource was not found
      */
-    public static InputBytes loadFromClassPath( ClassLoader classLoader, String resourcePath ) throws IOException {
+    public static Bytes loadFromClassPath( ClassLoader classLoader, String resourcePath ) throws IOException {
+        if ( resourcePath.startsWith("/") ) {
+            resourcePath = resourcePath.substring(1);
+        }
+
         InputStream in = classLoader.getResourceAsStream( resourcePath );
         if ( in == null ) {
             return null;
@@ -70,7 +74,14 @@ public abstract class Bytes implements OutputBytes, InputBytes {
 
         bufferedInput.read( bytes );
 
-        return new ArrayBytes( bytes );
+        ArrayBytes arrayBytes = new ArrayBytes( bytes );
+        arrayBytes.setName( resourcePath );
+
+        return arrayBytes;
+    }
+
+    public static InputBytes loadFromClassPath( String resourcePath ) throws IOException {
+        return loadFromClassPath( Bytes.class.getClassLoader(), resourcePath );
     }
 
     private static int countRemainingBytes( BufferedInputStream in ) throws IOException {

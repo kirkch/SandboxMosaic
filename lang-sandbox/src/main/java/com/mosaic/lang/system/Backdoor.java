@@ -69,9 +69,9 @@ public class Backdoor {
 // PRIMITIVE VALUE GETTER/SETTERS
 
 
-//    public boolean getBoolean( long address ) {
-//        return unsafe.getBoolean( address );
-//    }
+    public boolean getBoolean( long address ) {
+        return unsafe.getByte( address ) > 0;
+    }
 
     public static byte getByte( long address ) {
         return unsafe.getByte( address );
@@ -105,9 +105,11 @@ public class Backdoor {
         return unsafe.getDouble( address );
     }
 
-//    public static boolean setBoolean( long address, boolean v ) {
-//        return unsafe.setBoolean( address, v );
-//    }
+    public static void setBoolean( long address, boolean v ) {
+        debugAddress( address, SIZEOF_BOOLEAN );
+
+        unsafe.putByte( address, (byte) (v ? 1 : 0) );
+    }
 
     public static void setByte( long address, byte v ) {
         debugAddress( address, SIZEOF_BYTE );
