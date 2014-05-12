@@ -25,6 +25,9 @@ public class PrintStreamCharacterStream implements CharacterStream {
     }
 
 
+    public boolean isEnabled() {
+        return true;
+    }
 
     public void writeBoolean( boolean v ) {
         out.print( v );

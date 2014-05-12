@@ -41,6 +41,10 @@ public class BytesCharacterStream implements CharacterStream {
     }
 
 
+    public boolean isEnabled() {
+        return true;
+    }
+
     public void writeBoolean( boolean v ) {
         destinationBytes.writeBytes( v ? TRUE : FALSE );
     }

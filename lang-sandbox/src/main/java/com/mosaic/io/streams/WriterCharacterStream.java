@@ -29,6 +29,9 @@ public class WriterCharacterStream implements CharacterStream {
     }
 
 
+    public boolean isEnabled() {
+        return true;
+    }
 
     public void writeBoolean( boolean v ) {
         try {

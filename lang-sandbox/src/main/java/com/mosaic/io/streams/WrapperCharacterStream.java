@@ -18,6 +18,11 @@ public class WrapperCharacterStream implements CharacterStream {
         this.delegate = delegate;
     }
 
+
+    public boolean isEnabled() {
+        return delegate.isEnabled();
+    }
+
     public void writeBoolean( boolean v ) {
         delegate.writeBoolean(v);
     }

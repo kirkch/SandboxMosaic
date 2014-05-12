@@ -14,11 +14,11 @@ import java.io.IOException;
 /**
  *
  */
-public class ClasspathFileX implements FileX {
+public class ClassPathFileX implements FileX {
 
     private String fullPath;
 
-    public ClasspathFileX( String fullPath ) {
+    public ClassPathFileX( String fullPath ) {
         this.fullPath = fullPath;
     }
 

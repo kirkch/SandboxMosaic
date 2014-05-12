@@ -181,18 +181,22 @@ public class DebugSystem extends SystemX {
 
         reportError(
             String.format(
-                "Failed to find '%s' amongst the info messages",
+                "Failed to find '%s' amongst the "+expectedLogLevel.toLowerCase()+" messages",
                 expectedMessage
             )
         );
     }
 
     private void reportError( String msg ) {
+        dumpLog();
+
+        throw new AssertionError( msg );
+    }
+
+    public void dumpLog() {
         for ( String line : auditText ) {
             System.out.println( line );
         }
-
-        throw new AssertionError( msg );
     }
 
 

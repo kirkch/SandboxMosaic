@@ -11,6 +11,9 @@ public class NullCharacterStream implements CharacterStream {
 
     public static CharacterStream NULL_CHARACTER_STREAM = new NullCharacterStream();
 
+    public boolean isEnabled() {
+        return false;
+    }
 
     public void writeBoolean( boolean v ) {
     }

@@ -29,6 +29,9 @@ public class LogWriter implements CharacterStream {
     }
 
 
+    public boolean isEnabled() {
+        return true;
+    }
 
     public void writeBoolean( boolean v ) {
         printLinePrefix();

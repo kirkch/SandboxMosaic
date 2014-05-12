@@ -112,6 +112,14 @@ public abstract class SystemX {
     public final CharacterStream error;
     public final CharacterStream fatal;
 
+    private final boolean isDebugEnabled;
+    private final boolean isAuditEnabled;
+    private final boolean isInfoEnabled;
+    private final boolean isWarnEnabled;
+    private final boolean isErrorEnabled;
+    private final boolean isFatalEnabled;
+
+
     // NB stdin, when needed will be done by subscription with callbacks and not the Java blocking approach
 
 
@@ -125,6 +133,13 @@ public abstract class SystemX {
         this.warn       = warn;
         this.error      = error;
         this.fatal      = fatal;
+
+        this.isDebugEnabled = debug.isEnabled();
+        this.isAuditEnabled = audit.isEnabled();
+        this.isInfoEnabled  = info.isEnabled();
+        this.isWarnEnabled  = warn.isEnabled();
+        this.isErrorEnabled = error.isEnabled();
+        this.isFatalEnabled = fatal.isEnabled();
     }
 
 
@@ -152,6 +167,30 @@ public abstract class SystemX {
 
     public long getCurrentMillis() {
         return clock.getCurrentMillis();
+    }
+
+    public boolean isDebugEnabled() {
+        return isDebugEnabled;
+    }
+
+    public boolean isAuditEnabled() {
+        return isAuditEnabled;
+    }
+
+    public boolean isInfoEnabled() {
+        return isInfoEnabled;
+    }
+
+    public boolean isWarnEnabled() {
+        return isWarnEnabled;
+    }
+
+    public boolean isErrorEnabled() {
+        return isErrorEnabled;
+    }
+
+    public boolean isFatalEnabled() {
+        return isFatalEnabled;
     }
 
     public void debug( String msg, Object... args ) {

@@ -11,32 +11,32 @@ import static org.junit.Assert.fail;
 /**
  *
  */
-public class ClasspathFileXTest {
+public class ClassPathFileXTest {
 
     @Test
     public void fileDoesNotExist_getFileName_expectFileName() {
-        FileX file = new ClasspathFileX("/a/b/Foo.txt");
+        FileX file = new ClassPathFileX("/a/b/Foo.txt");
 
         assertEquals( "Foo.txt", file.getFileName() );
     }
 
     @Test
     public void fileNameOnly_getFileName_expectFileName() {
-        FileX file = new ClasspathFileX("Foo.txt");
+        FileX file = new ClassPathFileX("Foo.txt");
 
         assertEquals( "Foo.txt", file.getFileName() );
     }
 
     @Test
     public void fileDoesNotExist_getFullPath_expectFileName() {
-        FileX file = new ClasspathFileX("/a/b/Foo.txt");
+        FileX file = new ClassPathFileX("/a/b/Foo.txt");
 
         assertEquals( "/a/b/Foo.txt", file.getFullPath() );
     }
 
     @Test
     public void fileDoesExist_delete_throwUnsupportedOpEx() {
-        FileX file = new ClasspathFileX("/data/names.txt");
+        FileX file = new ClassPathFileX("/data/names.txt");
 
         try {
             file.delete();
@@ -48,7 +48,7 @@ public class ClasspathFileXTest {
 
     @Test
     public void fileDoesNotExist_sizeBytes_throwFileNotFound() {
-        FileX file = new ClasspathFileX("/a/b/Foo.txt");
+        FileX file = new ClassPathFileX("/a/b/Foo.txt");
 
         try {
             file.sizeInBytes();
@@ -60,7 +60,7 @@ public class ClasspathFileXTest {
 
     @Test
     public void fileDoesExist_sizeBytes_throwFileNotFound() {
-        FileX file = new ClasspathFileX("/movies.txt");
+        FileX file = new ClassPathFileX("/movies.txt");
 
         assertEquals( 37, file.sizeInBytes() );
     }

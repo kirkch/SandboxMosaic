@@ -29,6 +29,11 @@ public class CapturingCharacterStream implements CharacterStream {
         this.audit = audit;
     }
 
+
+    public boolean isEnabled() {
+        return true;
+    }
+
     public void writeBoolean( boolean v ) {
         append( Boolean.toString(v) );
     }
