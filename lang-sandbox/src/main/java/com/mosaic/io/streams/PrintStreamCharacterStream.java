@@ -179,4 +179,6 @@ public class PrintStreamCharacterStream implements CharacterStream {
     public void newLine() {
         out.println();
     }
+
+    public void flush() {}
 }

@@ -380,6 +380,8 @@ public class BytesCharacterStream implements CharacterStream {
         destinationBytes.writeByte( (byte) '\n' );
     }
 
+    public void flush() {}
+
 
     private void writeFractionalPart( double v, int numDecimalPlaces, long intPart ) {
         if ( numDecimalPlaces > 0 ) {

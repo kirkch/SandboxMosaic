@@ -42,6 +42,7 @@ public class CapturingCharacterStreamTest {
         CapturingCharacterStream out = new CapturingCharacterStream();
 
         out.writeFloat( v, dp );
+        out.newLine();
 
         assertEquals( expected, out.audit.get( 0 ) );
     }
@@ -50,6 +51,7 @@ public class CapturingCharacterStreamTest {
         CapturingCharacterStream out = new CapturingCharacterStream();
 
         out.writeDouble( v, dp );
+        out.newLine();
 
         assertEquals( expected, out.audit.get(0) );
     }

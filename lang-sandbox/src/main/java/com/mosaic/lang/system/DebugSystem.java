@@ -13,6 +13,7 @@ import org.junit.ComparisonFailure;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 
 
 /**
@@ -20,34 +21,37 @@ import java.util.List;
  */
 public class DebugSystem extends SystemX {
 
-    private CapturingCharacterStream cAudit;  // files used to avoid ugly casting from the assert methods
-    private CapturingCharacterStream cInfo;
-    private CapturingCharacterStream cWarn;
-    private CapturingCharacterStream cError;
-    private CapturingCharacterStream cDebug;
+    /**
+     * Format:
+     *
+     * [LEVEL nanosFromStart]: message
+     */
+    private final List<String> auditText;
 
 
     public DebugSystem() {
         this(
             new InMemoryFileSystem(),
             new SystemClock(),
-            new CapturingCharacterStream(), // audit,
-            new CapturingCharacterStream(), // info,
-            new CapturingCharacterStream(), // warn,
-            new CapturingCharacterStream(), // error,
-            new CapturingCharacterStream()  // debug
+            new Vector<String>(),
+            System.nanoTime()
         );
     }
 
 
-    private DebugSystem( InMemoryFileSystem system, SystemClock clock, CapturingCharacterStream audit, CapturingCharacterStream info, CapturingCharacterStream warn, CapturingCharacterStream error, CapturingCharacterStream debug) {
-        super(system,clock,audit,info,warn,error,debug);
+    private DebugSystem( InMemoryFileSystem system, SystemClock clock, List<String> auditText, long startTime ) {
+        super(
+            system,
+            clock,
+            new CapturingLogCharacterStream("DEBUG", auditText, startTime),
+            new CapturingLogCharacterStream("AUDIT", auditText, startTime),
+            new CapturingLogCharacterStream("INFO", auditText, startTime),
+            new CapturingLogCharacterStream("WARN", auditText, startTime),
+            new CapturingLogCharacterStream("ERROR", auditText, startTime),
+            new CapturingLogCharacterStream("FATAL", auditText, startTime)
+        );
 
-        this.cAudit = audit;
-        this.cInfo  = info;
-        this.cWarn  = warn;
-        this.cError = error;
-        this.cDebug = debug;
+        this.auditText = auditText;
     }
 
 
@@ -55,40 +59,20 @@ public class DebugSystem extends SystemX {
         fileSystem.deleteAll();
     }
 
+    public void assertDebug( String expectedMessage ) {
+        assertLogMessageContains( "DEBUG", expectedMessage );
+    }
+
+    public void assertAudit( String expectedMessage ) {
+        assertLogMessageContains( "AUDIT", expectedMessage );
+    }
+
     public void assertInfo( String expectedMessage ) {
-        String trimmedExpectedMessage = expectedMessage.trim();
-
-        for ( String x : cInfo.audit ) {
-            if ( x.trim().equals( trimmedExpectedMessage ) ) {
-                return;
-            }
-        }
-
-        throw new AssertionError(
-            String.format(
-                "Failed to find '%s' amongst the info messages \n'%s'",
-                expectedMessage,
-                StringUtils.concat( cInfo.audit, "[\n", "\n", "]" )
-            )
-        );
+        assertLogMessageContains( "INFO", expectedMessage );
     }
 
     public void assertWarn( String expectedMessage ) {
-        String trimmedExpectedMessage = expectedMessage.trim();
-
-        for ( String x : cWarn.audit ) {
-            if ( x.trim().equals( trimmedExpectedMessage ) ) {
-                return;
-            }
-        }
-
-        throw new AssertionError(
-            String.format(
-                "Failed to find '%s' amongst the warn messages '%s'",
-                expectedMessage,
-                cWarn.audit
-            )
-        );
+        assertLogMessageContains( "WARN", expectedMessage );
     }
 
     public void assertError( Class<? extends Throwable> expectedExceptionType, String expectedMessage ) {
@@ -96,63 +80,47 @@ public class DebugSystem extends SystemX {
     }
 
     public void assertError( String expectedMessage ) {
-        String trimmedExpectedMessage = expectedMessage.trim();
+        assertLogMessageContains( "ERROR", expectedMessage );
+    }
 
-        for ( String x : cError.audit ) {
-            if ( x.trim().equals( trimmedExpectedMessage ) ) {
-                return;
+    private void assertNoLogMessages( String logLevel ) {
+        String expectedPrefix = "["+logLevel+" ";
+
+        int count = 0;
+
+        for ( String msg : auditText ) {
+            if ( msg.startsWith(expectedPrefix) ) {
+                count++;
             }
         }
 
-        throw new AssertionError(
-            String.format(
-                "Failed to find '%s' amongst the error messages '%s'",
-                expectedMessage,
-                cError.audit
-            )
-        );
-    }
-
-    public void assertDebug( String expectedMessage ) {
-        String trimmedExpectedMessage = expectedMessage.trim();
-
-        for ( String x : cDebug.audit ) {
-            if ( x.trim().equals( trimmedExpectedMessage ) ) {
-                return;
-            }
-        }
-
-        throw new AssertionError(
-            String.format(
-                "Failed to find '%s' amongst the debug messages '%s'",
-                expectedMessage,
-                cDebug.audit
-            )
-        );
-    }
-
-    public void assertNoWarnings() {
-        if ( this.cWarn.audit.size() > 1 || this.cWarn.audit.get(0).length() > 0 ) {
-            throw new AssertionError( "Expected no warnings, instead found: " + this.cWarn.audit );
-        }
-    }
-
-    public void assertNoErrors() {
-        if ( this.cError.audit.size() > 1 || this.cError.audit.get(0).length() > 0 ) {
-            throw new AssertionError( "Expected no errors, instead found: " + this.cError.audit );
+        if ( count > 0 ) {
+            reportError( "Expected no "+logLevel.toLowerCase()+"s, instead found " + count + " of them" );
         }
     }
 
     public void assertNoDebugs() {
-        if ( this.cDebug.audit.size() > 1 || this.cDebug.audit.get(0).length() > 0 ) {
-            throw new AssertionError( "Expected no debug messages, instead found: " + this.cDebug.audit );
-        }
+        assertNoLogMessages( "DEBUG" );
     }
 
     public void assertNoInfos() {
-        if ( this.cInfo.audit.size() > 1 || this.cInfo.audit.get(0).length() > 0 ) {
-            throw new AssertionError( "Expected no info messages, instead found: " + this.cInfo.audit );
-        }
+        assertNoLogMessages( "INFO" );
+    }
+
+    public void assertNoAudits() {
+        assertNoLogMessages( "AUDIT" );
+    }
+
+    public void assertNoWarnings() {
+        assertNoLogMessages( "WARN" );
+    }
+
+    public void assertNoErrors() {
+        assertNoLogMessages( "ERROR" );
+    }
+
+    public void assertNoFatals() {
+        assertNoLogMessages( "FATAL" );
     }
 
     public void assertHasFile( String filePath, String...expectedLines ) {
@@ -192,9 +160,61 @@ public class DebugSystem extends SystemX {
     }
 
     public void assertNoMessages() {
-        assertNoErrors();
-        assertNoWarnings();
         assertNoDebugs();
         assertNoInfos();
+        assertNoAudits();
+        assertNoWarnings();
+        assertNoErrors();
+        assertNoFatals();
+    }
+
+    private void assertLogMessageContains( String expectedLogLevel, String expectedMessage ) {
+        String expectedPrefix = "["+expectedLogLevel+" ";
+
+        expectedMessage = expectedMessage.trim();
+
+        for ( String x : auditText ) {
+            if ( x.startsWith(expectedPrefix) && x.endsWith(expectedMessage) ) {
+                return;
+            }
+        }
+
+        reportError(
+            String.format(
+                "Failed to find '%s' amongst the info messages",
+                expectedMessage
+            )
+        );
+    }
+
+    private void reportError( String msg ) {
+        for ( String line : auditText ) {
+            System.out.println( line );
+        }
+
+        throw new AssertionError( msg );
+    }
+
+
+    private static class CapturingLogCharacterStream extends CapturingCharacterStream {
+        private String logLevel;
+
+        private long startTimeNanos;
+
+        public CapturingLogCharacterStream( String logLevel, List<String> auditText, long startTimeNanos ) {
+            super(auditText);
+
+            this.logLevel       = logLevel;
+            this.startTimeNanos = startTimeNanos;
+        }
+
+        @Override
+        protected String formatLine( String line ) {
+            double time = (System.nanoTime() - startTimeNanos)/1000000.0;
+
+            return "["+logLevel+" "+time+"]: "+ line.trim();
+        }
     }
 }
+
+

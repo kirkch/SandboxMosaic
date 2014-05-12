@@ -129,4 +129,8 @@ public class WrapperCharacterStream implements CharacterStream {
     public void newLine() {
         delegate.newLine();
     }
+
+    public void flush() {
+        delegate.flush();
+    }
 }

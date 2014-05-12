@@ -15,7 +15,11 @@ import java.lang.reflect.Method;
  */
 public abstract class CLApp {
 
-    public SystemX system = LiveSystem.newSystem();
+    public SystemX system;
+
+    protected CLApp( SystemX system ) {
+        this.system = system;
+    }
 
     public final void runApp( String...args ) {
         Method m = ReflectionUtils.findFirstPublicMethodByName( this.getClass(), "run" );

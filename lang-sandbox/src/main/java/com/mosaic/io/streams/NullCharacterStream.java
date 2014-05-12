@@ -9,6 +9,9 @@ import com.mosaic.lang.text.UTF8;
  */
 public class NullCharacterStream implements CharacterStream {
 
+    public static CharacterStream NULL_CHARACTER_STREAM = new NullCharacterStream();
+
+
     public void writeBoolean( boolean v ) {
     }
 
@@ -91,5 +94,8 @@ public class NullCharacterStream implements CharacterStream {
     }
 
     public void newLine() {
+    }
+
+    public void flush() {
     }
 }

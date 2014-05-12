@@ -91,7 +91,7 @@ public abstract class SystemX {
     // sizes 32KB, 256KB, and 4-30MB; and ~1ns, ~4ns, and ~15ns latency respectively for a 3.0GHz CPU.
 
 
-    @SuppressWarnings({"AssertWithSideEffects", "UnusedAssignment"})
+    @SuppressWarnings({"AssertWithSideEffects", "UnusedAssignment", "ConstantConditions"})
     private static boolean detectWhetherAssertionsAreEnabled() {
         boolean flag = false;
 
@@ -105,24 +105,26 @@ public abstract class SystemX {
     public final FileSystemX fileSystem;
     public final SystemClock clock;
 
+    public final CharacterStream debug;
     public final CharacterStream audit;
     public final CharacterStream info;
     public final CharacterStream warn;
     public final CharacterStream error;
-    public final CharacterStream debug;
+    public final CharacterStream fatal;
 
     // NB stdin, when needed will be done by subscription with callbacks and not the Java blocking approach
 
 
-    protected SystemX( FileSystemX fileSystem, SystemClock clock, CharacterStream audit, CharacterStream info, CharacterStream warn, CharacterStream error, CharacterStream debug ) {
+    protected SystemX( FileSystemX fileSystem, SystemClock clock, CharacterStream debug, CharacterStream audit, CharacterStream info, CharacterStream warn, CharacterStream error, CharacterStream fatal ) {
         this.fileSystem = fileSystem;
         this.clock      = clock;
 
+        this.debug      = debug;
         this.audit      = audit;
         this.info       = info;
         this.warn       = warn;
         this.error      = error;
-        this.debug      = debug;
+        this.fatal      = fatal;
     }
 
 
@@ -152,8 +154,8 @@ public abstract class SystemX {
         return clock.getCurrentMillis();
     }
 
-    public void error( Throwable ex ) {
-        error.writeException( ex );
+    public void debug( String msg, Object... args ) {
+        debug.writeLine( String.format(msg,args) );
     }
 
     public void audit( String msg, Object... args ) {
@@ -161,19 +163,27 @@ public abstract class SystemX {
     }
 
     public void info( String msg, Object... args ) {
-        info.writeLine( String.format(msg,args) );
+        info.writeLine( String.format( msg, args ) );
     }
 
     public void warn( String msg, Object... args ) {
-        warn.writeLine( String.format(msg,args) );
+        warn.writeLine( String.format( msg, args ) );
+    }
+
+    public void error( Throwable ex ) {
+        error.writeException( ex );
     }
 
     public void error( String msg, Object... args ) {
-        error.writeLine( String.format(msg,args) );
+        error.writeLine( String.format( msg, args ) );
     }
 
-    public void debug( String msg, Object... args ) {
-        debug.writeLine( String.format(msg,args) );
+    public void fatal( Throwable ex ) {
+        fatal.writeException( ex );
+    }
+
+    public void fatal( String msg, Object... args ) {
+        fatal.writeLine( String.format(msg,args) );
     }
 
 

@@ -21,11 +21,12 @@ public class LiveSystem extends SystemX {
         super(
             new ActualFileSystem(),
             clock,
-            new LogWriter(clock, "audit",  new PrintStreamCharacterStream(System.err)),
-            new PrintStreamCharacterStream(System.out),
+            new NullCharacterStream(),                  // debug
+            new PrintStreamCharacterStream(System.out), // audit
+            new PrintStreamCharacterStream(System.out), // info
             new LogWriter(clock, "warn",  new PrintStreamCharacterStream(System.err)),
             new LogWriter(clock, "error", new PrintStreamCharacterStream(System.err)),
-            new NullCharacterStream() //new LogWriter(clock, "debug", new PrintStreamWriterX(System.out))
+            new LogWriter(clock, "fatal", new PrintStreamCharacterStream(System.err))
         );
     }
 

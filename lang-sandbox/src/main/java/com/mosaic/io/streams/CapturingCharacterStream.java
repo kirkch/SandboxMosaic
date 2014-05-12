@@ -18,8 +18,15 @@ public class CapturingCharacterStream implements CharacterStream {
 
     public List<String> audit = new ArrayList<>();
 
-    {
-        audit.add("");
+    private final StringBuilder buf = new StringBuilder();
+
+
+    public CapturingCharacterStream() {
+        this( new ArrayList<String>() );
+    }
+
+    public CapturingCharacterStream( List<String> audit ) {
+        this.audit = audit;
     }
 
     public void writeBoolean( boolean v ) {
@@ -144,12 +151,10 @@ public class CapturingCharacterStream implements CharacterStream {
         append( Float.toString( v ) );
     }
 
-    // todo research faster ways to write float and decimal numbers
-
     public void writeFloat( float v, int numDecimalPlaces ) {
         // this strangeness is because 3.145 (2dp) would be 3.14 without it :(
         // that is, 3.145 becomes 3.1449 and so would round the wrong way, so we add 0.00001
-        // to correct for this
+        // to hack around this
         float roundingFudge = 1/(float) Math.pow( 10, numDecimalPlaces+2 );
 
         append( String.format("%."+numDecimalPlaces+"f", v+roundingFudge) );
@@ -198,14 +203,25 @@ public class CapturingCharacterStream implements CharacterStream {
     }
 
     public void newLine() {
-        audit.add("");
+        audit.add( formatLine(buf.toString()) );
+
+        buf.setLength(0);
+    }
+
+    public void flush() {
+        if ( buf.length() > 0 ) {
+            audit.add( formatLine(buf.toString()) );
+
+            buf.setLength(0);
+        }
+    }
+
+    protected String formatLine( String s ) {
+        return s;
     }
 
 
     private void append( String v ) {
-        int    index = audit.size() - 1;
-        String line  = audit.get( index ) + v;
-
-        audit.set( index, line );
+        buf.append(v);
     }
 }

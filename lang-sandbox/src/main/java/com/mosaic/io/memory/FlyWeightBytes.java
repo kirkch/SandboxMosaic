@@ -131,6 +131,8 @@ public abstract class FlyWeightBytes<T extends FlyWeightBytes<T>> implements Fly
         records.writeLong( RECORD_COUNT_INDEX+startOffset, newRecordCount );
         records.writeLong( MAX_OFFSET_INDEX+startOffset,   newMaxOffsetExc );
 
+        long fromOffset = calcByteOffsetForRecordIndex( currentRecordCount );
+        records.fill( fromOffset, newMaxOffsetExc, (byte) 0 );
 
         return currentRecordCount;
     }

@@ -311,4 +311,6 @@ public class WriterCharacterStream implements CharacterStream {
         }
     }
 
+    public void flush() {}
+
 }

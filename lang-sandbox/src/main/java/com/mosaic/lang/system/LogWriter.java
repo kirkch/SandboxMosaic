@@ -197,6 +197,10 @@ public class LogWriter implements CharacterStream {
         printEndOfLine();
     }
 
+    public void flush() {
+        printEndOfLine();
+    }
+
 
     private void printLinePrefix() {
         if ( startOfLineFlag ) {

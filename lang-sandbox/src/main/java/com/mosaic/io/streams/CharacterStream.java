@@ -40,4 +40,5 @@ public interface CharacterStream {
     public void writeException( String msg, Throwable ex );
 
     public void newLine();
+    public void flush();
 }

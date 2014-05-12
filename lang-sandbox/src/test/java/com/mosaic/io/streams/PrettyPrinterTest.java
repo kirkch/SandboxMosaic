@@ -23,8 +23,7 @@ public class PrettyPrinterTest {
 
         List<String> expected = Arrays.asList(
             "1   hello      ",
-            "ove flow       ",
-            ""
+            "ove flow       "
         );
 
         assertEquals( expected, out.audit );
@@ -42,8 +41,7 @@ public class PrettyPrinterTest {
             "data",
             "ove",
             "r f",
-            "low",
-            ""
+            "low"
         );
 
         assertEquals( expected, out.audit );
@@ -57,6 +55,7 @@ public class PrettyPrinterTest {
         out.newLine();
 
         PrettyPrinter.printPleural( out, "container" , 3 );
+        out.newLine();
 
 
         List<String> expected = Arrays.asList(
@@ -81,7 +80,7 @@ public class PrettyPrinterTest {
         out.newLine();
 
         PrettyPrinter.englishList( out, new String[] {"a","b","c"},0,1 );
-
+        out.flush();
 
         List<String> expected = Arrays.asList(
             "a, b and c",
