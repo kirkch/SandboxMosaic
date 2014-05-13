@@ -73,12 +73,12 @@ public abstract class CLApp {
             ReflectionUtils.invoke( this, m, (Object[]) args );
 
         } catch ( IllegalArgumentException ex ) {
-            system.error( "Unable to proceed: %s", ex.getMessage() );
-            system.error( ex );
+            system.fatal( "Unable to proceed: %s", ex.getMessage() );
+            system.fatal( ex );
 
             printUsage();
         } catch ( Throwable ex ) {
-            system.error( ex );
+            system.fatal( ex );
         }
     }
 

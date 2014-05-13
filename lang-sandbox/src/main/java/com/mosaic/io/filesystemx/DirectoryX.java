@@ -18,7 +18,13 @@ public interface DirectoryX {
     public List<FileX> files();
     public List<FileX> files( String targetFileExtension );
     public List<FileX> files( Predicate<FileX> matchingCondition );
+
+    /**
+     *
+     * @return null if the file does not exist
+     */
     public FileX getFile( String fileName );
+
     public FileX getOrCreateFile( String fileName );
 
     public List<DirectoryX> directories();

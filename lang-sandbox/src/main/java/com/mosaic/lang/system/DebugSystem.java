@@ -83,6 +83,14 @@ public class DebugSystem extends SystemX {
         assertLogMessageContains( "ERROR", expectedMessage );
     }
 
+    public void assertFatal( Class<? extends Throwable> expectedExceptionType, String expectedMessage ) {
+        assertFatal( expectedExceptionType.getSimpleName() + ": " + expectedMessage );
+    }
+
+    public void assertFatal( String expectedMessage ) {
+        assertLogMessageContains( "FATAL", expectedMessage );
+    }
+
     private void assertNoLogMessages( String logLevel ) {
         String expectedPrefix = "["+logLevel+" ";
 
