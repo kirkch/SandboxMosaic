@@ -201,4 +201,18 @@ public abstract class BaseFileSystemTestCases {
         assertEquals( fileSystem.getFullPath()+"/dir1", fileSystem.getDirectory("dir1").getFullPath() );
     }
 
+    @Test
+    public void givenFile_copyFile() {
+        FileX newFile   = fileSystem.addFile( "foo.txt", "abc", "123" );
+        FileX copiedFile = fileSystem.copyFile( newFile, "copy.txt" );
+
+        Bytes fileContents = copiedFile.loadBytes( FileModeEnum.READ_ONLY );
+
+        assertEquals( "abc\n123", fileContents.toString() );
+        assertEquals( 1, fileSystem.getNumberOfOpenFiles() );
+
+        fileContents.release();
+        copiedFile.delete();
+    }
+
 }

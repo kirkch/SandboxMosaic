@@ -61,6 +61,10 @@ public class InMemoryFile implements FileX {
 
         return new WrappedBytes(bytes) {
             public void release() {
+                if ( parentDirectory == null ) { // already deleted
+                    return;
+                }
+
                 parentDirectory.decrementOpenFileCount();
             }
         };

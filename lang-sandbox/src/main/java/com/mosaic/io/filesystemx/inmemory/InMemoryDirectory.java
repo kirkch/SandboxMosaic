@@ -2,6 +2,7 @@ package com.mosaic.io.filesystemx.inmemory;
 
 import com.mosaic.io.bytes.Bytes;
 import com.mosaic.io.filesystemx.DirectoryX;
+import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.Predicate;
@@ -80,6 +81,23 @@ public class InMemoryDirectory implements DirectoryX {
         }
 
         return d;
+    }
+
+    public FileX copyFile( FileX sourceFile, String destinationPath ) {
+        Bytes data = sourceFile.loadBytes( FileModeEnum.READ_ONLY );
+
+        try {
+            Bytes copy = Bytes.allocOnHeap( data.bufferLength() );
+            copy.writeBytes( data );
+
+            InMemoryFile destinationFile = getOrCreateFile0( destinationPath );
+
+            destinationFile.setBytes( copy );
+
+            return destinationFile;
+        } finally {
+            data.release();
+        }
     }
 
     public DirectoryX createDirectory( String dirPath ) {

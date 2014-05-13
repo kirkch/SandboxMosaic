@@ -208,6 +208,29 @@ public class ActualDirectory implements DirectoryX {
         file.delete();
     }
 
+    public FileX copyFile( FileX sourceFile, String destinationPath ) {
+        File destinationFile = new File(file, destinationPath);
+        throwIfDirectory( destinationFile );
+
+        destinationFile.getParentFile().mkdirs();
+
+        Bytes sourceBytes = sourceFile.loadBytes( FileModeEnum.READ_ONLY );
+        try {
+            Bytes textFileBytes = Bytes.memoryMapFile(destinationFile, FileModeEnum.READ_WRITE, sourceBytes.bufferLength() );
+
+            try {
+                textFileBytes.writeBytes( sourceBytes );
+            } finally {
+                textFileBytes.release();
+            }
+        } finally {
+            sourceBytes.release();
+        }
+
+        return new ActualFile( this, destinationFile );
+    }
+
+
     void incrementOpenFileCount() {
         if ( parentDirectory != null ) {
             parentDirectory.incrementOpenFileCount();
