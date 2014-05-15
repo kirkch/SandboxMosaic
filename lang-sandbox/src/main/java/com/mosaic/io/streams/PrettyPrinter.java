@@ -72,6 +72,8 @@ public class PrettyPrinter {
         for ( int i=0; i<fixedColumnWidths.length; i++ ) {
             if ( columnValues.length == i ) {
                 break;
+            } else if ( i > 0 ) {
+                out.writeCharacter( ' ' );
             }
 
             String s = columnValues[i].toString();
@@ -82,14 +84,14 @@ public class PrettyPrinter {
             } else {
                 out.writeString( s );
 
-                for ( int j=fixedWidth-s.length(); j > 0; j-- ) {
-                    out.writeCharacter( ' ' );
+                if ( i != fixedColumnWidths.length-1 ) {
+                    for ( int j=fixedWidth-s.length(); j > 0; j-- ) {
+                        out.writeCharacter( ' ' );
+                    }
                 }
             }
-
-            out.writeCharacter( ' ' );
         }
 
-        out.writeLine( "" );
+        out.newLine();
     }
 }

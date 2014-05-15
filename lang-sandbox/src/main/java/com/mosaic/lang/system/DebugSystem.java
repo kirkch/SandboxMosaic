@@ -26,7 +26,10 @@ public class DebugSystem extends SystemX {
      *
      * [LEVEL nanosFromStart]: message
      */
-    private final List<String> auditText;
+    private final List<String> logOutput;
+
+    private final List<String> standardOutText;
+    private final List<String> standardErrorText;
 
 
     public DebugSystem() {
@@ -34,24 +37,37 @@ public class DebugSystem extends SystemX {
             new InMemoryFileSystem(),
             new SystemClock(),
             new Vector<String>(),
+            new Vector<String>(),
+            new Vector<String>(),
             System.nanoTime()
         );
     }
 
 
-    private DebugSystem( InMemoryFileSystem system, SystemClock clock, List<String> auditText, long startTime ) {
+    private DebugSystem(
+        InMemoryFileSystem system,
+        SystemClock        clock,
+        List<String>       stdOutText,
+        List<String>       stdErrorText,
+        List<String>       logOutput,
+        long               startTime
+    ) {
         super(
             system,
             clock,
-            new CapturingLogCharacterStream("DEBUG", auditText, startTime),
-            new CapturingLogCharacterStream("AUDIT", auditText, startTime),
-            new CapturingLogCharacterStream("INFO", auditText, startTime),
-            new CapturingLogCharacterStream("WARN", auditText, startTime),
-            new CapturingLogCharacterStream("ERROR", auditText, startTime),
-            new CapturingLogCharacterStream("FATAL", auditText, startTime)
+            new CapturingCharacterStream( stdOutText ),
+            new CapturingCharacterStream( stdErrorText ),
+            new CapturingLogCharacterStream("DEBUG", logOutput, startTime),
+            new CapturingLogCharacterStream("AUDIT", logOutput, startTime),
+            new CapturingLogCharacterStream("INFO", logOutput, startTime),
+            new CapturingLogCharacterStream("WARN", logOutput, startTime),
+            new CapturingLogCharacterStream("ERROR", logOutput, startTime),
+            new CapturingLogCharacterStream("FATAL", logOutput, startTime)
         );
 
-        this.auditText = auditText;
+        this.standardOutText   = stdOutText;
+        this.standardErrorText = stdErrorText;
+        this.logOutput         = logOutput;
     }
 
 
@@ -96,7 +112,7 @@ public class DebugSystem extends SystemX {
 
         int count = 0;
 
-        for ( String msg : auditText ) {
+        for ( String msg : logOutput ) {
             if ( msg.startsWith(expectedPrefix) ) {
                 count++;
             }
@@ -167,7 +183,7 @@ public class DebugSystem extends SystemX {
         }
     }
 
-    public void assertNoMessages() {
+    public void assertNoLogMessages() {
         assertNoDebugs();
         assertNoInfos();
         assertNoAudits();
@@ -181,7 +197,7 @@ public class DebugSystem extends SystemX {
 
         expectedMessage = expectedMessage.trim();
 
-        for ( String x : auditText ) {
+        for ( String x : logOutput ) {
             if ( x.startsWith(expectedPrefix) && x.endsWith(expectedMessage) ) {
                 return;
             }
@@ -202,9 +218,17 @@ public class DebugSystem extends SystemX {
     }
 
     public void dumpLog() {
-        for ( String line : auditText ) {
+        for ( String line : logOutput ) {
             System.out.println( line );
         }
+    }
+
+    public void assertStandardOutEquals( String...expectedLines ) {
+        assertEquals( "standard output was not what we expected", Arrays.asList(expectedLines), this.standardOutText );
+    }
+
+    public void assertStandardErrorEquals( String...expectedLines ) {
+        assertEquals( "standard error was not what we expected", Arrays.asList(expectedLines), this.standardErrorText );
     }
 
 

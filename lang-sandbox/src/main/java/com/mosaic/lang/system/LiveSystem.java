@@ -21,6 +21,8 @@ public class LiveSystem extends SystemX {
         super(
             new ActualFileSystem(),
             clock,
+            new PrintStreamCharacterStream(System.out), // stdout
+            new PrintStreamCharacterStream(System.out), // stderr
             new NullCharacterStream(),                  // debug
             new PrintStreamCharacterStream(System.out), // audit
             new PrintStreamCharacterStream(System.out), // info

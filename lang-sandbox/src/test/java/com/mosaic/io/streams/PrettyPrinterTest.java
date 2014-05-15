@@ -22,8 +22,8 @@ public class PrettyPrinterTest {
         p.write( "over","flow" );
 
         List<String> expected = Arrays.asList(
-            "1   hello      ",
-            "ove flow       "
+            "1   hello",
+            "ove flow"
         );
 
         assertEquals( expected, out.audit );

@@ -105,6 +105,9 @@ public abstract class SystemX {
     public final FileSystemX fileSystem;
     public final SystemClock clock;
 
+    public final CharacterStream stdout;
+    public final CharacterStream stderr;
+
     public final CharacterStream debug;
     public final CharacterStream audit;
     public final CharacterStream info;
@@ -123,9 +126,25 @@ public abstract class SystemX {
     // NB stdin, when needed will be done by subscription with callbacks and not the Java blocking approach
 
 
-    protected SystemX( FileSystemX fileSystem, SystemClock clock, CharacterStream debug, CharacterStream audit, CharacterStream info, CharacterStream warn, CharacterStream error, CharacterStream fatal ) {
+    protected SystemX(
+        FileSystemX     fileSystem,
+        SystemClock     clock,
+
+        CharacterStream stdout,
+        CharacterStream stderr,
+
+        CharacterStream debug,
+        CharacterStream audit,
+        CharacterStream info,
+        CharacterStream warn,
+        CharacterStream error,
+        CharacterStream fatal
+    ) {
         this.fileSystem = fileSystem;
         this.clock      = clock;
+
+        this.stdout     = stdout;
+        this.stderr     = stderr;
 
         this.debug      = debug;
         this.audit      = audit;

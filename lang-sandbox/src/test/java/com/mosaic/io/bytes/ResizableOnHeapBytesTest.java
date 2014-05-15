@@ -34,7 +34,7 @@ public class ResizableOnHeapBytesTest extends BaseBytesTest {
 
         assertEquals( 42, b.readInt( 0 ) );
 
-        system.assertNoMessages();
+        system.assertNoLogMessages();
     }
 
     @Test
