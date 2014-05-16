@@ -236,6 +236,13 @@ public abstract class SystemX {
         error.writeLine( String.format( msg, args ) );
     }
 
+    public void fatal( Throwable ex, String msg ) {
+        stderr.writeLine( msg );
+
+        fatal( msg );
+        fatal( ex );
+    }
+
     public void fatal( Throwable ex ) {
         fatal.writeException( ex );
     }

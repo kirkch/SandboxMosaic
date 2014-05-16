@@ -1,9 +1,20 @@
 package com.mosaic.io.streams;
 
+import com.mosaic.collections.Table;
+import com.mosaic.utils.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
 /**
  *
  */
 public class PrettyPrinter {
+
+    public static final ColumnHandler TRUNCATE        = new TruncateColumnHandler();
+    public static final ColumnHandler PAD_OR_TRUNCATE = new PadOrTruncateColumnHandler();
+    public static final ColumnHandler WRAP            = new WrapColumnHandler();
 
 
     public static int longestLength( String[] strings ) {
@@ -61,37 +72,174 @@ public class PrettyPrinter {
 
 
     private CharacterStream out;
-    private int[]   fixedColumnWidths;
+    private int[]           fixedColumnWidths;
 
     public PrettyPrinter( CharacterStream out, int...fixedColumnWidths ) {
+        assert fixedColumnWidths.length > 0;
+
         this.out               = out;
         this.fixedColumnWidths = fixedColumnWidths;
+
+        for ( int i=0; i<fixedColumnWidths.length-1; i++ ) {
+            columnHandlers.add( PAD_OR_TRUNCATE );
+        }
+
+        columnHandlers.add( TRUNCATE );
     }
 
+    public void setColumnHandler( int columnIndex, ColumnHandler columnHandler ) {
+        columnHandlers.set( columnIndex, columnHandler );
+    }
+
+
+
+    private Table<String>       tableBuffer    = new Table<>();
+    private List<ColumnHandler> columnHandlers = new ArrayList<>();
+
     public void write( Object...columnValues ) {
-        for ( int i=0; i<fixedColumnWidths.length; i++ ) {
-            if ( columnValues.length == i ) {
-                break;
-            } else if ( i > 0 ) {
-                out.writeCharacter( ' ' );
-            }
+        tableBuffer.clear();
 
-            String s = columnValues[i].toString();
-            int fixedWidth = fixedColumnWidths[i];
+        writeRowToTableBuffer( columnValues );
+        writeTableBufferToOutputStream();
+    }
 
-            if ( s.length() >= fixedWidth ) {
-                out.writeString( s.substring(0, fixedWidth) );
-            } else {
-                out.writeString( s );
+    private void writeRowToTableBuffer( Object[] columnValues ) {
+        int row = tableBuffer.rowCount();
 
-                if ( i != fixedColumnWidths.length-1 ) {
-                    for ( int j=fixedWidth-s.length(); j > 0; j-- ) {
+        for ( int col=0; col<columnValues.length; col++ ) {
+            ColumnHandler columnHandler = columnHandlers.get(col);
+            Object        columnValue   = columnValues[col];
+
+            columnHandler.writeTo( columnValue, fixedColumnWidths[col], tableBuffer, row, col );
+        }
+    }
+
+    private void writeTableBufferToOutputStream() {
+        for ( int x=0; x<tableBuffer.rowCount(); x++ ) {
+            for ( int y=0; y<tableBuffer.columnCount(x); y++ ) {
+                String col = tableBuffer.get(x,y);
+
+                if ( col == null ) {
+                    for ( int i=0; i<fixedColumnWidths[y]; i++ ) {
                         out.writeCharacter( ' ' );
                     }
                 }
+
+                if ( y != 0 ) {
+                    out.writeCharacter( ' ' );
+                }
+
+                if ( col != null ) {
+                    if ( y == tableBuffer.columnCount(x)-1 ) {
+                        col = StringUtils.trimRight( col );
+                    }
+
+                    out.writeString( col );
+                }
+            }
+
+            out.newLine();
+        }
+    }
+
+
+
+
+    public interface ColumnHandler {
+
+        void writeTo( Object value, int columnWidth, Table<String> tableBuffer, int row, int col );
+
+    }
+
+    private static class TruncateColumnHandler implements ColumnHandler {
+        public void writeTo( Object value, int columnWidth, Table<String> tableBuffer, int row, int col ) {
+            String formattedString = format(value, columnWidth);
+
+            tableBuffer.set(row,col,formattedString);
+        }
+
+        private String format( Object o, int maxWidth ) {
+            String str       = o.toString();
+            int    strLength = str.length();
+
+            if ( strLength > maxWidth ) {
+                return str.substring( 0, maxWidth );
+            } else {
+                return str;
+            }
+        }
+    }
+
+    private static class PadOrTruncateColumnHandler implements ColumnHandler {
+        public void writeTo( Object value, int columnWidth, Table<String> tableBuffer, int row, int col ) {
+            String formattedString = format(value, columnWidth);
+
+            tableBuffer.set(row,col,formattedString);
+        }
+
+        private String format( Object o, int maxWidth ) {
+            String str       = o.toString();
+            int    strLength = str.length();
+
+            if ( strLength > maxWidth ) {
+                return str.substring( 0, maxWidth );
+            } else {
+                StringBuilder buf = new StringBuilder();
+
+                buf.append( str );
+
+                for ( int j=maxWidth-strLength; j > 0; j-- ) {
+                    buf.append( ' ' );
+                }
+
+                return buf.toString();
+            }
+        }
+    }
+
+    /**
+     * If the string is too long for one cell, write what fits and then wrap to the cell in
+     * the same column but on the next row.
+     */
+    private static class WrapColumnHandler implements ColumnHandler {
+        public void writeTo( Object value, final int columnWidth, Table<String> tableBuffer, final int row, final int col ) {
+            final String str = value.toString();
+
+            int numCharactersRemaining = str.length();
+            int currentRow = row;
+
+            while ( numCharactersRemaining > 0 ) {
+                numCharactersRemaining = writeFragmentToCell( tableBuffer, currentRow, col, str, numCharactersRemaining, columnWidth );
+
+                currentRow += 1;
             }
         }
 
-        out.newLine();
+        private int writeFragmentToCell( Table<String> tableBuffer, int currentRow, int col, String str, int numCharactersRemaining, int maxWidth ) {
+            int stringLength = str.length();
+            int from         = stringLength - numCharactersRemaining;
+
+            if ( numCharactersRemaining > maxWidth ) {
+                int endIndexExc = from + maxWidth;
+                String substring = str.substring( from, endIndexExc );
+
+                tableBuffer.set( currentRow, col, substring );
+
+                return stringLength-endIndexExc;
+            } else {
+                StringBuilder buf = new StringBuilder();
+
+                buf.append( str, from, stringLength );
+
+                for ( int j=maxWidth-buf.length(); j > 0; j-- ) {
+                    buf.append( ' ' );
+                }
+
+
+                tableBuffer.set( currentRow, col, buf.toString() );
+
+                return 0;
+            }
+        }
     }
 }

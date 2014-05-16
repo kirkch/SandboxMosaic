@@ -223,6 +223,12 @@ public class DebugSystem extends SystemX {
         }
     }
 
+    public void assertNoOutput() {
+        assertStandardErrorEquals();
+        assertStandardOutEquals();
+        assertNoLogMessages();
+    }
+
     public void assertStandardOutEquals( String...expectedLines ) {
         assertEquals( "standard output was not what we expected", Arrays.asList(expectedLines), this.standardOutText );
     }
@@ -248,7 +254,7 @@ public class DebugSystem extends SystemX {
         protected String formatLine( String line ) {
             double time = (System.nanoTime() - startTimeNanos)/1000000.0;
 
-            return "["+logLevel+" "+time+"]: "+ line.trim();
+            return "["+logLevel+" "+time+"]: "+ line;
         }
     }
 }

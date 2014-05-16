@@ -194,11 +194,22 @@ public class CapturingCharacterStream implements CharacterStream {
         newLine();
     }
 
-    public void writeException( Throwable ex ) {
-        while ( ex != null ) {
+    public void writeException( final Throwable ex ) {
+        Throwable x = ex;
+
+        while ( x != null ) {
+            if ( x != ex ) {
+                writeLine( "Caused by: " );
+            }
+
             writeLine( ex.getClass().getSimpleName() + ": " + ex.getMessage() );
 
-            ex = ex.getCause();
+            for ( StackTraceElement trace : ex.getStackTrace() ) {
+                writeLine( "    at " + trace.getClassName() + "."+trace.getMethodName()+ "("+trace.getFileName()+":"+trace.getLineNumber()+")" );
+            }
+
+
+            x = ex.getCause();
         }
     }
 

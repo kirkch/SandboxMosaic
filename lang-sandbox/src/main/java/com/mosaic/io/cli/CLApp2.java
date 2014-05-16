@@ -1,6 +1,7 @@
 package com.mosaic.io.cli;
 
 import com.mosaic.io.streams.PrettyPrinter;
+import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.system.SystemX;
 
 import java.util.ArrayList;
@@ -40,7 +41,10 @@ public abstract class CLApp2 {
             return 0;
         }
 
-        setArgumentValues( inputArgs );
+        boolean successfullySetArgumentsFlag = setArgumentValues( inputArgs );
+        if ( !successfullySetArgumentsFlag ) {
+            return 1;
+        }
 
         if ( !hasAllMandatoryArguments() ) {
             String missingArgumentName = fetchNameOfFirstMissingArgument();
@@ -58,18 +62,59 @@ public abstract class CLApp2 {
     }
 
     protected CLArgument<String> registerArgument( String argumentName, String argumentDescription ) {
-        CLArgument<String> arg = CLArgument.stringArgument( argumentName, argumentDescription );
+        return registerArgument( argumentName, argumentDescription, CLArgument.NO_OP_PARSER );
+    }
+
+    /**
+     * Registers a mandatory argument.  Mandatory arguments must appear before optional arguments.
+     *
+     * @param parseFunction parse the argument, throws an exception if something went wrong
+     */
+    protected <T> CLArgument<T> registerArgument( String argumentName, String argumentDescription, Function1<String,T> parseFunction ) {
+        throwIfAnOptionalArgumentHasBeenDeclared( argumentName );
+
+        CLArgument<T> arg = new CLArgument( argumentName, argumentDescription, parseFunction );
 
         this.args.add( arg );
 
         return arg;
     }
 
+    protected CLArgument<String> registerArgumentOptional( String argumentName, String argumentDescription ) {
+        CLArgument<String> arg = CLArgument.stringArgument( argumentName, argumentDescription );
+        arg.setOptional( true );
 
-    private void setArgumentValues( String[] inputArgs ) {
-        for ( int i=0; i<Math.min(inputArgs.length,args.size()); i++ ) {
-            args.get(i).setValue( inputArgs[i] );
+
+        this.args.add( arg );
+
+        return arg;
+    }
+
+    private void throwIfAnOptionalArgumentHasBeenDeclared( String newArgumentName ) {
+        for ( CLArgument arg : args ) {
+            if ( arg.isOptional() ) {
+                throw new IllegalStateException( "Mandatory argument '"+newArgumentName+"' must be declared before all optional arguments" );
+            }
         }
+    }
+
+
+    private boolean setArgumentValues( String[] inputArgs ) {
+        for ( int i=0; i<Math.min( inputArgs.length, args.size() ); i++ ) {
+            CLArgument arg = args.get( i );
+
+            try {
+                arg.setValue( inputArgs[i] );
+            } catch ( Exception ex ) {
+                String msg = "Invalid value for '" + arg.getArgumentName() + "', for more information invoke with --help.";
+
+                system.fatal( ex, msg );
+
+                return false;
+            }
+        }
+
+        return true;
     }
 
 
@@ -110,6 +155,7 @@ public abstract class CLApp2 {
         if ( !args.isEmpty() ) {
             int maxArgNameLength = calcLongestArgNameLength();
             PrettyPrinter p = new PrettyPrinter(system.stdout, 3, maxArgNameLength, 1, MAX_LINE_LENGTH-7-maxArgNameLength);
+            p.setColumnHandler( 3, PrettyPrinter.WRAP );
 
             for ( CLArgument arg : args ) {
                 p.write( "", arg.getArgumentName(), "-", arg.getArgumentDescription() );
@@ -129,7 +175,13 @@ public abstract class CLApp2 {
 
         for ( CLArgument arg : args ) {
             buf.append( " " );
-            buf.append( arg.getArgumentName() );
+            if ( arg.isOptional() ) {
+                buf.append( '[' );
+                buf.append( arg.getArgumentName() );
+                buf.append( ']' );
+            } else {
+                buf.append( arg.getArgumentName() );
+            }
         }
 
         return buf.toString();

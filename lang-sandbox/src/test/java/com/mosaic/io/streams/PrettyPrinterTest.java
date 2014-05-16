@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 public class PrettyPrinterTest {
 
     @Test
-    public void writeColumns() {
+    public void writeColumns_truncateToColumnWidth() {
         CapturingCharacterStream out = new CapturingCharacterStream();
         PrettyPrinter p = new PrettyPrinter( out, 3,10 );
 
@@ -24,6 +24,44 @@ public class PrettyPrinterTest {
         List<String> expected = Arrays.asList(
             "1   hello",
             "ove flow"
+        );
+
+        assertEquals( expected, out.audit );
+    }
+
+    @Test
+    public void writeColumns_wrapFirstColumnToColumnWidth() {
+        CapturingCharacterStream out = new CapturingCharacterStream();
+        PrettyPrinter p = new PrettyPrinter( out, 3,10 );
+        p.setColumnHandler( 0, PrettyPrinter.WRAP );
+
+        p.write( 1,"hello" );
+        p.write( "over","flow" );
+
+        List<String> expected = Arrays.asList(
+            "1   hello",
+            "ove flow",
+            "r"
+        );
+
+        assertEquals( expected, out.audit );
+    }
+
+    @Test
+    public void writeColumns_wrapSecondColumnToColumnWidth() {
+        CapturingCharacterStream out = new CapturingCharacterStream();
+        PrettyPrinter p = new PrettyPrinter( out, 4,2 );
+        p.setColumnHandler( 1, PrettyPrinter.WRAP );
+
+        p.write( 1,"hello" );
+        p.write( "over","flow" );
+
+        List<String> expected = Arrays.asList(
+            "1    he",
+            "     ll",
+            "     o",
+            "over fl",
+            "     ow"
         );
 
         assertEquals( expected, out.audit );

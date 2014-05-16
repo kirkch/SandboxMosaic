@@ -127,4 +127,23 @@ public class StringUtils {
         return max;
     }
 
+
+    public static String trimRight( String string ) {
+        int len = string.length();
+        int i = len;
+
+        while ( i > 0 ) {
+            char c = string.charAt(i-1);
+
+            if ( c == ' ' || c == '\t' ) {
+                i--;
+            } else if ( i == len ) {
+                return string;
+            } else {
+                return string.substring(0,i);
+            }
+        }
+
+        return "";
+    }
 }
