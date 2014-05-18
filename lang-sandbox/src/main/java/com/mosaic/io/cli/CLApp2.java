@@ -7,7 +7,9 @@ import com.mosaic.lang.system.SystemX;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -20,8 +22,9 @@ public abstract class CLApp2 {
 
     private List<String> description = Collections.EMPTY_LIST;
 
-    private List<CLArgument> args = new ArrayList<>();
-
+    private List<CLArgument>     args           = new ArrayList<>();
+    private List<CLOption>       options        = new ArrayList<>();
+    private Map<String,CLOption> optionsByAlias = new HashMap<>();
 
 
     protected CLApp2( SystemX system ) {
@@ -41,7 +44,7 @@ public abstract class CLApp2 {
             return 0;
         }
 
-        boolean successfullySetArgumentsFlag = setArgumentValues( inputArgs );
+        boolean successfullySetArgumentsFlag = consumeInputArgs( inputArgs );
         if ( !successfullySetArgumentsFlag ) {
             return 1;
         }
@@ -90,6 +93,26 @@ public abstract class CLApp2 {
         return arg;
     }
 
+    protected CLOption<Boolean> registerBooleanOption( String shortName, String longName, String description ) {
+        Function1<String,Boolean> argParser = new Function1<String, Boolean>() {
+            public Boolean invoke( String arg ) {
+                return Boolean.parseBoolean( arg );
+            }
+        };
+
+        CLOption<Boolean> option = new CLOption( shortName, longName, description, false, argParser );
+        optionsByAlias.put( shortName, option );
+        optionsByAlias.put( longName, option );
+
+        options.add( option );
+
+        // todo error if name clash
+
+        return option;
+    }
+
+
+
     private void throwIfAnOptionalArgumentHasBeenDeclared( String newArgumentName ) {
         for ( CLArgument arg : args ) {
             if ( arg.isOptional() ) {
@@ -99,8 +122,13 @@ public abstract class CLApp2 {
     }
 
 
-    private boolean setArgumentValues( String[] inputArgs ) {
-        for ( int i=0; i<Math.min( inputArgs.length, args.size() ); i++ ) {
+    private boolean consumeInputArgs( String[] inputArgs ) {
+        int numArgsConsumed = consumeFlags( inputArgs );
+
+        List<String> remainingArgs = Arrays.asList( inputArgs ).subList( numArgsConsumed, inputArgs.length );
+        int          maxIndex      = Math.min( remainingArgs.size(), args.size() );
+
+        for ( int i=0; i< maxIndex; i++ ) {
             CLArgument arg = args.get( i );
 
             try {
@@ -115,6 +143,30 @@ public abstract class CLApp2 {
         }
 
         return true;
+    }
+
+
+
+    private int consumeFlags( String[] inputArgs ) {
+        for ( int i=0; i<inputArgs.length; i++ ) {
+            String arg = inputArgs[i];
+
+            if ( arg.startsWith("-") ) {
+                String key = arg.startsWith("--") ? arg.substring(2) : arg.substring(1);
+
+                CLOption flag = optionsByAlias.get( key );
+                if ( flag != null ) {
+                    flag.setValue( "true" );
+                } else {
+                    //todo log
+                    return i;
+                }
+            } else {
+                return i;
+            }
+        }
+
+        return inputArgs.length;
     }
 
 
@@ -142,14 +194,14 @@ public abstract class CLApp2 {
         String formattedArgNames = formattedArgNames();
 
         system.stdout.writeLine( "Usage: " + name + formattedArgNames );
-        system.stdout.writeLine( "" );
+        system.stdout.newLine();
 
         if ( !description.isEmpty() ) {
             for ( String line : description ) {
                 PrettyPrinter.printWrapped( system.stdout, line, MAX_LINE_LENGTH );
             }
 
-            system.stdout.writeLine( "" );
+            system.stdout.newLine();
         }
 
         if ( !args.isEmpty() ) {
@@ -161,13 +213,36 @@ public abstract class CLApp2 {
                 p.write( "", arg.getArgumentName(), "-", arg.getArgumentDescription() );
             }
 
-            system.stdout.writeLine( "" );
+            system.stdout.newLine();
         }
 
-        system.stdout.writeLine( "optional flags:" );
-        system.stdout.writeLine( "" );
-        system.stdout.writeLine( "    --help display this usage information" );
-        system.stdout.writeLine( "" );
+        system.stdout.writeLine( "Options:" );
+
+        for ( CLOption option : options ) {
+            system.stdout.writeLine( "" );
+            system.stdout.writeString( "    " );
+
+            List<String> aliases = option.getAliases();
+            boolean printComma = false;
+            for ( String alias : aliases ) {
+                if ( printComma ) {
+                    system.stdout.writeString( ", " );
+                } else {
+                    printComma = true;
+                }
+
+                system.stdout.writeString( alias );
+            }
+            system.stdout.newLine();
+
+            system.stdout.writeString( "        " );
+            system.stdout.writeLine( option.getDescription() );
+        }
+
+        system.stdout.newLine();
+        system.stdout.writeLine( "    --help" );
+        system.stdout.writeLine( "        display this usage information" );
+        system.stdout.newLine();
     }
 
     private String formattedArgNames() {
