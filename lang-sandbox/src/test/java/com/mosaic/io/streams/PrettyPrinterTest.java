@@ -130,4 +130,11 @@ public class PrettyPrinterTest {
         assertEquals( expected, out.audit );
     }
 
+    @Test
+    public void cleanEnglishSentence() {
+        assertEquals( "Foo.", PrettyPrinter.cleanEnglishSentence("foo") );
+        assertEquals( "Foo bar.", PrettyPrinter.cleanEnglishSentence("foo bar") );
+        assertEquals( " Foo.", PrettyPrinter.cleanEnglishSentence(" foo ") );
+        assertEquals( " Foo bar.\t ", PrettyPrinter.cleanEnglishSentence(" foo bar \t ") );
+    }
 }

@@ -1,5 +1,6 @@
 package com.mosaic.io.cli;
 
+import com.mosaic.io.streams.PrettyPrinter;
 import com.mosaic.lang.functional.Function1;
 
 
@@ -32,7 +33,7 @@ public class CLArgument<T> {
 
     public CLArgument( String argumentName, String argumentDescription, Function1<String,T> valueParser ) {
         this.argumentName        = argumentName;
-        this.argumentDescription = argumentDescription;
+        this.argumentDescription = PrettyPrinter.cleanEnglishSentence( argumentDescription );
         this.valueParser         = valueParser;
     }
 

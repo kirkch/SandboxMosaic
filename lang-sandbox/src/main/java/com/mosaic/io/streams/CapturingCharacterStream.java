@@ -202,14 +202,14 @@ public class CapturingCharacterStream implements CharacterStream {
                 writeLine( "Caused by: " );
             }
 
-            writeLine( ex.getClass().getSimpleName() + ": " + ex.getMessage() );
+            writeLine( x.getClass().getSimpleName() + ": " + x.getMessage() );
 
-            for ( StackTraceElement trace : ex.getStackTrace() ) {
+            for ( StackTraceElement trace : x.getStackTrace() ) {
                 writeLine( "    at " + trace.getClassName() + "."+trace.getMethodName()+ "("+trace.getFileName()+":"+trace.getLineNumber()+")" );
             }
 
 
-            x = ex.getCause();
+            x = x.getCause();
         }
     }
 

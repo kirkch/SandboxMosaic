@@ -59,7 +59,7 @@ public class CLAppTest {
             "Options:",
             "",
             "    --help",
-            "        display this usage information",
+            "        Display this usage information.",
             ""
         );
     }
@@ -86,7 +86,7 @@ public class CLAppTest {
             "Options:",
             "",
             "    --help",
-            "        display this usage information",
+            "        Display this usage information.",
             ""
         );
     }

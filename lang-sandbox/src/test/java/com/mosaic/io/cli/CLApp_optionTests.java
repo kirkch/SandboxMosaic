@@ -1,5 +1,6 @@
 package com.mosaic.io.cli;
 
+import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.system.DebugSystem;
 import com.mosaic.lang.system.SystemX;
 import org.junit.Test;
@@ -15,7 +16,7 @@ public class CLApp_optionTests {
     private DebugSystem system = new DebugSystem();
 
 
-// BOOLEAN OPTIONS
+// BOOLEAN OPTIONS  (AKA FLAG)
 
     @Test
     public void givenBooleanFlag_requestHelp_expectFlagToBeDocumented() {
@@ -23,7 +24,7 @@ public class CLApp_optionTests {
             public CLOption<Boolean> debug;
 
             {
-                this.debug = registerBooleanOption( "d", "debug", "Enable debug mode." );
+                this.debug = registerFlag( "d", "debug", "Enable debug mode." );
             }
 
             protected int _run() {
@@ -44,7 +45,39 @@ public class CLApp_optionTests {
             "        Enable debug mode.",
             "",
             "    --help",
-            "        display this usage information",
+            "        Display this usage information.",
+            ""
+        );
+    }
+
+    @Test
+    public void givenBooleanFlag_supplyDescriptionInLowerCaseWithNoFullStop_expectThemToBeAdded() {
+        CLApp2 app = new CLApp2(system) {
+            public CLOption<Boolean> debug;
+
+            {
+                this.debug = registerFlag( "d", "debug", "enable debug mode" );
+            }
+
+            protected int _run() {
+                fail("should not have been run");
+
+                return -1;
+            }
+        };
+
+        assertEquals( 0, app.runApp("--help") );
+
+        system.assertStandardOutEquals(
+            "Usage: " + app.getClass().getName(),
+            "",
+            "Options:",
+            "",
+            "    -d, --debug",
+            "        Enable debug mode.",
+            "",
+            "    --help",
+            "        Display this usage information.",
             ""
         );
     }
@@ -55,7 +88,7 @@ public class CLApp_optionTests {
             public CLOption<Boolean> debug;
 
             {
-                this.debug = registerBooleanOption( "d", "debug", "Enable debug mode." );
+                this.debug = registerFlag( "d", "debug", "Enable debug mode." );
             }
 
             protected int _run() {
@@ -76,7 +109,7 @@ public class CLApp_optionTests {
             public CLOption<Boolean> debug;
 
             {
-                this.debug = registerBooleanOption( "d", "debug", "Enable debug mode." );
+                this.debug = registerFlag( "d", "debug", "Enable debug mode." );
             }
 
             protected int _run() {
@@ -97,7 +130,7 @@ public class CLApp_optionTests {
             public CLOption<Boolean> debug;
 
             {
-                this.debug = registerBooleanOption( "d", "debug", "Enable debug mode." );
+                this.debug = registerFlag( "d", "debug", "Enable debug mode." );
             }
 
             protected int _run() {
@@ -113,38 +146,412 @@ public class CLApp_optionTests {
     }
 
 
+// KV OPTIONS  (STRING)
 
-//
-//
-//
-//
-//
-// givenBooleanFlag_invokeAppWithKVShortVersionUsingSpaceTrue_expectFlagToBeTrue
-// givenBooleanFlag_invokeAppWithKVShortVersionUsingSpaceFalse_expectFlagToBeFalse
-// givenBooleanFlag_invokeAppWithKVShortVersionUsingEqualsTrue_expectFlagToBeTrue
-// givenBooleanFlag_invokeAppWithKVShortVersionUsingEqualsFalse_expectFlagToBeFalse
-// givenBooleanFlag_invokeAppWithKVLongVersionUsingSpaceTrue_expectFlagToBeTrue
-// givenBooleanFlag_invokeAppWithKVLongVersionUsingSpaceFalse_expectFlagToBeFalse
-// givenBooleanFlag_invokeAppWithKVLongVersionUsingEqualsTrue_expectFlagToBeTrue
-// givenBooleanFlag_invokeAppWithKVLongVersionUsingEqualsT_expectFlagToBeTrue
-// givenBooleanFlag_invokeAppWithKVLongVersionUsingEqualsY_expectFlagToBeTrue
-// givenBooleanFlag_invokeAppWithKVLongVersionUsingEqualsN_expectFlagToBeFalse
-// givenBooleanFlag_invokeAppWithKVLongVersionUsingEqualsNo_expectFlagToBeFalse
-// givenBooleanFlag_invokeAppWithKVLongVersionUsingEqualsFalse_expectFlagToBeFalse
+    @Test
+    public void givenKVFlag_requestHelp_expectFlagToBeDocumented() {
+        CLApp2 app = new CLApp2(system) {
+            public CLOption<String> output;
 
-// givenBooleanFlagWithMultipleShortForms_specifyFirstShortForm_expectValueToBeRecognised
-// givenBooleanFlagWithMultipleShortForms_specifySecondShortForm_expectValueToBeRecognised
+            {
+                this.output = registerOption( "o", "output", "file", "Specify the output directory." );
+            }
+
+            protected int _run() {
+                fail("should not have been run");
+
+                return -1;
+            }
+        };
+
+        assertEquals( 0, app.runApp("--help") );
+
+        system.assertStandardOutEquals(
+            "Usage: " + app.getClass().getName(),
+            "",
+            "Options:",
+            "",
+            "    -o <file>, --output=<file>",
+            "        Specify the output directory.",
+            "",
+            "    --help",
+            "        Display this usage information.",
+            ""
+        );
+    }
+
+    @Test
+    public void givenKVFlagWithLongDescription_requestHelp_expectDescriptionToBeWrapped() {
+        CLApp2 app = new CLApp2(system) {
+            public CLOption<String> output;
+
+            {
+                this.output = registerOption( "o", "output", "file", "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789" );
+            }
+
+            protected int _run() {
+                fail("should not have been run");
+
+                return -1;
+            }
+        };
+
+        assertEquals( 0, app.runApp("--help") );
+
+        system.assertStandardOutEquals(
+            "Usage: " + app.getClass().getName(),
+            "",
+            "Options:",
+            "",
+            "    -o <file>, --output=<file>",
+            "        0123456789012345678901234567890123456789012345678901234567890123456789012",
+            "        345678901234567890123456789.",
+            "",
+            "    --help",
+            "        Display this usage information.",
+            ""
+        );
+    }
+
+    @Test
+    public void givenKVFlag_invokeAppWithoutSpecifyingFlag_expectDefaultValueToBeUsed() {
+        CLApp2 app = new CLApp2(system) {
+            public CLOption<String> output;
+
+            {
+                this.output = registerOption( "o", "output", "file", "Specify the output directory." );
+            }
+
+            protected int _run() {
+                assertNull( output.getValue() );
+
+                return -1;
+            }
+        };
+
+        assertEquals( -1, app.runApp() );
+
+        system.assertNoOutput();
+    }
+
+    @Test
+    public void givenKVFlag_invokeAppWithShortFlag_expectSuppliedValueToBeUsed() {
+        CLApp2 app = new CLApp2(system) {
+            public CLOption<String> output;
+
+            {
+                this.output = registerOption( "o", "output", "file", "Specify the output directory." );
+            }
+
+            protected int _run() {
+                assertEquals( "foo", output.getValue() );
+
+                return -1;
+            }
+        };
+
+        assertEquals( -1, app.runApp("-o","foo") );
+
+        system.assertNoOutput();
+    }
+
+    @Test
+    public void givenKVFlag_invokeAppWithLongFlag_expectSuppliedValueToBeUsed() {
+        CLApp2 app = new CLApp2(system) {
+            public CLOption<String> output;
+
+            {
+                this.output = registerOption( "o", "output", "file", "Specify the output directory." );
+            }
+
+            protected int _run() {
+                assertEquals( "foo bar", output.getValue() );
+
+                return -1;
+            }
+        };
+
+        assertEquals( -1, app.runApp("--output=foo bar") );
+
+        system.assertNoOutput();
+    }
 
 
-// givenKVFlag_requestHelp_expectFlagToBeDocumented
-// givenKVFlag_invokeAppWithoutSpecifyingFlag_expectDefaultValueToBeUsed
-// givenKVFlag_invokeAppWithShortFlagAndEquals_expectSuppliedValueToBeUsed
-// givenKVFlag_invokeAppWithShortFlagAndSpace_expectSuppliedValueToBeUsed
-// givenKVFlag_invokeAppWithLongFlagAndEquals_expectSuppliedValueToBeUsed
-// givenKVFlag_invokeAppWithLongFlagAndSpace_expectSuppliedValueToBeUsed
-// givenKVFlag_invokeAppWithFlagValueThatWillFailToParse_expectError
+// KV OPTIONS  (Non String -- CUSTOM PARSER)
 
-// givenAppThatThrowsExceptionWhenRun_runApp_expectError
+    @Test
+    public void givenKVFlagWithNonStringValueAndNullDefault_requestHelp_expectDocumentation() {
+        CLApp2 app = new CLApp2(system) {
+            public CLOption<Integer> output;
+
+            {
+                this.output = registerOption(
+                    "n",
+                    "line-count",
+                    "num",
+                    "specify the number of lines to be read in",
+                    null,
+                    new Function1<String,Integer>() {
+                        public Integer invoke( String arg ) {
+                            return Integer.parseInt( arg );
+                        }
+                    }
+                );
+            }
+
+            protected int _run() {
+                fail("should not have been run");
+
+                return -1;
+            }
+        };
+
+        assertEquals( 0, app.runApp("--help") );
+
+        system.assertStandardOutEquals(
+            "Usage: " + app.getClass().getName(),
+            "",
+            "Options:",
+            "",
+            "    -n <num>, --line-count=<num>",
+            "        Specify the number of lines to be read in.",
+            "",
+            "    --help",
+            "        Display this usage information.",
+            ""
+        );
+    }
+
+    @Test
+    public void givenKVFlagWithNonStringValueAndNullDefault_invokeAppWithNoOption_expectNullDefaultValueToBeAvailable() {
+        CLApp2 app = new CLApp2(system) {
+            public CLOption<Integer> output;
+
+            {
+                this.output = registerOption(
+                    "n",
+                    "line-count",
+                    "num",
+                    "specify the number of lines to be read in",
+                    null,
+                    new Function1<String,Integer>() {
+                        public Integer invoke( String arg ) {
+                            return Integer.parseInt( arg );
+                        }
+                    }
+                );
+            }
+
+            protected int _run() {
+                assertNull( output.getValue() );
+
+                return -1;
+            }
+        };
+
+        assertEquals( -1, app.runApp() );
+
+        system.assertNoOutput();
+    }
+
+    @Test
+    public void givenKVFlagWithNonStringValueAndNonNullDefault_invokeAppWithNoOption_expectDefaultValueToBeAvailable() {
+        CLApp2 app = new CLApp2(system) {
+            public CLOption<Integer> output;
+
+            {
+                this.output = registerOption(
+                    "n",
+                    "line-count",
+                    "num",
+                    "specify the number of lines to be read in",
+                    42,
+                    new Function1<String,Integer>() {
+                        public Integer invoke( String arg ) {
+                            return Integer.parseInt( arg );
+                        }
+                    }
+                );
+            }
+
+            protected int _run() {
+                assertEquals( 42, output.getValue().intValue() );
+
+                return -1;
+            }
+        };
+
+        assertEquals( -1, app.runApp() );
+
+        system.assertNoOutput();
+    }
+
+    @Test
+    public void givenKVFlagWithNonStringValueAndNonNullDefault_requestHelp_expectDefaultValueToBeDocumented() {
+        CLApp2 app = new CLApp2(system) {
+            public CLOption<Integer> output;
+
+            {
+                this.output = registerOption(
+                    "n",
+                    "line-count",
+                    "num",
+                    "specify the number of lines to be read in",
+                    42,
+                    new Function1<String,Integer>() {
+                        public Integer invoke( String arg ) {
+                            return Integer.parseInt( arg );
+                        }
+                    }
+                );
+            }
+
+            protected int _run() {
+                assertEquals( 42, output.getValue().intValue() );
+
+                return -1;
+            }
+        };
+
+        assertEquals( 0, app.runApp("--help") );
+
+        system.assertStandardOutEquals(
+            "Usage: " + app.getClass().getName(),
+            "",
+            "Options:",
+            "",
+            "    -n <num>, --line-count=<num>",
+            "        Specify the number of lines to be read in. Defaults to 42.",
+            "",
+            "    --help",
+            "        Display this usage information.",
+            ""
+        );
+    }
+
+    @Test
+    public void givenKVFlagWithNonStringValue_invokeAppWithValueThatParses_expectValueToBeMadeAvailable() {
+        CLApp2 app = new CLApp2(system) {
+            public CLOption<Integer> output;
+
+            {
+                this.output = registerOption(
+                    "n",
+                    "line-count",
+                    "num",
+                    "specify the number of lines to be read in",
+                    42,
+                    new Function1<String,Integer>() {
+                        public Integer invoke( String arg ) {
+                            return Integer.parseInt( arg );
+                        }
+                    }
+                );
+            }
+
+            protected int _run() {
+                assertEquals( 113, output.getValue().intValue() );
+
+                return -1;
+            }
+        };
+
+        assertEquals( -1, app.runApp("-n", "113") );
+
+        system.assertNoOutput();
+    }
+
+    @Test
+    public void givenKVFlagWithNonStringValue_invokeAppWithValueUsingShortFormAndNoSpaces_expectValueToBeMadeAvailable() {
+        CLApp2 app = new CLApp2(system) {
+            public CLOption<Integer> output;
+
+            {
+                this.output = registerOption(
+                    "n",
+                    "line-count",
+                    "num",
+                    "specify the number of lines to be read in",
+                    42,
+                    new Function1<String,Integer>() {
+                        public Integer invoke( String arg ) {
+                            return Integer.parseInt( arg );
+                        }
+                    }
+                );
+            }
+
+            protected int _run() {
+                assertEquals( 113, output.getValue().intValue() );
+
+                return -1;
+            }
+        };
+
+        assertEquals( -1, app.runApp("-n113") );
+
+        system.assertNoOutput();
+    }
+
+    @Test
+    public void givenKVFlagWithNonStringValue_invokeAppWithFlagValueThatWillFailToParse_expectError() {
+        CLApp2 app = new CLApp2(system) {
+            public CLOption<Integer> output;
+
+            {
+                this.output = registerOption(
+                    "n",
+                    "line-count",
+                    "num",
+                    "specify the number of lines to be read in",
+                    42,
+                    new Function1<String,Integer>() {
+                        public Integer invoke( String arg ) {
+                            assertEquals( "113", arg );
+
+                            throw new IllegalArgumentException( "SPLAT" );
+                        }
+                    }
+                );
+            }
+
+            protected int _run() {
+                fail( "will not be called" );
+
+                return -1;
+            }
+        };
+
+        assertEquals( 1, app.runApp("-n113") );
+
+        system.assertDebug( CLException.class, "Invalid value '113' for option 'line-count'" );
+        system.assertDebug( IllegalArgumentException.class, "SPLAT" );
+
+        system.assertFatal( "Invalid value '113' for option 'line-count'" );
+    }
+
+
+//givenFlagWithMultipleLettersForShortForm_expectExceptionAsTheShortFormMustBeSingleLetters
+    // or
+//givenFlagWithMultipleLettersForShortForm_supplyShortForm_expectValueToBeSet
+
+// givenDuplicateArgNames_expectException
+// givenDuplicateLongOptionNames_expectException
+// givenDuplicateShortOptionNames_expectException
+// givenDuplicateLongFlagNames_expectException
+// givenDuplicateShortFlagNames_expectException
+// givenDuplicateShortFlagNameThatClashesWithShortOptionName_expectException
+// givenDuplicateLongFlagNameThatClashesWithShortOptionName_expectException
+// givenDuplicateShortFlagNameThatClashesWithLongOptionName_expectException
+// givenDuplicateLongFlagNameThatClashesWithLongOptionName_expectException
+
+
+// givenThreeFlags_supplyTwoSeparatedBySpaced_expectThoseToFlagsToBeTrueAndTheThirdFalse
+// givenThreeFlags_supplyTwoCombinedTogether_expectThoseToFlagsToBeTrueAndTheThirdFalse
+// givenOneOptionAndOneFlag_supplyBothSeparately_expectValues
+// givenOneOptionAndOneFlag_supplyBothConcatenatedTogetherUsingShortForm_expectValues
+// supplyUnknownFlag_expectFatalErrorAsPerUnixConvention
+
 
 
 // givenEnumFlag_requestHelp_expectFlagAndValuesToBeDocumented
@@ -152,7 +559,7 @@ public class CLApp_optionTests {
 // givenEnumFlag_invokeAppWithFlag_expectSuppliedValueToBeUsed
 // givenEnumFlag_invokeAppWithUnknownEnumValue_expectError
 
-// supplyUnknownFlag_expectWarning
+
 
 // SETTINGS
 
@@ -175,6 +582,17 @@ public class CLApp_optionTests {
 // --key=value
 
 
+    // todo accept -help --help and -?   it is unclear which is the true convention; thus the idea to support all
+    //      ls -help   git --help
+
+
+// givenAppThatThrowsExceptionWhenRun_runApp_expectError
+
+
+// givenAppThatTakesFlagsOptionsAndArguments_invokeWithAllWithOptionsAndFlagsBeforeArguments_expectValuesToBeSet
+// givenAppThatTakesFlagsOptionsAndArguments_invokeWithAllWithOptionsAndFlagsAfterArguments_expectValuesToBeSet
+
+
 // onStartUp_expectSetupMethodToBeInvoked
 // afterAppHasCompleted_expectTearDownMethodToBeCalled
 // onStartUp_expectAuditMessageSpecifyingWhenAppWasStarted
@@ -183,9 +601,6 @@ public class CLApp_optionTests {
 // onStartUp_expectJavaVersionToBeSentToDebugLog
 // onStartUp_expectClasspathToBeSentToDebugLog
 
-
-
-// todo mix OPTIONS and args together
 
 
 // cmd OPTIONS args
@@ -207,7 +622,7 @@ public class CLApp_optionTests {
 
 //            setAppDescription( " " );
 //
-//            this.isVerboseCLF = registerBooleanOption( "verbose", "v", "description" );
+//            this.isVerboseCLF = registerFlag( "verbose", "v", "description" );
 //            this.logLevelCLF  = registerEnumFlag( "logLevel", "description", LogLevelEnum.class,
 //                    new CLEnum(Debug, "debug", "", "description"),
 //                    new CLEnum(Info, "info|verbose", "v", "description"),

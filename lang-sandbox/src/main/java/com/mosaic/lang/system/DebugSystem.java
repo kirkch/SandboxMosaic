@@ -79,6 +79,10 @@ public class DebugSystem extends SystemX {
         assertLogMessageContains( "DEBUG", expectedMessage );
     }
 
+    public void assertDebug( Class<? extends Throwable> expectedExceptionType, String expectedMessage ) {
+        assertDebug( expectedExceptionType.getSimpleName() + ": " + expectedMessage );
+    }
+
     public void assertAudit( String expectedMessage ) {
         assertLogMessageContains( "AUDIT", expectedMessage );
     }

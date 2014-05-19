@@ -68,7 +68,71 @@ public class PrettyPrinter {
         }
     }
 
+    /**
+     * Ensure that the sentence starts with a capital letter and ends with a full stop.
+     */
+    public static String cleanEnglishSentence( String sentence ) {
+        StringBuilder buf = new StringBuilder( sentence.length()+2 );
 
+        buf.append( sentence );
+
+        cleanEnglishSentence( buf );
+
+        return buf.toString();
+    }
+
+    public static void cleanEnglishSentence( StringBuilder sentence ) {
+        if ( sentence.length() == 0 ) {
+            return;
+        }
+
+        int firstCharIndex = findFirstNonBlankCharacter(sentence);
+        int lastCharIndex  = findLastNonBlankCharacter(sentence);
+
+        if ( isCharacterLC(sentence,firstCharIndex) ) {
+            sentence.setCharAt( firstCharIndex, Character.toUpperCase(sentence.charAt(firstCharIndex)) );
+        }
+
+        if ( !isCharacterFullStop(sentence,lastCharIndex) ) {
+            if ( lastCharIndex == sentence.length()-1 ) {
+                sentence.append( '.' );
+            } else {
+                sentence.setCharAt( lastCharIndex+1, '.' );
+            }
+        }
+    }
+
+    private static int findFirstNonBlankCharacter( StringBuilder sentence ) {
+        for ( int i=0; i<sentence.length(); i++ ) {
+            char c = sentence.charAt( i );
+
+            if ( c != ' ' && c != '\t' ) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private static int findLastNonBlankCharacter( StringBuilder sentence ) {
+        for ( int i=sentence.length()-1; i>=0; i-- ) {
+            char c = sentence.charAt( i );
+
+            if ( c != ' ' && c != '\t' ) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private static boolean isCharacterFullStop( StringBuilder sentence, int i ) {
+        return i >= 0 && sentence.charAt(i) == '.';
+    }
+
+    private static boolean isCharacterLC( StringBuilder sentence, int i ) {
+        return i >= 0 && Character.isLowerCase(sentence.charAt(i));
+    }
 
 
     private CharacterStream out;

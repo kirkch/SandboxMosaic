@@ -216,6 +216,17 @@ public abstract class SystemX {
         debug.writeLine( String.format(msg,args) );
     }
 
+    public void debug( Throwable ex, String msg ) {
+        debug.writeLine( msg );
+
+        debug( msg );
+        debug( ex );
+    }
+
+    public void debug( Throwable ex ) {
+        debug.writeException( ex );
+    }
+
     public void audit( String msg, Object... args ) {
         audit.writeLine( String.format(msg,args) );
     }

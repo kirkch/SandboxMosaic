@@ -26,7 +26,7 @@ public class CLApp_argumentTests {
             public CLArgument<String> destination;
 
             {
-                setDescription( "This is a test app.  Enjoy." );
+                setDescription( "this is a test app.  Enjoy" );
 
                 this.source      = registerArgument( "source", "the file to be copied" );
                 this.destination = registerArgument( "destination", "where to copy the file to" );
@@ -44,13 +44,13 @@ public class CLApp_argumentTests {
             "",
             "This is a test app.  Enjoy.",
             "",
-            "    source      - the file to be copied",
-            "    destination - where to copy the file to",
+            "    source      - The file to be copied.",
+            "    destination - Where to copy the file to.",
             "",
             "Options:",
             "",
             "    --help",
-            "        display this usage information",
+            "        Display this usage information.",
             ""
         );
 
@@ -75,12 +75,12 @@ public class CLApp_argumentTests {
             "Usage: "+app.getClass().getName(),
             "",
             "12345678901234567890123456789012345678901234567890123456789012345678901234567890",
-            "12345678901234567890",
+            "12345678901234567890.",
             "",
             "Options:",
             "",
             "    --help",
-            "        display this usage information",
+            "        Display this usage information.",
             ""
         );
     }
@@ -111,14 +111,14 @@ public class CLApp_argumentTests {
             "This is a test app.  Enjoy.",
             "",
             "    source      - 12345678901234567890123456789012345678901234567890123456789012",
-            "                  34567890123456789012345678901234567890",
+            "                  34567890123456789012345678901234567890.",
             "    destination - 12345678901234567890123456789012345678901234567890123456789012",
-            "                  34567890123456789012345678901234567890",
+            "                  34567890123456789012345678901234567890.",
             "",
             "Options:",
             "",
             "    --help",
-            "        display this usage information",
+            "        Display this usage information.",
             ""
         );
     }
@@ -206,13 +206,13 @@ public class CLApp_argumentTests {
             "",
             "This is a test app.  Enjoy.",
             "",
-            "    source      - the file to be copied",
-            "    destination - where to copy the file to",
+            "    source      - The file to be copied.",
+            "    destination - Where to copy the file to.",
             "",
             "Options:",
             "",
             "    --help",
-            "        display this usage information",
+            "        Display this usage information.",
             ""
         );
     }
@@ -226,8 +226,8 @@ public class CLApp_argumentTests {
             {
                 setDescription( "This is a test app.  Enjoy." );
 
-                this.source      = registerArgument( "source", "the file to be copied" );
-                this.destination = registerArgumentOptional( "destination", "where to copy the file to" );
+                this.source      = registerArgument( "source", "The file to be copied." );
+                this.destination = registerArgumentOptional( "destination", "Where to copy the file to." );
             }
 
             protected int _run() {
@@ -402,7 +402,7 @@ public class CLApp_argumentTests {
             "Options:",
             "",
             "    --help",
-            "        display this usage information",
+            "        Display this usage information.",
             ""
         );
     }

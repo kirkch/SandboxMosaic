@@ -20,11 +20,10 @@ public abstract class CLApp2 {
 
     protected final SystemX system;
 
-    private List<String> description = Collections.EMPTY_LIST;
+    private String description;
 
     private List<CLArgument>     args           = new ArrayList<>();
     private List<CLOption>       options        = new ArrayList<>();
-    private Map<String,CLOption> optionsByAlias = new HashMap<>();
 
 
     protected CLApp2( SystemX system ) {
@@ -60,8 +59,8 @@ public abstract class CLApp2 {
         return _run();
     }
 
-    protected void setDescription( String...description ) {
-        this.description = Arrays.asList(description);
+    protected void setDescription( String description ) {
+        this.description = PrettyPrinter.cleanEnglishSentence(description);
     }
 
     protected CLArgument<String> registerArgument( String argumentName, String argumentDescription ) {
@@ -93,16 +92,8 @@ public abstract class CLApp2 {
         return arg;
     }
 
-    protected CLOption<Boolean> registerBooleanOption( String shortName, String longName, String description ) {
-        Function1<String,Boolean> argParser = new Function1<String, Boolean>() {
-            public Boolean invoke( String arg ) {
-                return Boolean.parseBoolean( arg );
-            }
-        };
-
-        CLOption<Boolean> option = new CLOption( shortName, longName, description, false, argParser );
-        optionsByAlias.put( shortName, option );
-        optionsByAlias.put( longName, option );
+    protected CLOption<Boolean> registerFlag( String shortName, String longName, String description ) {
+        CLOption<Boolean> option = CLOption.createBooleanFlag( shortName, longName, description );
 
         options.add( option );
 
@@ -111,6 +102,31 @@ public abstract class CLApp2 {
         return option;
     }
 
+    protected CLOption<String> registerOption( String shortName, String longName, String argName, String description ) {
+        Function1<String,String> argParser = new Function1<String, String>() {
+            public String invoke( String arg ) {
+                return arg;
+            }
+        };
+
+        CLOption<String> option = CLOption.createOption( shortName, longName, argName, description, null, argParser );
+
+        options.add( option );
+
+        // todo error if name clash
+
+        return option;
+    }
+
+    protected <T> CLOption<T> registerOption( String shortName, String longName, String argName, String description, T initialValue, Function1<String,T> valueParser ) {
+        CLOption<T> option = CLOption.createOption( shortName, longName, argName, description, initialValue, valueParser );
+
+        options.add( option );
+
+        // todo error if name clash
+
+        return option;
+    }
 
 
     private void throwIfAnOptionalArgumentHasBeenDeclared( String newArgumentName ) {
@@ -123,7 +139,16 @@ public abstract class CLApp2 {
 
 
     private boolean consumeInputArgs( String[] inputArgs ) {
-        int numArgsConsumed = consumeFlags( inputArgs );
+        int numArgsConsumed;
+
+        try {
+            numArgsConsumed = consumeFlags( inputArgs );
+        } catch ( CLException ex ) {
+            system.fatal( ex.getMessage() );
+            system.debug( ex, ex.getMessage() );
+
+            return false;
+        }
 
         List<String> remainingArgs = Arrays.asList( inputArgs ).subList( numArgsConsumed, inputArgs.length );
         int          maxIndex      = Math.min( remainingArgs.size(), args.size() );
@@ -148,25 +173,22 @@ public abstract class CLApp2 {
 
 
     private int consumeFlags( String[] inputArgs ) {
-        for ( int i=0; i<inputArgs.length; i++ ) {
-            String arg = inputArgs[i];
+        int i=0;
 
-            if ( arg.startsWith("-") ) {
-                String key = arg.startsWith("--") ? arg.substring(2) : arg.substring(1);
+        while ( i<inputArgs.length ) {
+            final int original = i;
 
-                CLOption flag = optionsByAlias.get( key );
-                if ( flag != null ) {
-                    flag.setValue( "true" );
-                } else {
-                    //todo log
-                    return i;
-                }
-            } else {
+            for ( CLOption option : options ) {
+                i = option.consumeCommandLineArgs( inputArgs, i );
+            }
+
+            // exit early if a loop through the options did not result in any matches
+            if ( i == original ) {
                 return i;
             }
         }
 
-        return inputArgs.length;
+        return i;
     }
 
 
@@ -196,10 +218,8 @@ public abstract class CLApp2 {
         system.stdout.writeLine( "Usage: " + name + formattedArgNames );
         system.stdout.newLine();
 
-        if ( !description.isEmpty() ) {
-            for ( String line : description ) {
-                PrettyPrinter.printWrapped( system.stdout, line, MAX_LINE_LENGTH );
-            }
+        if ( description != null ) {
+            PrettyPrinter.printWrapped( system.stdout, description, MAX_LINE_LENGTH );
 
             system.stdout.newLine();
         }
@@ -220,28 +240,13 @@ public abstract class CLApp2 {
 
         for ( CLOption option : options ) {
             system.stdout.writeLine( "" );
-            system.stdout.writeString( "    " );
 
-            List<String> aliases = option.getAliases();
-            boolean printComma = false;
-            for ( String alias : aliases ) {
-                if ( printComma ) {
-                    system.stdout.writeString( ", " );
-                } else {
-                    printComma = true;
-                }
-
-                system.stdout.writeString( alias );
-            }
-            system.stdout.newLine();
-
-            system.stdout.writeString( "        " );
-            system.stdout.writeLine( option.getDescription() );
+            option.printHelpSummary( system.stdout, MAX_LINE_LENGTH );
         }
 
         system.stdout.newLine();
         system.stdout.writeLine( "    --help" );
-        system.stdout.writeLine( "        display this usage information" );
+        system.stdout.writeLine( "        Display this usage information." ); // todo move to CLOption
         system.stdout.newLine();
     }
 
