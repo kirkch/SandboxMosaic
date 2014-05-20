@@ -20,6 +20,31 @@ public class CLApp_argumentTests {
 // ARGUMENT HANDLING
 
     @Test
+    public void givenDuplicateArgNames_expectException() {
+        try {
+            new CLApp2(system) {
+                public CLArgument<String> source;
+                public CLArgument<String> destination;
+
+                {
+                    setDescription( "this is a test app.  Enjoy" );
+
+                    this.source      = registerArgument( "source", "the file to be copied" );
+                    this.destination = registerArgument( "source", "where to copy the file to" );
+                }
+
+                protected int _run() {
+                    return 1;
+                }
+            };
+
+            fail( "expected exception" );
+        } catch ( IllegalArgumentException ex ) {
+            assertEquals( "'source' has been declared twice", ex.getMessage() );
+        }
+    }
+
+    @Test
     public void givenAppWithTwoMandatoryStringArgs_requestHelp_expectDescriptionInHelp() {
         CLApp2 app = new CLApp2(system) {
             public CLArgument<String> source;

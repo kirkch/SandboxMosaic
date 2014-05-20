@@ -91,4 +91,56 @@ public class CLAppTest {
         );
     }
 
+
+// MULTIPLE FLAGS OPTIONS ARG TESTS
+
+
+    @Test
+    public void givenOneOptionAndOneFlag_supplyBothSeparately_expectValues() {
+        CLApp2 app = new CLApp2(system) {
+            public CLOption<Boolean> flag1;
+            public CLOption<String>  option1;
+
+            {
+                this.flag1   = registerFlag( "f", "flag1", "description 1" );
+                this.option1 = registerOption( "o", "option1", "name", "description 2" );
+            }
+
+            protected int _run() {
+                assertTrue( "-f was set but the value did not make it through", flag1.getValue() );
+                assertEquals( "-o was set but the value did not make it through", "abc", option1.getValue() );
+
+                return 42;
+            }
+        };
+
+        assertEquals( 42, app.runApp("-o", "abc", "-f") );
+
+        system.assertNoOutput();
+    }
+
+    @Test
+    public void givenOneOptionAndOneFlag_supplyBothConcatenatedTogetherUsingShortForm_expectValues() {
+        CLApp2 app = new CLApp2(system) {
+            public CLOption<Boolean> flag1;
+            public CLOption<String>  option1;
+
+            {
+                this.flag1   = registerFlag( "f", "flag1", "description 1" );
+                this.option1 = registerOption( "o", "option1", "name", "description 2" );
+            }
+
+            protected int _run() {
+                assertTrue( "-f was set but the value did not make it through", flag1.getValue() );
+                assertEquals( "-o was set but the value did not make it through", "abc", option1.getValue() );
+
+                return 42;
+            }
+        };
+
+        assertEquals( 42, app.runApp("-foabc") );
+
+        system.assertNoOutput();
+    }
+
 }

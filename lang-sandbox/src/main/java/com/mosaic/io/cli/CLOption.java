@@ -134,7 +134,9 @@ class FlagImpl extends CLOption<Boolean> {
 
         boolean matches = arg.equals( "-"+getShortName() ) || arg.equals( "--"+getLongName() );
 
-        setValue( "true" );
+        if ( matches ) {
+            setValue( "true" );
+        }
 
         return matches ? i+1 : i;
     }

@@ -6,10 +6,9 @@ import com.mosaic.lang.system.SystemX;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -22,6 +21,7 @@ public abstract class CLApp2 {
 
     private String description;
 
+    private Set<String>          optionNames    = new HashSet<>();
     private List<CLArgument>     args           = new ArrayList<>();
     private List<CLOption>       options        = new ArrayList<>();
 
@@ -37,13 +37,15 @@ public abstract class CLApp2 {
     private static final int MAX_LINE_LENGTH = 80;
 
     public final int runApp( String...inputArgs ) {
-        if ( inputArgs.length == 1 && inputArgs[0].equals("--help") ) {
+        if ( inputArgs.length == 1 && inputArgs[0].equals("--help") ) { // todo
             printHelp();
 
             return 0;
         }
 
-        boolean successfullySetArgumentsFlag = consumeInputArgs( inputArgs );
+        String[] normalisedArgs = normaliseInputArgs( inputArgs );
+
+        boolean successfullySetArgumentsFlag = consumeInputArgs( normalisedArgs );
         if ( !successfullySetArgumentsFlag ) {
             return 1;
         }
@@ -74,6 +76,7 @@ public abstract class CLApp2 {
      */
     protected <T> CLArgument<T> registerArgument( String argumentName, String argumentDescription, Function1<String,T> parseFunction ) {
         throwIfAnOptionalArgumentHasBeenDeclared( argumentName );
+        throwIfArgumentNameHasAlreadyBeenRegistered( argumentName );
 
         CLArgument<T> arg = new CLArgument( argumentName, argumentDescription, parseFunction );
 
@@ -93,16 +96,25 @@ public abstract class CLApp2 {
     }
 
     protected CLOption<Boolean> registerFlag( String shortName, String longName, String description ) {
+        throwIfInvalidShortName( shortName );
+        throwIfOptionNameHasAlreadyBeenTaken( shortName );
+        throwIfOptionNameHasAlreadyBeenTaken( longName );
+
         CLOption<Boolean> option = CLOption.createBooleanFlag( shortName, longName, description );
 
         options.add( option );
 
-        // todo error if name clash
+        optionNames.add( shortName );
+        optionNames.add( longName );
 
         return option;
     }
 
     protected CLOption<String> registerOption( String shortName, String longName, String argName, String description ) {
+        throwIfInvalidShortName( shortName );
+        throwIfOptionNameHasAlreadyBeenTaken( shortName );
+        throwIfOptionNameHasAlreadyBeenTaken( longName );
+
         Function1<String,String> argParser = new Function1<String, String>() {
             public String invoke( String arg ) {
                 return arg;
@@ -113,21 +125,41 @@ public abstract class CLApp2 {
 
         options.add( option );
 
-        // todo error if name clash
+        optionNames.add( shortName );
+        optionNames.add( longName );
 
         return option;
     }
 
     protected <T> CLOption<T> registerOption( String shortName, String longName, String argName, String description, T initialValue, Function1<String,T> valueParser ) {
+        throwIfInvalidShortName( shortName );
+        throwIfOptionNameHasAlreadyBeenTaken( shortName );
+        throwIfOptionNameHasAlreadyBeenTaken( longName );
+
         CLOption<T> option = CLOption.createOption( shortName, longName, argName, description, initialValue, valueParser );
 
         options.add( option );
 
-        // todo error if name clash
+        optionNames.add( shortName );
+        optionNames.add( longName );
 
         return option;
     }
 
+    private void throwIfInvalidShortName( String shortName ) {
+        if ( shortName.length() != 1 ) {
+            throw new IllegalArgumentException( "'"+shortName+"' is not a valid short name, short names can only be one character long" );
+        }
+    }
+
+
+    private void throwIfArgumentNameHasAlreadyBeenRegistered( String argumentName ) {
+        for ( CLArgument arg : args ) {
+            if ( arg.getArgumentName().equals(argumentName) ) {
+                throw new IllegalArgumentException( "'"+argumentName+"' has been declared twice" );
+            }
+        }
+    }
 
     private void throwIfAnOptionalArgumentHasBeenDeclared( String newArgumentName ) {
         for ( CLArgument arg : args ) {
@@ -137,12 +169,66 @@ public abstract class CLApp2 {
         }
     }
 
+    private void throwIfOptionNameHasAlreadyBeenTaken( String newName ) {
+        for ( CLOption option : options ) {
+            if ( option.getLongName().equals(newName) ) {
+                throw new IllegalArgumentException( "'"+newName+"' has been declared twice" );
+            }
+
+            if ( option.getShortName().equals(newName) ) {
+                throw new IllegalArgumentException( "'"+newName+"' has been declared twice" );
+            }
+        }
+    }
+
+    /**
+     * Given the input args supplied from main(args), break up the flags that have been
+     * concatenated together.
+     */
+    private String[] normaliseInputArgs( String[] inputArgs ) {
+        List<String> normalisedArgs = new ArrayList<>();
+
+        for ( String arg : inputArgs ) {
+            normalisedInputArg( normalisedArgs, arg );
+        }
+
+        return normalisedArgs.toArray( new String[normalisedArgs.size()] );
+    }
+
+
+
+    private void normalisedInputArg( List<String> output, String arg ) {
+        if ( arg.length() > 2 && arg.charAt(0) == '-' && arg.charAt(1) != '-' ) {
+            for ( int i=1; i<arg.length(); i++ ) {
+                char c = arg.charAt(i);
+
+                // handles
+                // -abc   -> -a -b -c
+                // -ab123 -> -a -b 123
+
+                // todo
+                // -fooc   -> -foo -c
+                // -abc123 -> -abc 123
+
+                if ( optionNames.contains(Character.toString(c)) ) {
+                    output.add( "-"+c );
+                } else {
+                    output.add( arg.substring(i) );
+
+                    return;
+                }
+            }
+        } else {
+            output.add( arg );
+        }
+    }
+
 
     private boolean consumeInputArgs( String[] inputArgs ) {
         int numArgsConsumed;
 
         try {
-            numArgsConsumed = consumeFlags( inputArgs );
+            numArgsConsumed = consumeOptions( inputArgs );
         } catch ( CLException ex ) {
             system.fatal( ex.getMessage() );
             system.debug( ex, ex.getMessage() );
@@ -172,7 +258,7 @@ public abstract class CLApp2 {
 
 
 
-    private int consumeFlags( String[] inputArgs ) {
+    private int consumeOptions( String[] inputArgs ) {
         int i=0;
 
         while ( i<inputArgs.length ) {
@@ -180,10 +266,21 @@ public abstract class CLApp2 {
 
             for ( CLOption option : options ) {
                 i = option.consumeCommandLineArgs( inputArgs, i );
+
+                if ( i >= inputArgs.length ) {
+                    return i;
+                }
             }
 
             // exit early if a loop through the options did not result in any matches
             if ( i == original ) {
+                String arg = inputArgs[i];
+
+                if ( arg.charAt(0) == '-' ) {
+                    String name = arg.substring( arg.startsWith( "--" ) ? 2 : 1 );
+
+                    throw new CLException( "Unknown flag '"+arg+"'.  Run with --help for more information." );
+                }
                 return i;
             }
         }
