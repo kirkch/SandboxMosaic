@@ -96,25 +96,12 @@ public abstract class CLApp2 {
     }
 
     protected CLOption<Boolean> registerFlag( String shortName, String longName, String description ) {
-        throwIfInvalidShortName( shortName );
-        throwIfOptionNameHasAlreadyBeenTaken( shortName );
-        throwIfOptionNameHasAlreadyBeenTaken( longName );
-
         CLOption<Boolean> option = CLOption.createBooleanFlag( shortName, longName, description );
 
-        options.add( option );
-
-        optionNames.add( shortName );
-        optionNames.add( longName );
-
-        return option;
+        return registerOption( option );
     }
 
     protected CLOption<String> registerOption( String shortName, String longName, String argName, String description ) {
-        throwIfInvalidShortName( shortName );
-        throwIfOptionNameHasAlreadyBeenTaken( shortName );
-        throwIfOptionNameHasAlreadyBeenTaken( longName );
-
         Function1<String,String> argParser = new Function1<String, String>() {
             public String invoke( String arg ) {
                 return arg;
@@ -123,27 +110,30 @@ public abstract class CLApp2 {
 
         CLOption<String> option = CLOption.createOption( shortName, longName, argName, description, null, argParser );
 
-        options.add( option );
-
-        optionNames.add( shortName );
-        optionNames.add( longName );
-
-        return option;
+        return registerOption( option );
     }
 
     protected <T> CLOption<T> registerOption( String shortName, String longName, String argName, String description, T initialValue, Function1<String,T> valueParser ) {
+        CLOption<T> option = CLOption.createOption( shortName, longName, argName, description, initialValue, valueParser );
+
+        return registerOption( option );
+    }
+
+    private <T> CLOption<T> registerOption( CLOption<T> opt ) {
+        String shortName = opt.getShortName();
+        String longName  = opt.getLongName();
+
         throwIfInvalidShortName( shortName );
         throwIfOptionNameHasAlreadyBeenTaken( shortName );
         throwIfOptionNameHasAlreadyBeenTaken( longName );
 
-        CLOption<T> option = CLOption.createOption( shortName, longName, argName, description, initialValue, valueParser );
 
-        options.add( option );
+        options.add( opt );
 
         optionNames.add( shortName );
         optionNames.add( longName );
 
-        return option;
+        return opt;
     }
 
     private void throwIfInvalidShortName( String shortName ) {
