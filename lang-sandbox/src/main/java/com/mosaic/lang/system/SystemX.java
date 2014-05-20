@@ -5,6 +5,7 @@ import com.mosaic.io.filesystemx.FileSystemX;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.IllegalStateExceptionX;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.time.DTM;
 import com.mosaic.lang.time.SystemClock;
 
 import java.nio.charset.Charset;
@@ -263,4 +264,7 @@ public abstract class SystemX {
     }
 
 
+    public DTM getCurrentDTM() {
+        return clock.getCurrentDTM();
+    }
 }

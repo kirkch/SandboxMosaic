@@ -227,6 +227,11 @@ public class DebugSystem extends SystemX {
         }
     }
 
+    public void assertNoErrorsOrFatals() {
+        assertNoErrors();
+        assertNoFatals();
+    }
+
     public void assertNoOutput() {
         assertStandardErrorEquals();
         assertStandardOutEquals();

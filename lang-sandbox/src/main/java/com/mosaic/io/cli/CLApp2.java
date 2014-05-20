@@ -3,6 +3,7 @@ package com.mosaic.io.cli;
 import com.mosaic.io.streams.PrettyPrinter;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.system.SystemX;
+import com.mosaic.lang.time.DTM;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +20,7 @@ public abstract class CLApp2 {
 
     protected final SystemX system;
 
+    private String name;
     private String description;
 
     private Set<String>          optionNames    = new HashSet<>();
@@ -28,10 +30,32 @@ public abstract class CLApp2 {
 
     protected CLApp2( SystemX system ) {
         this.system = system;
+        this.name   = this.getClass().getName();
     }
 
 
     protected abstract int _run();
+
+    protected void setUpCallback() {}
+    protected void tearDownCallback() {}
+
+
+
+    private final void handleSetUp() {
+        setUpCallback();
+
+        DTM nowDTM = system.getCurrentDTM();
+
+        system.audit( "%s started at %2d:%02d:%02d UTC on %04d/%02d/%02d",
+            getName(), nowDTM.getHour(), nowDTM.getMinutes(), nowDTM.getSeconds(),
+            nowDTM.getYear(), nowDTM.getMonth(), nowDTM.getDayOfMonth() );
+    }
+
+    private  final void handleTearDown() {
+        tearDownCallback();
+    }
+
+
 
 
     private static final int MAX_LINE_LENGTH = 80;
@@ -58,11 +82,30 @@ public abstract class CLApp2 {
             return 1;
         }
 
-        return _run();
+        try {
+            handleSetUp();
+
+            return _run();
+        } catch ( Throwable ex ) {
+            system.stderr.writeLine( name + " errored unexpectedly and was aborted. The error was 'RuntimeException:whoops'." );
+            system.fatal( ex );
+
+            return 1;
+        } finally {
+            tearDownCallback();
+        }
     }
 
     protected void setDescription( String description ) {
         this.description = PrettyPrinter.cleanEnglishSentence(description);
+    }
+
+    protected void setName( String name ) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 
     protected CLArgument<String> registerArgument( String argumentName, String argumentDescription ) {

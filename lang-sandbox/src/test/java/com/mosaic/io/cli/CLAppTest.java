@@ -1,8 +1,10 @@
 package com.mosaic.io.cli;
 
 import com.mosaic.lang.system.DebugSystem;
-import com.mosaic.lang.system.SystemX;
+import com.mosaic.lang.time.DTM;
 import org.junit.Test;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
 
@@ -15,6 +17,8 @@ public class CLAppTest {
     private DebugSystem system = new DebugSystem();
 
 
+// BASIC INVOCATION TESTS
+
     @Test
     public void givenAppWithNoFlagsNoArgsNoDescriptionAndReturnsZeroWhenRun_invoke_expectZero() {
         CLApp2 app = new CLApp2(system) {
@@ -25,8 +29,7 @@ public class CLAppTest {
 
         assertEquals( 0, app.runApp() );
 
-        system.assertNoLogMessages();
-        system.assertStandardOutEquals();
+        system.assertNoErrorsOrFatals();
     }
 
     @Test
@@ -39,8 +42,7 @@ public class CLAppTest {
 
         assertEquals( 1, app.runApp() );
 
-        system.assertNoLogMessages();
-        system.assertStandardOutEquals();
+        system.assertNoErrorsOrFatals();
     }
 
     @Test
@@ -116,7 +118,7 @@ public class CLAppTest {
 
         assertEquals( 42, app.runApp("-o", "abc", "-f") );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
 
     @Test
@@ -140,7 +142,121 @@ public class CLAppTest {
 
         assertEquals( 42, app.runApp("-foabc") );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
+
+
+// STARTUP/SHUTDOWN EVENTS
+
+    @Test
+    public void onStartUp_expectSetupMethodToBeInvoked() {
+        final AtomicBoolean wasSetupInvoked = new AtomicBoolean( false );
+
+        CLApp2 app = new CLApp2(system) {
+            protected void setUpCallback() {
+                wasSetupInvoked.set( true );
+            }
+
+            protected int _run() {
+                return 0;
+            }
+        };
+
+        assertEquals( 0, app.runApp() );
+        assertTrue( "setUp method was not invoked", wasSetupInvoked.get() );
+
+        system.assertNoErrorsOrFatals();
+    }
+
+    @Test
+    public void afterAppHasCompleted_expectTearDownMethodToBeCalled() {
+        final AtomicBoolean wasTearDownInvoked = new AtomicBoolean( false );
+
+        CLApp2 app = new CLApp2(system) {
+            protected void tearDownCallback() {
+                wasTearDownInvoked.set( true );
+            }
+
+            protected int _run() {
+                return 0;
+            }
+        };
+
+        assertEquals( 0, app.runApp() );
+        assertTrue( "tearDown method was not invoked", wasTearDownInvoked.get() );
+
+        system.assertNoErrorsOrFatals();
+    }
+
+    @Test
+    public void afterAppHasErrored_expectTearDownMethodToBeCalled() {
+        final AtomicBoolean wasTearDownInvoked = new AtomicBoolean( false );
+
+        CLApp2 app = new CLApp2(system) {
+            protected void tearDownCallback() {
+                wasTearDownInvoked.set( true );
+            }
+
+            protected int _run() {
+                throw new RuntimeException( "intended exception" );
+            }
+        };
+
+        assertEquals( 1, app.runApp() );
+        assertTrue( "tearDown method was not invoked", wasTearDownInvoked.get() );
+    }
+
+    @Test
+    public void onStartUp_expectAuditMessageSpecifyingWhenAppWasStarted() {
+        system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
+
+        CLApp2 app = new CLApp2(system) {
+            protected int _run() {
+                return 0;
+            }
+        };
+
+        assertEquals( 0, app.runApp() );
+
+        system.assertAudit( app.getName() + " started at 10:00:00 UTC on 2020/01/01" );
+    }
+
+    @Test
+    public void onStartUp_expectArgumentsUsedToBeEchoedToTheInfoLog() {
+        system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
+
+        CLApp2 app = new CLApp2(system) {
+            protected int _run() {
+                return 0;
+            }
+        };
+
+        assertEquals( 0, app.runApp() );
+
+        system.assertAudit( app.getName() + " started at 10:00:00 UTC on 2020/01/01" );
+    }
+
+// alert( FATAL|ERROR|WARN,
+// audit( USER|OPS|DEV,
+
+
+// fatal - dead                                               fatalLog logFatal
+// error - human action                                       errorLog logError
+// warn  - something went wrong; recovered                    warnLog  logWarning
+// audit - informative to the user (what is the app doing)    userLog  auditUser
+// info  - informative to dev/ops                             opsLog   auditOps
+// debug - developer info                                     devLog   auditDev
+//
+// onStartUp_expectJavaVersionToBeSentToDebugLog
+// onStartUp_expectClasspathToBeSentToDebugLog
+// onStartUp_expectSettingsToBeEchoedToTheDebugLog
+
+// afterAppHasCompleted_expectUpTimeToBePrintedToAudit
+
+//
+
+
+// givenAppThatTakesFlagsOptionsAndArguments_invokeWithAllWithOptionsAndFlagsBeforeArguments_expectValuesToBeSet
+// givenAppThatTakesFlagsOptionsAndArguments_invokeWithAllWithOptionsAndFlagsAfterArguments_expectValuesToBeSet
 
 }

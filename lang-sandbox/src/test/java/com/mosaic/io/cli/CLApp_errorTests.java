@@ -14,6 +14,24 @@ public class CLApp_errorTests {
 
     private DebugSystem system = new DebugSystem();
 
+
+// UNCAUGHT EXCEPTIONS
+
+    @Test
+    public void givenAppThatThrowsExceptionWhenRun_runApp_expectError() {
+        CLApp2 app = new CLApp2(system) {
+            protected int _run() {
+                throw new RuntimeException( "whoops" );
+            }
+        };
+
+        assertEquals( 1, app.runApp() );
+
+        system.assertStandardErrorEquals( app.getName() + " errored unexpectedly and was aborted. The error was 'RuntimeException:whoops'." );
+        system.assertFatal( RuntimeException.class, "whoops" );
+    }
+
+
 // MALFORMED SHORT NAME
 
     @Test
@@ -36,6 +54,7 @@ public class CLApp_errorTests {
             assertEquals( "'so' is not a valid short name, short names can only be one character long", ex.getMessage() );
         }
     }
+
 
 
 

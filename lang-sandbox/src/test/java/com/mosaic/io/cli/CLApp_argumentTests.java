@@ -265,7 +265,7 @@ public class CLApp_argumentTests {
 
         assertEquals( 0, app.runApp("a","b") );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
 
     @Test
@@ -291,7 +291,7 @@ public class CLApp_argumentTests {
 
         assertEquals( 0, app.runApp("a") );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
 
     @Test
@@ -397,7 +397,7 @@ public class CLApp_argumentTests {
 
         assertEquals( 0, app.runApp("3") );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
 
 
@@ -450,7 +450,7 @@ public class CLApp_argumentTests {
 
         assertEquals( 42, app.runApp("abc") );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
 
     @Test
@@ -471,7 +471,7 @@ public class CLApp_argumentTests {
 
         assertEquals( 42, app.runApp() );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
 
 }

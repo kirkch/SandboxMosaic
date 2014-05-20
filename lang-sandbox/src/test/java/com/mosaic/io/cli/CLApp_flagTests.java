@@ -100,7 +100,7 @@ public class CLApp_flagTests {
 
         assertEquals( 42, app.runApp() );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
 
     @Test
@@ -121,7 +121,7 @@ public class CLApp_flagTests {
 
         assertEquals( 42, app.runApp("-d") );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
 
     @Test
@@ -142,7 +142,7 @@ public class CLApp_flagTests {
 
         assertEquals( 42, app.runApp("--debug") );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
 
 
@@ -172,7 +172,7 @@ public class CLApp_flagTests {
 
         assertEquals( 42, app.runApp("-c", "-a") );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
 
     @Test
@@ -199,7 +199,7 @@ public class CLApp_flagTests {
 
         assertEquals( 42, app.runApp("-ca") );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
 
 

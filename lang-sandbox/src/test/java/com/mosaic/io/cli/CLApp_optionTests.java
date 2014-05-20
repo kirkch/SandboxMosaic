@@ -101,7 +101,7 @@ public class CLApp_optionTests {
 
         assertEquals( -1, app.runApp() );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
 
     @Test
@@ -122,7 +122,7 @@ public class CLApp_optionTests {
 
         assertEquals( -1, app.runApp("-o","foo") );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
 
     @Test
@@ -143,7 +143,7 @@ public class CLApp_optionTests {
 
         assertEquals( -1, app.runApp("--output=foo bar") );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
 
 
@@ -221,7 +221,7 @@ public class CLApp_optionTests {
 
         assertEquals( -1, app.runApp() );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
 
     @Test
@@ -253,7 +253,7 @@ public class CLApp_optionTests {
 
         assertEquals( -1, app.runApp() );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
 
     @Test
@@ -328,7 +328,7 @@ public class CLApp_optionTests {
 
         assertEquals( -1, app.runApp("-n", "113") );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
 
     @Test
@@ -360,7 +360,7 @@ public class CLApp_optionTests {
 
         assertEquals( -1, app.runApp("-n113") );
 
-        system.assertNoOutput();
+        system.assertNoErrorsOrFatals();
     }
 
     @Test
@@ -399,99 +399,5 @@ public class CLApp_optionTests {
 
         system.assertFatal( "Invalid value '113' for option 'line-count'" );
     }
-
-
-
-
-
-
-
-// givenEnumFlag_requestHelp_expectFlagAndValuesToBeDocumented
-// givenEnumFlag_invokeAppWithoutSpecifyingFlag_expectDefaultValueToBeUsed
-// givenEnumFlag_invokeAppWithFlag_expectSuppliedValueToBeUsed
-// givenEnumFlag_invokeAppWithUnknownEnumValue_expectError
-
-
-
-// SETTINGS
-
-// givenKVFlag_supplyValueInSettingsFile_expectValue
-// givenKVFlag_supplyValueInSettingsFileANDSupplyOnCLI_expectValueFromCLI
-
-// specifySettingsFileWith_dashDashSettings_expectValueToBePickedUp
-// placeSettingsInAppNameDotProperties_expectValueToBePickedUp
-// placeSettingsHomeDirectoryDotAppName_expectValueToBePickedUp
-// placeAUnrecognisedKeyInTheSettingsFile_expectAWarningOnStartup
-// placeAUnrecognisedKeyInTheSettingsFile_requestSettingsToBePruned_expectUnrecognisedKeyToBeRemovedWithAUDITMessage //--prune-settings
-
-// OPTIONS
-// -c  --counter
-// -c=true
-// -c=false   (t|f|y|n|yes|no|0|1)
-// -k value
-// -k=value
-// --key value
-// --key=value
-
-
-    // todo accept -help --help and -?   it is unclear which is the true convention; thus the idea to support all
-    //      ls -help   git --help
-
-
-// givenAppThatThrowsExceptionWhenRun_runApp_expectError
-
-
-// givenAppThatTakesFlagsOptionsAndArguments_invokeWithAllWithOptionsAndFlagsBeforeArguments_expectValuesToBeSet
-// givenAppThatTakesFlagsOptionsAndArguments_invokeWithAllWithOptionsAndFlagsAfterArguments_expectValuesToBeSet
-
-
-// onStartUp_expectSetupMethodToBeInvoked
-// afterAppHasCompleted_expectTearDownMethodToBeCalled
-// onStartUp_expectAuditMessageSpecifyingWhenAppWasStarted
-// onStartUp_expectSettingsToBeEchoedToTheInfoLog
-// onStartUp_expectArgumentsUsedToBeEchoedToTheInfoLog
-// onStartUp_expectJavaVersionToBeSentToDebugLog
-// onStartUp_expectClasspathToBeSentToDebugLog
-
-
-
-// cmd OPTIONS args
-
-// -v --verbose
-// --logLevel=debug -d --debug
-// --logLevel=audit -a --audit
-// --logLevel=info -i --info
-
-    private static class AppWithOPTIONS extends CLApp2 {
-
-//        private final CLArgument<LogLevelEnum> logLevelFlag;   // .get()   .setDefaultValue(v)
-//
-//        private final CLArgument<FileX>        sourceFile;
-
-
-        public AppWithOPTIONS( SystemX system ) {
-            super( system );
-
-//            setAppDescription( " " );
-//
-//            this.isVerboseCLF = registerFlag( "verbose", "v", "description" );
-//            this.logLevelCLF  = registerEnumFlag( "logLevel", "description", LogLevelEnum.class,
-//                    new CLEnum(Debug, "debug", "", "description"),
-//                    new CLEnum(Info, "info|verbose", "v", "description"),
-//                    new CLEnum(Audit, "audit", "", "description"),
-//                    new CLEnum(Warn, "warn", "", "description"),
-//                    new CLEnum(Error, "error", "", "description"),
-//                    new CLEnum(Fatal, "fatal", "", "description")
-//                ).withDefaultOf(Audit);
-
-//            this.sourceFile   = registerArgument[T]( "source", "desc", f(s):T )
-        }
-
-
-        protected int _run() {
-            return 0;
-        }
-    }
-
 
 }
