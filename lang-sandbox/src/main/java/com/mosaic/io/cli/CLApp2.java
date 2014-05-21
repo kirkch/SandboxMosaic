@@ -4,6 +4,7 @@ import com.mosaic.io.streams.PrettyPrinter;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.time.DTM;
+import com.mosaic.lang.time.Duration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +28,8 @@ public abstract class CLApp2 {
     private List<CLArgument>     args           = new ArrayList<>();
     private List<CLOption>       options        = new ArrayList<>();
 
+    private DTM                  startedAt;
+
 
     protected CLApp2( SystemX system ) {
         this.system = system;
@@ -44,15 +47,39 @@ public abstract class CLApp2 {
     private final void handleSetUp() {
         setUpCallback();
 
-        DTM nowDTM = system.getCurrentDTM();
+        startedAt = system.getCurrentDTM();
 
-        system.userAudit( "%s started at %2d:%02d:%02d UTC on %04d/%02d/%02d",
-            getName(), nowDTM.getHour(), nowDTM.getMinutes(), nowDTM.getSeconds(),
-            nowDTM.getYear(), nowDTM.getMonth(), nowDTM.getDayOfMonth() );
+        system.opsAudit( "Started at %2d:%02d:%02d UTC on %04d/%02d/%02d",
+            startedAt.getHour(), startedAt.getMinutes(), startedAt.getSeconds(),
+            startedAt.getYear(), startedAt.getMonth(), startedAt.getDayOfMonth() );
+
+        system.opsAudit( "Run by: %s", System.getProperty("user.name") );
+
+        system.opsAudit( "Java: %s (%s %s)",
+            System.getProperty("java.runtime.version"),
+            System.getProperty("java.vm.name"),
+            System.getProperty("java.vm.vendor"));
+
+        system.opsAudit( "OS: %s (%s %s)",
+            System.getProperty("os.name"),
+            System.getProperty("os.version"),
+            System.getProperty("os.arch") );
+
+        system.opsAudit( "Classpath: %s", System.getProperty("java.class.path") );
+        system.opsAudit( "Library Path: %s", System.getProperty("java.library.path") );
+
     }
 
     private  final void handleTearDown() {
         tearDownCallback();
+
+        DTM      nowDTM   = system.getCurrentDTM();
+        Duration duration = nowDTM.subtract( startedAt );
+
+        system.opsAudit( "Ran for %s.  Ended at %2d:%02d:%02d UTC on %04d/%02d/%02d.",
+            duration.toString(),
+            nowDTM.getHour(), nowDTM.getMinutes(), nowDTM.getSeconds(),
+            nowDTM.getYear(), nowDTM.getMonth(), nowDTM.getDayOfMonth() );
     }
 
 
@@ -68,6 +95,8 @@ public abstract class CLApp2 {
         }
 
         String[] normalisedArgs = normaliseInputArgs( inputArgs );
+
+        auditArgs( normalisedArgs );
 
         boolean successfullySetArgumentsFlag = consumeInputArgs( normalisedArgs );
         if ( !successfullySetArgumentsFlag ) {
@@ -92,8 +121,29 @@ public abstract class CLApp2 {
 
             return 1;
         } finally {
-            tearDownCallback();
+            handleTearDown();
         }
+    }
+
+    private void auditArgs( String[] normalisedArgs ) {
+        StringBuilder buf = new StringBuilder();
+
+        buf.append( "Command: " );
+        buf.append( getName() );
+
+        for( String arg : normalisedArgs ) {
+            buf.append( ' ' );
+
+            if ( arg.startsWith("-") ) {
+                buf.append( arg );
+            } else {
+                buf.append( '\'' );
+                buf.append( arg );
+                buf.append( '\'' );
+            }
+        }
+
+        system.opsAudit( buf.toString() );
     }
 
     protected void setDescription( String description ) {
@@ -276,7 +326,7 @@ public abstract class CLApp2 {
             CLArgument arg = args.get( i );
 
             try {
-                arg.setValue( inputArgs[i] );
+                arg.setValue( remainingArgs.get(i) );
             } catch ( Exception ex ) {
                 String msg = "Invalid value for '" + arg.getArgumentName() + "', for more information invoke with --help.";
 

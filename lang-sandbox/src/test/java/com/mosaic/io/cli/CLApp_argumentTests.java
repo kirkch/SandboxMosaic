@@ -175,7 +175,7 @@ public class CLApp_argumentTests {
         );
 
         system.assertStandardOutEquals();
-        system.assertNoLogMessages();
+        system.assertNoAlerts();
     }
 
     @Test
@@ -203,7 +203,7 @@ public class CLApp_argumentTests {
         );
 
         system.assertStandardOutEquals();
-        system.assertNoLogMessages();
+        system.assertNoAlerts();
     }
 
     @Test

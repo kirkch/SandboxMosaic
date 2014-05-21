@@ -73,6 +73,7 @@ public class DTM extends Orderable<DTM> {
         this.millis = c.getTimeInMillis();
     }
 
+
     public Calendar asJDKCalendar() {
         Calendar c = GregorianCalendar.getInstance();
 
@@ -117,6 +118,15 @@ public class DTM extends Orderable<DTM> {
 
     public DTM add( Duration d ) {
         return new DTM( this.millis + d.getMillis() );
+    }
+
+    /**
+     * Subtract two date and times to give the length of time between the two dates.
+     *
+     * @return this - b
+     */
+    public Duration subtract( DTM b ) {
+        return Duration.millis( this.millis - b.millis );
     }
 
 //    public com.mosaic.lang.time.DTM withTime( int hours, int minutes, int seconds, TZ tz ) {

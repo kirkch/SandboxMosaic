@@ -2,6 +2,7 @@ package com.mosaic.io.cli;
 
 import com.mosaic.lang.system.DebugSystem;
 import com.mosaic.lang.time.DTM;
+import com.mosaic.lang.time.Duration;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -145,6 +146,62 @@ public class CLAppTest {
         system.assertNoAlerts();
     }
 
+    @Test
+    public void givenAppThatTakesFlagsOptionsAndArguments_invokeWithAllWithOptionsAndFlagsBeforeArguments_expectValuesToBeSet() {
+        CLApp2 app = new CLApp2(system) {
+            public CLOption<Boolean> flag1;
+            public CLOption<String>  option1;
+            public CLArgument<String>  arg1;
+
+
+            {
+                this.flag1   = registerFlag( "f", "flag1", "description 1" );
+                this.option1 = registerOption( "o", "option1", "name", "description 2" );
+                this.arg1    = registerArgument( "arg1", "description 3" );
+            }
+
+            protected int _run() {
+                assertTrue( "-f was set but the value did not make it through", flag1.getValue() );
+                assertEquals( "-o was set but the value did not make it through", "abc", option1.getValue() );
+                assertEquals( "arg1 was not supplied", "foo bar", arg1.getValue() );
+
+                return 42;
+            }
+        };
+
+        assertEquals( 42, app.runApp("-f", "-o", "abc", "foo bar") );
+
+        system.assertNoAlerts();
+    }
+
+//    @Test
+    public void givenAppThatTakesFlagsOptionsAndArguments_invokeWithAllWithOptionsAndFlagsAfterArguments_expectValuesToBeSet() {
+        CLApp2 app = new CLApp2(system) {
+            public CLOption<Boolean> flag1;
+            public CLOption<String>  option1;
+            public CLArgument<String>  arg1;
+
+
+            {
+                this.flag1   = registerFlag( "f", "flag1", "description 1" );
+                this.option1 = registerOption( "o", "option1", "name", "description 2" );
+                this.arg1    = registerArgument( "arg1", "description 3" );
+            }
+
+            protected int _run() {
+                assertTrue( "-f was set but the value did not make it through", flag1.getValue() );
+                assertEquals( "-o was set but the value did not make it through", "abc", option1.getValue() );
+                assertEquals( "arg1 was not supplied", "foo bar", arg1.getValue() );
+
+                return 42;
+            }
+        };
+
+        assertEquals( 42, app.runApp("foo bar", "-f", "-o", "abc") );
+
+        system.assertNoAlerts();
+    }
+
 
 // STARTUP/SHUTDOWN EVENTS
 
@@ -218,11 +275,57 @@ public class CLAppTest {
 
         assertEquals( 0, app.runApp() );
 
-        system.assertUserAuditContains( app.getName() + " started at 10:00:00 UTC on 2020/01/01" );
+        system.assertOpsAuditContains( "Started at 10:00:00 UTC on 2020/01/01" );
+    }
+
+
+
+    @Test
+    public void afterAppHasCompleted_expectUpTimeToBePrintedToOpsLog() {
+        system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
+
+        CLApp2 app = new CLApp2(system) {
+            protected int _run() {
+                system.clock.add( Duration.minutes(2) );
+
+                return 0;
+            }
+        };
+
+        assertEquals( 0, app.runApp() );
+
+        system.assertOpsAuditContains( "Ran for 2m.  Ended at 10:02:00 UTC on 2020/01/01." );
     }
 
     @Test
-    public void onStartUp_expectArgumentsUsedToBeEchoedToTheInfoLog() {
+    public void onStartUp_expectArgumentsUsedToBeEchoedToTheOpsLog() {
+        system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
+
+        CLApp2 app = new CLApp2(system) {
+            {
+                registerFlag( "d", "flag1", "description" );
+                registerFlag( "f", "flag2", "description" );
+                registerFlag( "a", "flag3", "description" );
+                registerFlag( "b", "flag4", "description" );
+                registerFlag( "c", "flag5", "description" );
+                registerFlag( "e", "long-form", "description" );
+
+                registerArgument( "arg1", "description" );
+                registerArgument( "arg2", "description" );
+            }
+
+            protected int _run() {
+                return 0;
+            }
+        };
+
+        assertEquals( 0, app.runApp("-d", "-f", "-abc", "--long-form", "arg1", "arg2") );
+
+        system.assertOpsAuditContains( app.getName() + " -d -f -a -b -c --long-form 'arg1' 'arg2'" );
+    }
+
+    @Test
+    public void onStartUp_expectJavaVersionToBeSentToOpsLog() {
         system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
 
         CLApp2 app = new CLApp2(system) {
@@ -233,30 +336,52 @@ public class CLAppTest {
 
         assertEquals( 0, app.runApp() );
 
-        system.assertUserAuditContains( app.getName() + " started at 10:00:00 UTC on 2020/01/01" );
+        system.assertOpsAuditContains(
+            "Java: " + System.getProperty( "java.runtime.version" ) + " (" +
+                System.getProperty( "java.vm.name" ) + " " + System.getProperty( "java.vm.vendor" ) + ")"
+        );
     }
 
-// alert( FATAL|ERROR|WARN,
-// audit( USER|OPS|DEV,
+    @Test
+    public void onStartUp_expectClasspathToBeSentToOpsLog() {
+        system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
+
+        CLApp2 app = new CLApp2(system) {
+            protected int _run() {
+                return 0;
+            }
+        };
+
+        assertEquals( 0, app.runApp() );
+
+        system.assertOpsAuditContains( "Classpath: " + System.getProperty( "java.class.path" ) );
+    }
+
+    @Test
+    public void onStartUp_expectLibraryPathToBeSentToOpsLog() {
+        system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
+
+        CLApp2 app = new CLApp2(system) {
+            protected int _run() {
+                return 0;
+            }
+        };
+
+        assertEquals( 0, app.runApp() );
+
+        system.assertOpsAuditContains( "Library Path: " + System.getProperty( "java.library.path" ) );
+    }
 
 
-// fatal - dead                                               fatalLog logFatal
-// error - human action                                       errorLog logError
-// warn  - something went wrong; recovered                    warnLog  logWarning
-// audit - informative to the user (what is the app doing)    userLog  auditUser
-// info  - informative to dev/ops                             opsLog   auditOps
-// debug - developer info                                     devLog   auditDev
+
 //
-// onStartUp_expectJavaVersionToBeSentToDebugLog
-// onStartUp_expectClasspathToBeSentToDebugLog
-// onStartUp_expectSettingsToBeEchoedToTheDebugLog
+//
+// onStartUp_expectSettingsToBeEchoedToTheOpsLog
 
-// afterAppHasCompleted_expectUpTimeToBePrintedToAudit
+//
 
 //
 
 
-// givenAppThatTakesFlagsOptionsAndArguments_invokeWithAllWithOptionsAndFlagsBeforeArguments_expectValuesToBeSet
-// givenAppThatTakesFlagsOptionsAndArguments_invokeWithAllWithOptionsAndFlagsAfterArguments_expectValuesToBeSet
 
 }

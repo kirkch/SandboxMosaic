@@ -84,15 +84,24 @@ public final class SystemClock {
         return System.nanoTime() - startNanos;
     }
 
+    public void add( Duration duration ) {
+        clock.add( duration );
+    }
 
 
     private interface Clock {
         public DTM getCurrentDTM();
+
+        public void add( Duration duration );
     }
 
     private class RealTimeClock implements Clock {
         public DTM getCurrentDTM() {
             return new DTM(System.currentTimeMillis());
+        }
+
+        public void add( Duration duration ) {
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -107,6 +116,10 @@ public final class SystemClock {
 
         public DTM getCurrentDTM() {
             return fixedDTM;
+        }
+
+        public void add( Duration duration ) {
+            fixedDTM = fixedDTM.add( duration );
         }
     }
 
@@ -124,6 +137,10 @@ public final class SystemClock {
             long delta     = nowMillis - startMillis;
 
             return new DTM( offset+delta );
+        }
+
+        public void add( Duration duration ) {
+            throw new UnsupportedOperationException();
         }
     }
 
