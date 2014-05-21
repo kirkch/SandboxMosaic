@@ -265,7 +265,7 @@ public class CLApp_argumentTests {
 
         assertEquals( 0, app.runApp("a","b") );
 
-        system.assertNoErrorsOrFatals();
+        system.assertNoAlerts();
     }
 
     @Test
@@ -291,7 +291,7 @@ public class CLApp_argumentTests {
 
         assertEquals( 0, app.runApp("a") );
 
-        system.assertNoErrorsOrFatals();
+        system.assertNoAlerts();
     }
 
     @Test
@@ -369,8 +369,8 @@ public class CLApp_argumentTests {
 
         system.assertStandardErrorEquals( "Invalid value for 'repeatCount', for more information invoke with --help." );
 
-        system.assertFatal( "Invalid value for 'repeatCount', for more information invoke with --help." );
-        system.assertFatal( NumberFormatException.class, "For input string: \"three\"" );
+        system.assertFatalContains( "Invalid value for 'repeatCount', for more information invoke with --help." );
+        system.assertFatalContains( NumberFormatException.class, "For input string: \"three\"" );
     }
 
     @Test
@@ -397,7 +397,7 @@ public class CLApp_argumentTests {
 
         assertEquals( 0, app.runApp("3") );
 
-        system.assertNoErrorsOrFatals();
+        system.assertNoAlerts();
     }
 
 
@@ -450,7 +450,7 @@ public class CLApp_argumentTests {
 
         assertEquals( 42, app.runApp("abc") );
 
-        system.assertNoErrorsOrFatals();
+        system.assertNoAlerts();
     }
 
     @Test
@@ -471,7 +471,7 @@ public class CLApp_argumentTests {
 
         assertEquals( 42, app.runApp() );
 
-        system.assertNoErrorsOrFatals();
+        system.assertNoAlerts();
     }
 
 }

@@ -46,7 +46,7 @@ public abstract class CLApp2 {
 
         DTM nowDTM = system.getCurrentDTM();
 
-        system.audit( "%s started at %2d:%02d:%02d UTC on %04d/%02d/%02d",
+        system.userAudit( "%s started at %2d:%02d:%02d UTC on %04d/%02d/%02d",
             getName(), nowDTM.getHour(), nowDTM.getMinutes(), nowDTM.getSeconds(),
             nowDTM.getYear(), nowDTM.getMonth(), nowDTM.getDayOfMonth() );
     }
@@ -264,7 +264,7 @@ public abstract class CLApp2 {
             numArgsConsumed = consumeOptions( inputArgs );
         } catch ( CLException ex ) {
             system.fatal( ex.getMessage() );
-            system.debug( ex, ex.getMessage() );
+            system.devAudit( ex, ex.getMessage() );
 
             return false;
         }

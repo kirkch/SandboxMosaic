@@ -29,7 +29,7 @@ public class CLAppTest {
 
         assertEquals( 0, app.runApp() );
 
-        system.assertNoErrorsOrFatals();
+        system.assertNoAlerts();
     }
 
     @Test
@@ -42,7 +42,7 @@ public class CLAppTest {
 
         assertEquals( 1, app.runApp() );
 
-        system.assertNoErrorsOrFatals();
+        system.assertNoAlerts();
     }
 
     @Test
@@ -118,7 +118,7 @@ public class CLAppTest {
 
         assertEquals( 42, app.runApp("-o", "abc", "-f") );
 
-        system.assertNoErrorsOrFatals();
+        system.assertNoAlerts();
     }
 
     @Test
@@ -142,7 +142,7 @@ public class CLAppTest {
 
         assertEquals( 42, app.runApp("-foabc") );
 
-        system.assertNoErrorsOrFatals();
+        system.assertNoAlerts();
     }
 
 
@@ -165,7 +165,7 @@ public class CLAppTest {
         assertEquals( 0, app.runApp() );
         assertTrue( "setUp method was not invoked", wasSetupInvoked.get() );
 
-        system.assertNoErrorsOrFatals();
+        system.assertNoAlerts();
     }
 
     @Test
@@ -185,7 +185,7 @@ public class CLAppTest {
         assertEquals( 0, app.runApp() );
         assertTrue( "tearDown method was not invoked", wasTearDownInvoked.get() );
 
-        system.assertNoErrorsOrFatals();
+        system.assertNoAlerts();
     }
 
     @Test
@@ -218,7 +218,7 @@ public class CLAppTest {
 
         assertEquals( 0, app.runApp() );
 
-        system.assertAudit( app.getName() + " started at 10:00:00 UTC on 2020/01/01" );
+        system.assertUserAuditContains( app.getName() + " started at 10:00:00 UTC on 2020/01/01" );
     }
 
     @Test
@@ -233,7 +233,7 @@ public class CLAppTest {
 
         assertEquals( 0, app.runApp() );
 
-        system.assertAudit( app.getName() + " started at 10:00:00 UTC on 2020/01/01" );
+        system.assertUserAuditContains( app.getName() + " started at 10:00:00 UTC on 2020/01/01" );
     }
 
 // alert( FATAL|ERROR|WARN,

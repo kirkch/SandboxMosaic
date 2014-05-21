@@ -2,7 +2,6 @@ package com.mosaic.io.cli;
 
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.system.DebugSystem;
-import com.mosaic.lang.system.SystemX;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -101,7 +100,7 @@ public class CLApp_optionTests {
 
         assertEquals( -1, app.runApp() );
 
-        system.assertNoErrorsOrFatals();
+        system.assertNoAlerts();
     }
 
     @Test
@@ -122,7 +121,7 @@ public class CLApp_optionTests {
 
         assertEquals( -1, app.runApp("-o","foo") );
 
-        system.assertNoErrorsOrFatals();
+        system.assertNoAlerts();
     }
 
     @Test
@@ -143,7 +142,7 @@ public class CLApp_optionTests {
 
         assertEquals( -1, app.runApp("--output=foo bar") );
 
-        system.assertNoErrorsOrFatals();
+        system.assertNoAlerts();
     }
 
 
@@ -221,7 +220,7 @@ public class CLApp_optionTests {
 
         assertEquals( -1, app.runApp() );
 
-        system.assertNoErrorsOrFatals();
+        system.assertNoAlerts();
     }
 
     @Test
@@ -253,7 +252,7 @@ public class CLApp_optionTests {
 
         assertEquals( -1, app.runApp() );
 
-        system.assertNoErrorsOrFatals();
+        system.assertNoAlerts();
     }
 
     @Test
@@ -328,7 +327,7 @@ public class CLApp_optionTests {
 
         assertEquals( -1, app.runApp("-n", "113") );
 
-        system.assertNoErrorsOrFatals();
+        system.assertNoAlerts();
     }
 
     @Test
@@ -360,7 +359,7 @@ public class CLApp_optionTests {
 
         assertEquals( -1, app.runApp("-n113") );
 
-        system.assertNoErrorsOrFatals();
+        system.assertNoAlerts();
     }
 
     @Test
@@ -394,10 +393,10 @@ public class CLApp_optionTests {
 
         assertEquals( 1, app.runApp("-n113") );
 
-        system.assertDebug( CLException.class, "Invalid value '113' for option 'line-count'" );
-        system.assertDebug( IllegalArgumentException.class, "SPLAT" );
+        system.assertDevAuditContains( CLException.class, "Invalid value '113' for option 'line-count'" );
+        system.assertDevAuditContains( IllegalArgumentException.class, "SPLAT" );
 
-        system.assertFatal( "Invalid value '113' for option 'line-count'" );
+        system.assertFatalContains( "Invalid value '113' for option 'line-count'" );
     }
 
 }

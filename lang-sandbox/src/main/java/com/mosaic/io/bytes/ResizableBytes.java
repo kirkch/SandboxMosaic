@@ -261,7 +261,7 @@ public class ResizableBytes extends WrappedBytes {
 
             super.resize( newLength );
 
-            system.debug( "ResizableBytes '%s' has been resized from %s to %s bytes", getName(), originalSize, newLength );
+            system.devAudit( "ResizableBytes '%s' has been resized from %s to %s bytes", getName(), originalSize, newLength );
 
             QA.argIsEqualTo( newLength, super.bufferLength(), "newLength", "super.bufferLength()" );
 

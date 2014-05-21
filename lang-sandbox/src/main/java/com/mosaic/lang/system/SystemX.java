@@ -109,18 +109,16 @@ public abstract class SystemX {
     public final CharacterStream stdout;
     public final CharacterStream stderr;
 
-    public final CharacterStream debug;
-    public final CharacterStream audit;
-    public final CharacterStream info;
-    public final CharacterStream warn;
-    public final CharacterStream error;
-    public final CharacterStream fatal;
+    public final CharacterStream devLog;
+    public final CharacterStream opsLog;
+    public final CharacterStream userLog;
+    public final CharacterStream warnLog;
+    public final CharacterStream fatalLog;
 
-    private final boolean isDebugEnabled;
-    private final boolean isAuditEnabled;
-    private final boolean isInfoEnabled;
+    private final boolean isDevAuditEnabled;
+    private final boolean isOpsAuditEnabled;
+    private final boolean isUserAuditEnabled;
     private final boolean isWarnEnabled;
-    private final boolean isErrorEnabled;
     private final boolean isFatalEnabled;
 
 
@@ -134,32 +132,29 @@ public abstract class SystemX {
         CharacterStream stdout,
         CharacterStream stderr,
 
-        CharacterStream debug,
-        CharacterStream audit,
-        CharacterStream info,
-        CharacterStream warn,
-        CharacterStream error,
-        CharacterStream fatal
+        CharacterStream devLog,
+        CharacterStream opsLog,
+        CharacterStream userLog,
+        CharacterStream warnLog,
+        CharacterStream fatalLog
     ) {
-        this.fileSystem = fileSystem;
-        this.clock      = clock;
+        this.fileSystem         = fileSystem;
+        this.clock              = clock;
 
-        this.stdout     = stdout;
-        this.stderr     = stderr;
+        this.stdout             = stdout;
+        this.stderr             = stderr;
 
-        this.debug      = debug;
-        this.audit      = audit;
-        this.info       = info;
-        this.warn       = warn;
-        this.error      = error;
-        this.fatal      = fatal;
+        this.devLog             = devLog;
+        this.opsLog             = opsLog;
+        this.userLog            = userLog;
+        this.warnLog            = warnLog;
+        this.fatalLog           = fatalLog;
 
-        this.isDebugEnabled = debug.isEnabled();
-        this.isAuditEnabled = audit.isEnabled();
-        this.isInfoEnabled  = info.isEnabled();
-        this.isWarnEnabled  = warn.isEnabled();
-        this.isErrorEnabled = error.isEnabled();
-        this.isFatalEnabled = fatal.isEnabled();
+        this.isDevAuditEnabled  = devLog.isEnabled();
+        this.isOpsAuditEnabled  = opsLog.isEnabled();
+        this.isUserAuditEnabled = userLog.isEnabled();
+        this.isWarnEnabled      = warnLog.isEnabled();
+        this.isFatalEnabled     = fatalLog.isEnabled();
     }
 
 
@@ -189,65 +184,107 @@ public abstract class SystemX {
         return clock.getCurrentMillis();
     }
 
-    public boolean isDebugEnabled() {
-        return isDebugEnabled;
+    public DTM getCurrentDTM() {
+        return clock.getCurrentDTM();
     }
 
-    public boolean isAuditEnabled() {
-        return isAuditEnabled;
+
+    public boolean isDevAuditEnabled() {
+        return isDevAuditEnabled;
     }
 
-    public boolean isInfoEnabled() {
-        return isInfoEnabled;
+    public boolean isUserAuditEnabled() {
+        return isUserAuditEnabled;
+    }
+
+    public boolean isOpsAuditEnabled() {
+        return isOpsAuditEnabled;
     }
 
     public boolean isWarnEnabled() {
         return isWarnEnabled;
     }
 
-    public boolean isErrorEnabled() {
-        return isErrorEnabled;
-    }
-
     public boolean isFatalEnabled() {
         return isFatalEnabled;
     }
 
-    public void debug( String msg, Object... args ) {
-        debug.writeLine( String.format(msg,args) );
+
+    /**
+     * Record information that will help a developer diagnose a problem.  This audit level will
+     * usually be disabled, as it is likely to be spammy and slow the system down.<p/>
+     */
+    public void devAudit( String msg, Object... args ) {
+        devLog.writeLine( String.format( msg, args ) );
     }
 
-    public void debug( Throwable ex, String msg ) {
-        debug.writeLine( msg );
+    /**
+     * Record information that will help a developer diagnose a problem.  This audit level will
+     * usually be disabled, as it is likely to be spammy and slow the system down.<p/>
+     */
+    public void devAudit( Throwable ex, String msg ) {
+        devLog.writeLine( msg );
 
-        debug( msg );
-        debug( ex );
+        devAudit( msg );
+        devAudit( ex );
     }
 
-    public void debug( Throwable ex ) {
-        debug.writeException( ex );
+    /**
+     * Record information that will help a developer diagnose a problem.  This audit level will
+     * usually be disabled, as it is likely to be spammy and slow the system down.<p/>
+     *
+     * A developer is unlikely to look at this audit unless a problem is being worked on
+     * during development.
+     */
+    public void devAudit( Throwable ex ) {
+        devLog.writeException( ex );
     }
 
-    public void audit( String msg, Object... args ) {
-        audit.writeLine( String.format(msg,args) );
+    /**
+     * Record what the users are doing on the system at a level that would make sense to most
+     * technical users of the tool.<p/>
+     *
+     * A user is likely to use this information if the tool is being run directly by them on the
+     * command line, or as an audit made available to them via a GUI.  Or support staff may
+     * access this information on the users behave in order to answer queries.
+     */
+    public void userAudit( String msg, Object... args ) {
+        userLog.writeLine( String.format( msg, args ) );
     }
 
-    public void info( String msg, Object... args ) {
-        info.writeLine( String.format( msg, args ) );
+    /**
+     * Records information that would be useful to the people responsible for keeping the
+     * system up and running.  It is expected that most server tools would have this turned on
+     * by default, however most end user command line tools such as most unix command line tools
+     * like 'ls' and 'cd' would have this turned off by default.<p/>
+     *
+     * Ops is likely to refer to this information, as well as the user audit in respond to
+     * problems that have been flagged.
+     */
+    public void opsAudit( String msg, Object... args ) {
+        opsLog.writeLine( String.format( msg, args ) );
     }
 
+    /**
+     * A problem has been detected, and has either been automatically mitigated or end users will
+     * not be aware of the problem (yet).<p/>
+     *
+     * Upon detection, Ops should review and evaluate any potential impact and remedial actions
+     * promptly during normal working hours.
+     */
     public void warn( String msg, Object... args ) {
-        warn.writeLine( String.format( msg, args ) );
+        warnLog.writeLine( String.format( msg, args ) );
     }
 
-    public void error( Throwable ex ) {
-        error.writeException( ex );
-    }
+    // todo consider adding a return value to warn and fatal; the receipt can be used
+    //   to report when a problem has been resolved.. thus automating updates that a problem
+    //   is still ongoing, and reporting how long it took for a problem to be resolved.
 
-    public void error( String msg, Object... args ) {
-        error.writeLine( String.format( msg, args ) );
-    }
-
+    /**
+     * The system has visibly failed and requires immediate attention.<p/>
+     *
+     * Upon detection, drop what you are doing and fix.  Wake up on call staff if required.
+     */
     public void fatal( Throwable ex, String msg ) {
         stderr.writeLine( msg );
 
@@ -255,16 +292,22 @@ public abstract class SystemX {
         fatal( ex );
     }
 
+    /**
+     * The system has visibly failed and requires immediate attention.<p/>
+     *
+     * Upon detection, drop what you are doing and fix.  Wake up on call staff if required.
+     */
     public void fatal( Throwable ex ) {
-        fatal.writeException( ex );
+        fatalLog.writeException( ex );
     }
 
+    /**
+     * The system has visibly failed and requires immediate attention.<p/>
+     *
+     * Upon detection, drop what you are doing and fix.  Wake up on call staff if required.
+     */
     public void fatal( String msg, Object... args ) {
-        fatal.writeLine( String.format(msg,args) );
+        fatalLog.writeLine( String.format( msg, args ) );
     }
 
-
-    public DTM getCurrentDTM() {
-        return clock.getCurrentDTM();
-    }
 }

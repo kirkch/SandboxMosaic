@@ -57,11 +57,10 @@ public class DebugSystem extends SystemX {
             clock,
             new CapturingCharacterStream( stdOutText ),
             new CapturingCharacterStream( stdErrorText ),
-            new CapturingLogCharacterStream("DEBUG", logOutput, startTime),
-            new CapturingLogCharacterStream("AUDIT", logOutput, startTime),
-            new CapturingLogCharacterStream("INFO", logOutput, startTime),
+            new CapturingLogCharacterStream("DEV", logOutput, startTime),
+            new CapturingLogCharacterStream("OPS", logOutput, startTime),
+            new CapturingLogCharacterStream("USER", logOutput, startTime),
             new CapturingLogCharacterStream("WARN", logOutput, startTime),
-            new CapturingLogCharacterStream("ERROR", logOutput, startTime),
             new CapturingLogCharacterStream("FATAL", logOutput, startTime)
         );
 
@@ -75,39 +74,31 @@ public class DebugSystem extends SystemX {
         fileSystem.deleteAll();
     }
 
-    public void assertDebug( String expectedMessage ) {
-        assertLogMessageContains( "DEBUG", expectedMessage );
+    public void assertDevAuditContains( String expectedMessage ) {
+        assertLogMessageContains( "DEV", expectedMessage );
     }
 
-    public void assertDebug( Class<? extends Throwable> expectedExceptionType, String expectedMessage ) {
-        assertDebug( expectedExceptionType.getSimpleName() + ": " + expectedMessage );
+    public void assertDevAuditContains( Class<? extends Throwable> expectedExceptionType, String expectedMessage ) {
+        assertDevAuditContains( expectedExceptionType.getSimpleName() + ": " + expectedMessage );
     }
 
-    public void assertAudit( String expectedMessage ) {
-        assertLogMessageContains( "AUDIT", expectedMessage );
+    public void assertOpsAuditContains( String expectedMessage ) {
+        assertLogMessageContains( "OPS", expectedMessage );
     }
 
-    public void assertInfo( String expectedMessage ) {
-        assertLogMessageContains( "INFO", expectedMessage );
+    public void assertUserAuditContains( String expectedMessage ) {
+        assertLogMessageContains( "USER", expectedMessage );
     }
 
-    public void assertWarn( String expectedMessage ) {
+    public void assertWarnContains( String expectedMessage ) {
         assertLogMessageContains( "WARN", expectedMessage );
     }
 
-    public void assertError( Class<? extends Throwable> expectedExceptionType, String expectedMessage ) {
-        assertError( expectedExceptionType.getSimpleName() + ": " + expectedMessage );
+    public void assertFatalContains( Class<? extends Throwable> expectedExceptionType, String expectedMessage ) {
+        assertFatalContains( expectedExceptionType.getSimpleName() + ": " + expectedMessage );
     }
 
-    public void assertError( String expectedMessage ) {
-        assertLogMessageContains( "ERROR", expectedMessage );
-    }
-
-    public void assertFatal( Class<? extends Throwable> expectedExceptionType, String expectedMessage ) {
-        assertFatal( expectedExceptionType.getSimpleName() + ": " + expectedMessage );
-    }
-
-    public void assertFatal( String expectedMessage ) {
+    public void assertFatalContains( String expectedMessage ) {
         assertLogMessageContains( "FATAL", expectedMessage );
     }
 
@@ -127,24 +118,20 @@ public class DebugSystem extends SystemX {
         }
     }
 
-    public void assertNoDebugs() {
-        assertNoLogMessages( "DEBUG" );
+    public void assertNoDeveloperMessages() {
+        assertNoLogMessages( "DEV" );
     }
 
-    public void assertNoInfos() {
-        assertNoLogMessages( "INFO" );
+    public void assertNoOpsMessages() {
+        assertNoLogMessages( "OPS" );
     }
 
-    public void assertNoAudits() {
-        assertNoLogMessages( "AUDIT" );
+    public void assertNoUserMessages() {
+        assertNoLogMessages( "USER" );
     }
 
     public void assertNoWarnings() {
         assertNoLogMessages( "WARN" );
-    }
-
-    public void assertNoErrors() {
-        assertNoLogMessages( "ERROR" );
     }
 
     public void assertNoFatals() {
@@ -163,7 +150,7 @@ public class DebugSystem extends SystemX {
 
         assertEquals(
             "File " + filePath + " existed but the contents was not what we expected",
-            Arrays.asList(expectedLines),
+            Arrays.asList( expectedLines ),
             actualLines
         );
     }
@@ -187,13 +174,15 @@ public class DebugSystem extends SystemX {
         }
     }
 
-    public void assertNoLogMessages() {
-        assertNoDebugs();
-        assertNoInfos();
-        assertNoAudits();
+    public void assertNoAlerts() {
         assertNoWarnings();
-        assertNoErrors();
         assertNoFatals();
+    }
+
+    public void assertNoLogMessages() {
+        assertNoDeveloperMessages();
+        assertNoOpsMessages();
+        assertNoUserMessages();
     }
 
     private void assertLogMessageContains( String expectedLogLevel, String expectedMessage ) {
@@ -209,7 +198,7 @@ public class DebugSystem extends SystemX {
 
         reportError(
             String.format(
-                "Failed to find '%s' amongst the "+expectedLogLevel.toLowerCase()+" messages",
+                "Failed to find '%s' amongst the " + expectedLogLevel.toLowerCase() + " messages",
                 expectedMessage
             )
         );
@@ -227,15 +216,9 @@ public class DebugSystem extends SystemX {
         }
     }
 
-    public void assertNoErrorsOrFatals() {
-        assertNoErrors();
-        assertNoFatals();
-    }
-
     public void assertNoOutput() {
         assertStandardErrorEquals();
         assertStandardOutEquals();
-        assertNoLogMessages();
     }
 
     public void assertStandardOutEquals( String...expectedLines ) {

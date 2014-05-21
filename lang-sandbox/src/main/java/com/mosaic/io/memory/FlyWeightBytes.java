@@ -147,7 +147,7 @@ public abstract class FlyWeightBytes<T extends FlyWeightBytes<T>> implements Fly
     private void extendRecordBuffer( long newMaxOffsetExc ) {
         if ( records.bufferLength() < newMaxOffsetExc ) {
             if ( records.bufferLength() < Long.MAX_VALUE/2 ) {
-                system.debug( "Growing flyweight '"+records.getName()+"' to "+newMaxOffsetExc+" bytes long" );
+                system.devAudit( "Growing flyweight '" + records.getName() + "' to " + newMaxOffsetExc + " bytes long" );
 
                 records.resize( records.bufferLength()*2 );
             } else {

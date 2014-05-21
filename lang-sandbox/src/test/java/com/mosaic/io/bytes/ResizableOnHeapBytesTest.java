@@ -45,7 +45,7 @@ public class ResizableOnHeapBytesTest extends BaseBytesTest {
 
         assertEquals( 42, b.readInt( 0 ) );
 
-        system.assertDebug( "ResizableBytes 'testMem' has been resized from 3 to 6 bytes" );
+        system.assertDevAuditContains( "ResizableBytes 'testMem' has been resized from 3 to 6 bytes" );
     }
 
 }

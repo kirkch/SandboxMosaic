@@ -28,7 +28,7 @@ public class CLApp_errorTests {
         assertEquals( 1, app.runApp() );
 
         system.assertStandardErrorEquals( app.getName() + " errored unexpectedly and was aborted. The error was 'RuntimeException:whoops'." );
-        system.assertFatal( RuntimeException.class, "whoops" );
+        system.assertFatalContains( RuntimeException.class, "whoops" );
     }
 
 
@@ -280,8 +280,8 @@ public class CLApp_errorTests {
 
         assertEquals( 1, app.runApp("-f") );
 
-        system.assertFatal( "Unknown flag '-f'.  Run with --help for more information." );
-        system.assertDebug( CLException.class, "Unknown flag '-f'.  Run with --help for more information." );
+        system.assertFatalContains( "Unknown flag '-f'.  Run with --help for more information." );
+        system.assertDevAuditContains( CLException.class, "Unknown flag '-f'.  Run with --help for more information." );
     }
 
     @Test
@@ -304,8 +304,8 @@ public class CLApp_errorTests {
 
         assertEquals( 1, app.runApp("--long-name") );
 
-        system.assertFatal( "Unknown flag '--long-name'.  Run with --help for more information." );
-        system.assertDebug( CLException.class, "Unknown flag '--long-name'.  Run with --help for more information." );
+        system.assertFatalContains( "Unknown flag '--long-name'.  Run with --help for more information." );
+        system.assertDevAuditContains( CLException.class, "Unknown flag '--long-name'.  Run with --help for more information." );
     }
 
 }

@@ -23,11 +23,10 @@ public class LiveSystem extends SystemX {
             clock,
             new PrintStreamCharacterStream(System.out), // stdout
             new PrintStreamCharacterStream(System.out), // stderr
-            new NullCharacterStream(),                  // debug
-            new PrintStreamCharacterStream(System.out), // audit
-            new PrintStreamCharacterStream(System.out), // info
+            new NullCharacterStream(),                  // dev
+            new PrintStreamCharacterStream(System.out), // ops
+            new PrintStreamCharacterStream(System.out), // users
             new LogWriter(clock, "warn",  new PrintStreamCharacterStream(System.err)),
-            new LogWriter(clock, "error", new PrintStreamCharacterStream(System.err)),
             new LogWriter(clock, "fatal", new PrintStreamCharacterStream(System.err))
         );
     }

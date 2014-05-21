@@ -2,7 +2,6 @@ package com.mosaic.io.cli;
 
 import com.mosaic.io.streams.PrettyPrinter;
 import com.mosaic.lang.reflect.ReflectionUtils;
-import com.mosaic.lang.system.LiveSystem;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.time.Duration;
 import com.mosaic.utils.StringUtils;
@@ -45,7 +44,7 @@ public abstract class CLApp {
                 long     endMillis = System.currentTimeMillis();
                 Duration duration  = Duration.millis( endMillis-startMillis );
 
-                system.audit( "Completed %s in %s", commandName, duration );
+                system.userAudit( "Completed %s in %s", commandName, duration );
             }
         });
 
@@ -54,20 +53,20 @@ public abstract class CLApp {
 
 
         try {
-            system.info.newLine();
+            system.opsLog.newLine();
 
-            system.audit.writeString( "Running command '" );
-            system.audit.writeString( commandName );
-            system.audit.writeString( "'" );
+            system.userLog.writeString( "Running command '" );
+            system.userLog.writeString( commandName );
+            system.userLog.writeString( "'" );
 
             for ( Object arg : args ) {
-                system.audit.writeString( " '" );
-                system.audit.writeString( arg.toString() );
-                system.audit.writeString( "'" );
+                system.userLog.writeString( " '" );
+                system.userLog.writeString( arg.toString() );
+                system.userLog.writeString( "'" );
             }
 
-            system.audit.newLine();
-            system.info.newLine();
+            system.userLog.newLine();
+            system.opsLog.newLine();
 
 
             ReflectionUtils.invoke( this, m, (Object[]) args );
@@ -85,11 +84,11 @@ public abstract class CLApp {
     private void printMissingRequiredArgumentsErrorMessage( String[] args ) {
         String[] paramNames = getParameterNames();
 
-        system.error.writeString( "Unable to proceed, missing required command line " );
-        PrettyPrinter.printPleural( system.error, "argument", paramNames.length-args.length );
-        system.error.writeString( " '" );
-        PrettyPrinter.englishList( system.error, paramNames, args.length, paramNames.length );
-        system.error.writeLine( "'" );
+        system.fatalLog.writeString( "Unable to proceed, missing required command line " );
+        PrettyPrinter.printPleural( system.fatalLog, "argument", paramNames.length-args.length );
+        system.fatalLog.writeString( " '" );
+        PrettyPrinter.englishList( system.fatalLog, paramNames, args.length, paramNames.length );
+        system.fatalLog.writeLine( "'" );
     }
 
     protected abstract String[] getUsageAppDescription();
@@ -108,31 +107,31 @@ public abstract class CLApp {
             buf.append( ">" );
         }
 
-        system.info( buf.toString() );
+        system.opsAudit( buf.toString() );
         String[] description = getUsageAppDescription();
 
         if ( !StringUtils.isBlank(description) ) {
-            system.info( "" );
+            system.opsAudit( "" );
 
             for ( String line : description ) {
-                PrettyPrinter.printWrapped( system.info, line, 80 );
+                PrettyPrinter.printWrapped( system.opsLog, line, 80 );
             }
         }
 
-        system.info( "" );
-        system.info( "" );
+        system.opsAudit( "" );
+        system.opsAudit( "" );
 
         String[] descriptions = getParameterDescriptions();
 
         if ( descriptions.length > 0 ) {
             int maxParameterNameLength = PrettyPrinter.longestLength( parameterNames );
-            PrettyPrinter p = new PrettyPrinter(system.info, 4, maxParameterNameLength, 3, 120-7-maxParameterNameLength);
+            PrettyPrinter p = new PrettyPrinter(system.opsLog, 4, maxParameterNameLength, 3, 120-7-maxParameterNameLength);
             for ( int i=0; i< parameterNames.length; i++ ) {
                 p.write( "", parameterNames[i], " - ", descriptions[i] );
             }
 
-            system.info( "" );
-            system.info( "" );
+            system.opsAudit( "" );
+            system.opsAudit( "" );
         }
     }
 
