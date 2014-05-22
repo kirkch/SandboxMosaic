@@ -137,4 +137,17 @@ public class PrettyPrinterTest {
         assertEquals( " Foo.", PrettyPrinter.cleanEnglishSentence(" foo ") );
         assertEquals( " Foo bar.\t ", PrettyPrinter.cleanEnglishSentence(" foo bar \t ") );
     }
+
+    @Test
+    public void underscoreCaseToCamelCase() {
+        assertEquals( "", PrettyPrinter.underscoreCaseToCamelCase("") );
+        assertEquals( null, PrettyPrinter.underscoreCaseToCamelCase(null) );
+        assertEquals( "F", PrettyPrinter.underscoreCaseToCamelCase("f") );
+        assertEquals( "Foo", PrettyPrinter.underscoreCaseToCamelCase("Foo") );
+        assertEquals( "Foobar", PrettyPrinter.underscoreCaseToCamelCase("FooBar") );
+        assertEquals( "Foo", PrettyPrinter.underscoreCaseToCamelCase("foo") );
+        assertEquals( "FooBar", PrettyPrinter.underscoreCaseToCamelCase("foo_bar") );
+        assertEquals( "FooBar", PrettyPrinter.underscoreCaseToCamelCase("foo__bar") );
+    }
+
 }

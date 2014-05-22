@@ -290,7 +290,7 @@ public class CLApp_optionTests {
             "Options:",
             "",
             "    -n <num>, --line-count=<num>",
-            "        Specify the number of lines to be read in. Defaults to 42.",
+            "        Specify the number of lines to be read in.  Defaults to 42.",
             "",
             "    -?, --help",
             "        Display this usage information.",

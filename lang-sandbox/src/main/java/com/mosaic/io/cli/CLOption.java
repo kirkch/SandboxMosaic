@@ -4,8 +4,11 @@ import com.mosaic.collections.ConsList;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.io.streams.PrettyPrinter;
 import com.mosaic.lang.functional.Function1;
+import com.mosaic.utils.ListUtils;
+import com.mosaic.utils.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -15,11 +18,15 @@ import java.util.List;
 public abstract class CLOption<T> implements CLParameter<T> {
 
     public static CLOption<Boolean> createBooleanFlag( String shortName, String longName, String description ) {
-        return new FlagImpl( shortName, longName, description );
+        return new FlagOption( shortName, longName, description );
     }
 
     public static <T> CLOption<T> createOption( String shortName, String longName, String paramName, String description, T defaultValue, Function1<String,T> valueParser ) {
-        return new OptionImpl<>( shortName, longName, paramName, description, defaultValue, valueParser );
+        return new ValueOption<>( shortName, longName, paramName, description, defaultValue, valueParser );
+    }
+
+    public static <T extends Enum<T>> CLOption<T> createEnumOption( String shortName, String longName, String description, Class<T> enumClass, T defaultValue ) {
+        return new EnumOption<>( shortName, longName, description, enumClass, defaultValue );
     }
 
 
@@ -64,7 +71,7 @@ public abstract class CLOption<T> implements CLParameter<T> {
         if ( initialValue == null || initialValue == Boolean.FALSE ) {
             p.write( "", description );
         } else {
-            p.write( "", description + " Defaults to " + initialValue + "." );
+            p.write( "", description + "  Defaults to " + formatValue(initialValue) + "." );
         }
     }
 
@@ -95,10 +102,17 @@ public abstract class CLOption<T> implements CLParameter<T> {
         return description;
     }
 
+    public String formatValue( T v ) {
+        if ( v.getClass().isEnum() ) {
+            return PrettyPrinter.underscoreCaseToCamelCase( v.toString() );
+        } else {
+            return v.toString();
+        }
+    }
 }
 
 
-class FlagImpl extends CLOption<Boolean> {
+class FlagOption extends CLOption<Boolean> {
     private static final Function1<String,Boolean> PARSE_BOOLEAN_FUNCTION = new Function1<String, Boolean>() {
         public Boolean invoke( String arg ) {
             return arg.equals("true") ? Boolean.TRUE : Boolean.FALSE;
@@ -106,7 +120,7 @@ class FlagImpl extends CLOption<Boolean> {
     };
 
 
-    public FlagImpl( String shortName, String longName, String flagDescription ) {
+    public FlagOption( String shortName, String longName, String flagDescription ) {
         super( shortName, longName, flagDescription, Boolean.FALSE, PARSE_BOOLEAN_FUNCTION );
     }
 
@@ -138,12 +152,12 @@ class FlagImpl extends CLOption<Boolean> {
 }
 
 
-class OptionImpl<T> extends CLOption<T> {
+class ValueOption<T> extends CLOption<T> {
 
     private final String paramName;
 
 
-    public OptionImpl( String shortName, String longName, String paramName, String description, T defaultValue, Function1<String,T> parseValueFunction ) {
+    public ValueOption( String shortName, String longName, String paramName, String description, T defaultValue, Function1<String, T> parseValueFunction ) {
         super( shortName, longName, description, defaultValue, parseValueFunction );
         this.paramName = paramName;
     }
@@ -166,7 +180,7 @@ class OptionImpl<T> extends CLOption<T> {
         String arg = unprocessedInput.head();
 
         String shortFlag = "-" + getShortName();
-        if ( arg.equals(shortFlag) ) {
+        if ( arg.equals(shortFlag) || arg.equals("--"+getLongName()) ) {
             if ( unprocessedInput.tail().isEmpty() ) {
                 throw new IllegalArgumentException( unprocessedInput.head()+" requires a value. See --help for more information." );
             }
@@ -176,7 +190,7 @@ class OptionImpl<T> extends CLOption<T> {
             return unprocessedInput.tail().tail();
         } else if ( arg.startsWith(shortFlag) ) {
 
-            setValue( unprocessedInput.head().substring(shortFlag.length()) );
+            setValue( unprocessedInput.head().substring( shortFlag.length() ) );
 
             return unprocessedInput.tail();
         } else if ( arg.startsWith("--"+getLongName()+"=") ) {
@@ -187,4 +201,43 @@ class OptionImpl<T> extends CLOption<T> {
             return unprocessedInput;
         }
     }
+}
+
+
+
+class EnumOption<T extends Enum<T>> extends ValueOption<T> {
+
+    private static <T extends Enum<T>> String processDescription( String description, final Class<T> enumClass ) {
+        StringBuilder buf = new StringBuilder();
+
+        buf.append( PrettyPrinter.cleanEnglishSentence( description ).trim() );
+        buf.append( "  The valid values are: " );
+
+        List<T> enumValues = Arrays.asList( enumClass.getEnumConstants() );
+        List<String> enumValueNames = ListUtils.map( enumValues, new Function1<T,String>() {
+            public String invoke( T v ) {
+                return PrettyPrinter.underscoreCaseToCamelCase( v.name() );
+            }
+        });
+
+        PrettyPrinter.englishList( buf, enumValueNames, "or" );
+        buf.append( "." );
+
+        return buf.toString();
+    }
+
+    public EnumOption( String shortName, String longName, String description, final Class<T> enumClass, T defaultValue ) {
+        super(
+            shortName, longName,
+            StringUtils.removePostFix( enumClass.getSimpleName(), "Enum" ).toLowerCase(),
+            processDescription( description, enumClass ),
+            defaultValue,
+            new Function1<String, T>() {
+                public T invoke( String arg ) {
+                    return Enum.valueOf( enumClass, arg.toUpperCase() );
+                }
+            }
+        );
+    }
+
 }

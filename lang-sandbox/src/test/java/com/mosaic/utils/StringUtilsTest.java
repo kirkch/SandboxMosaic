@@ -46,4 +46,13 @@ public class StringUtilsTest {
         StringUtils.trimRight( "foo bar  " );
         StringUtils.trimRight( "foo bar  " );
     }
+
+    @Test
+    public void removePostFix() {
+        assertEquals( "foo", StringUtils.removePostFix("foo", "bar") );
+        assertEquals( "foo", StringUtils.removePostFix("foobar", "bar") );
+        assertEquals( "", StringUtils.removePostFix("", "bar") );
+        assertEquals( null, StringUtils.removePostFix(null, "bar") );
+    }
+
 }

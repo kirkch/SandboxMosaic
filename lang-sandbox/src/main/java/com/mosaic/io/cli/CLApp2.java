@@ -220,6 +220,18 @@ public abstract class CLApp2 {
         return registerOption( option );
     }
 
+    protected <T extends Enum<T>> CLOption<T> registerEnum( String shortName, String longName, String description, Class<T> enumClass ) {
+        CLOption<T> option = CLOption.createEnumOption( shortName, longName, description, enumClass, null );
+
+        return registerOption( option );
+    }
+
+    protected <T extends Enum<T>> CLOption<T> registerEnum( String shortName, String longName, String description, Class<T> enumClass, T defaultValue ) {
+        CLOption<T> option = CLOption.createEnumOption( shortName, longName, description, enumClass, defaultValue );
+
+        return registerOption( option );
+    }
+
     private <T> CLOption<T> registerOption( CLOption<T> opt ) {
         String shortName = opt.getShortName();
         String longName  = opt.getLongName();

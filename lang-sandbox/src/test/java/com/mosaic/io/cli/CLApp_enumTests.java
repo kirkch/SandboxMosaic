@@ -1,6 +1,10 @@
 package com.mosaic.io.cli;
 
-import com.mosaic.lang.system.SystemX;
+import com.mosaic.lang.system.DebugSystem;
+import org.junit.Test;
+
+import static junit.framework.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -8,56 +12,183 @@ import com.mosaic.lang.system.SystemX;
  */
 public class CLApp_enumTests {
 
+    private DebugSystem system = new DebugSystem();
 
-
-// givenEnumFlag_requestHelp_expectFlagAndValuesToBeDocumented
-// givenEnumFlag_invokeAppWithoutSpecifyingFlag_expectDefaultValueToBeUsed
-// givenEnumFlag_invokeAppWithFlag_expectSuppliedValueToBeUsed
-// givenEnumFlag_invokeAppWithUnknownEnumValue_expectError
-
-
-
-
-
-
-
-
-// cmd OPTIONS args
-
-// -v --verbose
-// --logLevel=debug -d --debug
-// --logLevel=audit -a --audit
-// --logLevel=info -i --info
-
-    private static class AppWithOPTIONS extends CLApp2 {
-
-//        private final CLArgument<LogLevelEnum> logLevelFlag;   // .get()   .setDefaultValue(v)
-//
-//        private final CLArgument<FileX>        sourceFile;
-
-
-        public AppWithOPTIONS( SystemX system ) {
-            super( system );
-
-//            setAppDescription( " " );
-//
-//            this.isVerboseCLF = registerFlag( "verbose", "v", "description" );
-//            this.logLevelCLF  = registerEnumFlag( "logLevel", "description", LogLevelEnum.class,
-//                    new CLEnum(Debug, "debug", "", "description"),
-//                    new CLEnum(Info, "info|verbose", "v", "description"),
-//                    new CLEnum(Audit, "audit", "", "description"),
-//                    new CLEnum(Warn, "warn", "", "description"),
-//                    new CLEnum(Error, "error", "", "description"),
-//                    new CLEnum(Fatal, "fatal", "", "description")
-//                ).withDefaultOf(Audit);
-
-//            this.sourceFile   = registerArgument[T]( "source", "desc", f(s):T )
-        }
-
-
-        protected int _run() {
-            return 0;
-        }
+    public static enum ColourEnum {
+        RED, GREEN, BLUE
     }
+
+
+// NO DEFAULT VALUE
+
+    @Test
+    public void givenEnumFlag_requestHelp_expectFlagAndValuesToBeDocumented() {
+        CLApp2 app = new CLApp2(system) {
+            CLOption<ColourEnum> colour;
+
+            {
+                colour = registerEnum( "c", "colour", "specify a colour", ColourEnum.class );
+            }
+
+            protected int _run() {
+                throw new RuntimeException( "_run was not expected to have been called" );
+            }
+        };
+
+        assertEquals( 0, app.runApp("--help") );
+
+        system.assertStandardOutEquals(
+            "Usage: "+app.getClass().getName(),
+            "",
+            "Options:",
+            "",
+            "    -c <colour>, --colour=<colour>",
+            "        Specify a colour.  The valid values are: Red, Green or Blue.",
+            "",
+            "    -?, --help",
+            "        Display this usage information.",
+            ""
+        );
+    }
+
+    @Test
+    public void givenEnumFlag_invokeAppWithoutSpecifyingFlag_expectDefaultValueToBeUsed() {
+        CLApp2 app = new CLApp2(system) {
+            CLOption<ColourEnum> colour;
+
+            {
+                colour = registerEnum( "c", "colour", "specify a colour", ColourEnum.class );
+            }
+
+            protected int _run() {
+                assertNull( colour.getValue() );
+
+                return 42;
+            }
+        };
+
+        assertEquals( 42, app.runApp() );
+
+        system.assertNoAlerts();
+    }
+
+    @Test
+    public void givenEnumFlag_invokeAppWithShortForm_expectSuppliedValueToBeUsed() {
+        CLApp2 app = new CLApp2(system) {
+            CLOption<ColourEnum> colour;
+
+            {
+                colour = registerEnum( "c", "colour", "specify a colour", ColourEnum.class );
+            }
+
+            protected int _run() {
+                assertEquals( ColourEnum.GREEN, colour.getValue() );
+
+                return 42;
+            }
+        };
+
+        assertEquals( 42, app.runApp("-c", "green") );
+
+        system.assertNoAlerts();
+    }
+
+    @Test
+    public void givenEnumFlag_invokeAppWithLongForm_expectSuppliedValueToBeUsed() {
+        CLApp2 app = new CLApp2(system) {
+            CLOption<ColourEnum> colour;
+
+            {
+                colour = registerEnum( "c", "colour", "specify a colour", ColourEnum.class );
+            }
+
+            protected int _run() {
+                assertEquals( ColourEnum.RED, colour.getValue() );
+
+                return 42;
+            }
+        };
+
+        assertEquals( 42, app.runApp("--colour", "red") );
+
+        system.assertNoAlerts();
+    }
+
+    @Test
+    public void givenEnumFlag_invokeAppWithUnknownEnumValue_expectError() {
+        CLApp2 app = new CLApp2(system) {
+            CLOption<ColourEnum> colour;
+
+            {
+                colour = registerEnum( "c", "colour", "specify a colour", ColourEnum.class );
+            }
+
+            protected int _run() {
+                throw new RuntimeException( "_run was not expected to have been called" );
+            }
+        };
+
+        assertEquals( 1, app.runApp("--colour", "purple") );
+
+        system.assertStandardErrorEquals( "Invalid value 'purple' for option 'colour'" );
+        system.assertFatalContains( "Invalid value 'purple' for option 'colour'" );
+    }
+
+
+// WITH DEFAULT VALUE
+
+
+    @Test
+    public void givenEnumFlagWithDefaultValue_requestHelp_expectFlagAndValuesToBeDocumented() {
+        CLApp2 app = new CLApp2(system) {
+            CLOption<ColourEnum> colour;
+
+            {
+                colour = registerEnum( "c", "colour", "specify a colour", ColourEnum.class, ColourEnum.RED );
+            }
+
+            protected int _run() {
+                throw new RuntimeException( "_run was not expected to have been called" );
+            }
+        };
+
+        assertEquals( 0, app.runApp("--help") );
+
+        system.assertStandardOutEquals(
+            "Usage: "+app.getClass().getName(),
+            "",
+            "Options:",
+            "",
+            "    -c <colour>, --colour=<colour>",
+            "        Specify a colour.  The valid values are: Red, Green or Blue.  Defaults to",
+            "         Red.",
+            "",
+            "    -?, --help",
+            "        Display this usage information.",
+            ""
+        );
+    }
+
+    @Test
+    public void givenEnumFlagWithDefaultValue_invokeAppWithoutSpecifyingFlag_expectDefaultValueToBeUsed() {
+        CLApp2 app = new CLApp2(system) {
+            CLOption<ColourEnum> colour;
+
+            {
+                colour = registerEnum( "c", "colour", "specify a colour", ColourEnum.class, ColourEnum.BLUE );
+            }
+
+            protected int _run() {
+                assertEquals( ColourEnum.BLUE, colour.getValue() );
+
+                return 42;
+            }
+        };
+
+        assertEquals( 42, app.runApp() );
+
+        system.assertNoAlerts();
+    }
+
 
 }

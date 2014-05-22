@@ -146,4 +146,9 @@ public class StringUtils {
 
         return "";
     }
+
+    public static String removePostFix( String string, String postfix ) {
+        return string != null && string.endsWith(postfix) ? string.substring(0,string.length()-postfix.length()) : string;
+    }
+
 }

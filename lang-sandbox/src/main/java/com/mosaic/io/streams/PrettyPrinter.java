@@ -4,6 +4,7 @@ import com.mosaic.collections.Table;
 import com.mosaic.utils.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -50,6 +51,29 @@ public class PrettyPrinter {
         englishList( out, nouns, 0, nouns.length );
     }
 
+    public static void englishList( StringBuilder out, Iterable<String> nouns, String penultimateSeparator ) {
+        boolean printComma = false;
+
+        Iterator<String> it = nouns.iterator();
+        while ( it.hasNext() ) {
+            String noun = it.next();
+
+            if ( printComma ) {
+                if ( it.hasNext() ) {
+                    out.append( ", " );
+                } else {
+                    out.append( " " );
+                    out.append( penultimateSeparator );
+                    out.append( " " );
+                }
+            } else {
+                printComma = true;
+            }
+
+            out.append( noun );
+        }
+    }
+
     public static void englishList( CharacterStream out, String[] nouns, int fromInc, int toExc ) {
         if ( toExc-fromInc <= 0 ) {
             return;
@@ -66,6 +90,27 @@ public class PrettyPrinter {
             out.writeString( " and " );
             out.writeString( nouns[toExc-1] );
         }
+    }
+
+    public static String underscoreCaseToCamelCase( String underscoreCase ) {
+        if ( underscoreCase == null ) {
+            return null;
+        } else if ( underscoreCase.length() == 0 ) {
+            return "";
+        }
+
+
+        StringBuilder buf   = new StringBuilder();
+        String[]      words = underscoreCase.split( "_" );
+
+        for ( String word : words ) {
+            if ( word.length() != 0 ) {
+                buf.append( Character.toUpperCase(word.charAt(0)) );
+                buf.append( word.substring(1).toLowerCase() );
+            }
+        }
+
+        return buf.toString();
     }
 
     /**
