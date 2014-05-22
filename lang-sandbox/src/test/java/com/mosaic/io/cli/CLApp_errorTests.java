@@ -281,7 +281,6 @@ public class CLApp_errorTests {
         assertEquals( 1, app.runApp("-f") );
 
         system.assertFatalContains( "Unknown flag '-f'.  Run with --help for more information." );
-        system.assertDevAuditContains( CLException.class, "Unknown flag '-f'.  Run with --help for more information." );
     }
 
     @Test
@@ -305,7 +304,6 @@ public class CLApp_errorTests {
         assertEquals( 1, app.runApp("--long-name") );
 
         system.assertFatalContains( "Unknown flag '--long-name'.  Run with --help for more information." );
-        system.assertDevAuditContains( CLException.class, "Unknown flag '--long-name'.  Run with --help for more information." );
     }
 
 }

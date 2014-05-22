@@ -1,7 +1,6 @@
 package com.mosaic.collections;
 
 import com.mosaic.lang.QA;
-import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.Nullable;
 
@@ -9,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+
 
 /**
  * A classic cons-list as made popular by functional programming.  Essentially
@@ -29,6 +29,16 @@ public abstract class ConsList<T> implements Iterable<T> {
 
         for ( int i=elements.length-1; i>=0; i-- ) {
             list = list.cons( elements[i] );
+        }
+
+        return list;
+    }
+
+    public static <T> ConsList<T> newConsList( List<T> elements ) {
+        ConsList<T> list = Nil;
+
+        for ( int i=elements.size()-1; i>=0; i-- ) {
+            list = list.cons( elements.get(i) );
         }
 
         return list;

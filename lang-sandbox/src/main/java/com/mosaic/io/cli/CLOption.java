@@ -1,5 +1,6 @@
 package com.mosaic.io.cli;
 
+import com.mosaic.collections.ConsList;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.io.streams.PrettyPrinter;
 import com.mosaic.lang.functional.Function1;
@@ -11,7 +12,7 @@ import java.util.List;
 /**
  *
  */
-public abstract class CLOption<T> {
+public abstract class CLOption<T> implements CLParameter<T> {
 
     public static CLOption<Boolean> createBooleanFlag( String shortName, String longName, String description ) {
         return new FlagImpl( shortName, longName, description );
@@ -69,12 +70,6 @@ public abstract class CLOption<T> {
 
     protected abstract List<String> getAliases();
 
-    /**
-     * Parse the argument at args[i].  Returning the index for the next option to try and consume
-     * their argument at.  Thus return i if there was no match, and i+n if n args were matched; typically
-     * n will be 1 for boolean flags and 2 for options that take one parameter.
-     */
-    public abstract int consumeCommandLineArgs( String[] args, int i );
 
     public String getShortName() {
         return shortName;
@@ -129,8 +124,8 @@ class FlagImpl extends CLOption<Boolean> {
         return aliases;
     }
 
-    public int consumeCommandLineArgs( String[] args, int i ) {
-        String arg = args[i];
+    public ConsList<String> tryToConsumeInput( ConsList<String> unprocessedInput ) {
+        String arg = unprocessedInput.head();
 
         boolean matches = arg.equals( "-"+getShortName() ) || arg.equals( "--"+getLongName() );
 
@@ -138,7 +133,7 @@ class FlagImpl extends CLOption<Boolean> {
             setValue( "true" );
         }
 
-        return matches ? i+1 : i;
+        return matches ? unprocessedInput.tail() : unprocessedInput;
     }
 }
 
@@ -167,29 +162,29 @@ class OptionImpl<T> extends CLOption<T> {
         return aliases;
     }
 
-    public int consumeCommandLineArgs( String[] args, int i ) {
-        String arg = args[i];
+    public ConsList<String> tryToConsumeInput( ConsList<String> unprocessedInput ) {
+        String arg = unprocessedInput.head();
 
         String shortFlag = "-" + getShortName();
         if ( arg.equals(shortFlag) ) {
-            if ( i+1 == args.length ) {
-                throw new IllegalArgumentException( args[i]+" requires a value. See --help for more information." );
+            if ( unprocessedInput.tail().isEmpty() ) {
+                throw new IllegalArgumentException( unprocessedInput.head()+" requires a value. See --help for more information." );
             }
 
-            setValue( args[i+1] );
+            setValue( unprocessedInput.tail().head() );
 
-            return i+2;
+            return unprocessedInput.tail().tail();
         } else if ( arg.startsWith(shortFlag) ) {
 
-            setValue( args[i].substring(shortFlag.length()) );
+            setValue( unprocessedInput.head().substring(shortFlag.length()) );
 
-            return i+1;
+            return unprocessedInput.tail();
         } else if ( arg.startsWith("--"+getLongName()+"=") ) {
             setValue( arg.substring( getLongName().length()+3 ) );
 
-            return i+1;
+            return unprocessedInput.tail();
         } else {
-            return i;
+            return unprocessedInput;
         }
     }
 }

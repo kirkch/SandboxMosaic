@@ -288,7 +288,7 @@ public abstract class SystemX {
     public void fatal( Throwable ex, String msg ) {
         stderr.writeLine( msg );
 
-        fatal( msg );
+        fatalLog.writeLine( msg );
         fatal( ex );
     }
 

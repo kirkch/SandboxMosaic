@@ -74,7 +74,7 @@ public class CLApp_argumentTests {
             "",
             "Options:",
             "",
-            "    --help",
+            "    -?, --help",
             "        Display this usage information.",
             ""
         );
@@ -104,7 +104,7 @@ public class CLApp_argumentTests {
             "",
             "Options:",
             "",
-            "    --help",
+            "    -?, --help",
             "        Display this usage information.",
             ""
         );
@@ -142,7 +142,7 @@ public class CLApp_argumentTests {
             "",
             "Options:",
             "",
-            "    --help",
+            "    -?, --help",
             "        Display this usage information.",
             ""
         );
@@ -236,7 +236,7 @@ public class CLApp_argumentTests {
             "",
             "Options:",
             "",
-            "    --help",
+            "    -?, --help",
             "        Display this usage information.",
             ""
         );
@@ -426,7 +426,7 @@ public class CLApp_argumentTests {
             "",
             "Options:",
             "",
-            "    --help",
+            "    -?, --help",
             "        Display this usage information.",
             ""
         );

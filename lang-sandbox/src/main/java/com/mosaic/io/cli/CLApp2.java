@@ -1,5 +1,6 @@
 package com.mosaic.io.cli;
 
+import com.mosaic.collections.ConsList;
 import com.mosaic.io.streams.PrettyPrinter;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.system.SystemX;
@@ -7,7 +8,6 @@ import com.mosaic.lang.time.DTM;
 import com.mosaic.lang.time.Duration;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +23,8 @@ public abstract class CLApp2 {
 
     private String name;
     private String description;
+
+    private List<CLParameter> allParameters = new ArrayList<>();
 
     private Set<String>          optionNames    = new HashSet<>();
     private List<CLArgument>     args           = new ArrayList<>();
@@ -44,8 +46,10 @@ public abstract class CLApp2 {
 
 
 
-    private final void handleSetUp() {
+    private void handleSetUp() {
         setUpCallback();
+
+        helpFlag = registerFlag( "?", "help", "Display this usage information." );
 
         startedAt = system.getCurrentDTM();
 
@@ -70,7 +74,9 @@ public abstract class CLApp2 {
 
     }
 
-    private  final void handleTearDown() {
+    private CLOption<Boolean> helpFlag;
+
+    private void handleTearDown() {
         tearDownCallback();
 
         DTM      nowDTM   = system.getCurrentDTM();
@@ -88,19 +94,21 @@ public abstract class CLApp2 {
     private static final int MAX_LINE_LENGTH = 80;
 
     public final int runApp( String...inputArgs ) {
-        if ( inputArgs.length == 1 && inputArgs[0].equals("--help") ) { // todo
-            printHelp();
-
-            return 0;
-        }
-
-        String[] normalisedArgs = normaliseInputArgs( inputArgs );
+        ConsList<String> normalisedArgs = normaliseInputArgs( inputArgs );
 
         auditArgs( normalisedArgs );
+
+        handleSetUp();
 
         boolean successfullySetArgumentsFlag = consumeInputArgs( normalisedArgs );
         if ( !successfullySetArgumentsFlag ) {
             return 1;
+        }
+
+        if ( helpFlag.getValue() ) {
+            printHelp();
+
+            return 0;
         }
 
         if ( !hasAllMandatoryArguments() ) {
@@ -112,8 +120,6 @@ public abstract class CLApp2 {
         }
 
         try {
-            handleSetUp();
-
             return _run();
         } catch ( Throwable ex ) {
             system.stderr.writeLine( name + " errored unexpectedly and was aborted. The error was 'RuntimeException:whoops'." );
@@ -125,7 +131,7 @@ public abstract class CLApp2 {
         }
     }
 
-    private void auditArgs( String[] normalisedArgs ) {
+    private void auditArgs( ConsList<String> normalisedArgs ) {
         StringBuilder buf = new StringBuilder();
 
         buf.append( "Command: " );
@@ -174,6 +180,7 @@ public abstract class CLApp2 {
         CLArgument<T> arg = new CLArgument( argumentName, argumentDescription, parseFunction );
 
         this.args.add( arg );
+        this.allParameters.add( arg );
 
         return arg;
     }
@@ -184,6 +191,7 @@ public abstract class CLApp2 {
 
 
         this.args.add( arg );
+        this.allParameters.add( arg );
 
         return arg;
     }
@@ -222,6 +230,7 @@ public abstract class CLApp2 {
 
 
         options.add( opt );
+        allParameters.add( opt );
 
         optionNames.add( shortName );
         optionNames.add( longName );
@@ -268,14 +277,14 @@ public abstract class CLApp2 {
      * Given the input args supplied from main(args), break up the flags that have been
      * concatenated together.
      */
-    private String[] normaliseInputArgs( String[] inputArgs ) {
+    private ConsList<String> normaliseInputArgs( String[] inputArgs ) {
         List<String> normalisedArgs = new ArrayList<>();
 
         for ( String arg : inputArgs ) {
             normalisedInputArg( normalisedArgs, arg );
         }
 
-        return normalisedArgs.toArray( new String[normalisedArgs.size()] );
+        return ConsList.newConsList( normalisedArgs );
     }
 
 
@@ -307,30 +316,28 @@ public abstract class CLApp2 {
     }
 
 
-    private boolean consumeInputArgs( String[] inputArgs ) {
-        int numArgsConsumed;
+    private boolean consumeInputArgs( ConsList<String> inputArgs ) {
+        ConsList<String> unprocessedArgs = inputArgs;
 
-        try {
-            numArgsConsumed = consumeOptions( inputArgs );
-        } catch ( CLException ex ) {
-            system.fatal( ex.getMessage() );
-            system.devAudit( ex, ex.getMessage() );
+        while ( unprocessedArgs.hasContents() ) {
+            ConsList<String> start = unprocessedArgs;
 
-            return false;
-        }
+            for ( CLParameter p : allParameters ) {
+                if ( unprocessedArgs.isEmpty() ) {
+                    return true;
+                }
 
-        List<String> remainingArgs = Arrays.asList( inputArgs ).subList( numArgsConsumed, inputArgs.length );
-        int          maxIndex      = Math.min( remainingArgs.size(), args.size() );
+                try {
+                    unprocessedArgs = p.tryToConsumeInput( unprocessedArgs );
+                } catch ( CLException ex ) {
+                    system.fatal( ex, ex.getMessage() );
 
-        for ( int i=0; i< maxIndex; i++ ) {
-            CLArgument arg = args.get( i );
+                    return false;
+                }
+            }
 
-            try {
-                arg.setValue( remainingArgs.get(i) );
-            } catch ( Exception ex ) {
-                String msg = "Invalid value for '" + arg.getArgumentName() + "', for more information invoke with --help.";
-
-                system.fatal( ex, msg );
+            if ( start == unprocessedArgs ) { // no progress has been made
+                system.fatal( "Unknown flag '"+unprocessedArgs.head()+"'.  Run with --help for more information." );
 
                 return false;
             }
@@ -339,52 +346,14 @@ public abstract class CLApp2 {
         return true;
     }
 
-
-
-    private int consumeOptions( String[] inputArgs ) {
-        int i=0;
-
-        while ( i<inputArgs.length ) {
-            final int original = i;
-
-            for ( CLOption option : options ) {
-                i = option.consumeCommandLineArgs( inputArgs, i );
-
-                if ( i >= inputArgs.length ) {
-                    return i;
-                }
-            }
-
-            // exit early if a loop through the options did not result in any matches
-            if ( i == original ) {
-                String arg = inputArgs[i];
-
-                if ( arg.charAt(0) == '-' ) {
-                    String name = arg.substring( arg.startsWith( "--" ) ? 2 : 1 );
-
-                    throw new CLException( "Unknown flag '"+arg+"'.  Run with --help for more information." );
-                }
-                return i;
-            }
-        }
-
-        return i;
-    }
-
-
     private boolean hasAllMandatoryArguments() {
         return fetchNameOfFirstMissingArgument() == null;
     }
 
     private String fetchNameOfFirstMissingArgument() {
         for ( CLArgument arg : args ) {
-            if ( arg.isMandatory() ) {
-                if ( arg.isEmpty() ) {
-                    return arg.getArgumentName();
-                }
-            } else {
-                // NB mandatory arguments must go before optional ones
-                return null;
+            if ( !arg.hasValidValue() ) {
+                return arg.getArgumentName();
             }
         }
 
@@ -424,9 +393,6 @@ public abstract class CLApp2 {
             option.printHelpSummary( system.stdout, MAX_LINE_LENGTH );
         }
 
-        system.stdout.newLine();
-        system.stdout.writeLine( "    --help" );
-        system.stdout.writeLine( "        Display this usage information." ); // todo move to CLOption
         system.stdout.newLine();
     }
 

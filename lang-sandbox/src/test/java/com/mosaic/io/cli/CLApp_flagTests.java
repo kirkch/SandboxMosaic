@@ -44,7 +44,7 @@ public class CLApp_flagTests {
             "    -d, --debug",
             "        Enable debug mode.",
             "",
-            "    --help",
+            "    -?, --help",
             "        Display this usage information.",
             ""
         );
@@ -76,7 +76,7 @@ public class CLApp_flagTests {
             "    -d, --debug",
             "        Enable debug mode.",
             "",
-            "    --help",
+            "    -?, --help",
             "        Display this usage information.",
             ""
         );

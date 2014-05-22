@@ -61,7 +61,7 @@ public class CLAppTest {
             "",
             "Options:",
             "",
-            "    --help",
+            "    -?, --help",
             "        Display this usage information.",
             ""
         );
@@ -88,7 +88,7 @@ public class CLAppTest {
             "",
             "Options:",
             "",
-            "    --help",
+            "    -?, --help",
             "        Display this usage information.",
             ""
         );
@@ -174,7 +174,7 @@ public class CLAppTest {
         system.assertNoAlerts();
     }
 
-//    @Test
+    @Test
     public void givenAppThatTakesFlagsOptionsAndArguments_invokeWithAllWithOptionsAndFlagsAfterArguments_expectValuesToBeSet() {
         CLApp2 app = new CLApp2(system) {
             public CLOption<Boolean> flag1;

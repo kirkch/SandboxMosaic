@@ -43,7 +43,7 @@ public class CLApp_optionTests {
             "    -o <file>, --output=<file>",
             "        Specify the output directory.",
             "",
-            "    --help",
+            "    -?, --help",
             "        Display this usage information.",
             ""
         );
@@ -76,7 +76,7 @@ public class CLApp_optionTests {
             "        0123456789012345678901234567890123456789012345678901234567890123456789012",
             "        345678901234567890123456789.",
             "",
-            "    --help",
+            "    -?, --help",
             "        Display this usage information.",
             ""
         );
@@ -185,7 +185,7 @@ public class CLApp_optionTests {
             "    -n <num>, --line-count=<num>",
             "        Specify the number of lines to be read in.",
             "",
-            "    --help",
+            "    -?, --help",
             "        Display this usage information.",
             ""
         );
@@ -292,7 +292,7 @@ public class CLApp_optionTests {
             "    -n <num>, --line-count=<num>",
             "        Specify the number of lines to be read in. Defaults to 42.",
             "",
-            "    --help",
+            "    -?, --help",
             "        Display this usage information.",
             ""
         );
@@ -393,10 +393,8 @@ public class CLApp_optionTests {
 
         assertEquals( 1, app.runApp("-n113") );
 
-        system.assertDevAuditContains( CLException.class, "Invalid value '113' for option 'line-count'" );
-        system.assertDevAuditContains( IllegalArgumentException.class, "SPLAT" );
-
-        system.assertFatalContains( "Invalid value '113' for option 'line-count'" );
+        system.assertFatalContains( CLException.class, "Invalid value '113' for option 'line-count'" );
+        system.assertFatalContains( IllegalArgumentException.class, "SPLAT" );
     }
 
 }

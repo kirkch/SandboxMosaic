@@ -1,5 +1,6 @@
 package com.mosaic.io.cli;
 
+import com.mosaic.collections.ConsList;
 import com.mosaic.io.streams.PrettyPrinter;
 import com.mosaic.lang.functional.Function1;
 
@@ -8,7 +9,7 @@ import com.mosaic.lang.functional.Function1;
  *
  */
 @SuppressWarnings("unchecked")
-public class CLArgument<T> {
+public class CLArgument<T> implements CLParameter<T> {
 
     public static final Function1<String,String> NO_OP_PARSER = new Function1<String, String>() {
         public String invoke( String arg ) {
@@ -52,7 +53,13 @@ public class CLArgument<T> {
     }
 
     public void setValue( String value ) {
-        this.value = valueParser.invoke(value);
+        try {
+            this.value = valueParser.invoke(value);
+        } catch ( Exception ex ) {
+            String msg = "Invalid value for '" + getArgumentName() + "', for more information invoke with --help.";
+
+            throw new CLException( msg, ex );
+        }
     }
 
     public T getValue() {
@@ -61,6 +68,10 @@ public class CLArgument<T> {
 
     public T getDefaultValue() {
         return defaultValue;
+    }
+
+    public boolean hasValidValue() {
+        return value != null || isOptional;
     }
 
     public boolean isMandatory() {
@@ -92,4 +103,19 @@ public class CLArgument<T> {
 
         return this;
     }
+
+    public ConsList<String> tryToConsumeInput( ConsList<String> unprocessedInput ) {
+        if ( value == null ) {
+            if ( unprocessedInput.head().startsWith("-") ) {
+                return unprocessedInput;
+            } else {
+                this.setValue( unprocessedInput.head() );
+
+                return unprocessedInput.tail();
+            }
+        } else {
+            return unprocessedInput;
+        }
+    }
+
 }
