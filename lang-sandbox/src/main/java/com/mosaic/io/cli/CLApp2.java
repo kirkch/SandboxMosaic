@@ -8,6 +8,7 @@ import com.mosaic.lang.system.LiveSystem;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.time.DTM;
 import com.mosaic.lang.time.Duration;
+import com.mosaic.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,8 +25,8 @@ public abstract class CLApp2 {
 
     protected final SystemX system;
 
-    private String name;
-    private String description;
+    private String       name;
+    private List<String> description;
 
     private List<CLParameter> allParameters = new ArrayList<>();
 
@@ -49,7 +50,7 @@ public abstract class CLApp2 {
     }
 
 
-    protected abstract int _run();
+    protected abstract int _run() throws Exception;
 
     protected void setUpCallback() {}
     protected void tearDownCallback() {}
@@ -131,7 +132,7 @@ public abstract class CLApp2 {
         if ( !hasAllMandatoryArguments() ) {
             String missingArgumentName = fetchNameOfFirstMissingArgument();
 
-            system.fatal( "Missing required argument '"+missingArgumentName+"', for more information invoke with --help." );
+            system.fatal( "Missing required argument '" + missingArgumentName + "', for more information invoke with --help." );
 
             return 1;
         }
@@ -227,8 +228,12 @@ public abstract class CLApp2 {
         system.opsAudit( buf.toString() );
     }
 
-    protected void setDescription( String description ) {
-        this.description = PrettyPrinter.cleanEnglishSentence(description);
+    protected void setDescription( String...description ) {
+        this.description = new ArrayList();
+
+        for ( String line : description ) {
+            this.description.add( PrettyPrinter.cleanEnglishSentence( line ) );
+        }
     }
 
     protected void setName( String name ) {
@@ -458,7 +463,13 @@ public abstract class CLApp2 {
         system.stdout.newLine();
 
         if ( description != null ) {
-            PrettyPrinter.printWrapped( system.stdout, description, MAX_LINE_LENGTH );
+            for ( String line : description ) {
+                if ( StringUtils.isBlank(line) ) {
+                    system.stdout.newLine();
+                } else {
+                    PrettyPrinter.printWrapped( system.stdout, line, MAX_LINE_LENGTH );
+                }
+            }
 
             system.stdout.newLine();
         }
