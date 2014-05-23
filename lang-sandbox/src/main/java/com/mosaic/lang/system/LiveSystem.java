@@ -17,6 +17,10 @@ public class LiveSystem extends SystemX {
         return new LiveSystem( clock );
     }
 
+    public LiveSystem() {
+        this( new SystemClock() );
+    }
+
     public LiveSystem( SystemClock clock ) {
         super(
             new ActualFileSystem(),

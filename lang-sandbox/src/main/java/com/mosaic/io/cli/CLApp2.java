@@ -4,6 +4,7 @@ import com.mosaic.collections.ConsList;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.io.streams.PrettyPrinter;
 import com.mosaic.lang.functional.Function1;
+import com.mosaic.lang.system.LiveSystem;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.time.DTM;
 import com.mosaic.lang.time.Duration;
@@ -37,6 +38,10 @@ public abstract class CLApp2 {
     private CLOption<Boolean> helpFlag;
     private CLOption<String>  configFile;
 
+
+    protected CLApp2() {
+        this( new LiveSystem() );
+    }
 
     protected CLApp2( SystemX system ) {
         this.system = system;
@@ -126,7 +131,7 @@ public abstract class CLApp2 {
         if ( !hasAllMandatoryArguments() ) {
             String missingArgumentName = fetchNameOfFirstMissingArgument();
 
-            system.stderr.writeLine( "Missing required argument '"+missingArgumentName+"', for more information invoke with --help." );
+            system.fatal( "Missing required argument '"+missingArgumentName+"', for more information invoke with --help." );
 
             return 1;
         }
@@ -148,7 +153,7 @@ public abstract class CLApp2 {
             return;
         }
 
-        system.opsAudit("Config:");
+        system.opsAudit( "Config:" );
 
         for ( CLParameter param : allParameters ) {
             system.opsAudit( "  %s=%s", param.getLongName(), param.getValue() );

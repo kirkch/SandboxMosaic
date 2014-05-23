@@ -182,12 +182,10 @@ public class CLApp_argumentTests {
 
         assertEquals( 1, app.runApp("abc") );
 
-        system.assertStandardErrorEquals(
-            "Missing required argument 'destination', for more information invoke with --help."
-        );
+        system.assertStandardErrorEquals("Missing required argument 'destination', for more information invoke with --help.");
+        system.assertFatalContains("Missing required argument 'destination', for more information invoke with --help.");
 
         system.assertStandardOutEquals();
-        system.assertNoAlerts();
     }
 
     @Test
@@ -210,12 +208,10 @@ public class CLApp_argumentTests {
 
         assertEquals( 1, app.runApp() );
 
-        system.assertStandardErrorEquals(
-            "Missing required argument 'source', for more information invoke with --help."
-        );
+        system.assertStandardErrorEquals("Missing required argument 'source', for more information invoke with --help.");
+        system.assertFatalContains("Missing required argument 'source', for more information invoke with --help.");
 
         system.assertStandardOutEquals();
-        system.assertNoAlerts();
     }
 
     @Test
