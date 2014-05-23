@@ -307,7 +307,12 @@ public abstract class SystemX {
      * Upon detection, drop what you are doing and fix.  Wake up on call staff if required.
      */
     public void fatal( String msg, Object... args ) {
-        fatalLog.writeLine( String.format( msg, args ) );
+        if ( stderr.isEnabled() || fatalLog.isEnabled() ) {
+            String formattedText = String.format( msg, args );
+
+            fatalLog.writeLine( formattedText );
+            stderr.writeLine( formattedText );
+        }
     }
 
 }

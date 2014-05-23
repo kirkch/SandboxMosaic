@@ -61,6 +61,10 @@ public class CLAppTest {
             "",
             "Options:",
             "",
+            "    -c <file>, --config=<file>",
+            "        Any command line option may be included within a properties file and",
+            "        specified here.",
+            "",
             "    -?, --help",
             "        Display this usage information.",
             ""
@@ -87,6 +91,10 @@ public class CLAppTest {
             "This is a test app.  Enjoy.",
             "",
             "Options:",
+            "",
+            "    -c <file>, --config=<file>",
+            "        Any command line option may be included within a properties file and",
+            "        specified here.",
             "",
             "    -?, --help",
             "        Display this usage information.",
@@ -307,7 +315,7 @@ public class CLAppTest {
                 registerFlag( "f", "flag2", "description" );
                 registerFlag( "a", "flag3", "description" );
                 registerFlag( "b", "flag4", "description" );
-                registerFlag( "c", "flag5", "description" );
+                registerFlag( "r", "flag5", "description" );
                 registerFlag( "e", "long-form", "description" );
 
                 registerArgument( "arg1", "description" );
@@ -319,9 +327,9 @@ public class CLAppTest {
             }
         };
 
-        assertEquals( 0, app.runApp("-d", "-f", "-abc", "--long-form", "arg1", "arg2") );
+        assertEquals( 0, app.runApp("-d", "-f", "-abr", "--long-form", "arg1", "arg2") );
 
-        system.assertOpsAuditContains( app.getName() + " -d -f -a -b -c --long-form 'arg1' 'arg2'" );
+        system.assertOpsAuditContains( app.getName() + " -d -f -a -b -r --long-form 'arg1' 'arg2'" );
     }
 
     @Test
@@ -372,16 +380,26 @@ public class CLAppTest {
         system.assertOpsAuditContains( "Library Path: " + System.getProperty( "java.library.path" ) );
     }
 
+    @Test
+    public void onStartUp_expectAllCLParameterValuesToBeSentToTheOpsLog() {
+        system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
 
+        CLApp2 app = new CLApp2(system) {
+            {
+                registerFlag( "a", "flag1", "description" );
+                registerOption( "b", "flag2", "flag", "description" );
+            }
 
-//
-//
-// onStartUp_expectSettingsToBeEchoedToTheOpsLog
+            protected int _run() {
+                return 0;
+            }
+        };
 
-//
+        assertEquals( 0, app.runApp("--flag2=f2") );
 
-//
-
-
+        system.assertOpsAuditContains( "Config:" );
+        system.assertOpsAuditContains( "  flag1=false" );
+        system.assertOpsAuditContains( "  flag2=f2" );
+    }
 
 }

@@ -4,6 +4,8 @@ import com.mosaic.io.bytes.Bytes;
 import com.mosaic.io.bytes.InputBytes;
 
 import java.util.Comparator;
+import java.util.Map;
+import java.util.Properties;
 
 
 /**
@@ -47,4 +49,18 @@ public interface FileX {
 
 
     public long sizeInBytes();
+
+    /**
+     * Load the file, parsing it as a file of key value pairs.
+     */
+    public Map<String,String> loadProperties();
+
+    public void isReadable( boolean isReadable );
+    public boolean isReadable();
+
+    public void isWritable( boolean isWritable );
+    public boolean isWritable();
+
+    public void isExecutable( boolean isExecutable );
+    public boolean isExecutable();
 }

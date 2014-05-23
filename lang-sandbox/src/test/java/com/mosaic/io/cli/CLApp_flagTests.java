@@ -44,6 +44,10 @@ public class CLApp_flagTests {
             "    -d, --debug",
             "        Enable debug mode.",
             "",
+            "    -c <file>, --config=<file>",
+            "        Any command line option may be included within a properties file and",
+            "        specified here.",
+            "",
             "    -?, --help",
             "        Display this usage information.",
             ""
@@ -75,6 +79,10 @@ public class CLApp_flagTests {
             "",
             "    -d, --debug",
             "        Enable debug mode.",
+            "",
+            "    -c <file>, --config=<file>",
+            "        Any command line option may be included within a properties file and",
+            "        specified here.",
             "",
             "    -?, --help",
             "        Display this usage information.",
@@ -158,19 +166,19 @@ public class CLApp_flagTests {
             {
                 this.flag1 = registerFlag( "a", "flag1", "description 1" );
                 this.flag2 = registerFlag( "b", "flag2", "description 2" );
-                this.flag3 = registerFlag( "c", "flag3", "description 3" );
+                this.flag3 = registerFlag( "k", "flag3", "description 3" );
             }
 
             protected int _run() {
                 assertTrue( "-a was set but the value did not make it through", flag1.getValue() );
-                assertTrue( "-c was set but the value did not make it through", flag3.getValue() );
+                assertTrue( "-k was set but the value did not make it through", flag3.getValue() );
                 assertFalse( flag2.getValue() );
 
                 return 42;
             }
         };
 
-        assertEquals( 42, app.runApp("-c", "-a") );
+        assertEquals( 42, app.runApp("-k", "-a") );
 
         system.assertNoAlerts();
     }
@@ -185,19 +193,19 @@ public class CLApp_flagTests {
             {
                 this.flag1 = registerFlag( "a", "flag1", "description 1" );
                 this.flag2 = registerFlag( "b", "flag2", "description 2" );
-                this.flag3 = registerFlag( "c", "flag3", "description 3" );
+                this.flag3 = registerFlag( "k", "flag3", "description 3" );
             }
 
             protected int _run() {
                 assertTrue( "-a was set but the value did not make it through", flag1.getValue() );
-                assertTrue( "-c was set but the value did not make it through", flag3.getValue() );
+                assertTrue( "-k was set but the value did not make it through", flag3.getValue() );
                 assertFalse( flag2.getValue() );
 
                 return 42;
             }
         };
 
-        assertEquals( 42, app.runApp("-ca") );
+        assertEquals( 42, app.runApp("-ka") );
 
         system.assertNoAlerts();
     }

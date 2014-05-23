@@ -20,4 +20,7 @@ public interface CLParameter<T> {
      */
     public ConsList<String> tryToConsumeInput( ConsList<String> unprocessedInput );
 
+    public String getLongName();
+
+    public void setValue( String v );
 }

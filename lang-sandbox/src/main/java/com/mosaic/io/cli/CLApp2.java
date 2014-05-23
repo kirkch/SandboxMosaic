@@ -1,6 +1,7 @@
 package com.mosaic.io.cli;
 
 import com.mosaic.collections.ConsList;
+import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.io.streams.PrettyPrinter;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.system.SystemX;
@@ -10,6 +11,7 @@ import com.mosaic.lang.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -32,6 +34,9 @@ public abstract class CLApp2 {
 
     private DTM                  startedAt;
 
+    private CLOption<Boolean> helpFlag;
+    private CLOption<String>  configFile;
+
 
     protected CLApp2( SystemX system ) {
         this.system = system;
@@ -49,7 +54,8 @@ public abstract class CLApp2 {
     private void handleSetUp() {
         setUpCallback();
 
-        helpFlag = registerFlag( "?", "help", "Display this usage information." );
+        configFile = registerOption( "c", "config", "file", "Any command line option may be included within a properties file and specified here." );
+        helpFlag   = registerFlag( "?", "help", "Display this usage information." );
 
         startedAt = system.getCurrentDTM();
 
@@ -74,7 +80,6 @@ public abstract class CLApp2 {
 
     }
 
-    private CLOption<Boolean> helpFlag;
 
     private void handleTearDown() {
         tearDownCallback();
@@ -94,14 +99,21 @@ public abstract class CLApp2 {
     private static final int MAX_LINE_LENGTH = 80;
 
     public final int runApp( String...inputArgs ) {
+        handleSetUp();
+
+
         ConsList<String> normalisedArgs = normaliseInputArgs( inputArgs );
 
         auditArgs( normalisedArgs );
 
-        handleSetUp();
-
         boolean successfullySetArgumentsFlag = consumeInputArgs( normalisedArgs );
         if ( !successfullySetArgumentsFlag ) {
+            return 1;
+        }
+
+        auditParameters();
+
+        if ( !loadConfigIfAvailable() ) {
             return 1;
         }
 
@@ -129,6 +141,64 @@ public abstract class CLApp2 {
         } finally {
             handleTearDown();
         }
+    }
+
+    private void auditParameters() {
+        if ( !system.isOpsAuditEnabled() ) {
+            return;
+        }
+
+        system.opsAudit("Config:");
+
+        for ( CLParameter param : allParameters ) {
+            system.opsAudit( "  %s=%s", param.getLongName(), param.getValue() );
+        }
+    }
+
+    private boolean loadConfigIfAvailable() {
+        String path = this.configFile.getValue();
+        if ( path == null ) {
+            return true;
+        }
+
+        FileX configFile = system.fileSystem.getFile(path);
+        if ( configFile == null ) {
+            system.fatal( "Unable to find file '"+path+"' specified by --config." );
+
+            return false;
+        } else if ( !configFile.isReadable() ) {
+            system.fatal( "Unable to load file '"+path+"' specified by --config, permission denied." );
+
+            return false;
+        } else {
+            Map<String,String> props = configFile.loadProperties();
+
+            for ( Map.Entry<String,String> e : props.entrySet() ) {
+                CLParameter p = findParameterByLongName( e.getKey() );
+
+                if ( p == null ) {
+                    system.fatal( "Unknown setting '%s' in '%s' specified by --config.", e.getKey(), path );
+
+                    return false;
+                } else if ( p.getValue() == null ) {
+                    p.setValue( e.getValue() );
+                } else {
+                    // The value has already been set explicitly via the command line, so ignore the setting in the config file
+                }
+            }
+
+            return true;
+        }
+    }
+
+    private CLParameter findParameterByLongName( String key ) {
+        for ( CLParameter p : allParameters ) {
+            if ( key.equals(p.getLongName()) ) {
+                return p;
+            }
+        }
+
+        return null;
     }
 
     private void auditArgs( ConsList<String> normalisedArgs ) {
@@ -244,14 +314,17 @@ public abstract class CLApp2 {
         options.add( opt );
         allParameters.add( opt );
 
-        optionNames.add( shortName );
+        if ( shortName.length() > 0 ) {
+            optionNames.add( shortName );
+        }
+
         optionNames.add( longName );
 
         return opt;
     }
 
     private void throwIfInvalidShortName( String shortName ) {
-        if ( shortName.length() != 1 ) {
+        if ( shortName.length() > 1 ) {
             throw new IllegalArgumentException( "'"+shortName+"' is not a valid short name, short names can only be one character long" );
         }
     }
@@ -259,7 +332,7 @@ public abstract class CLApp2 {
 
     private void throwIfArgumentNameHasAlreadyBeenRegistered( String argumentName ) {
         for ( CLArgument arg : args ) {
-            if ( arg.getArgumentName().equals(argumentName) ) {
+            if ( arg.getLongName().equals(argumentName) ) {
                 throw new IllegalArgumentException( "'"+argumentName+"' has been declared twice" );
             }
         }
@@ -365,7 +438,7 @@ public abstract class CLApp2 {
     private String fetchNameOfFirstMissingArgument() {
         for ( CLArgument arg : args ) {
             if ( !arg.hasValidValue() ) {
-                return arg.getArgumentName();
+                return arg.getLongName();
             }
         }
 
@@ -391,7 +464,7 @@ public abstract class CLApp2 {
             p.setColumnHandler( 3, PrettyPrinter.WRAP );
 
             for ( CLArgument arg : args ) {
-                p.write( "", arg.getArgumentName(), "-", arg.getArgumentDescription() );
+                p.write( "", arg.getLongName(), "-", arg.getArgumentDescription() );
             }
 
             system.stdout.newLine();
@@ -415,10 +488,10 @@ public abstract class CLApp2 {
             buf.append( " " );
             if ( arg.isOptional() ) {
                 buf.append( '[' );
-                buf.append( arg.getArgumentName() );
+                buf.append( arg.getLongName() );
                 buf.append( ']' );
             } else {
-                buf.append( arg.getArgumentName() );
+                buf.append( arg.getLongName() );
             }
         }
 
@@ -429,7 +502,7 @@ public abstract class CLApp2 {
         int max = 0;
 
         for ( CLArgument arg : args ) {
-            max = Math.max( max, arg.getArgumentName().length() );
+            max = Math.max( max, arg.getLongName().length() );
         }
 
         return max;

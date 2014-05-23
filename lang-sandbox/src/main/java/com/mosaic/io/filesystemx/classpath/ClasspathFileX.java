@@ -3,12 +3,16 @@ package com.mosaic.io.filesystemx.classpath;
 import com.mosaic.io.bytes.Bytes;
 import com.mosaic.io.bytes.InputBytes;
 import com.mosaic.io.bytes.InputBytesAdapter;
+import com.mosaic.io.bytes.InputStreamAdapter;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.NotFoundException;
 import com.mosaic.lang.system.Backdoor;
+import com.mosaic.utils.PropertyUtils;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Properties;
 
 
 /**
@@ -65,6 +69,45 @@ public class ClassPathFileX implements FileX {
 
 
         return lazyLoad().bufferLength();
+    }
+
+    public Map<String, String> loadProperties() {
+        InputBytes b = loadBytesRO();
+
+        Properties props = new Properties();
+        try {
+            props.load( new InputStreamAdapter(b) );
+        } catch ( IOException e ) {
+            Backdoor.throwException( e );
+        } finally {
+            b.release();
+        }
+
+        return PropertyUtils.processProperties( props );
+    }
+
+    public void isReadable( boolean isReadable ) {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isReadable() {
+        return true;
+    }
+
+    public void isWritable( boolean isWritable ) {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isWritable() {
+        return false;
+    }
+
+    public void isExecutable( boolean isExecutable ) {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isExecutable() {
+        return false;
     }
 
 

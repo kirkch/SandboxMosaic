@@ -151,4 +151,17 @@ public class StringUtils {
         return string != null && string.endsWith(postfix) ? string.substring(0,string.length()-postfix.length()) : string;
     }
 
+    /**
+     * Return the string up to and excluding the specified character.
+     */
+    public static String upto( String str, char c ) {
+        if ( str == null ) {
+            return null;
+        }
+
+        int i = str.indexOf(c);
+
+        return i >= 0 ? str.substring( 0, i ) : str;
+    }
+
 }

@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import static java.lang.Character.isWhitespace;
+
 
 /**
  *
@@ -36,6 +38,12 @@ public class PrettyPrinter {
             } else {
                 info.writeLine( text.substring(i, endIndexExc) );
             }
+        }
+    }
+
+    public static void repeat( StringBuilder buf, char c, int numTimes ) {
+        for ( int i=0; i<numTimes; i++ ) {
+            buf.append( c );
         }
     }
 
@@ -324,31 +332,56 @@ public class PrettyPrinter {
             }
         }
 
+        /**
+         * Always writes the entire cell width, padding with spaces.
+         */
         private int writeFragmentToCell( Table<String> tableBuffer, int currentRow, int col, String str, int numCharactersRemaining, int maxWidth ) {
-            int stringLength = str.length();
-            int from         = stringLength - numCharactersRemaining;
+            StringBuilder buf = new StringBuilder(maxWidth);
 
-            if ( numCharactersRemaining > maxWidth ) {
-                int endIndexExc = from + maxWidth;
-                String substring = str.substring( from, endIndexExc );
+            int from = skipWhiteSpace(str, str.length()-numCharactersRemaining);
+            int to   = selectEndOfStringToCopy(str, from, maxWidth);
+            int len  = to - from;
 
-                tableBuffer.set( currentRow, col, substring );
-
-                return stringLength-endIndexExc;
-            } else {
-                StringBuilder buf = new StringBuilder();
-
-                buf.append( str, from, stringLength );
-
-                for ( int j=maxWidth-buf.length(); j > 0; j-- ) {
-                    buf.append( ' ' );
-                }
+            buf.append( str.substring(from, to) );
 
 
-                tableBuffer.set( currentRow, col, buf.toString() );
+            PrettyPrinter.repeat( buf, ' ', maxWidth-len );
 
-                return 0;
+            tableBuffer.set( currentRow, col, buf.toString() );
+
+            return str.length()-to;
+        }
+
+        private int skipWhiteSpace( String str, int i ) {
+            while ( i<str.length() && isWhitespace(str.charAt(i)) ) {
+                i++;
             }
+
+            return i;
+        }
+
+        private int selectEndOfStringToCopy( String str, int from, int maxWidth ) {
+            int to = Math.min( str.length(), from+maxWidth );
+
+            if ( isWithinWord(str,to) ) {
+                for ( int i=to-1; i>from; i-- ) {
+                    if ( isWhitespace(str.charAt(i)) ) {
+                        return i;
+                    }
+                }
+            }
+
+            return to;
+        }
+
+        private boolean isWithinWord( String str, int i ) {
+            if ( i < str.length() ) {
+                return !isWhitespace( str.charAt(i) ) && !isWhitespace( str.charAt(i-1) );
+            }
+
+            return false;
         }
     }
+
+
 }

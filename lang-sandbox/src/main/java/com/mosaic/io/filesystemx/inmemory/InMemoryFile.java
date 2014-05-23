@@ -1,10 +1,17 @@
 package com.mosaic.io.filesystemx.inmemory;
 
 import com.mosaic.io.bytes.Bytes;
+import com.mosaic.io.bytes.InputStreamAdapter;
 import com.mosaic.io.bytes.WrappedBytes;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.system.Backdoor;
+import com.mosaic.utils.PropertyUtils;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.Properties;
 
 
 /**
@@ -17,6 +24,11 @@ public class InMemoryFile implements FileX {
     private Bytes             bytes;
 
     private boolean           hasBeenDeletedFlag;
+
+    private boolean isReadable   = true;
+    private boolean isWritable   = true;
+    private boolean isExecutable = false;
+
 
     InMemoryFile( InMemoryDirectory parentDirectory, String fileName ) {
         this( parentDirectory, fileName, Bytes.wrap("") );
@@ -80,6 +92,21 @@ public class InMemoryFile implements FileX {
         return bytes == null ? 0 : bytes.bufferLength();
     }
 
+    public Map<String, String> loadProperties() {
+        Bytes b = loadBytes( FileModeEnum.READ_ONLY );
+
+        Properties props = new Properties();
+        try {
+            props.load( new InputStreamAdapter(b) );
+        } catch ( IOException e ) {
+            Backdoor.throwException( e );
+        } finally {
+            b.release();
+        }
+
+        return PropertyUtils.processProperties( props );
+    }
+
     public String getFullPath() {
         throwIfDeleted();
 
@@ -95,6 +122,30 @@ public class InMemoryFile implements FileX {
         this.hasBeenDeletedFlag = true;
         this.bytes              = null;
         this.parentDirectory    = null;
+    }
+
+    public void isReadable( boolean isReadable ) {
+        this.isReadable = isReadable;
+    }
+
+    public boolean isReadable() {
+        return isReadable;
+    }
+
+    public void isWritable( boolean isWritable ) {
+        this.isWritable = isWritable;
+    }
+
+    public boolean isWritable() {
+        return isWritable;
+    }
+
+    public void isExecutable( boolean isExecutable ) {
+        this.isExecutable = isExecutable;
+    }
+
+    public boolean isExecutable() {
+        return isExecutable;
     }
 
     public String toString() {

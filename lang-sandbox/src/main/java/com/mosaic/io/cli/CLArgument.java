@@ -38,7 +38,7 @@ public class CLArgument<T> implements CLParameter<T> {
         this.valueParser         = valueParser;
     }
 
-    public String getArgumentName() {
+    public String getLongName() {
         return argumentName;
     }
 
@@ -56,7 +56,7 @@ public class CLArgument<T> implements CLParameter<T> {
         try {
             this.value = valueParser.invoke(value);
         } catch ( Exception ex ) {
-            String msg = "Invalid value for '" + getArgumentName() + "', for more information invoke with --help.";
+            String msg = "Invalid value for '" + getLongName() + "', for more information invoke with --help.";
 
             throw new CLException( msg, ex );
         }
@@ -116,6 +116,10 @@ public class CLArgument<T> implements CLParameter<T> {
         } else {
             return unprocessedInput;
         }
+    }
+
+    public String toString() {
+        return getLongName();
     }
 
 }

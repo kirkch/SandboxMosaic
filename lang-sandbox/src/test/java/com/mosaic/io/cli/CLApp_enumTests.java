@@ -27,7 +27,7 @@ public class CLApp_enumTests {
             CLOption<ColourEnum> colour;
 
             {
-                colour = registerEnum( "c", "colour", "specify a colour", ColourEnum.class );
+                colour = registerEnum( "r", "colour", "specify a colour", ColourEnum.class );
             }
 
             protected int _run() {
@@ -42,8 +42,12 @@ public class CLApp_enumTests {
             "",
             "Options:",
             "",
-            "    -c <colour>, --colour=<colour>",
+            "    -r <colour>, --colour=<colour>",
             "        Specify a colour.  The valid values are: Red, Green or Blue.",
+            "",
+            "    -c <file>, --config=<file>",
+            "        Any command line option may be included within a properties file and",
+            "        specified here.",
             "",
             "    -?, --help",
             "        Display this usage information.",
@@ -57,7 +61,7 @@ public class CLApp_enumTests {
             CLOption<ColourEnum> colour;
 
             {
-                colour = registerEnum( "c", "colour", "specify a colour", ColourEnum.class );
+                colour = registerEnum( "r", "colour", "specify a colour", ColourEnum.class );
             }
 
             protected int _run() {
@@ -78,7 +82,7 @@ public class CLApp_enumTests {
             CLOption<ColourEnum> colour;
 
             {
-                colour = registerEnum( "c", "colour", "specify a colour", ColourEnum.class );
+                colour = registerEnum( "r", "colour", "specify a colour", ColourEnum.class );
             }
 
             protected int _run() {
@@ -88,7 +92,7 @@ public class CLApp_enumTests {
             }
         };
 
-        assertEquals( 42, app.runApp("-c", "green") );
+        assertEquals( 42, app.runApp("-r", "green") );
 
         system.assertNoAlerts();
     }
@@ -99,7 +103,7 @@ public class CLApp_enumTests {
             CLOption<ColourEnum> colour;
 
             {
-                colour = registerEnum( "c", "colour", "specify a colour", ColourEnum.class );
+                colour = registerEnum( "r", "colour", "specify a colour", ColourEnum.class );
             }
 
             protected int _run() {
@@ -120,7 +124,7 @@ public class CLApp_enumTests {
             CLOption<ColourEnum> colour;
 
             {
-                colour = registerEnum( "c", "colour", "specify a colour", ColourEnum.class );
+                colour = registerEnum( "r", "colour", "specify a colour", ColourEnum.class );
             }
 
             protected int _run() {
@@ -144,7 +148,7 @@ public class CLApp_enumTests {
             CLOption<ColourEnum> colour;
 
             {
-                colour = registerEnum( "c", "colour", "specify a colour", ColourEnum.class, ColourEnum.RED );
+                colour = registerEnum( "r", "colour", "specify a colour", ColourEnum.class, ColourEnum.RED );
             }
 
             protected int _run() {
@@ -159,9 +163,13 @@ public class CLApp_enumTests {
             "",
             "Options:",
             "",
-            "    -c <colour>, --colour=<colour>",
+            "    -r <colour>, --colour=<colour>",
             "        Specify a colour.  The valid values are: Red, Green or Blue.  Defaults to",
-            "         Red.",
+            "        Red.",
+            "",
+            "    -c <file>, --config=<file>",
+            "        Any command line option may be included within a properties file and",
+            "        specified here.",
             "",
             "    -?, --help",
             "        Display this usage information.",
@@ -175,7 +183,7 @@ public class CLApp_enumTests {
             CLOption<ColourEnum> colour;
 
             {
-                colour = registerEnum( "c", "colour", "specify a colour", ColourEnum.class, ColourEnum.BLUE );
+                colour = registerEnum( "r", "colour", "specify a colour", ColourEnum.class, ColourEnum.BLUE );
             }
 
             protected int _run() {

@@ -55,4 +55,16 @@ public class StringUtilsTest {
         assertEquals( null, StringUtils.removePostFix(null, "bar") );
     }
 
+    @Test
+    public void upto() {
+        assertEquals( "", StringUtils.upto("", '#') );
+        assertEquals( "foo", StringUtils.upto("foo", '#') );
+        assertEquals( "foo  ", StringUtils.upto("foo  ", '#') );
+        assertTrue( "foo  " == StringUtils.upto("foo  ", '#') );
+        assertEquals( null, StringUtils.upto(null, '#') );
+        assertEquals( "foo  ", StringUtils.upto("foo  # foo bar", '#') );
+        assertEquals( "foo  ", StringUtils.upto("foo  ## foo bar", '#') );
+        assertEquals( "foo  ", StringUtils.upto("foo  #", '#') );
+    }
+
 }

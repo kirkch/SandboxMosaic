@@ -179,8 +179,7 @@ class ValueOption<T> extends CLOption<T> {
     public ConsList<String> tryToConsumeInput( ConsList<String> unprocessedInput ) {
         String arg = unprocessedInput.head();
 
-        String shortFlag = "-" + getShortName();
-        if ( arg.equals(shortFlag) || arg.equals("--"+getLongName()) ) {
+        if ( arg.equals("-" + getShortName()) || arg.equals("--"+getLongName()) ) {
             if ( unprocessedInput.tail().isEmpty() ) {
                 throw new IllegalArgumentException( unprocessedInput.head()+" requires a value. See --help for more information." );
             }
@@ -188,11 +187,6 @@ class ValueOption<T> extends CLOption<T> {
             setValue( unprocessedInput.tail().head() );
 
             return unprocessedInput.tail().tail();
-        } else if ( arg.startsWith(shortFlag) ) {
-
-            setValue( unprocessedInput.head().substring( shortFlag.length() ) );
-
-            return unprocessedInput.tail();
         } else if ( arg.startsWith("--"+getLongName()+"=") ) {
             setValue( arg.substring( getLongName().length()+3 ) );
 
@@ -201,6 +195,11 @@ class ValueOption<T> extends CLOption<T> {
             return unprocessedInput;
         }
     }
+
+    public String toString() {
+        return getLongName();
+    }
+
 }
 
 

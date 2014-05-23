@@ -48,6 +48,24 @@ public class PrettyPrinterTest {
     }
 
     @Test
+    public void writeColumns_wrapFirstColumnToColumnWidth_ensureWholeWordsMoveToNextLineWherePossible() {
+        CapturingCharacterStream out = new CapturingCharacterStream();
+        PrettyPrinter p = new PrettyPrinter( out, 3,7 );
+        p.setColumnHandler( 1, PrettyPrinter.WRAP );
+
+        p.write( 1,"hello jim" );
+        p.write( "over","flow" );
+
+        List<String> expected = Arrays.asList(
+            "1   hello",
+            "    jim",
+            "ove flow"
+        );
+
+        assertEquals( expected, out.audit );
+    }
+
+    @Test
     public void writeColumns_wrapSecondColumnToColumnWidth() {
         CapturingCharacterStream out = new CapturingCharacterStream();
         PrettyPrinter p = new PrettyPrinter( out, 4,2 );

@@ -6,6 +6,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.util.Map;
+
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
@@ -213,6 +216,57 @@ public abstract class BaseFileSystemTestCases {
 
         fileContents.release();
         copiedFile.delete();
+    }
+
+
+// LOAD PROPERTIES
+
+    @Test
+    public void givenFile_loadProperties() {
+        fileSystem.addFile( "foo.txt", "key1=a", "key2=b" );
+
+        Map<String,String> properties = fileSystem.getFile( "foo.txt" ).loadProperties();
+
+        assertEquals( "a", properties.get("key1") );
+        assertEquals( "b", properties.get("key2") );
+        assertEquals( 2, properties.size() );
+    }
+
+    @Test
+    public void givenFileWithComments_loadProperties() {
+        fileSystem.addFile( "foo.txt", "#properties with comment", "key1=a  # comment2", "key2= b " );
+
+        Map<String,String> properties = fileSystem.getFile( "foo.txt" ).loadProperties();
+
+        assertEquals( "a", properties.get("key1") );
+        assertEquals( "b", properties.get("key2") );
+        assertEquals( 2, properties.size() );
+    }
+
+    @Test
+    public void givenFileWithKeyWithNoValue() {
+        fileSystem.addFile( "foo.txt", "#properties with comment", "key1", "key2=" );
+
+        Map<String,String> properties = fileSystem.getFile( "foo.txt" ).loadProperties();
+
+        assertEquals( "", properties.get("key1") );
+        assertEquals( "", properties.get("key2") );
+        assertEquals( 2, properties.size() );
+    }
+
+    @Test
+    public void givenFile_tryToMutateProperties_expectError() {
+        fileSystem.addFile( "foo.txt", "key1=a", "key2=b" );
+
+        Map<String,String> properties = fileSystem.getFile( "foo.txt" ).loadProperties();
+
+
+        try {
+            properties.put( "a", "b");
+            fail("expected exception");
+        } catch ( UnsupportedOperationException ex ) {
+            assertNull( ex.getMessage() );
+        }
     }
 
 }
