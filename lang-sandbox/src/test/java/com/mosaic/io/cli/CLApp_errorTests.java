@@ -19,7 +19,7 @@ public class CLApp_errorTests {
 
     @Test
     public void givenAppThatThrowsExceptionWhenRun_runApp_expectError() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             protected int _run() {
                 throw new RuntimeException( "whoops" );
             }
@@ -37,7 +37,7 @@ public class CLApp_errorTests {
     @Test
     public void givenFlagWithMultipleLettersForShortForm_expectExceptionAsTheShortFormMustBeSingleLetters() {
         try {
-            new CLApp2(system) {
+            new CLApp(system) {
                 public CLOption<String> source;
 
                 {
@@ -63,7 +63,7 @@ public class CLApp_errorTests {
     @Test
     public void givenDuplicateLongOptionNames_expectException() {
         try {
-            new CLApp2(system) {
+            new CLApp(system) {
                 public CLOption<String> source;
                 public CLOption<String> destination;
 
@@ -88,7 +88,7 @@ public class CLApp_errorTests {
     @Test
     public void givenDuplicateShortOptionNames_expectException() {
         try {
-            new CLApp2(system) {
+            new CLApp(system) {
                 public CLOption<String> source;
                 public CLOption<String> destination;
 
@@ -113,7 +113,7 @@ public class CLApp_errorTests {
     @Test
     public void givenDuplicateLongFlagNames_expectException() {
         try {
-            new CLApp2(system) {
+            new CLApp(system) {
                 public CLOption<Boolean> flag1;
                 public CLOption<Boolean> flag2;
 
@@ -138,7 +138,7 @@ public class CLApp_errorTests {
     @Test
     public void givenDuplicateShortFlagNames_expectException() {
         try {
-            new CLApp2(system) {
+            new CLApp(system) {
                 public CLOption<Boolean> flag1;
                 public CLOption<Boolean> flag2;
 
@@ -163,7 +163,7 @@ public class CLApp_errorTests {
     @Test
     public void givenDuplicateShortFlagNameThatClashesWithShortOptionName_expectException() {
         try {
-            new CLApp2(system) {
+            new CLApp(system) {
                 public CLOption<Boolean> flag1;
                 public CLOption<String>  option1;
 
@@ -188,7 +188,7 @@ public class CLApp_errorTests {
     @Test
     public void givenDuplicateLongFlagNameThatClashesWithShortOptionName_expectException() {
         try {
-            new CLApp2(system) {
+            new CLApp(system) {
                 public CLOption<Boolean> flag1;
                 public CLOption<String>  option1;
 
@@ -213,7 +213,7 @@ public class CLApp_errorTests {
     @Test
     public void givenDuplicateShortFlagNameThatClashesWithLongOptionName_expectException() {
         try {
-            new CLApp2(system) {
+            new CLApp(system) {
                 public CLOption<Boolean> flag1;
                 public CLOption<String>  option1;
 
@@ -238,7 +238,7 @@ public class CLApp_errorTests {
     @Test
     public void givenDuplicateLongFlagNameThatClashesWithLongOptionName_expectException() {
         try {
-            new CLApp2(system) {
+            new CLApp(system) {
                 public CLOption<Boolean> flag1;
                 public CLOption<String>  option1;
 
@@ -262,7 +262,7 @@ public class CLApp_errorTests {
 
     @Test
     public void supplyUnknownShortNameFlag_expectFatalErrorAsPerUnixConvention() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Boolean> flag1;
             public CLOption<String>  option1;
 
@@ -285,7 +285,7 @@ public class CLApp_errorTests {
 
     @Test
     public void supplyUnknownLongNameFlag_expectFatalErrorAsPerUnixConvention() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Boolean> flag1;
             public CLOption<String>  option1;
 

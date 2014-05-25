@@ -22,7 +22,7 @@ public class CLAppTest {
 
     @Test
     public void givenAppWithNoFlagsNoArgsNoDescriptionAndReturnsZeroWhenRun_invoke_expectZero() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             protected int _run() {
                 return 0;
             }
@@ -35,7 +35,7 @@ public class CLAppTest {
 
     @Test
     public void givenAppWithNoFlagsNoArgsNoDescriptionAndReturnsOneWhenRun_invoke_expectOne() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             protected int _run() {
                 return 1;
             }
@@ -48,7 +48,7 @@ public class CLAppTest {
 
     @Test
     public void givenAppWithNoFlagsNoArgsNoDescriptionAndReturnsOneWhenRun_requestHelp_expectDefaultHelp() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             protected int _run() {
                 return 1;
             }
@@ -73,7 +73,7 @@ public class CLAppTest {
 
     @Test
     public void givenAppWithDescriptionOnly_requestHelp_expectDescriptionInHelp() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             {
                 setDescription( "This is a test app.  Enjoy." );
             }
@@ -108,7 +108,7 @@ public class CLAppTest {
 
     @Test
     public void givenOneOptionAndOneFlag_supplyBothSeparately_expectValues() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Boolean> flag1;
             public CLOption<String>  option1;
 
@@ -132,7 +132,7 @@ public class CLAppTest {
 
     @Test
     public void givenOneOptionAndOneFlag_supplyBothConcatenatedTogetherUsingShortForm_expectValues() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Boolean> flag1;
             public CLOption<String>  option1;
 
@@ -156,7 +156,7 @@ public class CLAppTest {
 
     @Test
     public void givenAppThatTakesFlagsOptionsAndArguments_invokeWithAllWithOptionsAndFlagsBeforeArguments_expectValuesToBeSet() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Boolean> flag1;
             public CLOption<String>  option1;
             public CLArgument<String>  arg1;
@@ -184,7 +184,7 @@ public class CLAppTest {
 
     @Test
     public void givenAppThatTakesFlagsOptionsAndArguments_invokeWithAllWithOptionsAndFlagsAfterArguments_expectValuesToBeSet() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Boolean> flag1;
             public CLOption<String>  option1;
             public CLArgument<String>  arg1;
@@ -217,7 +217,7 @@ public class CLAppTest {
     public void onStartUp_expectSetupMethodToBeInvoked() {
         final AtomicBoolean wasSetupInvoked = new AtomicBoolean( false );
 
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             protected void setUpCallback() {
                 wasSetupInvoked.set( true );
             }
@@ -237,7 +237,7 @@ public class CLAppTest {
     public void afterAppHasCompleted_expectTearDownMethodToBeCalled() {
         final AtomicBoolean wasTearDownInvoked = new AtomicBoolean( false );
 
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             protected void tearDownCallback() {
                 wasTearDownInvoked.set( true );
             }
@@ -257,7 +257,7 @@ public class CLAppTest {
     public void afterAppHasErrored_expectTearDownMethodToBeCalled() {
         final AtomicBoolean wasTearDownInvoked = new AtomicBoolean( false );
 
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             protected void tearDownCallback() {
                 wasTearDownInvoked.set( true );
             }
@@ -275,7 +275,7 @@ public class CLAppTest {
     public void onStartUp_expectAuditMessageSpecifyingWhenAppWasStarted() {
         system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
 
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             protected int _run() {
                 return 0;
             }
@@ -292,7 +292,7 @@ public class CLAppTest {
     public void afterAppHasCompleted_expectUpTimeToBePrintedToOpsLog() {
         system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
 
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             protected int _run() {
                 system.clock.add( Duration.minutes(2) );
 
@@ -309,7 +309,7 @@ public class CLAppTest {
     public void onStartUp_expectArgumentsUsedToBeEchoedToTheOpsLog() {
         system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
 
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             {
                 registerFlag( "d", "flag1", "description" );
                 registerFlag( "f", "flag2", "description" );
@@ -336,7 +336,7 @@ public class CLAppTest {
     public void onStartUp_expectJavaVersionToBeSentToOpsLog() {
         system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
 
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             protected int _run() {
                 return 0;
             }
@@ -354,7 +354,7 @@ public class CLAppTest {
     public void onStartUp_expectClasspathToBeSentToOpsLog() {
         system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
 
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             protected int _run() {
                 return 0;
             }
@@ -369,7 +369,7 @@ public class CLAppTest {
     public void onStartUp_expectLibraryPathToBeSentToOpsLog() {
         system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
 
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             protected int _run() {
                 return 0;
             }
@@ -384,7 +384,7 @@ public class CLAppTest {
     public void onStartUp_expectAllCLParameterValuesToBeSentToTheOpsLog() {
         system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
 
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             {
                 registerFlag( "a", "flag1", "description" );
                 registerOption( "b", "flag2", "flag", "description" );

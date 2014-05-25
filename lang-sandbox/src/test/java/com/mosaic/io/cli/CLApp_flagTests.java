@@ -20,7 +20,7 @@ public class CLApp_flagTests {
 
     @Test
     public void givenBooleanFlag_requestHelp_expectFlagToBeDocumented() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Boolean> debug;
 
             {
@@ -56,7 +56,7 @@ public class CLApp_flagTests {
 
     @Test
     public void givenBooleanFlag_supplyDescriptionInLowerCaseWithNoFullStop_expectThemToBeAdded() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Boolean> debug;
 
             {
@@ -92,7 +92,7 @@ public class CLApp_flagTests {
 
     @Test
     public void givenBooleanFlag_invokeAppWithoutSpecifyingFlag_expectFlagToBeFalse() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Boolean> debug;
 
             {
@@ -113,7 +113,7 @@ public class CLApp_flagTests {
 
     @Test
     public void givenBooleanFlag_invokeAppWithShortVersionOfFlag_expectFlagToBeTrue() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Boolean> debug;
 
             {
@@ -134,7 +134,7 @@ public class CLApp_flagTests {
 
     @Test
     public void givenBooleanFlag_invokeAppWithLongVersionOfFlag_expectFlagToBeTrue() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Boolean> debug;
 
             {
@@ -158,7 +158,7 @@ public class CLApp_flagTests {
 
     @Test
     public void givenThreeFlags_supplyTwoSeparatedBySpaced_expectThoseToFlagsToBeTrueAndTheThirdFalse() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Boolean> flag1;
             public CLOption<Boolean> flag2;
             public CLOption<Boolean> flag3;
@@ -185,7 +185,7 @@ public class CLApp_flagTests {
 
     @Test
     public void givenThreeFlags_supplyTwoCombinedTogether_expectThoseToFlagsToBeTrueAndTheThirdFalse() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Boolean> flag1;
             public CLOption<Boolean> flag2;
             public CLOption<Boolean> flag3;

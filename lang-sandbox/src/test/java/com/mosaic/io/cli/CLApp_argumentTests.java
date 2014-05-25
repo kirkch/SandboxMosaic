@@ -22,7 +22,7 @@ public class CLApp_argumentTests {
     @Test
     public void givenDuplicateArgNames_expectException() {
         try {
-            new CLApp2(system) {
+            new CLApp(system) {
                 public CLArgument<String> source;
                 public CLArgument<String> destination;
 
@@ -46,7 +46,7 @@ public class CLApp_argumentTests {
 
     @Test
     public void givenAppWithTwoMandatoryStringArgs_requestHelp_expectDescriptionInHelp() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLArgument<String> source;
             public CLArgument<String> destination;
 
@@ -88,7 +88,7 @@ public class CLApp_argumentTests {
 
     @Test
     public void checkThatDescriptionIsWrappedAt80Characters() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             {
                 setDescription( "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890" );
             }
@@ -120,7 +120,7 @@ public class CLApp_argumentTests {
 
     @Test
     public void checkThatArgumentNameAndDescriptionsAreWrappedAt80Characters() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLArgument<String> source;
             public CLArgument<String> destination;
 
@@ -164,7 +164,7 @@ public class CLApp_argumentTests {
 
     @Test
     public void givenAppWithTwoMandatoryStringArgs_invokeWithOneMissingArg_expectErrorAndUsageDescription() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLArgument<String> source;
             public CLArgument<String> destination;
 
@@ -190,7 +190,7 @@ public class CLApp_argumentTests {
 
     @Test
     public void givenAppWithTwoMandatoryStringArgs_invokeWithBothMissing_expectErrorAndUsageDescription() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLArgument<String> source;
             public CLArgument<String> destination;
 
@@ -216,7 +216,7 @@ public class CLApp_argumentTests {
 
     @Test
     public void givenAppWithOneMandatoryOneOptionalArg_requestHelp_expectArgDescriptionsInTheHelp() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLArgument<String> source;
             public CLArgument<String> destination;
 
@@ -256,7 +256,7 @@ public class CLApp_argumentTests {
 
     @Test
     public void givenAppWithOneMandatoryOneOptionalArg_invokeWithBothArgs_expectItToRun() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLArgument<String> source;
             public CLArgument<String> destination;
 
@@ -282,7 +282,7 @@ public class CLApp_argumentTests {
 
     @Test
     public void givenAppWithOneMandatoryOneOptionalArg_invokeWithMandatoryArgOnly_expectItToRun() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLArgument<String> source;
             public CLArgument<String> destination;
 
@@ -308,7 +308,7 @@ public class CLApp_argumentTests {
 
     @Test
     public void givenAppWithOneMandatoryOneOptionalArg_invokeWithOutMandatoryArg_expectError() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLArgument<String> source;
             public CLArgument<String> destination;
 
@@ -332,7 +332,7 @@ public class CLApp_argumentTests {
     @Test
     public void tryToCreateAppWithOptionalThenMandatoryArgs_expectErrorAsMandatoryMustGoBeforeOptional() {
         try {
-            new CLApp2(system) {
+            new CLApp(system) {
                 public CLArgument<String> source;
                 public CLArgument<String> destination;
 
@@ -365,7 +365,7 @@ public class CLApp_argumentTests {
             }
         };
 
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLArgument<Integer> repeatCount;
 
             {
@@ -393,7 +393,7 @@ public class CLApp_argumentTests {
             }
         };
 
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLArgument<Integer> repeatCount;
 
             {
@@ -417,7 +417,7 @@ public class CLApp_argumentTests {
 
     @Test
     public void givenOptionalArgumentWithDefaultValue_requestHelp_expectDefaultValueToBeDisplayedInHelp() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLArgument<String> directory;
 
             {
@@ -450,7 +450,7 @@ public class CLApp_argumentTests {
 
     @Test
     public void givenOptionalArgumentWithDefaultValue_invokeWithValue_expectTheSuppliedValueToBeUsed() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLArgument<String> directory;
 
             {
@@ -471,7 +471,7 @@ public class CLApp_argumentTests {
 
     @Test
     public void givenOptionalArgumentWithDefaultValue_invokeWithOutValue_expectTheSuppliedValueToBeTheDefaultValue() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLArgument<String> directory;
 
             {

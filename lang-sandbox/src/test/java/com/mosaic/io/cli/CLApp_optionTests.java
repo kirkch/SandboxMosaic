@@ -19,7 +19,7 @@ public class CLApp_optionTests {
 
     @Test
     public void givenKVFlag_requestHelp_expectFlagToBeDocumented() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<String> output;
 
             {
@@ -55,7 +55,7 @@ public class CLApp_optionTests {
 
     @Test
     public void givenKVFlagWithLongDescription_requestHelp_expectDescriptionToBeWrapped() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<String> output;
 
             {
@@ -92,7 +92,7 @@ public class CLApp_optionTests {
 
     @Test
     public void givenKVFlag_invokeAppWithoutSpecifyingFlag_expectDefaultValueToBeUsed() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<String> output;
 
             {
@@ -113,7 +113,7 @@ public class CLApp_optionTests {
 
     @Test
     public void givenKVFlag_invokeAppWithShortFlag_expectSuppliedValueToBeUsed() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<String> output;
 
             {
@@ -134,7 +134,7 @@ public class CLApp_optionTests {
 
     @Test
     public void givenKVFlag_invokeAppWithLongFlag_expectSuppliedValueToBeUsed() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<String> output;
 
             {
@@ -158,7 +158,7 @@ public class CLApp_optionTests {
 
     @Test
     public void givenKVFlagWithNonStringValueAndNullDefault_requestHelp_expectDocumentation() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Integer> output;
 
             {
@@ -205,7 +205,7 @@ public class CLApp_optionTests {
 
     @Test
     public void givenKVFlagWithNonStringValueAndNullDefault_invokeAppWithNoOption_expectNullDefaultValueToBeAvailable() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Integer> output;
 
             {
@@ -237,7 +237,7 @@ public class CLApp_optionTests {
 
     @Test
     public void givenKVFlagWithNonStringValueAndNonNullDefault_invokeAppWithNoOption_expectDefaultValueToBeAvailable() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Integer> output;
 
             {
@@ -269,7 +269,7 @@ public class CLApp_optionTests {
 
     @Test
     public void givenKVFlagWithNonStringValueAndNonNullDefault_requestHelp_expectDefaultValueToBeDocumented() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Integer> output;
 
             {
@@ -316,7 +316,7 @@ public class CLApp_optionTests {
 
     @Test
     public void givenKVFlagWithNonStringValue_invokeAppWithValueThatParses_expectValueToBeMadeAvailable() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Integer> output;
 
             {
@@ -348,7 +348,7 @@ public class CLApp_optionTests {
 
     @Test
     public void givenKVFlagWithNonStringValue_invokeAppWithValueUsingShortFormAndNoSpaces_expectValueToBeMadeAvailable() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Integer> output;
 
             {
@@ -380,7 +380,7 @@ public class CLApp_optionTests {
 
     @Test
     public void givenKVFlagWithNonStringValue_invokeAppWithFlagValueThatWillFailToParse_expectError() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<Integer> output;
 
             {

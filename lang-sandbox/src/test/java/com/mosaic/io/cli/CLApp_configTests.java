@@ -17,7 +17,7 @@ public class CLApp_configTests {
 
     @Test
     public void givenSettingsInShortForm_readKV_expectValue() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<String> maxSize;
 
             {
@@ -40,7 +40,7 @@ public class CLApp_configTests {
 
     @Test
     public void givenSettingsInLongForm_readKV_expectValue() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<String> maxSize;
 
             {
@@ -63,7 +63,7 @@ public class CLApp_configTests {
 
     @Test
     public void givenSettingsInFile_alsoSpecifyTheSameOptionOnTheCommandLine_expectValueOnCommandLineToTakePrecedence() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<String> maxSize;
 
             {
@@ -86,7 +86,7 @@ public class CLApp_configTests {
 
     @Test
     public void givenSettingsWithComments_expectCommentsToBeStrippedOut() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<String> maxSize;
 
             {
@@ -109,7 +109,7 @@ public class CLApp_configTests {
 
     @Test
     public void givenSettingsFileThatDoesNotExist_expectError() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<String> maxSize;
 
             {
@@ -131,7 +131,7 @@ public class CLApp_configTests {
 
     @Test
     public void givenSettingsThatDoesExistButIsNotReadable_expectError() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<String> maxSize;
 
             {
@@ -156,7 +156,7 @@ public class CLApp_configTests {
 
     @Test
     public void placeAUnrecognisedKeyInTheSettingsFile_expectError() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             public CLOption<String> maxSize;
 
             {

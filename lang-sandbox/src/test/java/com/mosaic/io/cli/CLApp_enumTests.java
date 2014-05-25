@@ -23,7 +23,7 @@ public class CLApp_enumTests {
 
     @Test
     public void givenEnumFlag_requestHelp_expectFlagAndValuesToBeDocumented() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             CLOption<ColourEnum> colour;
 
             {
@@ -57,7 +57,7 @@ public class CLApp_enumTests {
 
     @Test
     public void givenEnumFlag_invokeAppWithoutSpecifyingFlag_expectDefaultValueToBeUsed() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             CLOption<ColourEnum> colour;
 
             {
@@ -78,7 +78,7 @@ public class CLApp_enumTests {
 
     @Test
     public void givenEnumFlag_invokeAppWithShortForm_expectSuppliedValueToBeUsed() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             CLOption<ColourEnum> colour;
 
             {
@@ -99,7 +99,7 @@ public class CLApp_enumTests {
 
     @Test
     public void givenEnumFlag_invokeAppWithLongForm_expectSuppliedValueToBeUsed() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             CLOption<ColourEnum> colour;
 
             {
@@ -120,7 +120,7 @@ public class CLApp_enumTests {
 
     @Test
     public void givenEnumFlag_invokeAppWithUnknownEnumValue_expectError() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             CLOption<ColourEnum> colour;
 
             {
@@ -144,7 +144,7 @@ public class CLApp_enumTests {
 
     @Test
     public void givenEnumFlagWithDefaultValue_requestHelp_expectFlagAndValuesToBeDocumented() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             CLOption<ColourEnum> colour;
 
             {
@@ -179,7 +179,7 @@ public class CLApp_enumTests {
 
     @Test
     public void givenEnumFlagWithDefaultValue_invokeAppWithoutSpecifyingFlag_expectDefaultValueToBeUsed() {
-        CLApp2 app = new CLApp2(system) {
+        CLApp app = new CLApp(system) {
             CLOption<ColourEnum> colour;
 
             {
