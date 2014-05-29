@@ -5,6 +5,8 @@ package com.mosaic.columnstore;
  */
 public interface FloatColumn {
 
+    public String getColumnName();
+
     public boolean isSet( long row );
     public float get( long row );
     public void set( long row, float value );
