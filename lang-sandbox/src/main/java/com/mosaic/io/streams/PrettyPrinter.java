@@ -1,6 +1,6 @@
 package com.mosaic.io.streams;
 
-import com.mosaic.collections.Table;
+import com.mosaic.collections.SimpleSpreadSheet;
 import com.mosaic.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -210,7 +210,7 @@ public class PrettyPrinter {
 
 
 
-    private Table<String>       tableBuffer    = new Table<>();
+    private SimpleSpreadSheet<String> tableBuffer    = new SimpleSpreadSheet<>();
     private List<ColumnHandler> columnHandlers = new ArrayList<>();
 
     public void write( Object...columnValues ) {
@@ -264,12 +264,12 @@ public class PrettyPrinter {
 
     public interface ColumnHandler {
 
-        void writeTo( Object value, int columnWidth, Table<String> tableBuffer, int row, int col );
+        void writeTo( Object value, int columnWidth, SimpleSpreadSheet<String> tableBuffer, int row, int col );
 
     }
 
     private static class TruncateColumnHandler implements ColumnHandler {
-        public void writeTo( Object value, int columnWidth, Table<String> tableBuffer, int row, int col ) {
+        public void writeTo( Object value, int columnWidth, SimpleSpreadSheet<String> tableBuffer, int row, int col ) {
             String formattedString = format(value, columnWidth);
 
             tableBuffer.set(row,col,formattedString);
@@ -288,7 +288,7 @@ public class PrettyPrinter {
     }
 
     private static class PadOrTruncateColumnHandler implements ColumnHandler {
-        public void writeTo( Object value, int columnWidth, Table<String> tableBuffer, int row, int col ) {
+        public void writeTo( Object value, int columnWidth, SimpleSpreadSheet<String> tableBuffer, int row, int col ) {
             String formattedString = format(value, columnWidth);
 
             tableBuffer.set(row,col,formattedString);
@@ -319,7 +319,7 @@ public class PrettyPrinter {
      * the same column but on the next row.
      */
     private static class WrapColumnHandler implements ColumnHandler {
-        public void writeTo( Object value, final int columnWidth, Table<String> tableBuffer, final int row, final int col ) {
+        public void writeTo( Object value, final int columnWidth, SimpleSpreadSheet<String> tableBuffer, final int row, final int col ) {
             final String str = value.toString();
 
             int numCharactersRemaining = str.length();
@@ -335,7 +335,7 @@ public class PrettyPrinter {
         /**
          * Always writes the entire cell width, padding with spaces.
          */
-        private int writeFragmentToCell( Table<String> tableBuffer, int currentRow, int col, String str, int numCharactersRemaining, int maxWidth ) {
+        private int writeFragmentToCell( SimpleSpreadSheet<String> tableBuffer, int currentRow, int col, String str, int numCharactersRemaining, int maxWidth ) {
             StringBuilder buf = new StringBuilder(maxWidth);
 
             int from = skipWhiteSpace(str, str.length()-numCharactersRemaining);

@@ -88,8 +88,11 @@ public abstract class SystemX {
 
 
 
+
     // The latest Intel processors have 3 layers (L1D, L2, and L3); with
     // sizes 32KB, 256KB, and 4-30MB; and ~1ns, ~4ns, and ~15ns latency respectively for a 3.0GHz CPU.
+    // => 512, 4096, >131k cache lines for each layer
+
 
 
     @SuppressWarnings({"AssertWithSideEffects", "UnusedAssignment", "ConstantConditions"})

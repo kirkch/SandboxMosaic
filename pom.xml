@@ -17,6 +17,8 @@
         <module>collections-sandbox</module>
         <module>io-sandbox</module>
         <module>parsers-sandbox</module>
+
+        <module>columnstore-sandbox</module>
 	</modules>
 
     <properties>

@@ -101,7 +101,10 @@ public class ActualDirectory implements DirectoryX {
             return null;
         }
 
-        throwIfDirectory( child );
+//        throwIfDirectory( child );
+        if ( child.isDirectory() ) {
+            return null;
+        }
 
         return new ActualFile( this, child );
     }
