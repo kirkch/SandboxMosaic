@@ -1,14 +1,12 @@
 package com.mosaic.columnstore.columns;
 
 import com.mosaic.collections.FloatList;
-import com.mosaic.collections.IntList;
 import com.mosaic.columnstore.CellExplanation;
-import com.mosaic.columnstore.CellExplanations;
 import com.mosaic.columnstore.FloatColumn;
-import com.mosaic.columnstore.IntColumn;
+import com.mosaic.io.codecs.FloatCodec;
+import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
-import com.mosaic.lang.functional.FloatFunction1;
-import com.mosaic.lang.functional.IntFunction1;
+import com.mosaic.lang.system.Backdoor;
 
 import java.util.BitSet;
 
@@ -18,18 +16,19 @@ import java.util.BitSet;
  */
 public class FloatColumnArray implements FloatColumn {
 
-    private final String                 columnName;
-    private final FloatList              list       = new FloatList();
-    private final BitSet                 isSet      = new BitSet();
-    private final FloatFunction1<String> formatter;
+    private final String     columnName;
+    private final FloatList  list       = new FloatList();
+    private final BitSet     isSet      = new BitSet();
+    private final FloatCodec codec;
+
 
     public FloatColumnArray( String columnName ) {
-        this( columnName, FloatFunction1.DEFAULT_FLOAT_FORMATTER );
+        this( columnName, FloatCodec.FLOAT2DP_CODEC );
     }
 
-    public FloatColumnArray( String columnName, FloatFunction1<String> formatter ) {
+    public FloatColumnArray( String columnName, FloatCodec codec ) {
         this.columnName = columnName;
-        this.formatter  = formatter;
+        this.codec      = codec;
     }
 
 
@@ -62,18 +61,27 @@ public class FloatColumnArray implements FloatColumn {
         return list.size();
     }
 
-    public CellExplanation<Float> explain( long row ) {
-        QA.isInt( row, "row" );
-
-        int i = (int) row;
-
-        if ( isSet(i) ) {
-            float v = list.get(i);
-
-            return CellExplanations.cellValue( columnName, row, v, formatter.toFunction1() );
+    public CellExplanation explain( long row ) {
+        if ( isSet(row) ) {
+            return new CellExplanation( getFormattedValue(row) );
         } else {
             return null;
         }
+    }
+
+    public FloatCodec getCodec() {
+        return codec;
+    }
+
+    private String getFormattedValue( long row ) {
+        int   i = Backdoor.safeDowncast(row);
+        float v = list.get(i);
+
+        UTF8Builder buf = new UTF8Builder();
+
+        getCodec().encode( v, buf );
+
+        return buf.toString();
     }
 
 }

@@ -1,5 +1,8 @@
 package com.mosaic.columnstore;
 
+import com.mosaic.io.codecs.FloatCodec;
+
+
 /**
  *
  */
@@ -19,6 +22,11 @@ public interface FloatColumn {
     /**
      * Captures how the value in a specific cell was calculated.
      */
-    public CellExplanation<Float> explain( long row );
+    public CellExplanation explain( long row );
+
+    /**
+     * The codec to use for reading/writing this column.
+     */
+    public FloatCodec getCodec();
 
 }

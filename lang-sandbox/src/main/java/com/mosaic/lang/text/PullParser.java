@@ -49,7 +49,7 @@ public class PullParser {
 
 
     public PullParser( InputBytes bytes ) {
-        this( bytes.getName(), bytes );
+        this( bytes.getName() == null ? "blank" : bytes.getName(), bytes );
     }
 
     public PullParser( String name, InputBytes bytes ) {
@@ -271,6 +271,55 @@ public class PullParser {
             throw newParseException( "Expected 'float'", position );
         }
     }
+
+    public boolean hasFloat() {
+        long initialPosition = position;
+
+        doAutoSkip();
+
+        ParserResult r = parse( FLOAT_PARSER );
+
+        this.position = initialPosition;
+
+        return r.hasMatched();
+    }
+
+    public boolean hasDouble() {
+        long initialPosition = position;
+
+        doAutoSkip();
+
+        ParserResult r = parse( DOUBLE_PARSER );
+
+        this.position = initialPosition;
+
+        return r.hasMatched();
+    }
+
+    public boolean hasInt() {
+        long initialPosition = position;
+
+        doAutoSkip();
+
+        ParserResult r = parse( INT_PARSER );
+
+        this.position = initialPosition;
+
+        return r.hasMatched();
+    }
+
+    public boolean hasLong() {
+        long initialPosition = position;
+
+        doAutoSkip();
+
+        ParserResult r = parse( LONG_PARSER );
+
+        this.position = initialPosition;
+
+        return r.hasMatched();
+    }
+
 
     /**
      * Matches and returns a double.  If no double is matched then an exception

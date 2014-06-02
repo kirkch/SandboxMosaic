@@ -1,5 +1,8 @@
 package com.mosaic.columnstore;
 
+import com.mosaic.io.codecs.IntCodec;
+
+
 /**
  *
  */
@@ -19,6 +22,7 @@ public interface IntColumn {
     /**
      * Captures how the value in a specific cell was calculated.
      */
-    public CellExplanation<Integer> explain( long row );
+    public CellExplanation explain( long row );
 
+    public IntCodec getCodec();
 }

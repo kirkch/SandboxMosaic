@@ -8,8 +8,8 @@ import static org.junit.Assert.*;
 
 
 /**
- *
- */
+*
+*/
 public class IntColumnArrayTest {
 
     // EMPTY COLUMN
@@ -83,16 +83,13 @@ public class IntColumnArrayTest {
     public void givenValueInSecondRow_explainSecondRow_expectExplanation() {
         IntColumn col = new IntColumnArray( "col1" );
 
-        col.set( 1, 42 );
+        col.set( 1, -42 );
 
-        CellExplanation<Integer> explanation = col.explain(1);
+        CellExplanation explanation = col.explain(1);
 
-        assertEquals( "col1", explanation.getColumnNameNbl() );
-        assertEquals( 1, explanation.getRowIds().length );
-        assertEquals( 1, explanation.getRowIds()[0] );
-        assertNull( explanation.getOperandsNbl() );
-        assertNull( explanation.getOpNameNbl() );
-        assertEquals( 42, explanation.getValue().intValue() );
+        assertEquals( "-42", explanation.getFormattedValue() );
+        assertTrue( explanation.getReferencedCells().isEmpty() );
+        assertEquals( "-42", explanation.toString() );
     }
-    
+
 }

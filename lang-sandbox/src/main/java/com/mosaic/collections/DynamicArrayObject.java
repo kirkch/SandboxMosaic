@@ -8,9 +8,17 @@ import java.util.Arrays;
  * Less keen to throw index out of bound exceptions that java.util.List.
  */
 @SuppressWarnings("unchecked")
-public class DynamicList<T> {
-    private T[] contents = (T[]) new Object[10];
+public class DynamicArrayObject<T> {
+    private T[] contents;
     private int size;
+
+    public DynamicArrayObject() {
+        this(10);
+    }
+
+    public DynamicArrayObject( int initalListSize ) {
+        this.contents = (T[]) new Object[initalListSize];
+    }
 
 
     public int size() {

@@ -4,6 +4,7 @@ import com.mosaic.io.bytes.Bytes;
 import com.mosaic.lang.BigCashType;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.SmallCashType;
+import com.mosaic.lang.system.LiveSystem;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.text.UTF8;
 import com.mosaic.utils.MathUtils;
@@ -12,7 +13,7 @@ import com.mosaic.utils.MathUtils;
 /**
  * Writes UTF8 characters to an instance of Bytes.
  */
-public class BytesCharacterStream implements CharacterStream {
+public class UTF8Builder implements CharacterStream {
 
     private static final byte[] FALSE = "false".getBytes(SystemX.UTF8);
     private static final byte[] TRUE  = "true".getBytes(SystemX.UTF8);
@@ -36,10 +37,25 @@ public class BytesCharacterStream implements CharacterStream {
     private final byte[] formattingBuffer = new byte[40];
 
 
-    public BytesCharacterStream( Bytes destinationBytes ) {
+    public UTF8Builder() {
+        this( Bytes.allocAutoResizingOnHeap("auto", new LiveSystem(), 100, 10000) );
+    }
+
+    public UTF8Builder( Bytes destinationBytes ) {
         this.destinationBytes = destinationBytes;
     }
 
+    public void clear() {
+        destinationBytes.positionIndex( 0 );
+    }
+
+    public UTF8 toUTF8() {
+        return new UTF8( destinationBytes, 0, destinationBytes.positionIndex() );
+    }
+
+    public String toString() {
+        return toUTF8().toString();
+    }
 
     public boolean isEnabled() {
         return true;

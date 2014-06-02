@@ -1,7 +1,5 @@
 package com.mosaic.collections;
 
-import java.util.Arrays;
-
 
 /**
  * A simple spread sheet is a store of values accessed by a (row,col) pair.  When a cell is
@@ -12,7 +10,7 @@ import java.util.Arrays;
  */
 public class SimpleSpreadSheet<T> {
 
-    private DynamicList<DynamicList<T>> rows = new DynamicList<>();
+    private DynamicArrayObject<DynamicArrayObject<T>> rows = new DynamicArrayObject<>();
 
 
     public void clear() {
@@ -20,15 +18,15 @@ public class SimpleSpreadSheet<T> {
     }
 
     public T get( int row, int col ) {
-        DynamicList<T> r = rows.get(row);
+        DynamicArrayObject<T> r = rows.get(row);
 
         return r == null ? null : r.get(col);
     }
 
     public void set( int row, int column, T value ) {
-        DynamicList<T> r = rows.get(row);
+        DynamicArrayObject<T> r = rows.get(row);
         if ( r == null ) {
-            r = new DynamicList<>();
+            r = new DynamicArrayObject<>();
 
             rows.set( row, r );
         }
@@ -41,7 +39,7 @@ public class SimpleSpreadSheet<T> {
     }
 
     public int columnCount( int row ) {
-        DynamicList<T> r = rows.get(row);
+        DynamicArrayObject<T> r = rows.get(row);
 
         return r == null ? 0 : r.size();
     }

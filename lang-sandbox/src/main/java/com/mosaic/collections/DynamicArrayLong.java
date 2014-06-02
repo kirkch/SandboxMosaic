@@ -7,7 +7,7 @@ import java.util.Arrays;
  *
  */
 @SuppressWarnings("ConstantConditions")
-public class LongList {
+public class DynamicArrayLong {
 
     private long[] contents = new long[10];
     private int size;

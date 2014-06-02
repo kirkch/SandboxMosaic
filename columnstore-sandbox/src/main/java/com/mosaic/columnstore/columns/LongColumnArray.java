@@ -1,32 +1,33 @@
 package com.mosaic.columnstore.columns;
 
-import com.mosaic.collections.LongList;
+import com.mosaic.collections.DynamicArrayLong;
 import com.mosaic.columnstore.CellExplanation;
-import com.mosaic.columnstore.CellExplanations;
 import com.mosaic.columnstore.LongColumn;
+import com.mosaic.io.codecs.LongCodec;
+import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
-import com.mosaic.lang.functional.LongFunction1;
+import com.mosaic.lang.system.Backdoor;
 
 import java.util.BitSet;
 
 
 /**
- * An LongColumn backed by an int array.
- */
+* An LongColumn backed by an int array.
+*/
 public class LongColumnArray implements LongColumn {
 
-    private final String                columnName;
-    private final LongList              list       = new LongList();
-    private final BitSet                isSet      = new BitSet();
-    private final LongFunction1<String> formatter;
+    private final String           columnName;
+    private final DynamicArrayLong list       = new DynamicArrayLong();
+    private final BitSet           isSet      = new BitSet();
+    private final LongCodec        codec;
 
     public LongColumnArray( String columnName ) {
-        this( columnName, LongFunction1.DEFAULT_LONG_FORMATTER );
+        this( columnName, LongCodec.LONG2DP_CODEC );
     }
 
-    public LongColumnArray( String columnName, LongFunction1<String> formatter ) {
+    public LongColumnArray( String columnName, LongCodec codec ) {
         this.columnName = columnName;
-        this.formatter  = formatter;
+        this.codec      = codec;
     }
 
 
@@ -59,18 +60,27 @@ public class LongColumnArray implements LongColumn {
         return list.size();
     }
 
-    public CellExplanation<Long> explain( long row ) {
-        QA.isInt( row, "row" );
-
-        int i = (int) row;
-
-        if ( isSet(i) ) {
-            long v = list.get(i);
-
-            return CellExplanations.cellValue(columnName, row, v, formatter.toFunction1() );
+    public CellExplanation explain( long row ) {
+        if ( isSet(row) ) {
+            return new CellExplanation( getFormattedValue(row) );
         } else {
             return null;
         }
+    }
+
+    public LongCodec getCodec() {
+        return codec;
+    }
+
+    private String getFormattedValue( long row ) {
+        int  r = Backdoor.safeDowncast( row );
+        long v = list.get(r);
+
+        UTF8Builder buf = new UTF8Builder();
+
+        getCodec().encode( v, buf );
+
+        return buf.toString();
     }
 
 }

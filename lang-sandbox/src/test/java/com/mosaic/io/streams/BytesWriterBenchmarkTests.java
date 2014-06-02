@@ -42,7 +42,7 @@ public class BytesWriterBenchmarkTests {
 
 //    private Bytes bytes = Bytes.allocOffHeap( 8024 );
     private Bytes       bytes = Bytes.allocOnHeap( 8024 );
-    private BytesCharacterStream out   = new BytesCharacterStream( bytes );
+    private UTF8Builder out   = new UTF8Builder( bytes );
 /*
 3 byte array hack
     714.89ns per call

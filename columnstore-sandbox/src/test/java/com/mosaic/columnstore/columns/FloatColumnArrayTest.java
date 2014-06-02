@@ -85,14 +85,11 @@ public class FloatColumnArrayTest {
 
         col.set( 1, 42.1f );
 
-        CellExplanation<Float> explanation = col.explain(1);
+        CellExplanation explanation = col.explain(1);
 
-        assertEquals( "col1", explanation.getColumnNameNbl() );
-        assertEquals( 1, explanation.getRowIds().length );
-        assertEquals( 1, explanation.getRowIds()[0] );
-        assertNull( explanation.getOperandsNbl() );
-        assertNull( explanation.getOpNameNbl() );
-        assertEquals( 42.1f, explanation.getValue().floatValue(), 1e-5 );
+        assertEquals( "42.10", explanation.getFormattedValue() );
+        assertTrue( explanation.getReferencedCells().isEmpty() );
+        assertEquals( "42.10", explanation.toString() );
     }
 
 }

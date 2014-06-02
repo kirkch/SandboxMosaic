@@ -2,31 +2,33 @@ package com.mosaic.columnstore.columns;
 
 import com.mosaic.collections.IntList;
 import com.mosaic.columnstore.CellExplanation;
-import com.mosaic.columnstore.CellExplanations;
 import com.mosaic.columnstore.IntColumn;
+import com.mosaic.io.codecs.IntCodec;
+import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
-import com.mosaic.lang.functional.IntFunction1;
+import com.mosaic.lang.system.Backdoor;
 
 import java.util.BitSet;
 
 
 /**
- * An IntColumn backed by an int array.
- */
+* An IntColumn backed by an int array.
+*/
 public class IntColumnArray implements IntColumn {
 
-    private final String               columnName;
-    private final IntList              list       = new IntList();
-    private final BitSet               isSet      = new BitSet();
-    private final IntFunction1<String> formatter;
+    private final String   columnName;
+    private final IntList  list       = new IntList();
+    private final BitSet   isSet      = new BitSet();
+    private final IntCodec codec;
+
 
     public IntColumnArray( String columnName ) {
-        this( columnName, IntFunction1.DEFAULT_INT_FORMATTER );
+        this( columnName, IntCodec.INT_CODEC );
     }
 
-    public IntColumnArray( String columnName, IntFunction1<String> formatter ) {
+    public IntColumnArray( String columnName, IntCodec codec ) {
         this.columnName = columnName;
-        this.formatter  = formatter;
+        this.codec      = codec;
     }
 
 
@@ -59,18 +61,27 @@ public class IntColumnArray implements IntColumn {
         return list.size();
     }
 
-    public CellExplanation<Integer> explain( long row ) {
-        QA.isInt( row, "row" );
-
-        int i = (int) row;
-
-        if ( isSet(i) ) {
-            int v = list.get(i);
-
-            return CellExplanations.cellValue(columnName, row, v, formatter.toFunction1() );
+    public CellExplanation explain( long row ) {
+        if ( isSet(row) ) {
+            return new CellExplanation( getFormattedValue(row) );
         } else {
             return null;
         }
+    }
+
+    public IntCodec getCodec() {
+        return codec;
+    }
+
+    private String getFormattedValue( long row ) {
+        int r = Backdoor.safeDowncast( row );
+        int v = list.get(r);
+
+        UTF8Builder buf = new UTF8Builder();
+
+        getCodec().encode( v, buf );
+
+        return buf.toString();
     }
 
 }

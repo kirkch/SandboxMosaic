@@ -1,5 +1,8 @@
 package com.mosaic.columnstore;
 
+import com.mosaic.io.codecs.ObjectCodec;
+
+
 /**
  *
  */
@@ -17,7 +20,10 @@ public interface Column<T> {
     /**
      * Captures how the value in a specific cell was calculated.
      */
-    public CellExplanation<T> explain( long row );
+    public CellExplanation explain( long row );
 
     public String getColumnName();
+
+    public ObjectCodec<T> getCodec();
+
 }

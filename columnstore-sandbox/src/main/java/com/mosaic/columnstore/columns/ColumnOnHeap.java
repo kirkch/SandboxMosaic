@@ -1,30 +1,32 @@
 package com.mosaic.columnstore.columns;
 
-import com.mosaic.collections.DynamicList;
+import com.mosaic.collections.DynamicArrayObject;
 import com.mosaic.columnstore.CellExplanation;
-import com.mosaic.columnstore.CellExplanations;
 import com.mosaic.columnstore.Column;
+import com.mosaic.io.codecs.ObjectCodec;
+import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
-import com.mosaic.lang.functional.Function1;
+import com.mosaic.lang.system.Backdoor;
 
 
 /**
- * A basic column.  Stores an object each row.  All data is stored in a fairly traditional and
- * simple way.  Uses an array under the hood, so only supports 2^31 rows.
- */
+* A basic column.  Stores an object each row.  All data is stored in a fairly traditional and
+* simple way.  Uses an array under the hood, so only supports 2^31 rows.
+*/
+@SuppressWarnings("unchecked")
 public class ColumnOnHeap<T> implements Column<T> {
 
-    private final String               columnName;
-    private final DynamicList<T>       list       = new DynamicList<>();
-    private final Function1<T, String> formatter;
+    private final String                columnName;
+    private final DynamicArrayObject<T> list       = new DynamicArrayObject<>();
+    private final ObjectCodec<T>        codec;
 
     public ColumnOnHeap( String columnName ) {
-        this( columnName, CellExplanations.<T>defaultFormatter() );
+        this( columnName, ObjectCodec.TOSTRING_FORMATTING_CODEC );
     }
 
-    public ColumnOnHeap( String columnName, Function1<T, String> formatter ) {
+    public ColumnOnHeap( String columnName, ObjectCodec<T> codec ) {
         this.columnName = columnName;
-        this.formatter  = formatter;
+        this.codec      = codec;
     }
 
 
@@ -54,11 +56,27 @@ public class ColumnOnHeap<T> implements Column<T> {
         return list.size();
     }
 
-    public CellExplanation<T> explain( long row ) {
-        QA.isInt( row, "row" );
+    public CellExplanation explain( long row ) {
+        if ( isSet(row) ) {
+            return new CellExplanation( getFormattedValue(row) );
+        } else {
+            return null;
+        }
+    }
 
-        T v = list.get( (int) row );
-        return v == null ? null : CellExplanations.cellValue(columnName, row, v, formatter);
+    public ObjectCodec<T> getCodec() {
+        return codec;
+    }
+
+    private String getFormattedValue( long row ) {
+        int r = Backdoor.safeDowncast( row );
+        T   v = list.get(r);
+
+        UTF8Builder buf = new UTF8Builder();
+
+        getCodec().encode( v, buf );
+
+        return buf.toString();
     }
 
 }

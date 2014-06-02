@@ -8,10 +8,10 @@ import static org.junit.Assert.assertEquals;
 /**
  *
  */
-public class BytesCharacterStreamTest extends BaseCharacterStreamTestCases {
+public class UTF8BuilderTest extends BaseCharacterStreamTestCases {
 
     private Bytes                bytes = Bytes.allocOnHeap( 1024 );
-    private BytesCharacterStream out   = new BytesCharacterStream( bytes );
+    private UTF8Builder out   = new UTF8Builder( bytes );
 
 
     protected CharacterStream createStream() {

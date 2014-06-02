@@ -8,35 +8,35 @@ import static org.junit.Assert.assertEquals;
 /**
  *
  */
-public class LongListTest {
+public class DynamicArrayLongTest {
 
 
 // GIVEN EMPTY LIST
 
     @Test
     public void givenEmptyList_getSize_expectZero() {
-        LongList list = new LongList();
+        DynamicArrayLong list = new DynamicArrayLong();
 
         assertEquals( 0, list.size() );
     }
 
     @Test
     public void givenEmptyList_getFirstElement_expectZero() {
-        LongList list = new LongList();
+        DynamicArrayLong list = new DynamicArrayLong();
 
         assertEquals( 0, list.get(0) );
     }
 
     @Test
     public void givenEmptyList_getSecondElement_expectZero() {
-        LongList list = new LongList();
+        DynamicArrayLong list = new DynamicArrayLong();
 
         assertEquals( 0, list.get(1) );
     }
 
     @Test
     public void givenEmptyList_getTwentiethElement_expectZero() {
-        LongList list = new LongList();
+        DynamicArrayLong list = new DynamicArrayLong();
 
         assertEquals( 0, list.get(19) );
     }
@@ -46,7 +46,7 @@ public class LongListTest {
 
     @Test
     public void setFirstElement_expectSizeOne() {
-        LongList list = new LongList();
+        DynamicArrayLong list = new DynamicArrayLong();
 
         list.set( 0, 42 );
 
@@ -55,7 +55,7 @@ public class LongListTest {
 
     @Test
     public void setThirdElement_expectSizeThree() {
-        LongList list = new LongList();
+        DynamicArrayLong list = new DynamicArrayLong();
 
         list.set( 2, 42 );
 
@@ -64,7 +64,7 @@ public class LongListTest {
 
     @Test
     public void setThirdElement_fetchFirstElement_expectZero() {
-        LongList list = new LongList();
+        DynamicArrayLong list = new DynamicArrayLong();
 
         list.set( 2, 42 );
 
@@ -73,7 +73,7 @@ public class LongListTest {
 
     @Test
     public void setThirdElement_fetchThirdElement_expectValue() {
-        LongList list = new LongList();
+        DynamicArrayLong list = new DynamicArrayLong();
 
         list.set( 2, 42 );
 
@@ -85,7 +85,7 @@ public class LongListTest {
 
     @Test
     public void givenListWithFirstHundredElementsSet_ensureAllAreSet() {
-        LongList list = new LongList();
+        DynamicArrayLong list = new DynamicArrayLong();
 
         for ( int i=0; i<100; i++ ) {
             list.set( i, -i );
@@ -100,7 +100,7 @@ public class LongListTest {
 
     @Test
     public void givenListWithFirstHundredElementsSet_callClear_expectAllToBeEmpty() {
-        LongList list = new LongList();
+        DynamicArrayLong list = new DynamicArrayLong();
 
         for ( int i=0; i<100; i++ ) {
             list.set( i, -i );

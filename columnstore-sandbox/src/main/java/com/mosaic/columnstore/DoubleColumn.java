@@ -1,5 +1,9 @@
 package com.mosaic.columnstore;
 
+import com.mosaic.io.codecs.DoubleCodec;
+import com.mosaic.io.codecs.IntCodec;
+
+
 /**
  *
  */
@@ -17,6 +21,8 @@ public interface DoubleColumn {
     /**
      * Captures how the value in a specific cell was calculated.
      */
-    public CellExplanation<Double> explain( long row );
+    public CellExplanation explain( long row );
+
+    public DoubleCodec getCodec();
 
 }

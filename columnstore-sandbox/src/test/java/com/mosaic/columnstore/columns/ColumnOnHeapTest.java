@@ -8,8 +8,8 @@ import static org.junit.Assert.*;
 
 
 /**
- *
- */
+*
+*/
 public class ColumnOnHeapTest {
 
 // EMPTY COLUMN
@@ -85,14 +85,11 @@ public class ColumnOnHeapTest {
 
         col.set( 1, "foo" );
 
-        CellExplanation<String> explanation = col.explain( 1 );
+        CellExplanation explanation = col.explain( 1 );
 
-        assertEquals( "col1", explanation.getColumnNameNbl() );
-        assertEquals( 1, explanation.getRowIds().length );
-        assertEquals( 1, explanation.getRowIds()[0] );
-        assertNull( explanation.getOperandsNbl() );
-        assertNull( explanation.getOpNameNbl() );
-        assertEquals( "foo", explanation.getValue() );
+        assertEquals( "foo", explanation.getFormattedValue() );
+        assertTrue( explanation.getReferencedCells().isEmpty() );
+        assertEquals( "foo", explanation.toString() );
     }
 
 }

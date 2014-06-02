@@ -7,7 +7,7 @@ package com.mosaic.collections;
 @SuppressWarnings("unchecked")
 public class AlgorithmicSpreadSheet {
 
-    private DynamicList<CellCalculation> columnCalculations = new DynamicList<>();
+    private DynamicArrayObject<CellCalculation> columnCalculations = new DynamicArrayObject<>();
     private SimpleSpreadSheet<Cell>      table              = new SimpleSpreadSheet<>();
 
 

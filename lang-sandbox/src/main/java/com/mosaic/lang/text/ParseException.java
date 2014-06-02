@@ -12,8 +12,7 @@ public class ParseException extends RuntimeException {
         return newParseException( b, position, fileName, message, null );
     }
 
-    public static ParseException newParseException( InputBytes b, long position, String fileName, String message, Throwable
-        ex ) {
+    public static ParseException newParseException( InputBytes b, long position, String fileName, String message, Throwable ex ) {
         long lineNumber   = 1;
         long columnNumber = 1;
 

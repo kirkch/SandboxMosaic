@@ -1,24 +1,48 @@
 package com.mosaic.columnstore;
 
-import java.util.List;
+import com.mosaic.collections.LongSet;
+
+import java.util.Collections;
+import java.util.Map;
 
 
 /**
- * Captures how a cell in the spreadsheet was calculated.  Used for debugging and review.
+ * Captures how a cell in the spreadsheet was calculated.  Used for debugging and review.<p/>
  */
-public interface CellExplanation<T> {
+@SuppressWarnings("unchecked")
+public class CellExplanation {
 
-    public String getDescriptiveNameNbl();
+    private String               formattedValue;
+    private String               equation;
+    private Map<String, LongSet> cellReferences;
 
-    public String getOpNameNbl();
-    public String getColumnNameNbl();
+    public CellExplanation( String formattedValue ) {
+        this( formattedValue, formattedValue, Collections.EMPTY_MAP );
+    }
 
-    public long[] getRowIds();
+    public CellExplanation( String formattedValue, String equation, Map<String,LongSet> cellReferences ) {
+        this.formattedValue = formattedValue;
+        this.equation       = equation;
+        this.cellReferences = cellReferences;
+    }
 
-    public List<CellExplanation> getOperandsNbl();
+    /**
+     * The value of the cell.
+     */
+    public String getFormattedValue() {
+        return formattedValue;
+    }
 
-    public T getValue();
+    /**
+     * Other cells that were used in the calculation of this cell.  In turn those cells may
+     * also have been calculated too.
+     */
+    public Map<String,LongSet> getReferencedCells() {
+        return cellReferences;
+    }
 
-    public abstract String toString();
+    public String toString() {
+        return equation;
+    }
 
 }

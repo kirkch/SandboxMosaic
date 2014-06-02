@@ -374,4 +374,12 @@ public class Backdoor {
         return unsafe.getDouble( obj, fieldOffset );
     }
 
+    /**
+     * Error if we loose data when down casting and assertions are enabled.
+     */
+    public static int safeDowncast( long v ) {
+        QA.isInt( v, "v" );
+
+        return (int) v;
+    }
 }

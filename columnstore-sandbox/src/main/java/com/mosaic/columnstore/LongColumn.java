@@ -1,5 +1,9 @@
 package com.mosaic.columnstore;
 
+import com.mosaic.io.codecs.IntCodec;
+import com.mosaic.io.codecs.LongCodec;
+
+
 /**
  *
  */
@@ -19,6 +23,8 @@ public interface LongColumn {
     /**
      * Captures how the value in a specific cell was calculated.
      */
-    public CellExplanation<Long> explain( long row );
+    public CellExplanation explain( long row );
+
+    public LongCodec getCodec();
 
 }
