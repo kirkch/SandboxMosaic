@@ -2,32 +2,33 @@ package com.mosaic.columnstore.columns;
 
 import com.mosaic.collections.LongSet;
 import com.mosaic.columnstore.CellExplanation;
-import com.mosaic.columnstore.FloatColumn;
-import com.mosaic.io.codecs.FloatCodec;
+import com.mosaic.columnstore.LongColumn;
+import com.mosaic.io.codecs.LongCodec;
 import com.mosaic.io.streams.CharacterStream;
+import com.mosaic.lang.QA;
 import com.mosaic.utils.MapUtils;
 
 import java.util.Map;
 
 
 /**
- * A formula that processes a single float column into a new float column.
+ *
  */
-public abstract class FloatColumnFormula1 implements FloatColumn {
+public abstract class LongColumnFormula1 implements LongColumn {
 
-    private String             columnName;
-    private String             description;
+    private String    columnName;
+    private String     description;
 
-    private String             opName;
-    private FloatColumn        sourceColumn;
-    private int                expectedCellCount;
+    private String     opName;
+    private LongColumn sourceColumn;
+    private int        expectedCellCount;
 
 
     /**
      *
-     * @param expectedCellCount how many source cells are probably used to calculate a single cell in this column? (hint only)
+     * @param expectedCellCount how many source cells are probably used to calculate a single cell in this column? (hlong only)
      */
-    protected FloatColumnFormula1( String columnName, String description, String opName, FloatColumn sourceColumn, int expectedCellCount ) {
+    protected LongColumnFormula1( String columnName, String description, String opName, LongColumn sourceColumn, int expectedCellCount ) {
         this.columnName        = columnName;
         this.description       = description;
 
@@ -48,7 +49,7 @@ public abstract class FloatColumnFormula1 implements FloatColumn {
         return sourceColumn.isSet(row);
     }
 
-    public void set( long row, float value ) {
+    public void set( long row, long value ) {
         throw new UnsupportedOperationException("derived columns do not support having their values set directly");
     }
 
@@ -60,26 +61,28 @@ public abstract class FloatColumnFormula1 implements FloatColumn {
         return sourceColumn.rowCount();
     }
 
-    public float get( long row ) {
+    public long get( long row ) {
+        QA.isTrue( isSet(row), "do not call get(row) on a row that has not been set" );
+
         return get(row,sourceColumn);
+    }
+
+    public LongCodec getCodec() {
+        return sourceColumn.getCodec();
     }
 
     public void writeValueTo( CharacterStream out, long row ) {
         if ( isSet(row) ) {
-            float v = get(row);
+            long v = get(row);
 
             getCodec().encode( v, out );
         }
     }
 
-    public FloatCodec getCodec() {
-        return sourceColumn.getCodec();
-    }
-
     public CellExplanation explain( long row ) {
-        FloatColumnAuditor auditor = new FloatColumnAuditor(sourceColumn, expectedCellCount);
+        LongColumnAuditor auditor = new LongColumnAuditor(sourceColumn, expectedCellCount);
 
-        float               value           = get( row, auditor );
+        long                value           = get( row, auditor );
         LongSet             visitedRows     = auditor.getVisitedRows();
         Map<String,LongSet> referencedCells = MapUtils.asMap( sourceColumn.getColumnName(), visitedRows );
         String              eqn             = toEquation( referencedCells );
@@ -89,9 +92,9 @@ public abstract class FloatColumnFormula1 implements FloatColumn {
         return new CellExplanation( formattedValue, eqn, referencedCells );
     }
 
-    protected abstract float get( long row, FloatColumn col );
+    protected abstract long get( long row, LongColumn col );
 
-    private String encodeValue( float v ) {
+    private String encodeValue( long v ) {
         return getCodec().toString(v);
     }
 

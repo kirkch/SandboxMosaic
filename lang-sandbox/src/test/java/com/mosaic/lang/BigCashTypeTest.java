@@ -1,5 +1,6 @@
 package com.mosaic.lang;
 
+import com.mosaic.io.streams.UTF8Builder;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -113,5 +114,47 @@ public class BigCashTypeTest {
     @Test
     public void toSmallCashType() {
         assertEquals( SmallCashType.fromMajor(123), BigCashType.toSmallCashType(BigCashType.fromMajor(123)) );
+    }
+
+    @Test
+    public void encodeUsingMajorCodec() {
+        assertEquals( "0.00", encodeMajor(0) );
+        assertEquals( "0.00", encodeMajor(-11) );
+        assertEquals( "-0.01", encodeMajor(-51) );
+        assertEquals( "0.01", encodeMajor(123) );
+        assertEquals( "0.02", encodeMajor(153) );
+        assertEquals( "0.99", encodeMajor(9900) );
+        assertEquals( "1.01", encodeMajor(10100) );
+        assertEquals( "1.02", encodeMajor(10153) );
+        assertEquals( "-1.02", encodeMajor( -10153 ) );
+    }
+
+    @Test
+    public void encodeUsingMinorCodec() {
+        assertEquals( "0.00", encodeMinor( 0 ) );
+        assertEquals( "-0.11", encodeMinor( -11 ) );
+        assertEquals( "-0.51", encodeMinor( -51 ) );
+        assertEquals( "1.23", encodeMinor( 123 ) );
+        assertEquals( "1.53", encodeMinor( 153 ) );
+        assertEquals( "99.00", encodeMinor( 9900 ) );
+        assertEquals( "101.00", encodeMinor( 10100 ) );
+        assertEquals( "101.53", encodeMinor( 10153 ) );
+        assertEquals( "-101.53", encodeMinor( -10153 ) );
+    }
+
+    private String encodeMajor( long amt ) {
+        UTF8Builder buf = new UTF8Builder();
+
+        BigCashType.CODEC_MAJOR.encode( amt, buf );
+
+        return buf.toString();
+    }
+
+    private String encodeMinor( long amt ) {
+        UTF8Builder buf = new UTF8Builder();
+
+        BigCashType.CODEC_MINOR.encode( amt, buf );
+
+        return buf.toString();
     }
 }

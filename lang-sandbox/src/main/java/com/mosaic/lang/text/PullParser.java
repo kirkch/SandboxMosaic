@@ -273,47 +273,36 @@ public class PullParser {
     }
 
     public boolean hasFloat() {
-        long initialPosition = position;
-
-        doAutoSkip();
-
-        ParserResult r = parse( FLOAT_PARSER );
-
-        this.position = initialPosition;
-
-        return r.hasMatched();
+        return hasNext(FLOAT_PARSER);
     }
 
     public boolean hasDouble() {
-        long initialPosition = position;
-
-        doAutoSkip();
-
-        ParserResult r = parse( DOUBLE_PARSER );
-
-        this.position = initialPosition;
-
-        return r.hasMatched();
+        return hasNext(DOUBLE_PARSER);
     }
 
     public boolean hasInt() {
-        long initialPosition = position;
+        return hasNext(INT_PARSER);
 
-        doAutoSkip();
-
-        ParserResult r = parse( INT_PARSER );
-
-        this.position = initialPosition;
-
-        return r.hasMatched();
     }
 
     public boolean hasLong() {
+        return hasNext(LONG_PARSER);
+    }
+
+    public boolean hasBigCashMinorUnit() {
+        return hasNext(BIGCASHMINOR_PARSER);
+    }
+
+    public boolean hasBigCashMajorUnit() {
+        return hasNext(BIGCASHMAJOR_PARSER);
+    }
+
+    private boolean hasNext( ByteMatcher matcher ) {
         long initialPosition = position;
 
         doAutoSkip();
 
-        ParserResult r = parse( LONG_PARSER );
+        ParserResult r = parse( matcher );
 
         this.position = initialPosition;
 

@@ -55,6 +55,10 @@ public abstract class IntColumnFormula2 implements IntColumn {
         throw new UnsupportedOperationException("derived columns do not support having their values set directly");
     }
 
+    public void unset( long row ) {
+        throw new UnsupportedOperationException( "A column should cannot be modified when generating an explanation" );
+    }
+
     public long rowCount() {
         return Math.max( sourceColumn1.rowCount(), sourceColumn2.rowCount() );
     }

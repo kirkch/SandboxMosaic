@@ -64,6 +64,15 @@ public class LongColumnArray implements LongColumn {
         list.set( i, value );
     }
 
+    public void unset( long row ) {
+        QA.isInt( row, "row" );
+
+        int i = (int) row;
+
+        isSet.set( i, false );
+        list.set( i, 0L );
+    }
+
     public long rowCount() {
         return list.size();
     }

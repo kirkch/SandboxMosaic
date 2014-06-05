@@ -43,6 +43,10 @@ class IntColumnAuditor implements IntColumn {
         throw new UnsupportedOperationException( "A column should cannot be modified when generating an explanation" );
     }
 
+    public void unset( long row ) {
+        throw new UnsupportedOperationException( "A column should cannot be modified when generating an explanation" );
+    }
+
     public long rowCount() {
         return sourceColumn.rowCount();
     }

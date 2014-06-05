@@ -2,6 +2,7 @@ package com.mosaic.columnstore;
 
 import com.mosaic.columnstore.columns.FloatColumnArray;
 import com.mosaic.columnstore.columns.IntColumnArray;
+import com.mosaic.columnstore.columns.LongColumnArray;
 import com.mosaic.columnstore.columns.ObjectColumnArray;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.text.UTF8;
@@ -25,19 +26,27 @@ public class Columns {
         writeCSVHeaderTo( out );
 
         for ( long row=0; row<rowCount(); row++ ) {
-            writeRowAsCSVTo( out, row );
+            if ( !isBlankRow(row) ) {
+                writeRowAsCSVTo( out, row );
+            }
         }
     }
 
+    public boolean isBlankRow( long row ) {
+        for ( Column col : columns ) {
+            if ( col.isSet(row) ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private void writeCSVHeaderTo( CharacterStream out ) {
-        boolean prefixWithComma = false;
+        out.writeString("rowId");
 
         for ( Column col : columns ) {
-            if ( prefixWithComma ) {
-                out.writeUTF8( SEPARATOR );
-            } else {
-                prefixWithComma = true;
-            }
+            out.writeUTF8( SEPARATOR );
 
             out.writeString( col.getColumnName() );
         }
@@ -46,15 +55,10 @@ public class Columns {
     }
 
     public void writeRowAsCSVTo( CharacterStream out, long row ) {
-        boolean prefixWithComma = false;
+        out.writeLong( row );
 
         for ( Column col : columns ) {
-            if ( prefixWithComma ) {
-                out.writeUTF8( SEPARATOR );
-            } else {
-                prefixWithComma = true;
-            }
-
+            out.writeUTF8( SEPARATOR );
             col.writeValueTo( out, row );
         }
 
@@ -73,6 +77,16 @@ public class Columns {
 
     public static IntColumn newIntColumn( String columnName, String description, int...values ) {
         IntColumn col = new IntColumnArray( columnName, description );
+
+        for ( int i=0; i<values.length; i++ ) {
+            col.set(i, values[i]);
+        }
+
+        return col;
+    }
+
+    public static LongColumn newLongColumn( String columnName, String description, long...values ) {
+        LongColumn col = new LongColumnArray( columnName, description );
 
         for ( int i=0; i<values.length; i++ ) {
             col.set(i, values[i]);

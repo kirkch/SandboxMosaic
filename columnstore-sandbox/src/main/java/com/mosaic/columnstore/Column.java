@@ -13,6 +13,8 @@ public interface Column {
 
     public boolean isSet( long row );
 
+    public void unset( long row );
+
     /**
      * How many rows are in this column.  Starts from row zero and goes through to rowCount-1.
      */

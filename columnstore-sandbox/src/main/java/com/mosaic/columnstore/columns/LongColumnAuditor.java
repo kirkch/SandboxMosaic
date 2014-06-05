@@ -2,22 +2,21 @@ package com.mosaic.columnstore.columns;
 
 import com.mosaic.collections.LongSet;
 import com.mosaic.columnstore.CellExplanation;
-import com.mosaic.columnstore.FloatColumn;
-import com.mosaic.io.codecs.FloatCodec;
+import com.mosaic.columnstore.LongColumn;
+import com.mosaic.io.codecs.LongCodec;
 import com.mosaic.io.streams.CharacterStream;
-import com.mosaic.lang.QA;
 
 
 /**
  * Automatically detect which rows are accessed by a formula.  Used to generate explanations
  * of how a column is derived.
  */
-class FloatColumnAuditor implements FloatColumn {
-    private FloatColumn sourceColumn;
+class LongColumnAuditor implements LongColumn {
+    private LongColumn sourceColumn;
     private LongSet visitedRows;
 
 
-    public FloatColumnAuditor( FloatColumn sourceColumn, int targetSampleCount ) {
+    public LongColumnAuditor( LongColumn sourceColumn, int targetSampleCount ) {
         this.sourceColumn = sourceColumn;
         this.visitedRows  = LongSet.createLongSet(targetSampleCount);
     }
@@ -34,13 +33,13 @@ class FloatColumnAuditor implements FloatColumn {
         return sourceColumn.isSet( row );
     }
 
-    public float get( long row ) {
+    public long get( long row ) {
         visitedRows.add(row);
 
         return sourceColumn.get( row );
     }
 
-    public void set( long row, float value ) {
+    public void set( long row, long value ) {
         throw new UnsupportedOperationException( "A column should cannot be modified when generating an explanation" );
     }
 
@@ -58,13 +57,13 @@ class FloatColumnAuditor implements FloatColumn {
 
     public void writeValueTo( CharacterStream out, long row ) {
         if ( isSet(row) ) {
-            float v = get(row);
+            long v = get(row);
 
             getCodec().encode( v, out );
         }
     }
 
-    public FloatCodec getCodec() {
+    public LongCodec getCodec() {
         return sourceColumn.getCodec();
     }
 

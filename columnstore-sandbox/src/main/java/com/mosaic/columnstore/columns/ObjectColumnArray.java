@@ -59,6 +59,14 @@ public class ObjectColumnArray<T> implements ObjectColumn<T> {
         list.set( (int) row, value );
     }
 
+    public void unset( long row ) {
+        QA.isInt( row, "row" );
+
+        int i = (int) row;
+
+        list.set( i, null );
+    }
+
     public long rowCount() {
         return list.size();
     }

@@ -1,11 +1,78 @@
 package com.mosaic.lang;
 
+import com.mosaic.io.codecs.LongCodec;
+import com.mosaic.io.streams.CharacterStream;
+import com.mosaic.lang.text.PullParser;
+
+
 /**
  * Represents up to 922 trillion units of cash to 4 decimal places.
  *
  * Rounding occurs to the minor currency at request.
  */
 public class BigCashType {
+
+    /**
+     * Encoder/Decoder for currency specified in the major unit of a currency.  For
+     * example 2.03 (GBP) would decode to 20300.
+     */
+    public static LongCodec CODEC_MAJOR = new LongCodec() {
+        public void encode( long amt, CharacterStream out ) {
+            long major = extractMajorComponent( amt );
+            long minor = extractMinorComponent( roundClosest( amt ) );
+
+            if ( amt < 0 && (major == 0 && minor != 0)  ) {
+                out.writeCharacter( '-' );
+            }
+
+            out.writeLong( major );
+            out.writeCharacter( '.' );
+
+
+            out.writeLong( minor / 10 );
+            out.writeLong( (minor)-((minor / 10)*10) );
+        }
+
+        public boolean hasValue( PullParser in ) {
+            return in.hasBigCashMajorUnit();
+        }
+
+        public long decode( PullParser in ) {
+            return in.pullBigCashMajorUnit();
+        }
+    };
+
+    /**
+     * Encoder/Decoder for currency specified in the minor unit of a currency.  For
+     * example 2.03 (pence) would decode to 203.
+     */
+    public static LongCodec CODEC_MINOR = new LongCodec() {
+        public void encode( long amt, CharacterStream out ) {
+            long major = amt/100;
+            long minor = Math.abs(amt%100);
+
+            if ( amt < 0 && (major == 0 && minor != 0)  ) {
+                out.writeCharacter( '-' );
+            }
+
+            out.writeLong( major );
+            out.writeCharacter( '.' );
+
+
+            out.writeLong( minor / 10 );
+            out.writeLong( (minor)-((minor / 10)*10) );
+        }
+
+        public boolean hasValue( PullParser in ) {
+            return in.hasBigCashMinorUnit();
+        }
+
+        public long decode( PullParser in ) {
+            return in.pullBigCashMinorUnit();
+        }
+    };
+
+
 
     public static long MAX_VALUE = Long.MAX_VALUE;
     public static long MIN_VALUE = Long.MIN_VALUE;

@@ -2,8 +2,8 @@ package com.mosaic.columnstore.columns;
 
 import com.mosaic.collections.LongSet;
 import com.mosaic.columnstore.CellExplanation;
-import com.mosaic.columnstore.IntColumn;
-import com.mosaic.io.codecs.IntCodec;
+import com.mosaic.columnstore.LongColumn;
+import com.mosaic.io.codecs.LongCodec;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.QA;
 import com.mosaic.utils.MapUtils;
@@ -14,23 +14,23 @@ import java.util.Map;
 /**
  *
  */
-public abstract class IntColumnFormula3 implements IntColumn {
+public abstract class LongColumnFormula3 implements LongColumn {
 
-    private String    columnName;
-    private String    description;
+    private String     columnName;
+    private String     description;
 
-    private String    opName;
-    private IntColumn sourceColumn1;
-    private IntColumn sourceColumn2;
-    private IntColumn sourceColumn3;
-    private int       expectedCellCount;
+    private String     opName;
+    private LongColumn sourceColumn1;
+    private LongColumn sourceColumn2;
+    private LongColumn sourceColumn3;
+    private int        expectedCellCount;
 
 
     /**
      *
-     * @param expectedCellCount how many source cells are probably used to calculate a single cell in this column? (hint only)
+     * @param expectedCellCount how many source cells are probably used to calculate a single cell in this column? (hlong only)
      */
-    protected IntColumnFormula3( String columnName, String description, String opName, IntColumn sourceColumn1, IntColumn sourceColumn2, IntColumn sourceColumn3, int expectedCellCount ) {
+    protected LongColumnFormula3( String columnName, String description, String opName, LongColumn sourceColumn1, LongColumn sourceColumn2, LongColumn sourceColumn3, int expectedCellCount ) {
         this.columnName        = columnName;
         this.description       = description;
 
@@ -53,7 +53,7 @@ public abstract class IntColumnFormula3 implements IntColumn {
         return sourceColumn1.isSet(row) || sourceColumn2.isSet(row) || sourceColumn3.isSet(row);
     }
 
-    public void set( long row, int value ) {
+    public void set( long row, long value ) {
         throw new UnsupportedOperationException("derived columns do not support having their values set directly");
     }
 
@@ -65,7 +65,7 @@ public abstract class IntColumnFormula3 implements IntColumn {
         return Math.max(Math.max( sourceColumn1.rowCount(), sourceColumn2.rowCount() ), sourceColumn3.rowCount());
     }
 
-    public int get( long row ) {
+    public long get( long row ) {
         QA.isTrue( isSet(row), "do not call get(row) on a row that has not been set" );
 
         return get(row, sourceColumn1, sourceColumn2, sourceColumn3 );
@@ -73,22 +73,22 @@ public abstract class IntColumnFormula3 implements IntColumn {
 
     public void writeValueTo( CharacterStream out, long row ) {
         if ( isSet(row) ) {
-            int v = get(row);
+            long v = get(row);
 
             getCodec().encode( v, out );
         }
     }
 
-    public IntCodec getCodec() {
+    public LongCodec getCodec() {
         return sourceColumn1.getCodec();
     }
 
     public CellExplanation explain( long row ) {
-        IntColumnAuditor auditor1 = new IntColumnAuditor( sourceColumn1, expectedCellCount);
-        IntColumnAuditor auditor2 = new IntColumnAuditor( sourceColumn2, expectedCellCount);
-        IntColumnAuditor auditor3 = new IntColumnAuditor( sourceColumn3, expectedCellCount);
+        LongColumnAuditor auditor1 = new LongColumnAuditor( sourceColumn1, expectedCellCount);
+        LongColumnAuditor auditor2 = new LongColumnAuditor( sourceColumn2, expectedCellCount);
+        LongColumnAuditor auditor3 = new LongColumnAuditor( sourceColumn3, expectedCellCount);
 
-        int                 value           = get( row, auditor1, auditor2, auditor3 );
+        long                 value           = get( row, auditor1, auditor2, auditor3 );
         LongSet             visitedRows1    = auditor1.getVisitedRows();
         LongSet             visitedRows2    = auditor2.getVisitedRows();
         LongSet             visitedRows3    = auditor2.getVisitedRows();
@@ -100,9 +100,9 @@ public abstract class IntColumnFormula3 implements IntColumn {
         return new CellExplanation( formattedValue, eqn, referencedCells );
     }
 
-    protected abstract int get( long row, IntColumn col1, IntColumn col2, IntColumn col3 );
+    protected abstract long get( long row, LongColumn col1, LongColumn col2, LongColumn col3 );
 
-    private String encodeValue( int v ) {
+    private String encodeValue( long v ) {
         return getCodec().toString(v);
     }
 
