@@ -4,6 +4,7 @@ import com.mosaic.collections.IntList;
 import com.mosaic.columnstore.CellExplanation;
 import com.mosaic.columnstore.IntColumn;
 import com.mosaic.io.codecs.IntCodec;
+import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
@@ -17,23 +18,31 @@ import java.util.BitSet;
 public class IntColumnArray implements IntColumn {
 
     private final String   columnName;
+    private final String   description;
+
     private final IntList  list       = new IntList();
     private final BitSet   isSet      = new BitSet();
     private final IntCodec codec;
 
 
-    public IntColumnArray( String columnName ) {
-        this( columnName, IntCodec.INT_CODEC );
+    public IntColumnArray( String columnName, String description ) {
+        this( columnName, description, IntCodec.INT_CODEC );
     }
 
-    public IntColumnArray( String columnName, IntCodec codec ) {
-        this.columnName = columnName;
-        this.codec      = codec;
+    public IntColumnArray( String columnName, String description, IntCodec codec ) {
+        this.columnName  = columnName;
+        this.description = description;
+
+        this.codec       = codec;
     }
 
 
     public String getColumnName() {
         return columnName;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public boolean isSet( long row ) {
@@ -66,6 +75,14 @@ public class IntColumnArray implements IntColumn {
             return new CellExplanation( getFormattedValue(row) );
         } else {
             return null;
+        }
+    }
+
+    public void writeValueTo( CharacterStream out, long row ) {
+        if ( isSet(row) ) {
+            int v = get(row);
+
+            getCodec().encode( v, out );
         }
     }
 

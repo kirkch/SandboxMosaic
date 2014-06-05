@@ -2,8 +2,9 @@ package com.mosaic.columnstore.columns;
 
 import com.mosaic.collections.DynamicArrayObject;
 import com.mosaic.columnstore.CellExplanation;
-import com.mosaic.columnstore.Column;
+import com.mosaic.columnstore.ObjectColumn;
 import com.mosaic.io.codecs.ObjectCodec;
+import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
@@ -14,24 +15,30 @@ import com.mosaic.lang.system.Backdoor;
 * simple way.  Uses an array under the hood, so only supports 2^31 rows.
 */
 @SuppressWarnings("unchecked")
-public class ColumnOnHeap<T> implements Column<T> {
+public class ObjectColumnArray<T> implements ObjectColumn<T> {
 
     private final String                columnName;
+    private final String                description;
     private final DynamicArrayObject<T> list       = new DynamicArrayObject<>();
     private final ObjectCodec<T>        codec;
 
-    public ColumnOnHeap( String columnName ) {
-        this( columnName, ObjectCodec.TOSTRING_FORMATTING_CODEC );
+    public ObjectColumnArray( String columnName, String description ) {
+        this( columnName, description, ObjectCodec.TOSTRING_FORMATTING_CODEC );
     }
 
-    public ColumnOnHeap( String columnName, ObjectCodec<T> codec ) {
-        this.columnName = columnName;
-        this.codec      = codec;
+    public ObjectColumnArray( String columnName, String description, ObjectCodec<T> codec ) {
+        this.columnName  = columnName;
+        this.description = description;
+        this.codec       = codec;
     }
 
 
     public String getColumnName() {
         return columnName;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public boolean isSet( long row ) {
@@ -61,6 +68,14 @@ public class ColumnOnHeap<T> implements Column<T> {
             return new CellExplanation( getFormattedValue(row) );
         } else {
             return null;
+        }
+    }
+
+    public void writeValueTo( CharacterStream out, long row ) {
+        if ( isSet(row) ) {
+            T v = get(row);
+
+            getCodec().encode( v, out );
         }
     }
 

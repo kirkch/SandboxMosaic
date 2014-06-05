@@ -89,4 +89,13 @@ public class BigCashType {
         }
     }
 
+    public static int toSmallCashType( long amt ) {
+        QA.isInt( amt/10, "amt" );
+
+        return (int) (amt/10);
+    }
+
+    public static long fromMajor( int amtMajor ) {
+        return amtMajor*10000L;
+    }
 }

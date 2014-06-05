@@ -16,35 +16,35 @@ public class LongColumnArrayTest {
 
     @Test
     public void givenEmptyColumn_getColumnName() {
-        LongColumn col = new LongColumnArray( "col1" );
+        LongColumn col = new LongColumnArray( "col1", "d" );
 
         assertEquals( "col1", col.getColumnName() );
     }
 
     @Test
     public void givenEmptyColumn_getRowCount_expectZero() {
-        LongColumn col = new LongColumnArray( "col1" );
+        LongColumn col = new LongColumnArray( "col1", "d" );
 
         assertEquals( 0, col.rowCount() );
     }
 
     @Test
     public void givenEmptyColumn_askIsSecondRowSet_expectFalse() {
-        LongColumn col = new LongColumnArray( "col1" );
+        LongColumn col = new LongColumnArray( "col1", "d" );
 
         assertFalse( col.isSet( 1 ) );
     }
 
     @Test
     public void givenEmptyColumn_getSecondRow_expectZero() {
-        LongColumn col = new LongColumnArray( "col1" );
+        LongColumn col = new LongColumnArray( "col1", "d" );
 
         assertEquals( 0, col.get( 1 ) );
     }
 
     @Test
     public void givenEmptyColumn_explainSecondRow_expectNull() {
-        LongColumn col = new LongColumnArray( "col1" );
+        LongColumn col = new LongColumnArray( "col1", "d" );
 
         assertNull( col.explain(1) );
     }
@@ -54,7 +54,7 @@ public class LongColumnArrayTest {
 
     @Test
     public void givenEmptyColumn_setSecondRow_getRowCount_expectTwo() {
-        LongColumn col = new LongColumnArray( "col1" );
+        LongColumn col = new LongColumnArray( "col1", "d" );
 
         col.set( 1, 42 );
 
@@ -63,7 +63,7 @@ public class LongColumnArrayTest {
 
     @Test
     public void givenEmptyColumn_setSecondRow_askIsSecondRowSet_expectTrue() {
-        LongColumn col = new LongColumnArray( "col1" );
+        LongColumn col = new LongColumnArray( "col1", "d" );
 
         col.set( 1, 42 );
 
@@ -72,7 +72,7 @@ public class LongColumnArrayTest {
 
     @Test
     public void givenEmptyColumn_setSecondRow_askIsFirstRowSet_expectFalse() {
-        LongColumn col = new LongColumnArray( "col1" );
+        LongColumn col = new LongColumnArray( "col1", "d" );
 
         col.set( 1, 42 );
 
@@ -81,7 +81,7 @@ public class LongColumnArrayTest {
 
     @Test
     public void givenValueInSecondRow_explainSecondRow_expectExplanation() {
-        LongColumn col = new LongColumnArray( "col1" );
+        LongColumn col = new LongColumnArray( "col1", "d" );
 
         col.set( 1, 42 );
 

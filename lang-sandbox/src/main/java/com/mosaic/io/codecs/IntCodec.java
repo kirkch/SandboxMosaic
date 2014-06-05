@@ -1,6 +1,7 @@
 package com.mosaic.io.codecs;
 
 import com.mosaic.io.streams.CharacterStream;
+import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.text.PullParser;
 
@@ -8,12 +9,20 @@ import com.mosaic.lang.text.PullParser;
 /**
  * Encode/Decode int values.
  */
-public interface IntCodec {
+public abstract class IntCodec {
 
-    public void encode( int v, CharacterStream out );
-    public boolean hasValue( PullParser in );
-    public int decode( PullParser in );
+    public abstract void encode( int v, CharacterStream out );
+    public abstract boolean hasValue( PullParser in );
+    public abstract int decode( PullParser in );
 
+
+    public String toString( int v ) {
+        UTF8Builder buf = new UTF8Builder();
+
+        encode( v, buf );
+
+        return buf.toString();
+    }
 
 
     public static final IntCodec INT_CODEC = new IntCodec() {

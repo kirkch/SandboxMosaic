@@ -1,7 +1,7 @@
 package com.mosaic.lang;
 
 /**
- * Represents up to two million units of cash to 3 decimal places.
+ * Represents up to two million major units (eg GBP) of cash to 3 decimal places (eg pence).
  *
  * Rounding occurs to the minor currency at request.
  */
@@ -28,7 +28,21 @@ public class SmallCashType {
         return Math.abs(amt%1000)/10;
     }
 
+    /**
+     *
+     * @param amt specified in major unit eg GBP
+     */
+    public static int fromMajor( int amt ) {
+        return amt*1000;
+    }
 
+    /**
+     *
+     * @param amt specified in major unit eg pence
+     */
+    public static int fromMinor( int amt ) {
+        return amt*10;
+    }
 
 
     /**

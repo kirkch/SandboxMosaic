@@ -110,4 +110,8 @@ public class BigCashTypeTest {
         assertEquals( "-92233720368547758.08", BigCashType.toStringMinor( Long.MIN_VALUE ) );
     }
 
+    @Test
+    public void toSmallCashType() {
+        assertEquals( SmallCashType.fromMajor(123), BigCashType.toSmallCashType(BigCashType.fromMajor(123)) );
+    }
 }

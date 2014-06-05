@@ -259,7 +259,13 @@ public class PrettyPrinter {
         }
     }
 
+    public static String formatFloat( float v, int numDP ) {
+        UTF8Builder buf = new UTF8Builder();
 
+        buf.writeFloat( v, numDP );
+
+        return buf.toString();
+    }
 
 
     public interface ColumnHandler {

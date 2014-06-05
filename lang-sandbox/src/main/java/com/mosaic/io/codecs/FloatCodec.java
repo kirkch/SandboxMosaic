@@ -1,6 +1,7 @@
 package com.mosaic.io.codecs;
 
 import com.mosaic.io.streams.CharacterStream;
+import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.text.PullParser;
 
@@ -8,12 +9,20 @@ import com.mosaic.lang.text.PullParser;
 /**
  * Encode/Decode float values.
  */
-public interface FloatCodec {
+public abstract class FloatCodec {
 
-    public void encode( float v, CharacterStream out );
-    public boolean hasValue( PullParser in );
-    public float decode( PullParser in );
+    public abstract void encode( float v, CharacterStream out );
+    public abstract boolean hasValue( PullParser in );
+    public abstract float decode( PullParser in );
 
+
+    public String toString( float v ) {
+        UTF8Builder buf = new UTF8Builder();
+
+        encode( v, buf );
+
+        return buf.toString();
+    }
 
 
     public static final FloatCodec FLOAT2DP_CODEC = new FloatCodec() {
@@ -31,5 +40,4 @@ public interface FloatCodec {
             return in.pullFloat();
         }
     };
-
 }
