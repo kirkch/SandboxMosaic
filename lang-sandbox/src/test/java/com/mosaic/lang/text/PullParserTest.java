@@ -48,6 +48,62 @@ public class PullParserTest {
     }
 
 
+// pullBoolean
+
+    @Test
+    public void given123_pullBoolean_expectNoMatch() {
+        Bytes      source = Bytes.wrap("123");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+        try {
+            parser.pullBoolean();
+            fail("expected exception" );
+        } catch ( ParseException ex ) {
+
+        }
+    }
+
+    @Test
+    public void givenT_pullBoolean_expectTrue() {
+        Bytes      source = Bytes.wrap("T");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+
+        assertTrue( parser.pullBoolean() );
+        assertEquals( 1, parser.getPosition() );
+    }
+
+    @Test
+    public void givent_pullBoolean_expectTrue() {
+        Bytes      source = Bytes.wrap("t");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+
+        assertTrue( parser.pullBoolean() );
+        assertEquals( 1, parser.getPosition() );
+    }
+
+    @Test
+    public void givenF_pullBoolean_expectFalse() {
+        Bytes      source = Bytes.wrap("F");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+
+        assertFalse( parser.pullBoolean() );
+        assertEquals( 1, parser.getPosition() );
+    }
+
+    @Test
+    public void givenf_pullBoolean_expectFalse() {
+        Bytes      source = Bytes.wrap("f");
+        PullParser parser = new PullParser( "/tmp/file/x", source );
+
+
+        assertFalse( parser.pullBoolean() );
+        assertEquals( 1, parser.getPosition() );
+    }
+
+
 // pullInt
 
     @Test

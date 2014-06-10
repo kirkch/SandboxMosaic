@@ -43,7 +43,7 @@ public class Columns {
     }
 
     private void writeCSVHeaderTo( CharacterStream out ) {
-        out.writeString("rowId");
+        out.writeString( "rowId" );
 
         for ( Column col : columns ) {
             out.writeUTF8( SEPARATOR );
@@ -69,14 +69,14 @@ public class Columns {
         long count = 0;
 
         for ( Column col : columns ) {
-            count = Math.max(count,col.rowCount());
+            count = Math.max(count,col.size());
         }
 
         return count;
     }
 
     public static IntColumn newIntColumn( String columnName, String description, int...values ) {
-        IntColumn col = new IntColumnArray( columnName, description );
+        IntColumn col = new IntColumnArray( columnName, description, values.length );
 
         for ( int i=0; i<values.length; i++ ) {
             col.set(i, values[i]);
@@ -86,7 +86,7 @@ public class Columns {
     }
 
     public static LongColumn newLongColumn( String columnName, String description, long...values ) {
-        LongColumn col = new LongColumnArray( columnName, description );
+        LongColumn col = new LongColumnArray( columnName, description, values.length );
 
         for ( int i=0; i<values.length; i++ ) {
             col.set(i, values[i]);
@@ -96,7 +96,7 @@ public class Columns {
     }
 
     public static FloatColumn newFloatColumn( String columnName, String description, float...values ) {
-        FloatColumn col = new FloatColumnArray( columnName, description );
+        FloatColumn col = new FloatColumnArray( columnName, description, values.length );
 
         for ( int i=0; i<values.length; i++ ) {
             col.set(i, values[i]);
@@ -106,7 +106,7 @@ public class Columns {
     }
 
     public static <T> ObjectColumn<T> newObjectColumn( String columnName, String description, T...values ) {
-        ObjectColumn<T> col = new ObjectColumnArray<>( columnName, description );
+        ObjectColumn<T> col = new ObjectColumnArray<>( columnName, description, values.length );
 
         for ( int i=0; i<values.length; i++ ) {
             col.set(i, values[i]);

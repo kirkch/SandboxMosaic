@@ -56,8 +56,12 @@ public abstract class FloatColumnFormula1 implements FloatColumn {
         throw new UnsupportedOperationException( "A column should cannot be modified when generating an explanation" );
     }
 
-    public long rowCount() {
-        return sourceColumn.rowCount();
+    public long size() {
+        return sourceColumn.size();
+    }
+
+    public void resizeIfNecessary( long newSize ) {
+        throw new UnsupportedOperationException( "A column should cannot be modified when generating an explanation" );
     }
 
     public float get( long row ) {

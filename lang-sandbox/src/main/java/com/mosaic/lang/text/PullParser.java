@@ -141,6 +141,24 @@ public class PullParser {
 
 
     /**
+     * Matches and returns a boolean.  If no boolean is matched then an exception
+     * will be thrown.
+     */
+    public boolean pullBoolean() {
+        doAutoSkip();
+
+        ParserResult r = parse( BOOLEAN_PARSER );
+
+        if ( r.hasMatched() ) {
+            this.position = r.getToExc();
+
+            return r.getValueBoolean();
+        } else {
+            throw newParseException( "Expected 'Boolean'", position );
+        }
+    }
+
+    /**
      * Matches and returns an int.  If no int is matched then an exception
      * will be thrown.
      */
@@ -282,7 +300,10 @@ public class PullParser {
 
     public boolean hasInt() {
         return hasNext(INT_PARSER);
+    }
 
+    public boolean hasBoolean() {
+        return hasNext(BOOLEAN_PARSER);
     }
 
     public boolean hasLong() {
@@ -497,6 +518,23 @@ public class PullParser {
                 } else {
                     result.resultMatchedInt( num, fromInc, i );
                 }
+            }
+        }
+
+        public String toString() {
+            return "Int";
+        }
+    };
+
+    private static final ByteMatcher BOOLEAN_PARSER = new ByteMatcher() {
+        public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
+            byte v = source.readByte();
+            if ( v == 'T' || v == 't' ) {
+                result.resultMatchedBoolean( true, fromInc, fromInc+1 );
+            } else if ( v == 'F' || v == 'f' ) {
+                result.resultMatchedBoolean( false, fromInc, fromInc+1 );
+            } else {
+                result.resultNoMatch();
             }
         }
 

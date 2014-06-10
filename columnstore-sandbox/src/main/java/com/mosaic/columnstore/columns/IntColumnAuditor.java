@@ -47,8 +47,12 @@ class IntColumnAuditor implements IntColumn {
         throw new UnsupportedOperationException( "A column should cannot be modified when generating an explanation" );
     }
 
-    public long rowCount() {
-        return sourceColumn.rowCount();
+    public long size() {
+        return sourceColumn.size();
+    }
+
+    public void resizeIfNecessary( long newSize ) {
+        sourceColumn.resizeIfNecessary( newSize );
     }
 
     public CellExplanation explain( long row ) {

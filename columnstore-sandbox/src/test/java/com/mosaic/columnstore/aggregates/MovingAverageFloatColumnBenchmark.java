@@ -13,13 +13,14 @@ import org.junit.runner.RunWith;
  */
 @RunWith(JUnitMosaicRunner.class)
 public class MovingAverageFloatColumnBenchmark {
+    private final int ROW_COUNT = 2000;
 
-    private final FloatColumn         price = new FloatColumnArray( "cost", "d" );
+    private final FloatColumn              price = new FloatColumnArray( "cost", "d", ROW_COUNT );
     private final MovingAverageFloatColumn ma100 = new MovingAverageFloatColumn( price, 100 );
 
     @Before
     public void setup() {
-        for ( long i=0; i<2000; i++ ) {
+        for ( long i=0; i<ROW_COUNT; i++ ) {
             price.set(i, i+1);
         }
     }
@@ -38,7 +39,7 @@ public class MovingAverageFloatColumnBenchmark {
 
     @Benchmark(1000)
     public float ma100Benchmark() {
-        long rowCount = ma100.rowCount();
+        long rowCount = ma100.size();
         float count = 0;
 
         for ( long i=0; i<rowCount; i++ ) {

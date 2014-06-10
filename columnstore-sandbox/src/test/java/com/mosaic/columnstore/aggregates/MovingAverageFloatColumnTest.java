@@ -22,12 +22,14 @@ public class MovingAverageFloatColumnTest {
 
     @Test
     public void givenEmptySourceColumn_expectExplanationOfMA3ForAnyRow_toBeZeroWithNoTouchedCells() {
-        FloatColumn         price = new FloatColumnArray( "cost", "d" );
+        int rowCount = 100;
+
+        FloatColumn              price = new FloatColumnArray( "cost", "d", rowCount);
         MovingAverageFloatColumn ma3   = new MovingAverageFloatColumn( price, 3 );
 
-        assertEquals( 0, ma3.rowCount() );
+        assertEquals( 100, ma3.size() );
 
-        for ( int i=0; i<100; i++ ) {
+        for ( int i=0; i<rowCount; i++ ) {
             CellExplanation explanation = ma3.explain(i);
 
             assertEquals( "0.00", explanation.getFormattedValue() );
@@ -41,12 +43,12 @@ public class MovingAverageFloatColumnTest {
 
     @Test
     public void givenSourceWithSingleRowAt10_expectMA3OfAnyRowBelow10ToBeZero() {
-        FloatColumn         price = new FloatColumnArray( "cost", "d" );
+        FloatColumn              price = new FloatColumnArray( "cost", "d", 11 );
         MovingAverageFloatColumn ma3   = new MovingAverageFloatColumn( price, 3 );
 
         price.set( 10, 100.0f );
 
-        assertEquals( 11, ma3.rowCount() );
+        assertEquals( 11, ma3.size() );
 
         for ( long i=0; i<9; i++ ) {
             CellExplanation explanation = ma3.explain( i );
@@ -59,7 +61,7 @@ public class MovingAverageFloatColumnTest {
 
     @Test
     public void givenSourceWithSingleRowAt10_expectMA3OfAnyRowGTE10_toBeValue() {
-        FloatColumn         price = new FloatColumnArray( "cost", "d" );
+        FloatColumn              price = new FloatColumnArray( "cost", "d", 100 );
         MovingAverageFloatColumn ma3   = new MovingAverageFloatColumn( price, 3 );
 
         price.set( 10, 100.0f );
@@ -79,13 +81,13 @@ public class MovingAverageFloatColumnTest {
 
     @Test
     public void givenSourceWithRowsAt10And12_expectMA3OfAnyRowBelow10ToBeZero() {
-        FloatColumn         price = new FloatColumnArray( "cost", "d" );
+        FloatColumn              price = new FloatColumnArray( "cost", "d", 13 );
         MovingAverageFloatColumn ma3   = new MovingAverageFloatColumn( price, 3 );
 
         price.set( 10, 4.0f );
         price.set( 12, 6.0f );
 
-        assertEquals( 13, ma3.rowCount() );
+        assertEquals( 13, ma3.size() );
 
         for ( long i=0; i<9; i++ ) {
             CellExplanation explanation = ma3.explain( i );
@@ -98,7 +100,7 @@ public class MovingAverageFloatColumnTest {
 
     @Test
     public void givenSourceWithRowsAt10And12_expectMA3OfAnyRowBetween10And11_toBeEqualToFirstValue() {
-        FloatColumn         price = new FloatColumnArray( "cost", "d" );
+        FloatColumn              price = new FloatColumnArray( "cost", "d", 13 );
         MovingAverageFloatColumn ma3   = new MovingAverageFloatColumn( price, 3 );
 
         price.set( 10, 4.0f );
@@ -115,7 +117,7 @@ public class MovingAverageFloatColumnTest {
 
     @Test
     public void givenSourceWithRowsAtRow12_expectMA3OfAnyRowFrom12OnwardsToBeTheAvgOfTheTwoValues() {
-        FloatColumn         price = new FloatColumnArray( "cost", "d" );
+        FloatColumn              price = new FloatColumnArray( "cost", "d", 13 );
         MovingAverageFloatColumn ma3   = new MovingAverageFloatColumn( price, 3 );
 
         price.set( 10, 4.0f );
@@ -135,7 +137,7 @@ public class MovingAverageFloatColumnTest {
 
     @Test
     public void givenSourceFourRows_expectMA3OfFourthRow_toEqualAverageOfLastThreeRows() {
-        FloatColumn         price = new FloatColumnArray( "cost", "d" );
+        FloatColumn              price = new FloatColumnArray( "cost", "d", 15 );
         MovingAverageFloatColumn ma3   = new MovingAverageFloatColumn( price, 3 );
 
         price.set( 10, 1.0f );
@@ -152,7 +154,7 @@ public class MovingAverageFloatColumnTest {
 
     @Test
     public void givenSourceFourRows_expectMA3OfThirdRow_toEqualAverageOfLastThreeRows() {
-        FloatColumn         price = new FloatColumnArray( "cost", "d" );
+        FloatColumn              price = new FloatColumnArray( "cost", "d", 15 );
         MovingAverageFloatColumn ma3   = new MovingAverageFloatColumn( price, 3 );
 
         price.set( 10, 1.0f );
@@ -192,15 +194,15 @@ public class MovingAverageFloatColumnTest {
 
 
     private void bulkMATest( int numRows, int numSamples ) {
-        FloatColumn         price = new FloatColumnArray( "cost", "d" );
+        FloatColumn         price = new FloatColumnArray( "cost", "d", numRows );
         MovingAverageFloatColumn ma3   = new MovingAverageFloatColumn( price, numSamples );
 
         for ( int i=0; i<numRows; i++ ) {
             price.set(i, i+1 );
         }
 
-        assertEquals( numRows, price.rowCount() );
-        assertEquals( numRows, ma3.rowCount() );
+        assertEquals( numRows, price.size() );
+        assertEquals( numRows, ma3.size() );
 
         float m = 0;
 

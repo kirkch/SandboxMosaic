@@ -2,8 +2,24 @@
 <body>
 
 This package contains classes for modelling a spreadsheet, complete with formulas.  The spreadsheets
-are modelled as columns.  This is a more flexible approach than storing by row, as each column
-may be be stored in multiple groups and processed separately.
+are modelled as columns.  This can be a more flexible approach than storing by row, as each column
+may be be stored in multiple groups and processed separately.<p/>
+
+
+<h2>Caching</h2>
+
+This package works best when the rows are added incrementally, and previous rows are never modified
+or removed.  That is to say, any updates or deletes occur by inserting a new row.  This approach
+maximises the potential for caching cells that are costly to calculate on the fly.  If updates are
+allowed, then either do not cache at all or take care to update the caches to maintain correct
+values.  For this reason, none of the columns cache automatically.  Caching is only done when
+explicitely requested.
+
+
+<h2>Parallelism</h2>
+
+This package expects to be called from a single thread at a time.  The column implementations
+aim to maximise CPU cache hits when iterating over the rows of a column.
 
 </body>
 </html>

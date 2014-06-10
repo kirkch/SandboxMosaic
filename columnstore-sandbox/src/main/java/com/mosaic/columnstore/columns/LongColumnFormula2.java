@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  *
  */
-public abstract class LongColumnFormula2 implements LongColumn {
+public abstract class LongColumnFormula2 extends BaseLongColumn {
 
     private String     columnName;
     private String     description;
@@ -59,8 +59,12 @@ public abstract class LongColumnFormula2 implements LongColumn {
         throw new UnsupportedOperationException( "A column should cannot be modified when generating an explanation" );
     }
 
-    public long rowCount() {
-        return Math.max( sourceColumn1.rowCount(), sourceColumn2.rowCount() );
+    public long size() {
+        return Math.max( sourceColumn1.size(), sourceColumn2.size() );
+    }
+
+    public void resizeIfNecessary( long newSize ) {
+        throw new UnsupportedOperationException( "A column should cannot be modified when generating an explanation" );
     }
 
     public long get( long row ) {

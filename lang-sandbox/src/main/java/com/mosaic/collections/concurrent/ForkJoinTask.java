@@ -38,14 +38,14 @@ public abstract class ForkJoinTask extends RecursiveAction implements Cloneable 
     /**
      * Set how large size() must be before a task will be forked.
      */
-    protected void setForkThreshold( long newForkThreshold ) {
+    public void setForkThreshold( long newForkThreshold ) {
         this.forkThreshold = newForkThreshold;
     }
 
     /**
      * When splitting up a task, up to how many child tasks should it be split into?
      */
-    protected void setForkFactor( int newForkFactor ) {
+    public void setForkFactor( int newForkFactor ) {
         this.forkFactor = newForkFactor;
     }
 

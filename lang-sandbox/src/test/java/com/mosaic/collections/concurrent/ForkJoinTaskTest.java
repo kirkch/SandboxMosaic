@@ -75,6 +75,25 @@ public class ForkJoinTaskTest {
         assertTrue( results.isEmpty() );
     }
 
+    @Test
+    public void varyForkingParametersVLarge() {
+        MyJob job = new MyJob( 0, 100, 10, 3 );
+
+        job.execute();
+
+
+        assertEquals( 100, results.size() );
+//        assertEquals( 287, childTaskCount.get() );
+
+        for ( long i=0; i<100; i++ ) {
+            assertTrue( "row "+i, results.contains(i) );
+
+            results.remove( i );
+        }
+
+        assertTrue( results.isEmpty() );
+    }
+
 
     private class MyJob extends ForkJoinTask {
         protected MyJob( long from, long toExc, long forkThreshold, int forkFactor ) {

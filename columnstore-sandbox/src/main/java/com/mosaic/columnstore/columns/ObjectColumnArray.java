@@ -9,6 +9,8 @@ import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
 
+import java.util.Arrays;
+
 
 /**
 * A basic column.  Stores an object each row.  All data is stored in a fairly traditional and
@@ -17,19 +19,25 @@ import com.mosaic.lang.system.Backdoor;
 @SuppressWarnings("unchecked")
 public class ObjectColumnArray<T> implements ObjectColumn<T> {
 
-    private final String                columnName;
-    private final String                description;
-    private final DynamicArrayObject<T> list       = new DynamicArrayObject<>();
-    private final ObjectCodec<T>        codec;
+    private final String         columnName;
+    private final String         description;
+    private final ObjectCodec<T> codec;
 
-    public ObjectColumnArray( String columnName, String description ) {
-        this( columnName, description, ObjectCodec.TOSTRING_FORMATTING_CODEC );
+    private T[] cells;
+
+
+    public ObjectColumnArray( String columnName, String description, long size ) {
+        this( columnName, description, size, ObjectCodec.TOSTRING_FORMATTING_CODEC );
     }
 
-    public ObjectColumnArray( String columnName, String description, ObjectCodec<T> codec ) {
+    public ObjectColumnArray( String columnName, String description, long size, ObjectCodec<T> codec ) {
+        QA.isInt( size, "size" );
+
         this.columnName  = columnName;
         this.description = description;
         this.codec       = codec;
+
+        this.cells       = (T[]) new Object[(int) size];
     }
 
 
@@ -44,19 +52,19 @@ public class ObjectColumnArray<T> implements ObjectColumn<T> {
     public boolean isSet( long row ) {
         QA.isInt( row, "row" );
 
-        return list.get((int) row) != null;
+        return cells.length > row && cells[(int) row] != null;
     }
 
     public T get( long row ) {
         QA.isInt( row, "row" );
 
-        return list.get((int) row);
+        return cells[(int) row];
     }
 
     public void set( long row, T value ) {
         QA.isInt( row, "row" );
 
-        list.set( (int) row, value );
+        cells[(int) row] = value;
     }
 
     public void unset( long row ) {
@@ -64,11 +72,19 @@ public class ObjectColumnArray<T> implements ObjectColumn<T> {
 
         int i = (int) row;
 
-        list.set( i, null );
+        cells[i] = null;
     }
 
-    public long rowCount() {
-        return list.size();
+    public long size() {
+        return cells.length;
+    }
+
+    public void resizeIfNecessary( long newSize ) {
+        if ( size() < newSize ) {
+            QA.isInt( newSize, "newSize" );
+
+            this.cells = Arrays.copyOf( cells, (int) newSize );
+        }
     }
 
     public CellExplanation explain( long row ) {
@@ -93,7 +109,7 @@ public class ObjectColumnArray<T> implements ObjectColumn<T> {
 
     private String getFormattedValue( long row ) {
         int r = Backdoor.safeDowncast( row );
-        T   v = list.get(r);
+        T   v = cells[r];
 
         UTF8Builder buf = new UTF8Builder();
 

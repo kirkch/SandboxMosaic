@@ -22,10 +22,10 @@ public class MovingAverageIntColumnTest {
 
     @Test
     public void givenEmptySourceColumn_expectExplanationOfMA3ForAnyRow_toBeZeroWithNoTouchedCells() {
-        IntColumn price = new IntColumnArray( "cost", "d" );
+        IntColumn price = new IntColumnArray( "cost", "d", 100 );
         MovingAverageIntColumn ma3   = new MovingAverageIntColumn( price, 3 );
 
-        assertEquals( 0, ma3.rowCount() );
+        assertEquals( 100, ma3.size() );
 
         for ( int i=0; i<100; i++ ) {
             CellExplanation explanation = ma3.explain(i);
@@ -41,12 +41,12 @@ public class MovingAverageIntColumnTest {
 
     @Test
     public void givenSourceWithSingleRowAt10_expectMA3OfAnyRowBelow10ToBeZero() {
-        IntColumn         price = new IntColumnArray( "cost", "d" );
+        IntColumn              price = new IntColumnArray( "cost", "d", 11 );
         MovingAverageIntColumn ma3   = new MovingAverageIntColumn( price, 3 );
 
         price.set( 10, 100 );
 
-        assertEquals( 11, ma3.rowCount() );
+        assertEquals( 11, ma3.size() );
 
         for ( long i=0; i<9; i++ ) {
             CellExplanation explanation = ma3.explain( i );
@@ -59,7 +59,7 @@ public class MovingAverageIntColumnTest {
 
     @Test
     public void givenSourceWithSingleRowAt10_expectMA3OfAnyRowGTE10_toBeValue() {
-        IntColumn         price = new IntColumnArray( "cost", "d" );
+        IntColumn              price = new IntColumnArray( "cost", "d", 11 );
         MovingAverageIntColumn ma3   = new MovingAverageIntColumn( price, 3 );
 
         price.set( 10, 100 );
@@ -79,13 +79,13 @@ public class MovingAverageIntColumnTest {
 
     @Test
     public void givenSourceWithRowsAt10And12_expectMA3OfAnyRowBelow10ToBeZero() {
-        IntColumn         price = new IntColumnArray( "cost", "d" );
+        IntColumn              price = new IntColumnArray( "cost", "d", 13 );
         MovingAverageIntColumn ma3   = new MovingAverageIntColumn( price, 3 );
 
         price.set( 10, 4 );
         price.set( 12, 6 );
 
-        assertEquals( 13, ma3.rowCount() );
+        assertEquals( 13, ma3.size() );
 
         for ( long i=0; i<9; i++ ) {
             CellExplanation explanation = ma3.explain( i );
@@ -98,7 +98,7 @@ public class MovingAverageIntColumnTest {
 
     @Test
     public void givenSourceWithRowsAt10And12_expectMA3OfAnyRowBetween10And11_toBeEqualToFirstValue() {
-        IntColumn         price = new IntColumnArray( "cost", "d" );
+        IntColumn              price = new IntColumnArray( "cost", "d", 13 );
         MovingAverageIntColumn ma3   = new MovingAverageIntColumn( price, 3 );
 
         price.set( 10, 4 );
@@ -115,7 +115,7 @@ public class MovingAverageIntColumnTest {
 
     @Test
     public void givenSourceWithRowsAtRow12_expectMA3OfAnyRowFrom12OnwardsToBeTheAvgOfTheTwoValues() {
-        IntColumn         price = new IntColumnArray( "cost", "d" );
+        IntColumn              price = new IntColumnArray( "cost", "d", 13 );
         MovingAverageIntColumn ma3   = new MovingAverageIntColumn( price, 3 );
 
         price.set( 10, 4 );
@@ -135,7 +135,7 @@ public class MovingAverageIntColumnTest {
 
     @Test
     public void givenSourceFourRows_expectMA3OfFourthRow_toEqualAverageOfLastThreeRows() {
-        IntColumn         price = new IntColumnArray( "cost", "d" );
+        IntColumn              price = new IntColumnArray( "cost", "d", 15 );
         MovingAverageIntColumn ma3   = new MovingAverageIntColumn( price, 3 );
 
         price.set( 10, 1 );
@@ -152,7 +152,7 @@ public class MovingAverageIntColumnTest {
 
     @Test
     public void givenSourceFourRows_expectMA3OfThirdRow_toEqualAverageOfLastThreeRows() {
-        IntColumn         price = new IntColumnArray( "cost", "d" );
+        IntColumn              price = new IntColumnArray( "cost", "d", 15 );
         MovingAverageIntColumn ma3   = new MovingAverageIntColumn( price, 3 );
 
         price.set( 10, 1 );
@@ -192,15 +192,15 @@ public class MovingAverageIntColumnTest {
 
 
     private void bulkMATest( int numRows, int numSamples ) {
-        IntColumn         price = new IntColumnArray( "cost", "d" );
+        IntColumn         price = new IntColumnArray( "cost", "d", numRows );
         MovingAverageIntColumn ma3   = new MovingAverageIntColumn( price, numSamples );
 
         for ( int i=0; i<numRows; i++ ) {
             price.set(i, i+1 );
         }
 
-        assertEquals( numRows, price.rowCount() );
-        assertEquals( numRows, ma3.rowCount() );
+        assertEquals( numRows, price.size() );
+        assertEquals( numRows, ma3.size() );
 
         int m = 0;
 

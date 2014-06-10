@@ -18,7 +18,9 @@ public interface Column {
     /**
      * How many rows are in this column.  Starts from row zero and goes through to rowCount-1.
      */
-    public long rowCount();
+    public long size();
+
+    public void resizeIfNecessary( long newSize );
 
     public CellExplanation explain( long row );
 

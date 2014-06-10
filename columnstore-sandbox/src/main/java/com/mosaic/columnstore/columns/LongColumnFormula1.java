@@ -12,9 +12,10 @@ import java.util.Map;
 
 
 /**
- *
+ * The cells in this column are calculated on demand based on a formula that depends on the input
+ * from one other column.
  */
-public abstract class LongColumnFormula1 implements LongColumn {
+public abstract class LongColumnFormula1 extends BaseLongColumn {
 
     private String    columnName;
     private String     description;
@@ -28,13 +29,13 @@ public abstract class LongColumnFormula1 implements LongColumn {
      *
      * @param expectedCellCount how many source cells are probably used to calculate a single cell in this column? (hlong only)
      */
-    protected LongColumnFormula1( String columnName, String description, String opName, LongColumn sourceColumn, int expectedCellCount ) {
+    protected LongColumnFormula1( String columnName, String description, String opName, LongColumn sourceColumn, long expectedCellCount ) {
         this.columnName        = columnName;
         this.description       = description;
 
         this.opName            = opName;
         this.sourceColumn      = sourceColumn;
-        this.expectedCellCount = expectedCellCount;
+        this.expectedCellCount = (int) expectedCellCount;
     }
 
     public String getColumnName() {
@@ -57,14 +58,18 @@ public abstract class LongColumnFormula1 implements LongColumn {
         throw new UnsupportedOperationException( "A column should cannot be modified when generating an explanation" );
     }
 
-    public long rowCount() {
-        return sourceColumn.rowCount();
+    public long size() {
+        return sourceColumn.size();
+    }
+
+    public void resizeIfNecessary( long newSize ) {
+        throw new UnsupportedOperationException( "A column should cannot be modified when generating an explanation" );
     }
 
     public long get( long row ) {
         QA.isTrue( isSet(row), "do not call get(row) on a row that has not been set" );
 
-        return get(row,sourceColumn);
+        return get( row, sourceColumn );
     }
 
     public LongCodec getCodec() {

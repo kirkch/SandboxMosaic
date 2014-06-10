@@ -1,0 +1,64 @@
+
+Q - Question
+A - Answer
+O - Observation
+C - Conclusion
+
+
+2014
+----
+
+Q BitSet vs boolean[]
+
+
+09 June
+
+  Parallel processing.
+
+  Q When to go parallel, when to stay serial?
+
+  O Columns that have few to no dependencies between other cells can theoretically be divided
+    across multiple cores.  Cells with high levels of dependencies are unlikely to benefit, and
+    instead often have serial versions of their algorithms that optimise the serial case of
+    calculating each row in turn for the same column.  For example, consider moving averages.  When
+    averaging say 100 cells, it is possible to calculate the next cell in a series by performing
+    just one addition and one subtraction.
+
+    The first spike into going parallel: found that columns that could resize themselves to
+       make room for new rows became a bottleneck that make the parallel versions slower than
+       the serial version.   NB serial version was 7ms, unthreadsafe forkjoin version 18ms and
+       threadsafe/blocking version 78ms.   An efficient use of fork/join, with a column that
+       cannot resize itself was able to achieve the same job in only 3ms.
+
+       Thus a design was needed that supported serial algorithms for columns, parallel versions too
+       and caching to avoid duplicated effort.
+
+  C    The solution chosen was to split out the following two functions that were previously
+       combined with set()/get();  prePopulateColumn(), and resize().
+
+       prePopulateColumn() is for creating a cache.  It was decided not to cache automatically
+       as it would cause confusion as to when caching was being used, and that would make updates
+       very difficult.  The default implementation uses the fork/join framework to go parallel but
+       it can easily be overridden to use more efficient, special case algorithms for columns
+       that do not scale well with the fork/join framework.
+
+       resizeIfNecessary() was added so that set() no longer had to check to dynamically resize the columns.
+       Thus speeding up both the single threaded cases, and removing a lot of contention from
+       the parallel implementation of prePopulateColumn.
+
+
+June Kick off
+
+  Previous spikes have been row based.  Representing the rows, which in Java means objects.  When
+  processing a lot of rows, this resulted in a lost of CPU cache misses due to pointer chasing.
+  To reduce the misses, Unsafe was used to represent the rows an array of C style structures.  This
+  was fast to run, but took longer to write and more care was required in order to prevent mistakes.
+  Iterating over rows also caused data other data from the same row to get loaded too, which often
+  was not necessary.  It was also found that the code to calculate the rows tended to get scattered
+  and more care than I would like was required to keep it clean.
+
+  It was then noted that when most algorithms being implemented only touched a few columns, that
+  the most natural place to keep the code was close to that column.  This representation required
+  no use of Unsafe to achieve excellent cache hit rates, and it was type safe too.  Unfortunately
+  Java generics do not support primitives, so to avoid boxing/unboxing then there is a need for
+  a lot of similar classes.

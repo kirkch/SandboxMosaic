@@ -11,7 +11,7 @@ import com.mosaic.io.streams.CharacterStream;
  * Automatically detect which rows are accessed by a formula.  Used to generate explanations
  * of how a column is derived.
  */
-class LongColumnAuditor implements LongColumn {
+class LongColumnAuditor extends BaseLongColumn {
     private LongColumn sourceColumn;
     private LongSet visitedRows;
 
@@ -47,8 +47,12 @@ class LongColumnAuditor implements LongColumn {
         throw new UnsupportedOperationException( "A column should cannot be modified when generating an explanation" );
     }
 
-    public long rowCount() {
-        return sourceColumn.rowCount();
+    public long size() {
+        return sourceColumn.size();
+    }
+
+    public void resizeIfNecessary( long newSize ) {
+        sourceColumn.resizeIfNecessary( newSize );
     }
 
     public CellExplanation explain( long row ) {

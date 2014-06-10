@@ -1,7 +1,7 @@
 package com.mosaic.columnstore.columns;
 
-import com.mosaic.collections.IntList;
 import com.mosaic.columnstore.CellExplanation;
+import com.mosaic.columnstore.Column;
 import com.mosaic.columnstore.IntColumn;
 import com.mosaic.io.codecs.IntCodec;
 import com.mosaic.io.streams.CharacterStream;
@@ -9,7 +9,7 @@ import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
 
-import java.util.BitSet;
+import java.util.Arrays;
 
 
 /**
@@ -17,23 +17,27 @@ import java.util.BitSet;
 */
 public class IntColumnArray implements IntColumn {
 
-    private final String   columnName;
-    private final String   description;
+    private final String           columnName;
+    private final String           description;
 
-    private final IntList  list       = new IntList();
-    private final BitSet   isSet      = new BitSet();
     private final IntCodec codec;
 
+    private int[]     cells;
+    private boolean[] isSet;
 
-    public IntColumnArray( String columnName, String description ) {
-        this( columnName, description, IntCodec.INT_CODEC );
+    public IntColumnArray( String columnName, String description, long size ) {
+        this( columnName, description, size, IntCodec.INT_CODEC );
     }
 
-    public IntColumnArray( String columnName, String description, IntCodec codec ) {
+    public IntColumnArray( String columnName, String description, long size, IntCodec codec ) {
+        QA.isInt( size, "size" );
+
         this.columnName  = columnName;
         this.description = description;
-
         this.codec       = codec;
+
+        this.cells = new int[(int) size];
+        this.isSet = new boolean[(int) size];
     }
 
 
@@ -48,13 +52,13 @@ public class IntColumnArray implements IntColumn {
     public boolean isSet( long row ) {
         QA.isInt( row, "row" );
 
-        return isSet.get( (int) row );
+        return isSet.length > row && isSet[ (int) row ];
     }
 
     public int get( long row ) {
         QA.isInt( row, "row" );
 
-        return list.get((int) row);
+        return cells[(int) row];
     }
 
     public void set( long row, int value ) {
@@ -62,8 +66,8 @@ public class IntColumnArray implements IntColumn {
 
         int i = (int) row;
 
-        isSet.set( i );
-        list.set( i, value );
+        isSet[i] = true;
+        cells[i] = value;
     }
 
     public void unset( long row ) {
@@ -71,12 +75,21 @@ public class IntColumnArray implements IntColumn {
 
         int i = (int) row;
 
-        isSet.set( i, false );
-        list.set( i, 0 );
+        isSet[i] = false;
+        cells[i] = 0;
     }
 
-    public long rowCount() {
-        return list.size();
+    public long size() {
+        return cells.length;
+    }
+
+    public void resizeIfNecessary( long newSize ) {
+        if ( size() < newSize ) {
+            QA.isInt( newSize, "newSize" );
+
+            this.cells = Arrays.copyOf( cells, (int) newSize );
+            this.isSet = Arrays.copyOf( isSet, (int) newSize );
+        }
     }
 
     public CellExplanation explain( long row ) {
@@ -100,8 +113,8 @@ public class IntColumnArray implements IntColumn {
     }
 
     private String getFormattedValue( long row ) {
-        int r = Backdoor.safeDowncast( row );
-        int v = list.get(r);
+        int  r = Backdoor.safeDowncast( row );
+        int v = cells[r];
 
         UTF8Builder buf = new UTF8Builder();
 

@@ -1,6 +1,5 @@
 package com.mosaic.columnstore.columns;
 
-import com.mosaic.collections.DynamicArrayLong;
 import com.mosaic.columnstore.CellExplanation;
 import com.mosaic.columnstore.LongColumn;
 import com.mosaic.io.codecs.LongCodec;
@@ -9,29 +8,35 @@ import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
 
-import java.util.BitSet;
+import java.util.Arrays;
 
 
 /**
 * An LongColumn backed by an int array.
 */
-public class LongColumnArray implements LongColumn {
+public class LongColumnArray extends BaseLongColumn {
 
     private final String           columnName;
     private final String           description;
 
-    private final DynamicArrayLong list       = new DynamicArrayLong();
-    private final BitSet           isSet      = new BitSet();
     private final LongCodec        codec;
 
-    public LongColumnArray( String columnName, String description ) {
-        this( columnName, description, LongCodec.LONG2DP_CODEC );
+    private long[]    cells;
+    private boolean[] isSet;
+
+    public LongColumnArray( String columnName, String description, long size ) {
+        this( columnName, description, size, LongCodec.LONG2DP_CODEC );
     }
 
-    public LongColumnArray( String columnName, String description, LongCodec codec ) {
+    public LongColumnArray( String columnName, String description, long size, LongCodec codec ) {
+        QA.isInt( size, "size" );
+
         this.columnName  = columnName;
         this.description = description;
         this.codec       = codec;
+
+        this.cells = new long[(int) size];
+        this.isSet = new boolean[(int) size];
     }
 
 
@@ -46,13 +51,13 @@ public class LongColumnArray implements LongColumn {
     public boolean isSet( long row ) {
         QA.isInt( row, "row" );
 
-        return isSet.get( (int) row );
+        return isSet.length > row && isSet[ (int) row ];
     }
 
     public long get( long row ) {
         QA.isInt( row, "row" );
 
-        return list.get((int) row);
+        return cells[(int) row];
     }
 
     public void set( long row, long value ) {
@@ -60,8 +65,8 @@ public class LongColumnArray implements LongColumn {
 
         int i = (int) row;
 
-        isSet.set( i );
-        list.set( i, value );
+        isSet[i] = true;
+        cells[i] = value;
     }
 
     public void unset( long row ) {
@@ -69,12 +74,21 @@ public class LongColumnArray implements LongColumn {
 
         int i = (int) row;
 
-        isSet.set( i, false );
-        list.set( i, 0L );
+        isSet[i] = false;
+        cells[i] = 0L;
     }
 
-    public long rowCount() {
-        return list.size();
+    public long size() {
+        return cells.length;
+    }
+
+    public void resizeIfNecessary( long newSize ) {
+        if ( size() < newSize ) {
+            QA.isInt( newSize, "newSize" );
+
+            this.cells = Arrays.copyOf( cells, (int) newSize );
+            this.isSet = Arrays.copyOf( isSet, (int) newSize );
+        }
     }
 
     public CellExplanation explain( long row ) {
@@ -99,7 +113,7 @@ public class LongColumnArray implements LongColumn {
 
     private String getFormattedValue( long row ) {
         int  r = Backdoor.safeDowncast( row );
-        long v = list.get(r);
+        long v = cells[r];
 
         UTF8Builder buf = new UTF8Builder();
 
