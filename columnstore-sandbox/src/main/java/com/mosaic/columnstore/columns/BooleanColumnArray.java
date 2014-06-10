@@ -1,7 +1,7 @@
 package com.mosaic.columnstore.columns;
 
 import com.mosaic.columnstore.CellExplanation;
-import com.mosaic.io.codecs.FloatCodec;
+import com.mosaic.io.codecs.BooleanCodec;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
@@ -13,27 +13,27 @@ import java.util.Arrays;
 /**
  *
  */
-public class FloatColumnArray extends BaseFloatColumn {
+public class BooleanColumnArray extends BaseBooleanColumn {
 
     private final String     columnName;
     private final String     description;
 
-    private final FloatCodec codec;
+    private final BooleanCodec codec;
 
-    private float[]   cells;
+    private boolean[] cells;
     private boolean[] isSet;
 
 
-    public FloatColumnArray( String columnName, String description, int size ) {
-        this( columnName, description, size, FloatCodec.FLOAT2DP_CODEC );
+    public BooleanColumnArray( String columnName, String description, int size ) {
+        this( columnName, description, size, BooleanCodec.BOOLEAN_CODEC );
     }
 
-    public FloatColumnArray( String columnName, String description, int size, FloatCodec codec ) {
+    public BooleanColumnArray( String columnName, String description, int size, BooleanCodec codec ) {
         this.columnName  = columnName;
         this.description = description;
         this.codec       = codec;
 
-        this.cells = new float[size];
+        this.cells = new boolean[size];
         this.isSet = new boolean[size];
     }
 
@@ -52,13 +52,13 @@ public class FloatColumnArray extends BaseFloatColumn {
         return isSet.length > row && isSet[(int) row];
     }
 
-    public float get( long row ) {
+    public boolean get( long row ) {
         QA.isInt( row, "row" );
 
         return cells[(int) row];
     }
 
-    public void set( long row, float value ) {
+    public void set( long row, boolean value ) {
         QA.isInt( row, "row" );
 
         int i = (int) row;
@@ -73,7 +73,7 @@ public class FloatColumnArray extends BaseFloatColumn {
         int i = (int) row;
 
         isSet[i] = false;
-        cells[i] = 0.0f;
+        cells[i] = false;
     }
 
     public long size() {
@@ -99,19 +99,19 @@ public class FloatColumnArray extends BaseFloatColumn {
 
     public void writeValueTo( CharacterStream out, long row ) {
         if ( isSet(row) ) {
-            float v = get(row);
+            boolean v = get(row);
 
             getCodec().encode( v, out );
         }
     }
 
-    public FloatCodec getCodec() {
+    public BooleanCodec getCodec() {
         return codec;
     }
 
     private String getFormattedValue( long row ) {
-        int   i = Backdoor.safeDowncast(row);
-        float v = cells[i];
+        int     i = Backdoor.safeDowncast( row );
+        boolean v = cells[i];
 
         UTF8Builder buf = new UTF8Builder();
 

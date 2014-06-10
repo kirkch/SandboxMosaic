@@ -13,10 +13,11 @@ import org.junit.runner.RunWith;
  */
 @RunWith(JUnitMosaicRunner.class)
 public class MovingAverageFloatColumnBenchmark {
-    private final int ROW_COUNT = 2000;
+    private final int ROW_COUNT = 1000000;
 
-    private final FloatColumn              price = new FloatColumnArray( "cost", "d", ROW_COUNT );
-    private final MovingAverageFloatColumn ma100 = new MovingAverageFloatColumn( price, 100 );
+    private final FloatColumn price       = new FloatColumnArray( "cost", "d", ROW_COUNT );
+    private final FloatColumn ma100       = new MovingAverageFloatColumn( price, 100 );
+    private final FloatColumn cachedMA100 = new FloatColumnArray( "cost", "d", ROW_COUNT );
 
     @Before
     public void setup() {
@@ -28,16 +29,18 @@ public class MovingAverageFloatColumnBenchmark {
 /*
    - 520us: lastN(new AverageAggregator());  hotspot was unable to inline AverageAggregator :(
 
-   current approach:
-    402478.00ns per call
-    402433.00ns per call
-    404638.00ns per call
-    403893.00ns per call
-    402694.00ns per call
-    404544.00ns per call
+   serial approach:      402694.00ns per call
+
+    fork join:
+    254510.00ns per call
+    249453.00ns per call
+    247545.00ns per call
+    253105.00ns per call
+    246061.00ns per call
+    247207.00ns per call
      */
 
-    @Benchmark(1000)
+    @Benchmark(10)
     public float ma100Benchmark() {
         long rowCount = ma100.size();
         float count = 0;
@@ -47,6 +50,21 @@ public class MovingAverageFloatColumnBenchmark {
         }
 
         return count;
+    }
+/*
+ma100
+unoptimised serial 127ms
+optimised serial   280ms
+fork join           54ms
+
+ma5
+unoptimised serial   9ms
+optimised serial    30ms
+fork/join            4ms
+ */
+    @Benchmark(10)
+    public void prepopulateMA100Benchmark() {
+        ma100.prePopulateColumn( cachedMA100 );
     }
 
 }

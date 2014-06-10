@@ -11,6 +11,30 @@ C - Conclusion
 Q BitSet vs boolean[]
 
 
+10 June
+
+  Moving Averages, go parallel or use optimised serial versions?
+  The optimised serial version can reduce a moving average down to one addition, subtraction and
+  division.
+
+  Results  (measurements for 1 million rows, taken on a haswell quad core mac book pro)
+
+      ma100
+      unoptimised serial 127ms
+      optimised serial   280ms
+      fork join           54ms
+
+      ma5
+      unoptimised serial   9ms
+      optimised serial    30ms
+      fork/join            4ms
+
+  C Going fork/join is faster for ma100.  Eventually ma-X will become faster to be done serially,
+    however a quad core laptop was faster brute forcing it for ma100 and we do not yet know of a
+    case where we want more than 100 here.  So we will be save using fork/join here.
+
+
+
 09 June
 
   Parallel processing.
@@ -46,6 +70,20 @@ Q BitSet vs boolean[]
        Thus speeding up both the single threaded cases, and removing a lot of contention from
        the parallel implementation of prePopulateColumn.
 
+
+4 June 2014
+
+  Column design.  Do we use more OO design to achieve greater code reuse?
+
+
+  O An alternative approach to the implementations of the Column interface was to move common
+    code such as summations, iterations, aggregations to util methods.  However it was shown to
+    be 25% slower.  When hotspot was able to inline higher order functions such as AverageAggregator
+    then it was just as fast as the inlined approach.  It is a shame that hotspot
+    could not do this without help.
+
+  C Inline more code by hand, accepting that code duplication is occurring in payment for extra
+    performance.  Aim to do this when there is a measurable benefit.
 
 June Kick off
 

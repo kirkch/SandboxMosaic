@@ -1,18 +1,18 @@
 package com.mosaic.columnstore.columns;
 
 import com.mosaic.collections.concurrent.ForkJoinTask;
-import com.mosaic.columnstore.LongColumn;
+import com.mosaic.columnstore.FloatColumn;
 
 
 /**
  *
  */
-public abstract class BaseLongColumn implements LongColumn {
+public abstract class BaseFloatColumn implements FloatColumn {
 
-    public void prePopulateColumn( final LongColumn destinationColumn ) {
+    public void prePopulateColumn( final FloatColumn destinationColumn ) {
         ForkJoinTask job = new ForkJoinTask(0, size()) {
             protected void doJob( long i ) {
-                long v = BaseLongColumn.this.get( i );
+                float v = BaseFloatColumn.this.get( i );
 
                 destinationColumn.set( i, v );
             }

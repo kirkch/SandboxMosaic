@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * A formula that processes a single float column into a new float column.
  */
-public abstract class FloatColumnFormula1 implements FloatColumn {
+public abstract class FloatColumnFormula1 extends BaseFloatColumn {
 
     private String             columnName;
     private String             description;

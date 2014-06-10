@@ -16,4 +16,5 @@ public interface FloatColumn extends Column {
      */
     public FloatCodec getCodec();
 
+    public void prePopulateColumn( final FloatColumn destinationColumn );
 }

@@ -1,18 +1,18 @@
 package com.mosaic.columnstore.columns;
 
 import com.mosaic.collections.concurrent.ForkJoinTask;
-import com.mosaic.columnstore.LongColumn;
+import com.mosaic.columnstore.BooleanColumn;
 
 
 /**
  *
  */
-public abstract class BaseLongColumn implements LongColumn {
+public abstract class BaseBooleanColumn implements BooleanColumn {
 
-    public void prePopulateColumn( final LongColumn destinationColumn ) {
+    public void prePopulateColumn( final BooleanColumn destinationColumn ) {
         ForkJoinTask job = new ForkJoinTask(0, size()) {
             protected void doJob( long i ) {
-                long v = BaseLongColumn.this.get( i );
+                boolean v = BaseBooleanColumn.this.get( i );
 
                 destinationColumn.set( i, v );
             }
@@ -25,5 +25,4 @@ public abstract class BaseLongColumn implements LongColumn {
 
         job.execute();
     }
-
 }

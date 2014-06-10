@@ -17,7 +17,7 @@ public class LongColumnFormula1Test {
 
         LongColumn columnA      = createColumn("A", rowCount);
         LongColumn columnB      = createFormulaColumn( "B", columnA );
-        LongColumn columnBCache = new LongColumnArray( "BCache", "cache of B", rowCount );
+        LongColumn columnBCache = new LongColumnArray( "BCache", "cache of B", 10 );
 
         columnB.prePopulateColumn( columnBCache );
 
