@@ -15,7 +15,7 @@ public class LongSetTest {
 
     @Test
     public void givenEmptySet_containsValuesMinus100To100_expectFalse() {
-        LongSet set = LongSet.createLongSet(10);
+        LongSet set = LongSet.factory( 10 );
 
         for ( int i=-100; i<=100; i++ ) {
             assertFalse( set.contains(i) );
@@ -24,7 +24,7 @@ public class LongSetTest {
 
     @Test
     public void givenSetContainingMinus10And42_containsValuesMinus100To100_expectTrueForMinus10And42() {
-        LongSet set = LongSet.createLongSet(10);
+        LongSet set = LongSet.factory( 10 );
 
         set.add( -10 );
         set.add( 42 );
@@ -40,7 +40,7 @@ public class LongSetTest {
 
     @Test
     public void givenSetContainingMinus10And42_appendToBuffer() {
-        LongSet set = LongSet.createLongSet(10);
+        LongSet set = LongSet.factory( 10 );
 
         set.add( -10 );
         set.add( 42 );
@@ -53,7 +53,7 @@ public class LongSetTest {
 
     @Test
     public void givenSetContaining10to40IncWhichWillCauseTheSetToGrow_containsValuesMinus100To100_expectTrueFor10To40Inc() {
-        LongSet set = LongSet.createLongSet(10);
+        LongSet set = LongSet.factory( 10 );
 
         for ( int i=10; i<=40; i++ ) {
             set.add(i);
@@ -70,7 +70,7 @@ public class LongSetTest {
 
     @Test
     public void givenEmptySet_expectEmptyIterator() {
-        LongSet set = LongSet.createLongSet(10);
+        LongSet set = LongSet.factory( 10 );
 
 
         LongIterator it = set.iterator();
@@ -87,7 +87,7 @@ public class LongSetTest {
 
     @Test
     public void givenSetContaining10to40IncWhichWillCauseTheSetToGrow_retrieveValuesUsingIterator() {
-        LongSet set = LongSet.createLongSet(10);
+        LongSet set = LongSet.factory( 10 );
         Set<Long> expectedValues = new HashSet <>();
 
         for ( int i=10; i<=40; i++ ) {

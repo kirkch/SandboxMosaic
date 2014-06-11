@@ -16,9 +16,9 @@ class LongColumnAuditor extends BaseLongColumn {
     private LongSet visitedRows;
 
 
-    public LongColumnAuditor( LongColumn sourceColumn, int targetSampleCount ) {
+    public LongColumnAuditor( LongColumn sourceColumn, long targetSampleCount ) {
         this.sourceColumn = sourceColumn;
-        this.visitedRows  = LongSet.createLongSet(targetSampleCount);
+        this.visitedRows  = LongSet.factory( targetSampleCount );
     }
 
     public String getColumnName() {

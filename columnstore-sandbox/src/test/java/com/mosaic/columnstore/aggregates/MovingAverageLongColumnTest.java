@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.util.Map;
 
+import static com.mosaic.columnstore.ColumnTestUtils.assertReferencedCellsEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -22,7 +23,7 @@ public class MovingAverageLongColumnTest {
 
     @Test
     public void givenEmptySourceColumn_expectExplanationOfMA3ForAnyRow_toBeZeroWithNoTouchedCells() {
-        LongColumn price = new LongColumnArray( "cost", "d", 0 );
+        LongColumn              price = new LongColumnArray( "cost", "d", 0 );
         MovingAverageLongColumn ma3   = new MovingAverageLongColumn( price, 3 );
 
         assertEquals( 0, ma3.size() );
@@ -219,20 +220,4 @@ public class MovingAverageLongColumnTest {
         }
     }
 
-
-
-
-
-    private void assertReferencedCellsEquals( CellExplanation explanation, String columnName, long...expectedRowIds ) {
-        Map<String,LongSet> referencedCells = explanation.getReferencedCells();
-
-        assertEquals( 1, referencedCells.size() );
-
-        LongSet actualRowIds = referencedCells.get(columnName);
-        assertEquals( expectedRowIds.length, actualRowIds.size() );
-
-        for ( long expectedRowId : expectedRowIds ) {
-            assertTrue( actualRowIds.contains(expectedRowId) );
-        }
-    }
 }

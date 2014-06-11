@@ -18,7 +18,7 @@ class FloatColumnAuditor extends BaseFloatColumn {
 
     public FloatColumnAuditor( FloatColumn sourceColumn, int targetSampleCount ) {
         this.sourceColumn = sourceColumn;
-        this.visitedRows  = LongSet.createLongSet(targetSampleCount);
+        this.visitedRows  = LongSet.factory( targetSampleCount );
     }
 
     public String getColumnName() {

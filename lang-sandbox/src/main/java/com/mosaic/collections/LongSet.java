@@ -8,8 +8,18 @@ import java.util.Arrays;
  */
 public abstract class LongSet {
 
-    public static LongSet createLongSet( int expectedSize ) {
+    public static LongSet factory( long expectedSize ) {
         return new SmallLongSet();
+    }
+
+    public static LongSet createLongSet( long...values ) {
+        LongSet set = new SmallLongSet();
+
+        for ( long v : values ) {
+            set.add( v );
+        }
+
+        return set;
     }
 
     public abstract long size();
