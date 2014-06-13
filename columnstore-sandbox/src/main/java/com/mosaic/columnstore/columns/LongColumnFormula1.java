@@ -17,25 +17,34 @@ import java.util.Map;
  */
 public abstract class LongColumnFormula1 extends BaseLongColumn {
 
-    private String    columnName;
-    private String     description;
+    private   final String     columnName;
+    private   final String     description;
 
-    private String     opName;
-    private LongColumn sourceColumn;
-    private int        expectedCellCount;
+    protected final String     opName;
+    private   final LongColumn sourceColumn;
+    private   final Integer    expectedCellCountNbl;
 
+
+    protected LongColumnFormula1( String columnName, String description, String opName, LongColumn sourceColumn ) {
+        this.columnName           = columnName;
+        this.description          = description;
+
+        this.opName               = opName;
+        this.sourceColumn         = sourceColumn;
+        this.expectedCellCountNbl = null;
+    }
 
     /**
      *
-     * @param expectedCellCount how many source cells are probably used to calculate a single cell in this column? (hlong only)
+     * @param expectedCellCount how many source cells are probably used to calculate a single cell in this column?
      */
     protected LongColumnFormula1( String columnName, String description, String opName, LongColumn sourceColumn, long expectedCellCount ) {
-        this.columnName        = columnName;
-        this.description       = description;
+        this.columnName           = columnName;
+        this.description          = description;
 
-        this.opName            = opName;
-        this.sourceColumn      = sourceColumn;
-        this.expectedCellCount = (int) expectedCellCount;
+        this.opName               = opName;
+        this.sourceColumn         = sourceColumn;
+        this.expectedCellCountNbl = (int) expectedCellCount;
     }
 
     public String getColumnName() {
@@ -85,7 +94,9 @@ public abstract class LongColumnFormula1 extends BaseLongColumn {
     }
 
     public CellExplanation explain( long row ) {
-        LongColumnAuditor auditor = new LongColumnAuditor(sourceColumn, expectedCellCount);
+        long expectedCellCount = expectedCellCountNbl == null ? sourceColumn.size() : expectedCellCountNbl;
+
+        LongColumnAuditor auditor = new LongColumnAuditor(sourceColumn, expectedCellCount );
 
         long                value           = get( row, auditor );
         LongSet             visitedRows     = auditor.getVisitedRows();

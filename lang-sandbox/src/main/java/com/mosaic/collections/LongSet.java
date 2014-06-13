@@ -1,6 +1,12 @@
 package com.mosaic.collections;
 
+import com.mosaic.io.streams.PrettyPrinter;
+import com.mosaic.utils.StringUtils;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 
 /**
@@ -31,19 +37,22 @@ public abstract class LongSet {
     public abstract LongIterator iterator();
 
     public void appendTo( StringBuilder buf, String separator ) {
+        List<Long> listBuf = toList();
+
+        Collections.sort( listBuf );
+
+        StringUtils.join( buf, listBuf, separator );
+    }
+
+    private List<Long> toList() {
+        List<Long> listBuf = new ArrayList<>();
+
         LongIterator it = iterator();
-
-        boolean includeSeparator = false;
         while ( it.hasNext() ) {
-            if ( includeSeparator ) {
-                buf.append( separator );
-            } else {
-                includeSeparator = true;
-            }
-
-            long v = it.next();
-            buf.append( v );
+            listBuf.add( it.next() );
         }
+
+        return listBuf;
     }
 
     public boolean isEmpty() {

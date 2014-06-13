@@ -69,6 +69,7 @@ public class StringUtils {
         return buf.toString();
     }
 
+    // todo move to PrettyPrinter
     public static <T> void join( Appendable buf, Iterable<T> elements, String separator ) {
         join( buf, elements, separator, Formatters.TO_STRING );
     }

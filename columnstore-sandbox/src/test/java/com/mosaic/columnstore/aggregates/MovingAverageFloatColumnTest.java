@@ -128,7 +128,7 @@ public class MovingAverageFloatColumnTest {
 
             assertEquals( "5.00", explanation.getFormattedValue() );
             assertReferencedCellsEquals( explanation, "cost", 10, 12 );
-            assertEquals( "MA3(cost[12,10])", explanation.toString() );
+            assertEquals( "MA3(cost[10,12])", explanation.toString() );
         }
     }
 
@@ -149,7 +149,7 @@ public class MovingAverageFloatColumnTest {
 
         assertEquals( "3.00", explanation.getFormattedValue() );
         assertReferencedCellsEquals( explanation, "cost", 14,13,12 );
-        assertEquals( "MA3(cost[14,13,12])", explanation.toString() );
+        assertEquals( "MA3(cost[12,13,14])", explanation.toString() );
     }
 
     @Test
@@ -166,7 +166,7 @@ public class MovingAverageFloatColumnTest {
 
         assertEquals( "2.00", explanation.getFormattedValue() );
         assertReferencedCellsEquals( explanation, "cost", 13,12,10 );
-        assertEquals( "MA3(cost[13,12,10])", explanation.toString() );
+        assertEquals( "MA3(cost[10,12,13])", explanation.toString() );
     }
 
 

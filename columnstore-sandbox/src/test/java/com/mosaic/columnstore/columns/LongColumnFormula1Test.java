@@ -40,7 +40,7 @@ public class LongColumnFormula1Test {
     }
 
     static LongColumn createFormulaColumn( String columnName, LongColumn sourceColumn ) {
-        return new LongColumnFormula1(columnName,sourceColumn.getColumnName()+"*2","DOUBLE", sourceColumn, sourceColumn.size()) {
+        return new LongColumnFormula1(columnName,sourceColumn.getColumnName()+"*2","DOUBLE", sourceColumn) {
             protected long get( long row, LongColumn col ) {
                 return col.get(row)*2;
             }
