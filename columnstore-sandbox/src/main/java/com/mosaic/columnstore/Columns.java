@@ -1,5 +1,6 @@
 package com.mosaic.columnstore;
 
+import com.mosaic.columnstore.columns.BooleanColumnArray;
 import com.mosaic.columnstore.columns.FloatColumnArray;
 import com.mosaic.columnstore.columns.IntColumnArray;
 import com.mosaic.columnstore.columns.LongColumnArray;
@@ -73,6 +74,16 @@ public class Columns {
         }
 
         return count;
+    }
+
+    public static BooleanColumn newBooleanColumn( String columnName, String description, boolean...values ) {
+        BooleanColumn col = new BooleanColumnArray( columnName, description, values.length );
+
+        for ( int i=0; i<values.length; i++ ) {
+            col.set(i, values[i]);
+        }
+
+        return col;
     }
 
     public static IntColumn newIntColumn( String columnName, String description, int...values ) {

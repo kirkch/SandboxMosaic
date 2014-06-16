@@ -9,6 +9,14 @@ import com.mosaic.columnstore.BooleanColumn;
  */
 public abstract class BaseBooleanColumn implements BooleanColumn {
 
+    public boolean isFalse( long row ) {
+        return !isTrue(row);
+    }
+
+    public boolean isTrue( long row ) {
+        return isSet(row) && get(row);
+    }
+
     public void prePopulateColumn( final BooleanColumn destinationColumn ) {
         ForkJoinTask job = new ForkJoinTask(0, size()) {
             protected void doJob( long i ) {

@@ -18,4 +18,7 @@ public interface BooleanColumn extends Column {
 
     public void prePopulateColumn( final BooleanColumn destinationColumn );
 
+    public boolean isFalse( long row );
+    public boolean isTrue( long row );
+
 }

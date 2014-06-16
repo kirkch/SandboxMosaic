@@ -15,7 +15,7 @@ public class BooleanColumnAuditor extends BaseBooleanColumn {
     private LongSet       visitedRows;
 
 
-    public BooleanColumnAuditor( BooleanColumn sourceColumn, int targetSampleCount ) {
+    public BooleanColumnAuditor( BooleanColumn sourceColumn, long targetSampleCount ) {
         this.sourceColumn = sourceColumn;
         this.visitedRows  = LongSet.factory( targetSampleCount );
     }
