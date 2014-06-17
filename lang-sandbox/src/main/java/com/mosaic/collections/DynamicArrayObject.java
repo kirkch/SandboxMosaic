@@ -1,14 +1,16 @@
 package com.mosaic.collections;
 
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Iterator;
 
 
 /**
  * Less keen to throw index out of bound exceptions that java.util.List.
  */
 @SuppressWarnings("unchecked")
-public class DynamicArrayObject<T> {
+public class DynamicArrayObject<T> implements Iterable<T> {
     private T[] contents;
     private int size;
 
@@ -46,5 +48,33 @@ public class DynamicArrayObject<T> {
         size = 0;
 
         Arrays.fill( contents, null );
+    }
+
+    public T[] toArray( Class<T> elementType ) {
+        T[] array = (T[]) Array.newInstance( elementType, size );
+
+        for ( int i=0; i<size; i++ ) {
+            array[i] = contents[i];
+        }
+
+        return array;
+    }
+
+    public Iterator<T> iterator() {
+        return new Iterator<T>() {
+            private int index = 0;
+
+            public boolean hasNext() {
+                return index < size;
+            }
+
+            public T next() {
+                return contents[index++];
+            }
+
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
 }
