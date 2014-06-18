@@ -1,7 +1,6 @@
 package com.mosaic.columnstore.columns;
 
 import com.mosaic.columnstore.CellExplanation;
-import com.mosaic.columnstore.LongColumn;
 import com.mosaic.io.codecs.LongCodec;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.io.streams.UTF8Builder;
@@ -25,7 +24,7 @@ public class LongColumnArray extends BaseLongColumn {
     private boolean[] isSet;
 
     public LongColumnArray( String columnName, String description, long size ) {
-        this( columnName, description, size, LongCodec.LONG2DP_CODEC );
+        this( columnName, description, size, LongCodec.LONG_CODEC );
     }
 
     public LongColumnArray( String columnName, String description, long size, LongCodec codec ) {

@@ -1,8 +1,6 @@
 package com.mosaic.columnstore.columns;
 
-import com.mosaic.collections.DynamicArrayObject;
 import com.mosaic.columnstore.CellExplanation;
-import com.mosaic.columnstore.ObjectColumn;
 import com.mosaic.io.codecs.ObjectCodec;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.io.streams.UTF8Builder;
@@ -17,7 +15,7 @@ import java.util.Arrays;
 * simple way.  Uses an array under the hood, so only supports 2^31 rows.
 */
 @SuppressWarnings("unchecked")
-public class ObjectColumnArray<T> implements ObjectColumn<T> {
+public class ObjectColumnArray<T> extends BaseObjectColumn<T> {
 
     private final String         columnName;
     private final String         description;
@@ -77,6 +75,10 @@ public class ObjectColumnArray<T> implements ObjectColumn<T> {
 
     public long size() {
         return cells.length;
+    }
+
+    public int reserveWidth() {
+        return getCodec().reserveWidth();
     }
 
     public void resizeIfNecessary( long newSize ) {

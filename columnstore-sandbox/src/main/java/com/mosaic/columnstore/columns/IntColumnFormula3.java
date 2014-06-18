@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  *
  */
-public abstract class IntColumnFormula3 implements IntColumn {
+public abstract class IntColumnFormula3 extends BaseIntColumn {
 
     private String    columnName;
     private String    description;
@@ -63,6 +63,10 @@ public abstract class IntColumnFormula3 implements IntColumn {
 
     public long size() {
         return Math.max(Math.max( sourceColumn1.size(), sourceColumn2.size() ), sourceColumn3.size());
+    }
+
+    public int reserveWidth() {
+        return getCodec().reserveWidth();
     }
 
     public void resizeIfNecessary( long newSize ) {

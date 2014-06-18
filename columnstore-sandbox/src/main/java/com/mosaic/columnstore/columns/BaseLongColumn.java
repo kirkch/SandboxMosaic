@@ -26,4 +26,8 @@ public abstract class BaseLongColumn implements LongColumn {
         job.execute();
     }
 
+    public int reserveWidth() {
+        return getCodec().reserveWidth();
+    }
+
 }

@@ -26,4 +26,8 @@ public interface Column {
 
     public void writeValueTo( CharacterStream out, long row );
 
+    /**
+     * Reserve this number of characters for displaying a single formatted value of this column.
+     */
+    public int reserveWidth();
 }

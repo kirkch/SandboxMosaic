@@ -13,7 +13,7 @@ public interface DoubleCodec {
     public void encode( double v, CharacterStream out );
     public boolean hasValue( PullParser in );
     public double decode( PullParser in );
-
+    public abstract int reserveWidth();
 
 
     public static final DoubleCodec DOUBLE2DP_CODEC = new DoubleCodec() {
@@ -29,6 +29,10 @@ public interface DoubleCodec {
             QA.isTrue( hasValue(in), "parse called when hasValue() returns false" );
 
             return in.pullDouble();
+        }
+
+        public int reserveWidth() {
+            return 19;
         }
     };
 

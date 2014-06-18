@@ -86,6 +86,10 @@ public class Columns<T extends Column> implements Iterable<T> {
         return columns[index];
     }
 
+    public int numColumns() {
+        return columns.length;
+    }
+
     public int indexOf( String targetColumnName ) {
         for ( int i=0; i<columns.length; i++ ) {
             T col = columns[i];

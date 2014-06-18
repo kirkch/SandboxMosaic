@@ -1,8 +1,6 @@
 package com.mosaic.columnstore.columns;
 
 import com.mosaic.columnstore.CellExplanation;
-import com.mosaic.columnstore.Column;
-import com.mosaic.columnstore.IntColumn;
 import com.mosaic.io.codecs.IntCodec;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.io.streams.UTF8Builder;
@@ -15,7 +13,7 @@ import java.util.Arrays;
 /**
 * An IntColumn backed by an int array.
 */
-public class IntColumnArray implements IntColumn {
+public class IntColumnArray extends BaseIntColumn {
 
     private final String           columnName;
     private final String           description;
@@ -81,6 +79,10 @@ public class IntColumnArray implements IntColumn {
 
     public long size() {
         return cells.length;
+    }
+
+    public int reserveWidth() {
+        return getCodec().reserveWidth();
     }
 
     public void resizeIfNecessary( long newSize ) {

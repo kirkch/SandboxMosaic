@@ -13,4 +13,6 @@ public interface IntColumn extends Column {
 
     public IntCodec getCodec();
 
+    public void prePopulateColumn( final IntColumn destinationColumn );
+
 }

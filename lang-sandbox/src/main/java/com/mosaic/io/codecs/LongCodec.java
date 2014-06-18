@@ -15,6 +15,9 @@ public abstract class LongCodec {
     public abstract boolean hasValue( PullParser in );
     public abstract long decode( PullParser in );
 
+    public abstract int reserveWidth();
+
+
     public String toString( long v ) {
         UTF8Builder buf = new UTF8Builder();
 
@@ -24,7 +27,7 @@ public abstract class LongCodec {
     }
 
 
-    public static final LongCodec LONG2DP_CODEC = new LongCodec() {
+    public static final LongCodec LONG_CODEC = new LongCodec() {
         public void encode( long v, CharacterStream out ) {
             out.writeLong( v );
         }
@@ -37,6 +40,10 @@ public abstract class LongCodec {
             QA.isTrue( hasValue(in), "parse called when hasValue() returns false" );
 
             return in.pullLong();
+        }
+
+        public int reserveWidth() {
+            return 19;
         }
     };
 

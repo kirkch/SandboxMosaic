@@ -2,21 +2,20 @@ package com.mosaic.columnstore.columns;
 
 import com.mosaic.collections.LongSet;
 import com.mosaic.columnstore.CellExplanation;
-import com.mosaic.columnstore.IntColumn;
-import com.mosaic.io.codecs.IntCodec;
+import com.mosaic.columnstore.ObjectColumn;
+import com.mosaic.io.codecs.ObjectCodec;
 import com.mosaic.io.streams.CharacterStream;
 
 
 /**
- * Automatically detect which rows are accessed by a formula.  Used to generate explanations
- * of how a column is derived.
+ *
  */
-class IntColumnAuditor extends BaseIntColumn {
-    private IntColumn sourceColumn;
-    private LongSet visitedRows;
+public class ObjectColumnAuditor<T> extends BaseObjectColumn<T> {
+    private ObjectColumn<T> sourceColumn;
+    private LongSet         visitedRows;
 
 
-    public IntColumnAuditor( IntColumn sourceColumn, int targetSampleCount ) {
+    public ObjectColumnAuditor( ObjectColumn<T> sourceColumn, long targetSampleCount ) {
         this.sourceColumn = sourceColumn;
         this.visitedRows  = LongSet.factory( targetSampleCount );
     }
@@ -33,13 +32,13 @@ class IntColumnAuditor extends BaseIntColumn {
         return sourceColumn.isSet( row );
     }
 
-    public int get( long row ) {
+    public T get( long row ) {
         visitedRows.add(row);
 
         return sourceColumn.get( row );
     }
 
-    public void set( long row, int value ) {
+    public void set( long row, T value ) {
         throw new UnsupportedOperationException( "A column should cannot be modified when generating an explanation" );
     }
 
@@ -49,10 +48,6 @@ class IntColumnAuditor extends BaseIntColumn {
 
     public long size() {
         return sourceColumn.size();
-    }
-
-    public int reserveWidth() {
-        return getCodec().reserveWidth();
     }
 
     public void resizeIfNecessary( long newSize ) {
@@ -65,17 +60,18 @@ class IntColumnAuditor extends BaseIntColumn {
 
     public void writeValueTo( CharacterStream out, long row ) {
         if ( isSet(row) ) {
-            int v = get(row);
+            T v = get(row);
 
             getCodec().encode( v, out );
         }
     }
 
-    public IntCodec getCodec() {
+    public ObjectCodec<T> getCodec() {
         return sourceColumn.getCodec();
     }
 
     public LongSet getVisitedRows() {
         return visitedRows;
     }
+
 }

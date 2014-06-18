@@ -40,6 +40,10 @@ public class BigCashType {
         public long decode( PullParser in ) {
             return in.pullBigCashMajorUnit();
         }
+
+        public int reserveWidth() {
+            return 19;
+        }
     };
 
     /**
@@ -69,6 +73,10 @@ public class BigCashType {
 
         public long decode( PullParser in ) {
             return in.pullBigCashMinorUnit();
+        }
+
+        public int reserveWidth() {
+            return 19;
         }
     };
 

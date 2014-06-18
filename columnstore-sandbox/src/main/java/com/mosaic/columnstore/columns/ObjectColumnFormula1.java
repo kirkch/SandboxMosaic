@@ -2,33 +2,32 @@ package com.mosaic.columnstore.columns;
 
 import com.mosaic.collections.LongSet;
 import com.mosaic.columnstore.CellExplanation;
-import com.mosaic.columnstore.IntColumn;
-import com.mosaic.io.codecs.IntCodec;
+import com.mosaic.columnstore.ObjectColumn;
+import com.mosaic.io.codecs.ObjectCodec;
 import com.mosaic.io.streams.CharacterStream;
-import com.mosaic.lang.QA;
 import com.mosaic.utils.MapUtils;
 
 import java.util.Map;
 
 
 /**
- *
+ * A formula that processes a single float column into a new float column.
  */
-public abstract class IntColumnFormula1 extends BaseIntColumn {
+public abstract class ObjectColumnFormula1<T> extends BaseObjectColumn<T> {
 
-    private String    columnName;
-    private String    description;
+    private String       columnName;
+    private String       description;
 
-    private String    opName;
-    private IntColumn sourceColumn;
-    private int       expectedCellCount;
+    private String       opName;
+    private ObjectColumn sourceColumn;
+    private int          expectedCellCount;
 
 
     /**
      *
-     * @param expectedCellCount how many source cells are probably used to calculate a single cell in this column? (hint only)
+     * @param expectedCellCount how many source cells are probably used to calculate a single cell in this column?
      */
-    protected IntColumnFormula1( String columnName, String description, String opName, IntColumn sourceColumn, int expectedCellCount ) {
+    protected ObjectColumnFormula1( String columnName, String description, String opName, ObjectColumn sourceColumn, int expectedCellCount ) {
         this.columnName        = columnName;
         this.description       = description;
 
@@ -49,7 +48,7 @@ public abstract class IntColumnFormula1 extends BaseIntColumn {
         return sourceColumn.isSet(row);
     }
 
-    public void set( long row, int value ) {
+    public void set( long row, float value ) {
         throw new UnsupportedOperationException("derived columns do not support having their values set directly");
     }
 
@@ -61,37 +60,31 @@ public abstract class IntColumnFormula1 extends BaseIntColumn {
         return sourceColumn.size();
     }
 
-    public int reserveWidth() {
-        return getCodec().reserveWidth();
-    }
-
     public void resizeIfNecessary( long newSize ) {
         throw new UnsupportedOperationException( "A column should cannot be modified when generating an explanation" );
     }
 
-    public int get( long row ) {
-        QA.isTrue( isSet(row), "do not call get(row) on a row that has not been set" );
-
+    public T get( long row ) {
         return get(row,sourceColumn);
-    }
-
-    public IntCodec getCodec() {
-        return sourceColumn.getCodec();
     }
 
     public void writeValueTo( CharacterStream out, long row ) {
         if ( isSet(row) ) {
-            int v = get(row);
+            T v = get(row);
 
             getCodec().encode( v, out );
         }
     }
 
-    public CellExplanation explain( long row ) {
-        IntColumnAuditor auditor = new IntColumnAuditor(sourceColumn, expectedCellCount);
+    public ObjectCodec<T> getCodec() {
+        return sourceColumn.getCodec();
+    }
 
-        int               value           = get( row, auditor );
-        LongSet visitedRows     = auditor.getVisitedRows();
+    public CellExplanation explain( long row ) {
+        ObjectColumnAuditor auditor = new ObjectColumnAuditor(sourceColumn, expectedCellCount);
+
+        T                   value           = get( row, auditor );
+        LongSet             visitedRows     = auditor.getVisitedRows();
         Map<String,LongSet> referencedCells = MapUtils.asMap( sourceColumn.getColumnName(), visitedRows );
         String              eqn             = toEquation( referencedCells );
         String              formattedValue  = encodeValue( value );
@@ -100,9 +93,9 @@ public abstract class IntColumnFormula1 extends BaseIntColumn {
         return new CellExplanation( formattedValue, eqn, referencedCells );
     }
 
-    protected abstract int get( long row, IntColumn col );
+    protected abstract T get( long row, ObjectColumn col );
 
-    private String encodeValue( int v ) {
+    private String encodeValue( T v ) {
         return getCodec().toString(v);
     }
 
@@ -115,3 +108,4 @@ public abstract class IntColumnFormula1 extends BaseIntColumn {
     }
 
 }
+

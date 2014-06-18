@@ -14,6 +14,7 @@ public abstract class FloatCodec {
     public abstract void encode( float v, CharacterStream out );
     public abstract boolean hasValue( PullParser in );
     public abstract float decode( PullParser in );
+    public abstract int reserveWidth();
 
 
     public String toString( float v ) {
@@ -38,6 +39,10 @@ public abstract class FloatCodec {
             QA.isTrue( hasValue(in), "parse called when hasValue() returns false" );
 
             return in.pullFloat();
+        }
+
+        public int reserveWidth() {
+            return 9;
         }
     };
 }

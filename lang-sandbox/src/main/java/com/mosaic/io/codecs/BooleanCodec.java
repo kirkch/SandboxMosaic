@@ -15,6 +15,8 @@ public abstract class BooleanCodec {
     public abstract boolean hasValue( PullParser in );
     public abstract boolean decode( PullParser in );
 
+    public abstract int reserveWidth();
+
 
     public String toString( boolean v ) {
         UTF8Builder buf = new UTF8Builder();
@@ -38,6 +40,10 @@ public abstract class BooleanCodec {
             QA.isTrue( hasValue( in ), "parse called when hasValue() returns false" );
 
             return in.pullBoolean();
+        }
+
+        public int reserveWidth() {
+            return 5;
         }
     };
 }

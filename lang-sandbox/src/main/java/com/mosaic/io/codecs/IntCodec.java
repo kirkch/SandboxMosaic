@@ -14,6 +14,7 @@ public abstract class IntCodec {
     public abstract void encode( int v, CharacterStream out );
     public abstract boolean hasValue( PullParser in );
     public abstract int decode( PullParser in );
+    public abstract int reserveWidth();
 
 
     public String toString( int v ) {
@@ -38,6 +39,10 @@ public abstract class IntCodec {
             QA.isTrue( hasValue(in), "parse called when hasValue() returns false" );
 
             return in.pullInt();
+        }
+
+        public int reserveWidth() {
+            return 9;
         }
     };
 

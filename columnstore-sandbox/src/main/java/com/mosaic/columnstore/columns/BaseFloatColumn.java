@@ -26,4 +26,8 @@ public abstract class BaseFloatColumn implements FloatColumn {
         job.execute();
     }
 
+    public int reserveWidth() {
+        return getCodec().reserveWidth();
+    }
+
 }

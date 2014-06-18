@@ -13,4 +13,6 @@ public interface ObjectColumn<T> extends Column {
 
     public ObjectCodec<T> getCodec();
 
+    public void prePopulateColumn( final ObjectColumn destinationColumn );
+
 }

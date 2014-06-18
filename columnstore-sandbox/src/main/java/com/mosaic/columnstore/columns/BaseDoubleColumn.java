@@ -1,26 +1,18 @@
 package com.mosaic.columnstore.columns;
 
 import com.mosaic.collections.concurrent.ForkJoinTask;
-import com.mosaic.columnstore.BooleanColumn;
+import com.mosaic.columnstore.DoubleColumn;
 
 
 /**
  *
  */
-public abstract class BaseBooleanColumn implements BooleanColumn {
+public abstract class BaseDoubleColumn implements DoubleColumn {
 
-    public boolean isFalse( long row ) {
-        return !isTrue(row);
-    }
-
-    public boolean isTrue( long row ) {
-        return isSet(row) && get(row);
-    }
-
-    public void prePopulateColumn( final BooleanColumn destinationColumn ) {
+    public void prePopulateColumn( final DoubleColumn destinationColumn ) {
         ForkJoinTask job = new ForkJoinTask(0, size()) {
             protected void doJob( long i ) {
-                boolean v = BaseBooleanColumn.this.get( i );
+                double v = BaseDoubleColumn.this.get( i );
 
                 destinationColumn.set( i, v );
             }
