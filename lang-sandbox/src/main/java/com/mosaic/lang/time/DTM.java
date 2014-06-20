@@ -1,7 +1,6 @@
 package com.mosaic.lang.time;
 
 import com.mosaic.lang.QA;
-import com.mosaic.lang.QA;
 import com.mosaic.lang.math.Orderable;
 import com.mosaic.utils.ComparatorUtils;
 
@@ -161,7 +160,7 @@ public class DTM extends Orderable<DTM> {
 
     @Override
     public int compareTo( DTM o ) {
-        return ComparatorUtils.compare(this.millis, o.millis);
+        return ComparatorUtils.compareAsc( this.millis, o.millis );
     }
 
 
