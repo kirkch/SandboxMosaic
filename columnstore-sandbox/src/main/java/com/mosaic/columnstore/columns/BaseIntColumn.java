@@ -12,9 +12,11 @@ public abstract class BaseIntColumn implements IntColumn {
     public void prePopulateColumn( final IntColumn destinationColumn ) {
         ForkJoinTask job = new ForkJoinTask(0, size()) {
             protected void doJob( long i ) {
-                int v = BaseIntColumn.this.get( i );
+                if ( BaseIntColumn.this.isSet(i) ) {
+                    int v = BaseIntColumn.this.get( i );
 
-                destinationColumn.set( i, v );
+                    destinationColumn.set( i, v );
+                }
             }
         };
 

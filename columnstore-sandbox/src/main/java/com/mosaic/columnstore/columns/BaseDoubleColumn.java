@@ -12,9 +12,11 @@ public abstract class BaseDoubleColumn implements DoubleColumn {
     public void prePopulateColumn( final DoubleColumn destinationColumn ) {
         ForkJoinTask job = new ForkJoinTask(0, size()) {
             protected void doJob( long i ) {
-                double v = BaseDoubleColumn.this.get( i );
+                if ( BaseDoubleColumn.this.isSet(i) ) {
+                    double v = BaseDoubleColumn.this.get( i );
 
-                destinationColumn.set( i, v );
+                    destinationColumn.set( i, v );
+                }
             }
         };
 

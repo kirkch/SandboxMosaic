@@ -12,9 +12,11 @@ public abstract class BaseLongColumn implements LongColumn {
     public void prePopulateColumn( final LongColumn destinationColumn ) {
         ForkJoinTask job = new ForkJoinTask(0, size()) {
             protected void doJob( long i ) {
-                long v = BaseLongColumn.this.get( i );
+                if ( BaseLongColumn.this.isSet(i) ) {
+                    long v = BaseLongColumn.this.get( i );
 
-                destinationColumn.set( i, v );
+                    destinationColumn.set( i, v );
+                }
             }
         };
 

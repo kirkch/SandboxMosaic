@@ -6,7 +6,7 @@ import com.mosaic.io.codecs.FloatCodec;
 /**
  *
  */
-public interface FloatColumn extends Column {
+public interface FloatColumn extends Column<FloatColumn> {
 
     public float get( long row );
     public void set( long row, float value );
@@ -16,5 +16,4 @@ public interface FloatColumn extends Column {
      */
     public FloatCodec getCodec();
 
-    public void prePopulateColumn( final FloatColumn destinationColumn );
 }

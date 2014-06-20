@@ -6,7 +6,7 @@ import com.mosaic.io.codecs.BooleanCodec;
 /**
  *
  */
-public interface BooleanColumn extends Column {
+public interface BooleanColumn extends Column<BooleanColumn> {
 
     public boolean get( long row );
     public void set( long row, boolean value );
@@ -15,8 +15,6 @@ public interface BooleanColumn extends Column {
      * The codec to use for reading/writing this column.
      */
     public BooleanCodec getCodec();
-
-    public void prePopulateColumn( final BooleanColumn destinationColumn );
 
     public boolean isFalse( long row );
     public boolean isTrue( long row );

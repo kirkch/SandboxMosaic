@@ -12,9 +12,11 @@ public abstract class BaseObjectColumn<T> implements ObjectColumn<T> {
     public void prePopulateColumn( final ObjectColumn destinationColumn ) {
         ForkJoinTask job = new ForkJoinTask(0, size()) {
             protected void doJob( long i ) {
-                T v = BaseObjectColumn.this.get( i );
+                if ( BaseObjectColumn.this.isSet(i) ) {
+                    T v = BaseObjectColumn.this.get( i );
 
-                destinationColumn.set( i, v );
+                    destinationColumn.set( i, v );
+                }
             }
         };
 

@@ -20,9 +20,11 @@ public abstract class BaseBooleanColumn implements BooleanColumn {
     public void prePopulateColumn( final BooleanColumn destinationColumn ) {
         ForkJoinTask job = new ForkJoinTask(0, size()) {
             protected void doJob( long i ) {
-                boolean v = BaseBooleanColumn.this.get( i );
+                if ( BaseBooleanColumn.this.isSet(i) ) {
+                    boolean v = BaseBooleanColumn.this.get( i );
 
-                destinationColumn.set( i, v );
+                    destinationColumn.set( i, v );
+                }
             }
         };
 

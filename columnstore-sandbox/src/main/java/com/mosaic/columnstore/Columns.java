@@ -1,11 +1,15 @@
 package com.mosaic.columnstore;
 
+import com.mosaic.collections.concurrent.ForkJoinTask;
 import com.mosaic.columnstore.columns.BooleanColumnArray;
 import com.mosaic.columnstore.columns.FloatColumnArray;
 import com.mosaic.columnstore.columns.IntColumnArray;
 import com.mosaic.columnstore.columns.LongColumnArray;
 import com.mosaic.columnstore.columns.ObjectColumnArray;
 import com.mosaic.io.streams.CharacterStream;
+import com.mosaic.lang.Factory;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.Long2BooleanFunction;
 import com.mosaic.lang.text.UTF8;
 
@@ -15,6 +19,7 @@ import java.util.Iterator;
 /**
  *
  */
+@SuppressWarnings("unchecked")
 public class Columns<T extends Column> implements Iterable<T> {
 
     public static BooleanColumn newBooleanColumn( String columnName, String description, boolean...values ) {
@@ -181,6 +186,43 @@ public class Columns<T extends Column> implements Iterable<T> {
                 throw new UnsupportedOperationException();
             }
         };
+    }
+
+    // NB so far I have found that going parallel here has made next to no difference..  left the
+    // code here to make future comparisons easier...  to be reviewed.
+    // because we only had three columns at the time?
+    public Columns<T> prePopulateColumns( final Function1<T,T> cacheColumnFactory ) {
+//        final T[] cachedColumns = columns.clone();
+//
+//        ForkJoinTask job = new ForkJoinTask(0, columns.length) {
+//            protected void doJob( long index ) {
+//                QA.isInt( index, "index" );
+//
+//                int i = (int) index;
+//
+//                T cache = cacheColumnFactory.invoke( columns[i] );
+//
+//                cachedColumns[i] = cache;
+//
+//                columns[i].prePopulateColumn( cache );
+//            }
+//        };
+//
+//        job.execute();
+
+
+
+        T[] cachedColumns = columns.clone();
+
+        for ( int i=0; i<columns.length; i++ ) {
+            T cache = cacheColumnFactory.invoke( columns[i] );
+
+            cachedColumns[i] = cache;
+
+            columns[i].prePopulateColumn( cache );
+        }
+
+        return new Columns(cachedColumns);
     }
 
 }

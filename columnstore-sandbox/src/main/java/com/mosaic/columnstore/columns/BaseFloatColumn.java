@@ -12,9 +12,11 @@ public abstract class BaseFloatColumn implements FloatColumn {
     public void prePopulateColumn( final FloatColumn destinationColumn ) {
         ForkJoinTask job = new ForkJoinTask(0, size()) {
             protected void doJob( long i ) {
-                float v = BaseFloatColumn.this.get( i );
+                if ( BaseFloatColumn.this.isSet(i) ) {
+                    float v = BaseFloatColumn.this.get( i );
 
-                destinationColumn.set( i, v );
+                    destinationColumn.set( i, v );
+                }
             }
         };
 
