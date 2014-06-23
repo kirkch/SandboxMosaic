@@ -1,6 +1,7 @@
 package com.mosaic.columnstore.columns;
 
 import com.mosaic.columnstore.CellExplanation;
+import com.mosaic.columnstore.LongColumn;
 import com.mosaic.io.codecs.LongCodec;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.io.streams.UTF8Builder;
@@ -14,6 +15,11 @@ import java.util.Arrays;
 * An LongColumn backed by an int array.
 */
 public class LongColumnArray extends BaseLongColumn {
+
+    public static LongColumn cache( LongColumn col ) {
+        return new LongColumnArray( col.getColumnName()+" Cache", col.getDescription(), col.size(), col.getCodec() );
+    }
+
 
     private final String           columnName;
     private final String           description;

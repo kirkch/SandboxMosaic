@@ -50,6 +50,6 @@ public class AlgorithmicSpreadSheetTest {
     }
 
 
-    // todo optimise by cacheing calculated values, left out initially as cacheing involves
+    // todo optimise by caching calculated values, left out initially as caching involves
     // working through cache invalidation
 }
