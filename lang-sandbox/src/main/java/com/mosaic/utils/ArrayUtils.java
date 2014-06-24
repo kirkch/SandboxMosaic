@@ -5,6 +5,8 @@ import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.functional.Function1;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
+
 
 /**
  *
@@ -74,6 +76,34 @@ public class ArrayUtils {
         }
 
         return array;
+    }
+
+    public static <T> T[] newArray( Class<T> elementType, int length ) {
+        return (T[]) Array.newInstance( elementType, length );
+    }
+
+    public static <T> T[] flatten( T[]...arrays ) {
+        int totalLength = sumLengths(arrays);
+        T[] result      = newArray( (Class<T>) arrays[0].getClass().getComponentType(), totalLength );
+
+        int i = 0;
+        for ( T[] a : arrays ) {
+            for ( int j=0; j<a.length; j++ ) {
+                result[i++] = a[j];
+            }
+        }
+
+        return result;
+    }
+
+    private static <T>int sumLengths( T[][] arrays ) {
+        int l = 0;
+
+        for ( T[] a : arrays ) {
+            l += a.length;
+        }
+
+        return l;
     }
 
 }

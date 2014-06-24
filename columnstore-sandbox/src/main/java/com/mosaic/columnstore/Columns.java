@@ -10,6 +10,7 @@ import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.Long2BooleanFunction;
 import com.mosaic.lang.text.UTF8;
+import com.mosaic.utils.ArrayUtils;
 
 import java.util.Iterator;
 
@@ -71,6 +72,10 @@ public class Columns<T extends Column> implements Iterable<T> {
     }
 
 
+
+    public static <T extends Column> Columns createColumns( T[]...columns ) {
+        return new Columns( ArrayUtils.flatten(columns) );
+    }
 
 
 
