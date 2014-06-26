@@ -4,6 +4,7 @@ import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.Function2;
 import com.mosaic.lang.functional.Nullable;
 import com.mosaic.lang.functional.Tuple2;
+import com.mosaic.lang.functional.VoidFunction1;
 
 import java.util.*;
 
@@ -76,7 +77,7 @@ public class ListUtils {
     }
 
     public static <T> List<T> flatten( List<T>...lists ) {
-        return flatten( Arrays.asList(lists) );
+        return flatten( Arrays.asList( lists ) );
     }
 
     public static <T, C extends List<T>> List<T> flatten( List<C> list ) {
@@ -194,4 +195,27 @@ public class ListUtils {
 
         return array;
     }
+
+    public static <T> void permutations( List<T> list, int chooseN, VoidFunction1<List<T>> callback ) {
+        permutations( Collections.EMPTY_LIST, list, chooseN, callback );
+    }
+
+    private static <T> void permutations( List<T> soFar, List<T> remaining, int chooseN, VoidFunction1<List<T>> callback ) {
+        if ( soFar.size() == chooseN || remaining.isEmpty() ) {
+            if ( !soFar.isEmpty() ) {
+                callback.invoke( soFar );
+            }
+        } else {
+            for ( int i=0; i<remaining.size(); i++ ) {
+                List<T> nextSoFar     = new ArrayList<>( soFar );
+                List<T> nextRemaining = new ArrayList<>( remaining );
+
+                T nextValue = nextRemaining.remove( i );
+                nextSoFar.add( nextValue );
+
+                permutations( nextSoFar, nextRemaining, chooseN, callback );
+            }
+        }
+    }
+
 }
