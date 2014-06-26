@@ -75,6 +75,10 @@ public class ListUtils {
         return results;
     }
 
+    public static <T> List<T> flatten( List<T>...lists ) {
+        return flatten( Arrays.asList(lists) );
+    }
+
     public static <T, C extends List<T>> List<T> flatten( List<C> list ) {
         List<T> results = new ArrayList(list.size()*2);
 
@@ -178,4 +182,16 @@ public class ListUtils {
         return new Tuple2( matches, misses );
     }
 
+    public static <T> T[] toArray( Class<T> type, List<T> list ) {
+        int numElements = list.size();
+
+        T[] array = ArrayUtils.newArray( type, numElements );
+
+        int i=0;
+        for ( T e : list ) {
+            array[i++] = e;
+        }
+
+        return array;
+    }
 }

@@ -11,8 +11,10 @@ import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.Long2BooleanFunction;
 import com.mosaic.lang.text.UTF8;
 import com.mosaic.utils.ArrayUtils;
+import com.mosaic.utils.ListUtils;
 
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -72,6 +74,10 @@ public class Columns<T extends Column> implements Iterable<T> {
     }
 
 
+
+    public static <T extends Column> Columns createColumns( Class<T> type, List<T> columns ) {
+        return new Columns( ListUtils.toArray(type, columns) );
+    }
 
     public static <T extends Column> Columns createColumns( T[]...columns ) {
         return new Columns( ArrayUtils.flatten(columns) );
