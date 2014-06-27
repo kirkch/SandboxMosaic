@@ -17,8 +17,12 @@ class LongColumnAuditor extends BaseLongColumn {
 
 
     public LongColumnAuditor( LongColumn sourceColumn, long targetSampleCount ) {
+        this( sourceColumn, LongSet.factory(targetSampleCount) );
+    }
+
+    public LongColumnAuditor( LongColumn sourceColumn, LongSet visitedRows ) {
         this.sourceColumn = sourceColumn;
-        this.visitedRows  = LongSet.factory( targetSampleCount );
+        this.visitedRows  = visitedRows;
     }
 
     public String getColumnName() {
@@ -34,7 +38,9 @@ class LongColumnAuditor extends BaseLongColumn {
     }
 
     public long get( long row ) {
-        visitedRows.add(row);
+        synchronized (visitedRows) {  // LongSet is not thread safe
+            visitedRows.add(row);
+        }
 
         return sourceColumn.get( row );
     }
