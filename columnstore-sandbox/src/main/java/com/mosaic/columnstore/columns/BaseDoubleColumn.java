@@ -32,4 +32,8 @@ public abstract class BaseDoubleColumn implements DoubleColumn {
         return getCodec().reserveWidth();
     }
 
+    public DoubleColumn createAuditor( int expectedCellCount ) {
+        return new DoubleColumnAuditor( this, expectedCellCount );
+    }
+
 }

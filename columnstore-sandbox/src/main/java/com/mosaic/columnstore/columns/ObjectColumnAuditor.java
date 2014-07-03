@@ -10,7 +10,7 @@ import com.mosaic.io.streams.CharacterStream;
 /**
  *
  */
-public class ObjectColumnAuditor<T> extends BaseObjectColumn<T> {
+public class ObjectColumnAuditor<T> extends BaseObjectColumn<T> implements ColumnAuditor {
     private ObjectColumn<T> sourceColumn;
     private LongSet         visitedRows;
 

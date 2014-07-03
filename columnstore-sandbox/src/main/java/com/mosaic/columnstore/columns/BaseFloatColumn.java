@@ -32,4 +32,8 @@ public abstract class BaseFloatColumn implements FloatColumn {
         return getCodec().reserveWidth();
     }
 
+    public FloatColumn createAuditor( int expectedCellCount ) {
+        return new FloatColumnAuditor( this, expectedCellCount );
+    }
+
 }

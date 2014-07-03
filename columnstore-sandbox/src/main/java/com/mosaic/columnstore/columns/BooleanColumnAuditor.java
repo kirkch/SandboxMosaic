@@ -10,7 +10,7 @@ import com.mosaic.io.streams.CharacterStream;
 /**
  *
  */
-public class BooleanColumnAuditor extends BaseBooleanColumn {
+public class BooleanColumnAuditor extends BaseBooleanColumn implements ColumnAuditor {
     private BooleanColumn sourceColumn;
     private LongSet       visitedRows;
 

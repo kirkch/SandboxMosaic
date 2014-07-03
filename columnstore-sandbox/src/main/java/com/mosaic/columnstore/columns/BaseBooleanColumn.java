@@ -40,4 +40,8 @@ public abstract class BaseBooleanColumn implements BooleanColumn {
         return getCodec().reserveWidth();
     }
 
+    public BooleanColumn createAuditor( int expectedCellCount ) {
+        return new BooleanColumnAuditor( this, expectedCellCount );
+    }
+
 }

@@ -1,8 +1,8 @@
 package com.mosaic.columnstore.columns;
 
 import com.mosaic.collections.LongSet;
-import com.mosaic.columnstore.BooleanColumn;
 import com.mosaic.columnstore.CellExplanation;
+import com.mosaic.columnstore.Column;
 import com.mosaic.io.codecs.BooleanCodec;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.utils.MapUtils;
@@ -13,21 +13,21 @@ import java.util.Map;
 /**
  *
  */
-public abstract class BooleanColumnFormula1 extends BaseBooleanColumn {
+public abstract class BooleanColumnFormula1<T extends Column> extends BaseBooleanColumn {
 
-    private String        columnName;
-    private String        description;
+    private String columnName;
+    private String description;
 
-    private String        opName;
-    private BooleanColumn sourceColumn;
-    private int           expectedCellCount;
+    private String opName;
+    private T      sourceColumn;
+    private int    expectedCellCount;
 
 
     /**
      *
      * @param expectedCellCount how many source cells are probably used to calculate a single cell in this column? (hint only)
      */
-    protected BooleanColumnFormula1( String columnName, String description, String opName, BooleanColumn sourceColumn, int expectedCellCount ) {
+    protected BooleanColumnFormula1( String columnName, String description, String opName, T sourceColumn, int expectedCellCount ) {
         this.columnName        = columnName;
         this.description       = description;
 
@@ -77,14 +77,16 @@ public abstract class BooleanColumnFormula1 extends BaseBooleanColumn {
     }
 
     public BooleanCodec getCodec() {
-        return sourceColumn.getCodec();
+        return BooleanCodec.BOOLEAN_CODEC;
     }
 
+    @SuppressWarnings("unchecked")
     public CellExplanation explain( long row ) {
-        BooleanColumnAuditor auditor = new BooleanColumnAuditor(sourceColumn, expectedCellCount);
+        T auditor = (T) sourceColumn.createAuditor(expectedCellCount);
+//        BooleanColumnAuditor auditor = new BooleanColumnAuditor(sourceColumn, expectedCellCount);
 
         boolean             value           = get( row, auditor );
-        LongSet             visitedRows     = auditor.getVisitedRows();
+        LongSet             visitedRows     = ((ColumnAuditor) auditor).getVisitedRows();
         Map<String,LongSet> referencedCells = MapUtils.asMap( sourceColumn.getColumnName(), visitedRows );
         String              eqn             = toEquation( referencedCells );
         String              formattedValue  = encodeValue( value );
@@ -93,7 +95,7 @@ public abstract class BooleanColumnFormula1 extends BaseBooleanColumn {
         return new CellExplanation( formattedValue, eqn, referencedCells );
     }
 
-    protected abstract boolean get( long row, BooleanColumn col );
+    protected abstract boolean get( long row, T col );
 
     private String encodeValue( boolean v ) {
         return getCodec().toString(v);

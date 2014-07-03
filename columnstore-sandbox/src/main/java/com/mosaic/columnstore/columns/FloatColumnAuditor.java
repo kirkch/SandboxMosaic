@@ -11,7 +11,7 @@ import com.mosaic.io.streams.CharacterStream;
  * Automatically detect which rows are accessed by a formula.  Used to generate explanations
  * of how a column is derived.
  */
-class FloatColumnAuditor extends BaseFloatColumn {
+class FloatColumnAuditor extends BaseFloatColumn implements ColumnAuditor {
     private FloatColumn sourceColumn;
     private LongSet visitedRows;
 

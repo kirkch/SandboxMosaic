@@ -6,7 +6,7 @@ import com.mosaic.io.streams.CharacterStream;
 /**
  *
  */
-public interface Column<S> { // S -> self type;  eg IntColumn
+public interface Column<S extends Column> { // S -> self type;  eg IntColumn
 
     public String getColumnName();
     public String getDescription();
@@ -44,4 +44,7 @@ public interface Column<S> { // S -> self type;  eg IntColumn
      * and provide a more efficient implementation that knows the specifics of the algorithm at hand.
      */
     public void prePopulateColumn( S destinationColumn );
+
+    public S createAuditor( int expectedCellCount );
+
 }

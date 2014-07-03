@@ -2,6 +2,7 @@ package com.mosaic.columnstore;
 
 import com.mosaic.collections.concurrent.ForkJoinTask;
 import com.mosaic.columnstore.columns.BooleanColumnArray;
+import com.mosaic.columnstore.columns.BooleanColumnFormula1;
 import com.mosaic.columnstore.columns.FloatColumnArray;
 import com.mosaic.columnstore.columns.IntColumnArray;
 import com.mosaic.columnstore.columns.LongColumnArray;
@@ -234,4 +235,11 @@ public class Columns<T extends Column> implements Iterable<T> {
         return new Columns(cachedColumns);
     }
 
+    public static BooleanColumn isGTZero( LongColumn col ) {
+        return new BooleanColumnFormula1<LongColumn>(col.getColumnName()+" > 0", col.getDescription(), "GTZ", col, 1) {
+            protected boolean get( long row, LongColumn col ) {
+                return col.get(row) > 0;
+            }
+        };
+    }
 }

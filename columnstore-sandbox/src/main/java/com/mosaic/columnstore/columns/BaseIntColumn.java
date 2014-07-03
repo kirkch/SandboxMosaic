@@ -32,4 +32,8 @@ public abstract class BaseIntColumn implements IntColumn {
         return getCodec().reserveWidth();
     }
 
+    public IntColumn createAuditor( int expectedCellCount ) {
+        return new IntColumnAuditor( this, expectedCellCount );
+    }
+
 }

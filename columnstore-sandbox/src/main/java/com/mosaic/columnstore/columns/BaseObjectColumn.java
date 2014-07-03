@@ -32,4 +32,8 @@ public abstract class BaseObjectColumn<T> implements ObjectColumn<T> {
         return getCodec().reserveWidth();
     }
 
+    public ObjectColumn createAuditor( int expectedCellCount ) {
+        return new ObjectColumnAuditor( this, expectedCellCount );
+    }
+
 }

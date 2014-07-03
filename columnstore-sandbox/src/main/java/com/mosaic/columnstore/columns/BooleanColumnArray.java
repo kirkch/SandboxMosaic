@@ -1,5 +1,6 @@
 package com.mosaic.columnstore.columns;
 
+import com.mosaic.columnstore.BooleanColumn;
 import com.mosaic.columnstore.CellExplanation;
 import com.mosaic.io.codecs.BooleanCodec;
 import com.mosaic.io.streams.CharacterStream;
@@ -15,6 +16,10 @@ import java.util.Arrays;
  */
 public class BooleanColumnArray extends BaseBooleanColumn {
 
+    public static BooleanColumn cache( BooleanColumn col ) {
+        return new BooleanColumnArray( col.getColumnName()+" Cache", col.getDescription(), col.size(), col.getCodec() );
+    }
+
     private final String     columnName;
     private final String     description;
 
@@ -24,17 +29,19 @@ public class BooleanColumnArray extends BaseBooleanColumn {
     private boolean[] isSet;
 
 
-    public BooleanColumnArray( String columnName, String description, int size ) {
+    public BooleanColumnArray( String columnName, String description, long size ) {
         this( columnName, description, size, BooleanCodec.BOOLEAN_CODEC );
     }
 
-    public BooleanColumnArray( String columnName, String description, int size, BooleanCodec codec ) {
+    public BooleanColumnArray( String columnName, String description, long size, BooleanCodec codec ) {
+        QA.isInt( size, "size" );
+
         this.columnName  = columnName;
         this.description = description;
         this.codec       = codec;
 
-        this.cells = new boolean[size];
-        this.isSet = new boolean[size];
+        this.cells = new boolean[(int) size];
+        this.isSet = new boolean[(int) size];
     }
 
 

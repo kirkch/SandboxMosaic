@@ -173,4 +173,8 @@ public class BigCashType {
     public static long fromMajor( int amtMajor ) {
         return amtMajor*10000L;
     }
+
+    public static long fromMinor( int amtMajor ) {
+        return amtMajor*100L;
+    }
 }

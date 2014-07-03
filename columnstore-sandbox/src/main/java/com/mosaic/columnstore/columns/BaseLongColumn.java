@@ -32,4 +32,8 @@ public abstract class BaseLongColumn implements LongColumn {
         return getCodec().reserveWidth();
     }
 
+    public LongColumn createAuditor( int expectedCellCount ) {
+        return new LongColumnAuditor( this, expectedCellCount );
+    }
+
 }
