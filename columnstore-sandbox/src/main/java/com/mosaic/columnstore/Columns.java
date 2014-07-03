@@ -1,6 +1,5 @@
 package com.mosaic.columnstore;
 
-import com.mosaic.collections.concurrent.ForkJoinTask;
 import com.mosaic.columnstore.columns.BooleanColumnArray;
 import com.mosaic.columnstore.columns.BooleanColumnFormula1;
 import com.mosaic.columnstore.columns.FloatColumnArray;
@@ -14,6 +13,8 @@ import com.mosaic.lang.text.UTF8;
 import com.mosaic.utils.ArrayUtils;
 import com.mosaic.utils.ListUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -91,23 +92,33 @@ public class Columns<T extends Column> implements Iterable<T> {
     private static final UTF8 SEPARATOR = new UTF8( ", " );
 
 
-    private T[] columns;
+    private ArrayList<T> columns;
 
     public Columns( T...columns ) {
+        this.columns = new ArrayList(columns.length);
+
+        Collections.addAll( this.columns, columns );
+    }
+
+    public Columns( ArrayList<T> columns ) {
         this.columns = columns;
     }
 
     public T getColumn( int index ) {
-        return columns[index];
+        return columns.get(index);
     }
 
     public int numColumns() {
-        return columns.length;
+        return columns.size();
+    }
+
+    public void addColumn( T col ) {
+        this.columns.add( col );
     }
 
     public int indexOf( String targetColumnName ) {
-        for ( int i=0; i<columns.length; i++ ) {
-            T col = columns[i];
+        for ( int i=0; i<columns.size(); i++ ) {
+            T col = columns.get(i);
 
             if ( col.getColumnName().equals(targetColumnName) ) {
                 return i;
@@ -185,11 +196,11 @@ public class Columns<T extends Column> implements Iterable<T> {
             private int index = 0;
 
             public boolean hasNext() {
-                return index < columns.length;
+                return index < columns.size();
             }
 
             public T next() {
-                return columns[index++];
+                return columns.get(index++);
             }
 
             public void remove() {
@@ -222,14 +233,14 @@ public class Columns<T extends Column> implements Iterable<T> {
 
 
 
-        T[] cachedColumns = columns.clone();
+        ArrayList<T> cachedColumns = (ArrayList<T>) columns.clone();
 
-        for ( int i=0; i<columns.length; i++ ) {
-            T cache = cacheColumnFactory.invoke( columns[i] );
+        for ( int i=0; i<columns.size(); i++ ) {
+            T cache = cacheColumnFactory.invoke( columns.get(i) );
 
-            cachedColumns[i] = cache;
+            cachedColumns.set(i, cache);
 
-            columns[i].prePopulateColumn( cache );
+            columns.get(i).prePopulateColumn( cache );
         }
 
         return new Columns(cachedColumns);

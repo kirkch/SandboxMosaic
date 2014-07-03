@@ -20,9 +20,9 @@ public class LineCrossesLineBooleanColumn extends LongLong2BooleanFormula {
         this.sourceColumn2 = sourceColumn2;
     }
 
-    public boolean isSet( long row ) {
-        return sourceColumn1.isSet(row) && sourceColumn2.isSet(row)
-            && hasPrevious(row, sourceColumn1) && hasPrevious(row, sourceColumn2);
+    protected boolean isSet( long row, LongColumn col1, LongColumn col2 ) {
+        return col1.isSet(row) && col1.isSet(row)
+            && hasPrevious(row, col1) && hasPrevious(row, col1);
     }
 
     protected boolean get( long row, LongColumn col1, LongColumn col2 ) {

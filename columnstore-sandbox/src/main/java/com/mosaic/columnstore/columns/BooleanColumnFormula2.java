@@ -48,7 +48,7 @@ public abstract class BooleanColumnFormula2 extends BaseBooleanColumn {
     }
 
     public boolean isSet( long row ) {
-        return sourceColumn1.isSet(row) || sourceColumn2.isSet(row);
+        return isSet( row, sourceColumn1, sourceColumn2 );
     }
 
     public void set( long row, boolean value ) {
@@ -100,6 +100,7 @@ public abstract class BooleanColumnFormula2 extends BaseBooleanColumn {
         return new CellExplanation( formattedValue, eqn, referencedCells );
     }
 
+    protected abstract boolean isSet( long row, BooleanColumn sourceColumn1, BooleanColumn sourceColumn2 );
     protected abstract boolean get( long row, BooleanColumn col1, BooleanColumn col2 );
 
     private String encodeValue( boolean v ) {
