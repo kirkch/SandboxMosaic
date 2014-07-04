@@ -86,7 +86,11 @@ public abstract class LongColumnFormula2N extends BaseLongColumn {
     }
 
     public LongCodec getCodec() {
-        return sourceColumnsA.get(0).getCodec();
+        if ( sourceColumnsA.isEmpty() ) {
+            return LongCodec.LONG_CODEC;
+        } else {
+            return sourceColumnsA.get(0).getCodec();
+        }
     }
 
     public void writeValueTo( CharacterStream out, long row ) {

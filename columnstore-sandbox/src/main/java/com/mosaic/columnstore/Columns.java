@@ -253,4 +253,28 @@ public class Columns<T extends Column> implements Iterable<T> {
             }
         };
     }
+
+    public static BooleanColumn isGT( LongColumn col, final long v ) {
+        return new BooleanColumnFormula1<LongColumn>(col.getColumnName()+" > 0", col.getDescription(), "GTZ", col, 1) {
+            protected boolean get( long row, LongColumn col ) {
+                return col.get(row) > v;
+            }
+        };
+    }
+
+    public static BooleanColumn isLTZero( LongColumn col ) {
+        return new BooleanColumnFormula1<LongColumn>(col.getColumnName()+" > 0", col.getDescription(), "GTZ", col, 1) {
+            protected boolean get( long row, LongColumn col ) {
+                return col.get(row) < 0;
+            }
+        };
+    }
+
+    public static BooleanColumn isLT( LongColumn col, final long v ) {
+        return new BooleanColumnFormula1<LongColumn>(col.getColumnName()+" > 0", col.getDescription(), "GTZ", col, 1) {
+            protected boolean get( long row, LongColumn col ) {
+                return col.get(row) < v;
+            }
+        };
+    }
 }
