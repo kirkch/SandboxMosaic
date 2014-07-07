@@ -117,6 +117,20 @@ public abstract class LongSet {
             };
         }
 
+        public String toString() {
+            StringBuilder buf = new StringBuilder();
+
+            for ( int i=0; i<size; i++ ) {
+                if ( i > 0 ) {
+                    buf.append( ", " );
+                }
+
+                buf.append(array[i]);
+            }
+
+            return buf.toString();
+        }
+
         private void resizeIfNecessary() {
             if ( size == array.length ) {
                 array = Arrays.copyOf( array, array.length*2 );

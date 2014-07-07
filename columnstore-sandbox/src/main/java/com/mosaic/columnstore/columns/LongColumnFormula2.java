@@ -47,9 +47,11 @@ public abstract class LongColumnFormula2 extends BaseLongColumn {
         return description;
     }
 
-    public boolean isSet( long row ) {
-        return sourceColumn1.isSet(row) || sourceColumn2.isSet(row);
+    public final boolean isSet( long row ) {
+        return isSet( row, sourceColumn1, sourceColumn2 );
     }
+
+    protected abstract boolean isSet( long row, LongColumn sourceColumn1, LongColumn sourceColumn2 );
 
     public void set( long row, long value ) {
         throw new UnsupportedOperationException("derived columns do not support having their values set directly");

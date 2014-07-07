@@ -2,6 +2,7 @@ package com.mosaic.columnstore;
 
 import com.mosaic.collections.LongIterator;
 import com.mosaic.collections.LongSet;
+import org.junit.ComparisonFailure;
 
 import java.util.Map;
 
@@ -30,7 +31,9 @@ public class ColumnTestUtils {
     public static void assertReferencedCellsEquals( CellExplanation explanation, Map<String,LongSet> expectedRowIds ) {
         Map<String,LongSet> referencedCells = explanation.getReferencedCells();
 
-        assertEquals( expectedRowIds.keySet().size(), referencedCells.size() );
+        if ( expectedRowIds.keySet().size() != referencedCells.size() ) {
+            throw new ComparisonFailure( "accessed cells do not match", expectedRowIds.toString(), referencedCells.toString() );
+        }
 
         for ( String columnName : expectedRowIds.keySet() ) {
             LongSet actualRowIds = referencedCells.get(columnName);
@@ -40,7 +43,9 @@ public class ColumnTestUtils {
 
             LongIterator it = expected.iterator();
             while ( it.hasNext() ) {
-                assertTrue( actualRowIds.contains(it.next()) );
+                long nextExpectedValue = it.next();
+
+                assertTrue( nextExpectedValue+" is missing from: "+actualRowIds, actualRowIds.contains( nextExpectedValue ) );
             }
         }
     }
