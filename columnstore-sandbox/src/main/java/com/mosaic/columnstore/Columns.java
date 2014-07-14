@@ -2,6 +2,7 @@ package com.mosaic.columnstore;
 
 import com.mosaic.columnstore.columns.BooleanColumnArray;
 import com.mosaic.columnstore.columns.BooleanColumnFormula1;
+import com.mosaic.columnstore.columns.DoubleColumnArray;
 import com.mosaic.columnstore.columns.FloatColumnArray;
 import com.mosaic.columnstore.columns.IntColumnArray;
 import com.mosaic.columnstore.columns.LongColumnArray;
@@ -57,6 +58,16 @@ public class Columns<T extends Column> implements Iterable<T> {
 
     public static FloatColumn newFloatColumn( String columnName, String description, float...values ) {
         FloatColumn col = new FloatColumnArray( columnName, description, values.length );
+
+        for ( int i=0; i<values.length; i++ ) {
+            col.set(i, values[i]);
+        }
+
+        return col;
+    }
+
+    public static DoubleColumn newDoubleColumn( String columnName, String description, double...values ) {
+        DoubleColumn col = new DoubleColumnArray( columnName, description, values.length );
 
         for ( int i=0; i<values.length; i++ ) {
             col.set(i, values[i]);

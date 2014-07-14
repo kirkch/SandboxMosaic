@@ -16,7 +16,7 @@ class DoubleColumnAuditor extends BaseDoubleColumn implements ColumnAuditor {
     private LongSet visitedRows;
 
 
-    public DoubleColumnAuditor( DoubleColumn sourceColumn, int targetSampleCount ) {
+    public DoubleColumnAuditor( DoubleColumn sourceColumn, long targetSampleCount ) {
         this.sourceColumn = sourceColumn;
         this.visitedRows  = LongSet.factory( targetSampleCount );
     }
