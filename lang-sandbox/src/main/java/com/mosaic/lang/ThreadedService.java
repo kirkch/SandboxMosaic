@@ -53,7 +53,7 @@ public abstract class ThreadedService<T extends StartStoppable<T>> extends Start
                     try {
                         Thread.sleep( loop() );
                     } catch ( InterruptedException e ) {
-
+                        assert !isRunning();
                     }
                 }
             }
@@ -66,6 +66,7 @@ public abstract class ThreadedService<T extends StartStoppable<T>> extends Start
 
     protected void doStop() throws Exception {
         this.thread.interrupt();
+        this.thread.join();
 
         this.thread = null;
     }

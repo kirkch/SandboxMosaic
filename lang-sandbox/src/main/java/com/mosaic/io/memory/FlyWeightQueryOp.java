@@ -43,7 +43,7 @@ public abstract class FlyWeightQueryOp<T extends FlyWeight<T>, R> {
         FlyWeightRegion region = new FlyWeightRegion( flyWeight, 0, flyWeight.getRecordCount() );
 
         if ( region.getRecordCount() <= batchSize ) {
-            return doQuery( region );
+            return (R) doQuery( region );
         } else {
             FJTask task = new FJTask( region );
 
@@ -99,7 +99,7 @@ public abstract class FlyWeightQueryOp<T extends FlyWeight<T>, R> {
 
         protected R compute() {
             if ( region.getRecordCount() <= batchSize ) {
-                return doQuery( region );
+                return (R) doQuery( region );
             } else {
                 long fromInc  = region.getFromInc();
                 long toExc    = region.getToExc();

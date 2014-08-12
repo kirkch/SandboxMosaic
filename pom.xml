@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
 
 	<modules>
+        <module>chroniclex</module>
         <module>lang-sandbox</module>
         <module>collections-sandbox</module>
         <module>io-sandbox</module>

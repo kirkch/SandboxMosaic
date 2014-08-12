@@ -16,7 +16,7 @@ public class TryNow {
      * Wraps the specified operation with a try/catch block and returns
      * the result as an instance of Try.
      */
-    public static <T> Try<T> tryNow( Function0<T> op ) {
+    public static <T> Try<T> tryNow( Function0ThatThrows<T> op ) {
         try {
             return successful( op.invoke() );
         } catch ( Exception e ) {

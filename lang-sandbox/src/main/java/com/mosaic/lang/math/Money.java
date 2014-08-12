@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 /**
  *
  */
+@Deprecated
 public class Money extends AbstractLongNumber<Money> {
     private static final long serialVersionUID = 3069432892432894004L;
 
