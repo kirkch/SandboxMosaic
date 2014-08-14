@@ -102,7 +102,7 @@ public abstract class LongLong2BooleanFormula extends BaseBooleanColumn {
         boolean             value           = get( row, auditor1, auditor2 );
         LongSet             visitedRows1    = auditor1.getVisitedRows();
         LongSet             visitedRows2    = auditor2.getVisitedRows();
-        Map<String,LongSet> referencedCells = MapUtils.asMap( sourceColumn1.getColumnName(), visitedRows1, sourceColumn2.getColumnName(), visitedRows2 );
+        Map<String,LongSet> referencedCells = MapUtils.asLinkedMap( sourceColumn1.getColumnName(), visitedRows1, sourceColumn2.getColumnName(), visitedRows2 );
         String              eqn             = toEquation( referencedCells );
         String              formattedValue  = encodeValue( value );
 

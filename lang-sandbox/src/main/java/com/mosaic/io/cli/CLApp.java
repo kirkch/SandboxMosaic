@@ -64,26 +64,6 @@ public abstract class CLApp {
         helpFlag   = registerFlag( "?", "help", "Display this usage information." );
 
         startedAt = system.getCurrentDTM();
-
-        system.opsAudit( "Started at %2d:%02d:%02d UTC on %04d/%02d/%02d",
-            startedAt.getHour(), startedAt.getMinutes(), startedAt.getSeconds(),
-            startedAt.getYear(), startedAt.getMonth(), startedAt.getDayOfMonth() );
-
-        system.opsAudit( "Run by: %s", System.getProperty("user.name") );
-
-        system.opsAudit( "Java: %s (%s %s)",
-            System.getProperty("java.runtime.version"),
-            System.getProperty("java.vm.name"),
-            System.getProperty("java.vm.vendor"));
-
-        system.opsAudit( "OS: %s (%s %s)",
-            System.getProperty("os.name"),
-            System.getProperty("os.version"),
-            System.getProperty("os.arch") );
-
-        system.opsAudit( "Classpath: %s", System.getProperty("java.class.path") );
-        system.opsAudit( "Library Path: %s", System.getProperty("java.library.path") );
-
     }
 
 
@@ -111,6 +91,7 @@ public abstract class CLApp {
         ConsList<String> normalisedArgs = normaliseInputArgs( inputArgs );
 
         auditArgs( normalisedArgs );
+        auditEnv();
 
         boolean successfullySetArgumentsFlag = consumeInputArgs( normalisedArgs );
         if ( !successfullySetArgumentsFlag ) {
@@ -226,6 +207,27 @@ public abstract class CLApp {
         }
 
         system.opsAudit( buf.toString() );
+    }
+
+    private void auditEnv() {
+        system.opsAudit( "Started at %2d:%02d:%02d UTC on %04d/%02d/%02d",
+            startedAt.getHour(), startedAt.getMinutes(), startedAt.getSeconds(),
+            startedAt.getYear(), startedAt.getMonth(), startedAt.getDayOfMonth() );
+
+        system.opsAudit( "Ran by: %s", System.getProperty("user.name") );
+
+        system.opsAudit( "Java: %s (%s %s)",
+            System.getProperty("java.runtime.version"),
+            System.getProperty("java.vm.name"),
+            System.getProperty("java.vm.vendor"));
+
+        system.opsAudit( "OS: %s (%s %s)",
+            System.getProperty("os.name"),
+            System.getProperty("os.version"),
+            System.getProperty("os.arch") );
+
+        system.opsAudit( "Classpath: %s", System.getProperty("java.class.path") );
+        system.opsAudit( "Library Path: %s", System.getProperty("java.library.path") );
     }
 
     protected void setDescription( String...description ) {

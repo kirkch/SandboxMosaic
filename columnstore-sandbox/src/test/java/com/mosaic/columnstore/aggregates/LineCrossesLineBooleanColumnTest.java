@@ -35,7 +35,7 @@ public class LineCrossesLineBooleanColumnTest {
 
         assertEquals( "false", explanation.getFormattedValue() );
         assertReferencedCellsEquals( explanation, MapUtils.<String,LongSet>asMap("a", LongSet.createLongSet(1), "b", LongSet.createLongSet(1)) );
-        assertEquals( "a^b(b[1], a[1])", explanation.toString() );
+        assertEquals( "a^b(a[1], b[1])", explanation.toString() );
     }
 
     @Test
@@ -57,7 +57,7 @@ public class LineCrossesLineBooleanColumnTest {
 
         assertEquals( "false", explanation.getFormattedValue() );
         assertReferencedCellsEquals( explanation, MapUtils.<String,LongSet>asMap("a", LongSet.createLongSet(0,1), "b", LongSet.createLongSet(0,1)) );
-        assertEquals( "a^b(b[0,1], a[0,1])", explanation.toString() );
+        assertEquals( "a^b(a[0,1], b[0,1])", explanation.toString() );
     }
 
     @Test
@@ -79,7 +79,7 @@ public class LineCrossesLineBooleanColumnTest {
 
         assertEquals( "true", explanation.getFormattedValue() );
         assertReferencedCellsEquals( explanation, MapUtils.<String,LongSet>asMap("a", LongSet.createLongSet(0,1), "b", LongSet.createLongSet(0,1)) );
-        assertEquals( "a^b(b[0,1], a[0,1])", explanation.toString() );
+        assertEquals( "a^b(a[0,1], b[0,1])", explanation.toString() );
     }
 
 
@@ -117,7 +117,7 @@ public class LineCrossesLineBooleanColumnTest {
         CellExplanation explanation = signal.explain(2);
 
         assertEquals( "true", explanation.getFormattedValue() );
-        assertEquals( "a^b(b[1,2], a[0,2])", explanation.toString() );
+        assertEquals( "a^b(a[0,2], b[1,2])", explanation.toString() );
         assertReferencedCellsEquals( explanation, MapUtils.<String,LongSet>asMap("a", LongSet.createLongSet(0,2), "b", LongSet.createLongSet(1,2)) );
     }
 }

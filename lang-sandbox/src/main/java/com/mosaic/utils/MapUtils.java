@@ -29,6 +29,17 @@ public class MapUtils {
         return (Map<K,V>) result;
     }
 
+    public static <K,V> Map<K,V> asLinkedMap( Object...kvPairs ) {
+        QA.isTrue( kvPairs.length % 2 == 0, "kvPairs must be an even length of kv encoded pairs: %s", Arrays.asList( kvPairs ) );
+
+        Map result = new LinkedHashMap();
+        for ( int i=0; i<kvPairs.length; i+=2 ) {
+            result.put( kvPairs[i], kvPairs[i+1] );
+        }
+
+        return (Map<K,V>) result;
+    }
+
     /**
      * Append the specified V to a list of values under the specified K.  If the
      * key is not in the map, then create a new list for it.

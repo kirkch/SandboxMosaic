@@ -108,7 +108,7 @@ public class ForkJoinQueryTest {
 
             fail( "expected RuntimeException" );
         } catch ( RuntimeException ex ) {
-            assertEquals( "java.lang.RuntimeException: splat", ex.getMessage() );
+            assertTrue( ex.getMessage().endsWith("splat") );
         }
     }
 
@@ -134,7 +134,7 @@ public class ForkJoinQueryTest {
 
             fail( "expected RuntimeException" );
         } catch ( RuntimeException ex ) {
-            assertEquals( "java.lang.RuntimeException: splat", ex.getMessage() );
+            assertTrue( ex.getMessage().endsWith( "splat" ) );
         }
     }
 
@@ -160,7 +160,7 @@ public class ForkJoinQueryTest {
 
             fail( "expected RuntimeException" );
         } catch ( RuntimeException ex ) {
-            assertEquals( "java.lang.RuntimeException: splat", ex.getMessage() );
+            assertTrue( ex.getMessage().endsWith( "splat" ) );
         }
     }
 
