@@ -55,6 +55,8 @@ public class CLArgument<T> implements CLParameter<T> {
     public void setValue( String value ) {
         try {
             this.value = valueParser.invoke(value);
+        } catch ( CLException ex ) {
+            throw ex;
         } catch ( Exception ex ) {
             String msg = "Invalid value for '" + getLongName() + "', for more information invoke with --help.";
 

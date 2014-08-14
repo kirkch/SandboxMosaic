@@ -1,6 +1,7 @@
 package com.mosaic.io.cli;
 
 import com.mosaic.collections.ConsList;
+import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.io.streams.PrettyPrinter;
 import com.mosaic.lang.functional.Function1;
@@ -11,6 +12,7 @@ import com.mosaic.lang.time.Duration;
 import com.mosaic.utils.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -214,12 +216,12 @@ public abstract class CLApp {
             startedAt.getHour(), startedAt.getMinutes(), startedAt.getSeconds(),
             startedAt.getYear(), startedAt.getMonth(), startedAt.getDayOfMonth() );
 
-        system.opsAudit( "Ran by: %s", System.getProperty("user.name") );
+        system.opsAudit( "Ran by: %s", System.getProperty( "user.name" ) );
 
         system.opsAudit( "Java: %s (%s %s)",
-            System.getProperty("java.runtime.version"),
-            System.getProperty("java.vm.name"),
-            System.getProperty("java.vm.vendor"));
+            System.getProperty( "java.runtime.version" ),
+            System.getProperty( "java.vm.name" ),
+            System.getProperty( "java.vm.vendor" ) );
 
         system.opsAudit( "OS: %s (%s %s)",
             System.getProperty("os.name"),
@@ -227,7 +229,7 @@ public abstract class CLApp {
             System.getProperty("os.arch") );
 
         system.opsAudit( "Classpath: %s", System.getProperty("java.class.path") );
-        system.opsAudit( "Library Path: %s", System.getProperty("java.library.path") );
+        system.opsAudit( "Library Path: %s", System.getProperty( "java.library.path" ) );
     }
 
     protected void setDescription( String...description ) {
@@ -277,6 +279,41 @@ public abstract class CLApp {
 
         return arg;
     }
+
+    protected CLArgument<Iterable<FileX>> scanForFilesArgument( String argumentName, String argumentDescription, final String filePostfix ) {
+        return registerArgument(
+            argumentName,
+            argumentDescription,
+            new Function1<String, Iterable<FileX>>() {
+                public Iterable<FileX> invoke( String path ) {
+                    FileX file = system.fileSystem.getFile( path );
+                    if ( file != null ) {
+                        return Arrays.asList( file );
+                    }
+
+                    DirectoryX inputDirectory = system.getDirectory( path );
+                    if ( inputDirectory == null )  {
+                        throw new CLException( "Directory '"+path+"' does not exist." );
+                    }
+                    List<FileX> files = inputDirectory.files( filePostfix );
+                    return files;
+                }
+            }
+        );
+    }
+
+    protected CLArgument<DirectoryX> getOrCreateDirectoryArgument( String argumentName, String argumentDescription ) {
+        return registerArgument(
+            argumentName,
+            argumentDescription,
+            new Function1<String, DirectoryX>() {
+                public DirectoryX invoke( String path ) {
+                    return system.getOrCreateDirectory( path );
+                }
+            }
+        );
+    }
+
 
     protected CLOption<Boolean> registerFlag( String shortName, String longName, String description ) {
         CLOption<Boolean> option = CLOption.createBooleanFlag( shortName, longName, description );

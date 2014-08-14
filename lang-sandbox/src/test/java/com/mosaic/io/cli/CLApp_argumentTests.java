@@ -1,8 +1,16 @@
 package com.mosaic.io.cli;
 
+import com.mosaic.io.filesystemx.DirectoryX;
+import com.mosaic.io.filesystemx.FileX;
+import com.mosaic.lang.IllegalStateExceptionX;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.system.DebugSystem;
+import com.mosaic.utils.ListUtils;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -499,6 +507,90 @@ public class CLApp_argumentTests {
         };
 
         assertEquals( 42, app.runApp() );
+
+        system.assertNoAlerts();
+    }
+
+// FILE ARGUMENTS
+
+    @Test
+    public void givenArgumentThatScansDirectoryForFiles_givenFilesInDirAndSubDirs_expectItToReturnTheFilesInDirWithoutRecursing() {
+        CLApp app = new CLApp(system) {
+            public CLArgument<Iterable<FileX>> files = scanForFilesArgument( "directory", "The directory to scan.", ".xml" );
+
+            protected int _run() {
+                List<String> actualFileNames = ListUtils.map( files.getValue(), new Function1<FileX, String>() {
+                    public String invoke( FileX f ) {
+                        return f.getFileName();
+                    }
+                } );
+
+                Collections.sort(actualFileNames);
+
+                assertEquals( Arrays.asList("a.xml","b.xml"), actualFileNames );
+
+                return 42;
+            }
+        };
+
+        DirectoryX files = system.getOrCreateDirectory( "files" );
+        files.addFile( "a.xml", "123" );
+        files.addFile( "b.xml", "123" );
+
+        DirectoryX subdir = files.createDirectory( "subdir" );
+        subdir.addFile( "c.xml", "123" );
+
+        assertEquals( 42, app.runApp("files") );
+
+        system.assertNoAlerts();
+    }
+
+    @Test
+    public void givenArgumentThatScansDirectoryForFiles_givenMissingDirectory_expectError() {
+        CLApp app = new CLApp(system) {
+            public CLArgument<Iterable<FileX>> files = scanForFilesArgument( "directory", "The directory to scan.", ".xml" );
+
+            protected int _run() {
+                return 42;
+            }
+        };
+
+        assertEquals( 1, app.runApp("files") );
+
+        system.assertStandardErrorEquals( "Directory 'files' does not exist." );
+        system.assertFatalContains( CLException.class, "Directory 'files' does not exist." );
+    }
+
+    @Test
+    public void getOrCreateDirectoryArgument_givenDirectory_expectDirectoryToBeReturned() {
+        CLApp app = new CLApp(system) {
+            public CLArgument<DirectoryX> dir = getOrCreateDirectoryArgument( "directory", "The directory to scan." );
+
+            protected int _run() {
+                assertEquals("logs", dir.getValue().getDirectoryName());
+                return 42;
+            }
+        };
+
+        system.getOrCreateDirectory( "logs" );
+
+        assertEquals( 42, app.runApp("logs") );
+
+        system.assertNoAlerts();
+    }
+
+    @Test
+    public void getOrCreateDirectoryArgument_givenMissingDirectory_expectDirectoryToBeCreated() {
+        CLApp app = new CLApp(system) {
+            public CLArgument<DirectoryX> dir = getOrCreateDirectoryArgument( "directory", "The directory to scan." );
+
+            protected int _run() {
+                assertEquals("logs", dir.getValue().getDirectoryName());
+                return 42;
+            }
+        };
+
+        assertEquals( 42, app.runApp("logs") );
 
         system.assertNoAlerts();
     }
