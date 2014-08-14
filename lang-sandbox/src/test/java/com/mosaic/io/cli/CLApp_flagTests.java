@@ -37,6 +37,7 @@ public class CLApp_flagTests {
         assertEquals( 0, app.runApp("--help") );
 
         system.assertStandardOutEquals(
+            "",
             "Usage: " + app.getClass().getName(),
             "",
             "Options:",
@@ -73,6 +74,7 @@ public class CLApp_flagTests {
         assertEquals( 0, app.runApp("--help") );
 
         system.assertStandardOutEquals(
+            "",
             "Usage: " + app.getClass().getName(),
             "",
             "Options:",

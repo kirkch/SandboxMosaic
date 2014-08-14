@@ -57,6 +57,7 @@ public class CLAppTest {
         assertEquals( 0, app.runApp("--help") );
 
         system.assertStandardOutEquals(
+            "",
             "Usage: "+app.getClass().getName(),
             "",
             "Options:",
@@ -86,9 +87,10 @@ public class CLAppTest {
         assertEquals( 0, app.runApp("--help") );
 
         system.assertStandardOutEquals(
+            "",
             "Usage: "+app.getClass().getName(),
             "",
-            "This is a test app.  Enjoy.",
+            "    This is a test app.  Enjoy.",
             "",
             "Options:",
             "",

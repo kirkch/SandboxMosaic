@@ -30,12 +30,18 @@ public class PrettyPrinter {
     }
 
     public static void printWrapped( CharacterStream info, String text, int maxLineWidth ) {
+        printWrapped( info, text, maxLineWidth, "" );
+    }
+
+    public static void printWrapped( CharacterStream info, String text, int maxLineWidth, String prefix ) {
         for ( int i=0; i<text.length(); i += maxLineWidth) {
             int endIndexExc = i + maxLineWidth;
 
             if ( endIndexExc >= text.length() ) {
+                info.writeString( prefix );
                 info.writeLine( text.substring(i) );
             } else {
+                info.writeString( prefix );
                 info.writeLine( text.substring(i, endIndexExc) );
             }
         }

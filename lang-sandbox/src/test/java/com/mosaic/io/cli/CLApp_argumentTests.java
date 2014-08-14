@@ -65,9 +65,12 @@ public class CLApp_argumentTests {
         assertEquals( 0, app.runApp("--help") );
 
         system.assertStandardOutEquals(
+            "",
             "Usage: "+app.getClass().getName()+ " source destination",
             "",
-            "This is a test app.  Enjoy.",
+            "    This is a test app.  Enjoy.",
+            "",
+            "Arguments:",
             "",
             "    source      - The file to be copied.",
             "    destination - Where to copy the file to.",
@@ -101,10 +104,11 @@ public class CLApp_argumentTests {
         assertEquals( 0, app.runApp("--help") );
 
         system.assertStandardOutEquals(
+            "",
             "Usage: "+app.getClass().getName(),
             "",
-            "12345678901234567890123456789012345678901234567890123456789012345678901234567890",
-            "12345678901234567890.",
+            "    12345678901234567890123456789012345678901234567890123456789012345678901234567890",
+            "    12345678901234567890.",
             "",
             "Options:",
             "",
@@ -139,9 +143,12 @@ public class CLApp_argumentTests {
         assertEquals( 0, app.runApp("--help") );
 
         system.assertStandardOutEquals(
+            "",
             "Usage: "+app.getClass().getName()+ " source destination",
             "",
-            "This is a test app.  Enjoy.",
+            "    This is a test app.  Enjoy.",
+            "",
+            "Arguments:",
             "",
             "    source      - 12345678901234567890123456789012345678901234567890123456789012",
             "                  34567890123456789012345678901234567890.",
@@ -235,9 +242,12 @@ public class CLApp_argumentTests {
         assertEquals( 0, app.runApp("--help") );
 
         system.assertStandardOutEquals(
+            "",
             "Usage: " + app.getClass().getName() + " source [destination]",
             "",
-            "This is a test app.  Enjoy.",
+            "    This is a test app.  Enjoy.",
+            "",
+            "Arguments:",
             "",
             "    source      - The file to be copied.",
             "    destination - Where to copy the file to.",
@@ -432,7 +442,10 @@ public class CLApp_argumentTests {
         assertEquals( 0, app.runApp("--help") );
 
         system.assertStandardOutEquals(
+            "",
             "Usage: " + app.getClass().getName() + " [directory]",
+            "",
+            "Arguments:",
             "",
             "    directory - The directory to scan. Defaults to 'foo'.",
             "",

@@ -36,6 +36,7 @@ public class CLApp_optionTests {
         assertEquals( 0, app.runApp("--help") );
 
         system.assertStandardOutEquals(
+            "",
             "Usage: " + app.getClass().getName(),
             "",
             "Options:",
@@ -72,6 +73,7 @@ public class CLApp_optionTests {
         assertEquals( 0, app.runApp("--help") );
 
         system.assertStandardOutEquals(
+            "",
             "Usage: " + app.getClass().getName(),
             "",
             "Options:",
@@ -186,6 +188,7 @@ public class CLApp_optionTests {
         assertEquals( 0, app.runApp("--help") );
 
         system.assertStandardOutEquals(
+            "",
             "Usage: " + app.getClass().getName(),
             "",
             "Options:",
@@ -297,6 +300,7 @@ public class CLApp_optionTests {
         assertEquals( 0, app.runApp("--help") );
 
         system.assertStandardOutEquals(
+            "",
             "Usage: " + app.getClass().getName(),
             "",
             "Options:",

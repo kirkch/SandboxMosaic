@@ -458,6 +458,8 @@ public abstract class CLApp {
     }
 
     private void printHelp() {
+        system.stdout.newLine();
+
         String name              = this.getClass().getName();
         String formattedArgNames = formattedArgNames();
 
@@ -469,7 +471,7 @@ public abstract class CLApp {
                 if ( StringUtils.isBlank(line) ) {
                     system.stdout.newLine();
                 } else {
-                    PrettyPrinter.printWrapped( system.stdout, line, MAX_LINE_LENGTH );
+                    PrettyPrinter.printWrapped( system.stdout, line, MAX_LINE_LENGTH, "    " );
                 }
             }
 
@@ -477,6 +479,9 @@ public abstract class CLApp {
         }
 
         if ( !args.isEmpty() ) {
+            system.stdout.writeLine( "Arguments:" );
+            system.stdout.writeLine( "" );
+
             int maxArgNameLength = calcLongestArgNameLength();
             PrettyPrinter p = new PrettyPrinter(system.stdout, 3, maxArgNameLength, 1, MAX_LINE_LENGTH-7-maxArgNameLength);
             p.setColumnHandler( 3, PrettyPrinter.WRAP );
