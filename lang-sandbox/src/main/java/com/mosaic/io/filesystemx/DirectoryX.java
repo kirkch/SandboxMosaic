@@ -1,6 +1,5 @@
 package com.mosaic.io.filesystemx;
 
-import com.mosaic.io.filesystemx.classpath.ClassPathFileX;
 import com.mosaic.lang.functional.Predicate;
 
 import java.util.List;
@@ -55,4 +54,6 @@ public interface DirectoryX {
      */
     public FileX copyFile( FileX sourceFile, String destinationPath );
 
+    public DirectoryX getParentDirectory();
+    public DirectoryX getRoot();
 }

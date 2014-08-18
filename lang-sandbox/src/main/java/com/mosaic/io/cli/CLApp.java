@@ -291,7 +291,9 @@ public abstract class CLApp {
                         return Arrays.asList( file );
                     }
 
-                    DirectoryX inputDirectory = system.getDirectory( path );
+                    DirectoryX cwd = system.getCurrentWorkingDirectory();
+
+                    DirectoryX inputDirectory = cwd.getDirectory( path );
                     if ( inputDirectory == null )  {
                         throw new CLException( "Directory '"+path+"' does not exist." );
                     }
@@ -308,7 +310,9 @@ public abstract class CLApp {
             argumentDescription,
             new Function1<String, DirectoryX>() {
                 public DirectoryX invoke( String path ) {
-                    return system.getOrCreateDirectory( path );
+                    DirectoryX cwd = system.getCurrentWorkingDirectory();
+System.out.println( "cwd.getFullPath() = " + cwd.getFullPath() );
+                    return cwd.getOrCreateDirectory( path );
                 }
             }
         );

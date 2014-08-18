@@ -44,7 +44,13 @@ public class InMemoryDirectory implements DirectoryX {
     }
 
     public String getFullPath() {
-        return parentDirectory == null ? "/"+directoryName : parentDirectory.getFullPath()+"/"+directoryName;
+        if ( parentDirectory == null ) {
+            return "/" + directoryName;
+        } else {
+            String parentPath = parentDirectory.getFullPath();
+
+            return parentPath.equals("/")  ? parentPath + directoryName : parentDirectory.getFullPath()+"/"+directoryName;
+        }
     }
 
     public String getDirectoryName() {
@@ -81,6 +87,14 @@ public class InMemoryDirectory implements DirectoryX {
         }
 
         return d;
+    }
+
+    public DirectoryX getParentDirectory() {
+        return parentDirectory;
+    }
+
+    public DirectoryX getRoot() {
+        return parentDirectory == null ? this : parentDirectory.getRoot();
     }
 
     public FileX copyFile( FileX sourceFile, String destinationPath ) {

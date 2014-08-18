@@ -14,11 +14,16 @@ public class LiveSystem extends SystemX {
     public static SystemX newSystem() {
         SystemClock clock = new SystemClock();
 
-        return new LiveSystem( clock );
+        LiveSystem liveSystem = new LiveSystem( clock );
+        liveSystem.setCurrentWorkingDirectory( liveSystem.getDirectory(System.getProperty("user.dir")) );
+
+        return liveSystem;
     }
 
     public LiveSystem() {
         this( new SystemClock() );
+
+        setCurrentWorkingDirectory( getDirectory(System.getProperty("user.dir")) );
     }
 
     public LiveSystem( SystemClock clock ) {
@@ -33,6 +38,8 @@ public class LiveSystem extends SystemX {
             new LogWriter(clock, "warn",  new PrintStreamCharacterStream(System.err)),
             new LogWriter(clock, "fatal", new PrintStreamCharacterStream(System.err))
         );
+
+        setCurrentWorkingDirectory( getDirectory( System.getProperty( "user.dir" ) ) );
     }
 
 }

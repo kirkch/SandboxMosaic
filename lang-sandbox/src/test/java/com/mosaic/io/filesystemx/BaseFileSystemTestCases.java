@@ -6,7 +6,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -58,6 +57,15 @@ public abstract class BaseFileSystemTestCases {
         assertEquals( 1, fileSystem.directories().size() );
         assertEquals( fileSystem.getFullPath()+"/foo", fileSystem.directories().get(0).getFullPath() );
         assertEquals( "foo", fileSystem.directories().get( 0 ).getDirectoryName() );
+    }
+
+    @Test
+    public void givenFileSystemWithDirectory_fromChildDirectoryGiveAbsoluteDirectoryRef() {
+        DirectoryX dir    = fileSystem.createDirectory( "foo" );
+        DirectoryX absDir = dir.getDirectory( "/foo" );
+
+
+        assertEquals( dir.getFullPath(), absDir.getFullPath() );
     }
 
     @Test

@@ -2,7 +2,6 @@ package com.mosaic.io.cli;
 
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileX;
-import com.mosaic.lang.IllegalStateExceptionX;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.system.DebugSystem;
 import com.mosaic.utils.ListUtils;
@@ -540,7 +539,7 @@ public class CLApp_argumentTests {
         DirectoryX subdir = files.createDirectory( "subdir" );
         subdir.addFile( "c.xml", "123" );
 
-        assertEquals( 42, app.runApp("files") );
+        runAppAndAssertReturnCode( app, 42, "files" );
 
         system.assertNoAlerts();
     }
@@ -574,7 +573,26 @@ public class CLApp_argumentTests {
 
         system.getOrCreateDirectory( "logs" );
 
-        assertEquals( 42, app.runApp("logs") );
+        assertEquals( 42, app.runApp( "logs" ) );
+
+        system.assertNoAlerts();
+    }
+
+    @Test
+    public void getOrCreateDirectoryArgument_givenCWD_expectCWDInPath() {
+        CLApp app = new CLApp(system) {
+            public CLArgument<DirectoryX> dir = getOrCreateDirectoryArgument( "directory", "The directory to scan." );
+
+            protected int _run() {
+                assertEquals("/abc/logs", dir.getValue().getFullPath());
+                return 42;
+            }
+        };
+
+        DirectoryX cwd = system.getOrCreateDirectory( "abc" );
+        system.setCurrentWorkingDirectory( cwd );
+
+        runAppAndAssertReturnCode( app, 42, "logs" );
 
         system.assertNoAlerts();
     }
@@ -585,14 +603,24 @@ public class CLApp_argumentTests {
             public CLArgument<DirectoryX> dir = getOrCreateDirectoryArgument( "directory", "The directory to scan." );
 
             protected int _run() {
-                assertEquals("logs", dir.getValue().getDirectoryName());
+                assertEquals( "logs", dir.getValue().getDirectoryName() );
                 return 42;
             }
         };
 
-        assertEquals( 42, app.runApp("logs") );
+        assertEquals( 42, app.runApp( "logs" ) );
 
         system.assertNoAlerts();
     }
 
+
+    private void runAppAndAssertReturnCode( CLApp app, int expectedRC, String...args ) {
+        int actualRC = app.runApp( args );
+
+        if ( expectedRC != actualRC ) {
+            system.dumpLog();
+
+            fail("App returned " + actualRC + ", expected " + expectedRC );
+        }
+    }
 }

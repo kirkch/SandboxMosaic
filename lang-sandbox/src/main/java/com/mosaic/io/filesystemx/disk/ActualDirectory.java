@@ -134,10 +134,14 @@ public class ActualDirectory implements DirectoryX {
         return files;
     }
 
-    public DirectoryX getDirectory( String dirName ) {
-        QA.argNotBlank( dirName, "dirName" );
+    public DirectoryX getDirectory( String dirPath ) {
+        QA.argNotBlank( dirPath, "dirPath" );
 
-        File child = new File(file, dirName);
+        if ( isAbsolutePath(dirPath) && parentDirectory != null ) {
+            return getRoot().getDirectory(dirPath);
+        }
+
+        File child = new File(file, dirPath);
 
         if ( !child.exists() ) {
             return null;
@@ -146,6 +150,22 @@ public class ActualDirectory implements DirectoryX {
         throwIfNotDirectory(child);
 
         return new ActualDirectory( this, child );
+    }
+
+    public DirectoryX getRoot() {
+        DirectoryX c = this;
+        DirectoryX p = c.getParentDirectory();
+
+        while ( p != null ) {
+            c = p;
+            p = c.getParentDirectory();
+        }
+
+        return c;
+    }
+
+    private boolean isAbsolutePath( String dirPath ) {
+        return dirPath.startsWith("/");
     }
 
     public DirectoryX getOrCreateDirectory( String directoryName ) {
@@ -209,6 +229,10 @@ public class ActualDirectory implements DirectoryX {
         }
 
         file.delete();
+    }
+
+    public DirectoryX getParentDirectory() {
+        return parentDirectory;
     }
 
     public FileX copyFile( FileX sourceFile, String destinationPath ) {

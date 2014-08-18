@@ -55,6 +55,7 @@ public abstract class SystemX {
     private static final Random RND = new Random();
 
     private static final boolean areAssertionsEnabled = detectWhetherAssertionsAreEnabled();
+    private DirectoryX currentWorkingDirectory;
 
 
     public static int getCacheLineLengthBytes() {
@@ -158,6 +159,8 @@ public abstract class SystemX {
         this.isUserAuditEnabled = userLog.isEnabled();
         this.isWarnEnabled      = warnLog.isEnabled();
         this.isFatalEnabled     = fatalLog.isEnabled();
+
+        this.currentWorkingDirectory = fileSystem.getRoot();
     }
 
 
@@ -318,4 +321,11 @@ public abstract class SystemX {
         }
     }
 
+    public DirectoryX getCurrentWorkingDirectory() {
+        return currentWorkingDirectory;
+    }
+
+    public void setCurrentWorkingDirectory( DirectoryX cwd ) {
+        this.currentWorkingDirectory = cwd;
+    }
 }
