@@ -318,6 +318,12 @@ public abstract class CLApp {
         return arg;
     }
 
+    /**
+     * Returns function that returns the specified service.  The factory method will be guaranteed
+     * to run only once, and that single instance will be registered with the CLApp's life cycle.
+     * This all happens lazily, thus ensuring that it happens after the CLArguments have all
+     * been processed and not at all if the service is not actually used.
+     */
     protected <T> Function0<T> registerService( final Function0<T> serviceFactory ) {
         return new Function0<T>() {
             private T service;

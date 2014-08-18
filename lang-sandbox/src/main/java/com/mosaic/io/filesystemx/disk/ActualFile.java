@@ -118,6 +118,10 @@ public class ActualFile implements FileX {
         return file.canExecute();
     }
 
+    public String toString() {
+        return file.toString();
+    }
+
     private Properties loadPropertiesFromFileSystem() {
         Properties props = new Properties();
 
@@ -129,5 +133,4 @@ public class ActualFile implements FileX {
 
         return props;
     }
-
 }

@@ -257,6 +257,9 @@ public class ActualDirectory implements DirectoryX {
         return new ActualFile( this, destinationFile );
     }
 
+    public String toString() {
+        return file.toString();
+    }
 
     void incrementOpenFileCount() {
         if ( parentDirectory != null ) {
