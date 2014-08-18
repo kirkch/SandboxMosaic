@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.mosaic.io.cli.CLAppTest.runAppAndAssertReturnCode;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
@@ -613,14 +614,4 @@ public class CLApp_argumentTests {
         system.assertNoAlerts();
     }
 
-
-    private void runAppAndAssertReturnCode( CLApp app, int expectedRC, String...args ) {
-        int actualRC = app.runApp( args );
-
-        if ( expectedRC != actualRC ) {
-            system.dumpLog();
-
-            fail("App returned " + actualRC + ", expected " + expectedRC );
-        }
-    }
 }

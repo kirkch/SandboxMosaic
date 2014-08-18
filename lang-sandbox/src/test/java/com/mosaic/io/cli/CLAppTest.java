@@ -1,5 +1,7 @@
 package com.mosaic.io.cli;
 
+import com.mosaic.lang.StartStopMixin;
+import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.system.DebugSystem;
 import com.mosaic.lang.time.DTM;
 import com.mosaic.lang.time.Duration;
@@ -215,32 +217,48 @@ public class CLAppTest {
 
 // STARTUP/SHUTDOWN EVENTS
 
+    private static class StartStopMock extends StartStopMixin<StartStopMock> {
+        public StartStopMock() {
+            super( "mock" );
+        }
+
+        protected void doStart() {}
+        protected void doStop() {}
+    }
+
     @Test
-    public void onStartUp_expectSetupMethodToBeInvoked() {
-        final AtomicBoolean wasSetupInvoked = new AtomicBoolean( false );
+    public void onStartup_expectChainedServicesToBeStartedFirst() {
+
+        final StartStopMock service = new StartStopMock();
 
         CLApp app = new CLApp(system) {
-            protected void setUpCallback() {
-                wasSetupInvoked.set( true );
-            }
+            Function0<StartStopMock> s = registerService( new Function0<StartStopMock>() {
+                public StartStopMock invoke() {
+                    return service;
+                }
+            } );
+
 
             protected int _run() {
+                assertTrue( "chained service should be running", s.invoke().isRunning() );
+
                 return 0;
             }
         };
 
-        assertEquals( 0, app.runApp() );
-        assertTrue( "setUp method was not invoked", wasSetupInvoked.get() );
+        runAppAndAssertReturnCode( app, 0 );
+        assertFalse( "chained service should have stopped", service.isRunning() );
 
         system.assertNoAlerts();
     }
 
     @Test
-    public void afterAppHasCompleted_expectTearDownMethodToBeCalled() {
+    public void afterAppHasCompleted_expectAfterShutdownMethodToBeCalled() {
         final AtomicBoolean wasTearDownInvoked = new AtomicBoolean( false );
 
         CLApp app = new CLApp(system) {
-            protected void tearDownCallback() {
+            @Override
+            protected void afterShutdown() {
                 wasTearDownInvoked.set( true );
             }
 
@@ -250,17 +268,37 @@ public class CLAppTest {
         };
 
         assertEquals( 0, app.runApp() );
-        assertTrue( "tearDown method was not invoked", wasTearDownInvoked.get() );
+        assertTrue( "afterShutdown method was not invoked", wasTearDownInvoked.get() );
 
         system.assertNoAlerts();
     }
 
     @Test
-    public void afterAppHasErrored_expectTearDownMethodToBeCalled() {
+    public void afterAppHasCompleted_expectBeforeShutdownMethodToBeCalled() {
         final AtomicBoolean wasTearDownInvoked = new AtomicBoolean( false );
 
         CLApp app = new CLApp(system) {
-            protected void tearDownCallback() {
+            protected void beforeShutdown() {
+                wasTearDownInvoked.set( true );
+            }
+
+            protected int _run() {
+                return 0;
+            }
+        };
+
+        assertEquals( 0, app.runApp() );
+        assertTrue( "afterShutdown method was not invoked", wasTearDownInvoked.get() );
+
+        system.assertNoAlerts();
+    }
+
+    @Test
+    public void afterAppHasErrored_expectBeforeShutdownMethodToBeCalled() {
+        final AtomicBoolean wasTearDownInvoked = new AtomicBoolean( false );
+
+        CLApp app = new CLApp(system) {
+            protected void beforeShutdown() {
                 wasTearDownInvoked.set( true );
             }
 
@@ -270,7 +308,25 @@ public class CLAppTest {
         };
 
         assertEquals( 1, app.runApp() );
-        assertTrue( "tearDown method was not invoked", wasTearDownInvoked.get() );
+        assertTrue( "beforeShutdown method was not invoked", wasTearDownInvoked.get() );
+    }
+
+    @Test
+    public void afterAppHasErrored_expectAfterShutdownMethodToBeCalled() {
+        final AtomicBoolean wasTearDownInvoked = new AtomicBoolean( false );
+
+        CLApp app = new CLApp(system) {
+            protected void afterShutdown() {
+                wasTearDownInvoked.set( true );
+            }
+
+            protected int _run() {
+                throw new RuntimeException( "intended exception" );
+            }
+        };
+
+        assertEquals( 1, app.runApp() );
+        assertTrue( "afterShutdown method was not invoked", wasTearDownInvoked.get() );
     }
 
     @Test
@@ -404,4 +460,14 @@ public class CLAppTest {
         system.assertOpsAuditContains( "  flag2=f2" );
     }
 
+
+    static void runAppAndAssertReturnCode( CLApp app, int expectedRC, String...args ) {
+        int actualRC = app.runApp( args );
+
+        if ( expectedRC != actualRC ) {
+            ((DebugSystem)app.system).dumpLog();
+
+            fail("App returned " + actualRC + ", expected " + expectedRC );
+        }
+    }
 }

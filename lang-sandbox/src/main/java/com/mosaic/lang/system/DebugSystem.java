@@ -6,6 +6,7 @@ import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.io.filesystemx.inmemory.InMemoryFileSystem;
 import com.mosaic.io.streams.CapturingCharacterStream;
+import com.mosaic.lang.reflect.ReflectionUtils;
 import com.mosaic.lang.text.PullParser;
 import com.mosaic.lang.time.SystemClock;
 import com.mosaic.utils.StringUtils;
@@ -33,7 +34,12 @@ public class DebugSystem extends SystemX {
 
 
     public DebugSystem() {
+        this( ReflectionUtils.getCallersClass().getSimpleName() );
+    }
+
+    public DebugSystem( String systemName ) {
         this(
+            systemName,
             new InMemoryFileSystem(),
             new SystemClock(),
             new Vector<String>(),
@@ -45,6 +51,7 @@ public class DebugSystem extends SystemX {
 
 
     private DebugSystem(
+        String             systemName,
         InMemoryFileSystem system,
         SystemClock        clock,
         List<String>       stdOutText,
@@ -53,6 +60,7 @@ public class DebugSystem extends SystemX {
         long               startTime
     ) {
         super(
+            systemName,
             system,
             clock,
             new CapturingCharacterStream( stdOutText ),

@@ -4,6 +4,8 @@ import com.mosaic.collections.ConsList;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.io.streams.PrettyPrinter;
+import com.mosaic.lang.StartStoppable;
+import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.system.LiveSystem;
 import com.mosaic.lang.system.SystemX;
@@ -17,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
@@ -27,41 +30,47 @@ public abstract class CLApp {
 
     protected final SystemX system;
 
-    private String       name;
-    private List<String> description;
+    private String            name;
+    private List<String>      description;
 
     private List<CLParameter> allParameters = new ArrayList<>();
 
-    private Set<String>          optionNames    = new HashSet<>();
-    private List<CLArgument>     args           = new ArrayList<>();
-    private List<CLOption>       options        = new ArrayList<>();
+    private Set<String>       optionNames    = new HashSet<>();
+    private List<CLArgument>  args           = new ArrayList<>();
+    private List<CLOption>    options        = new ArrayList<>();
 
-    private DTM                  startedAt;
+    private DTM               startedAt;
 
     private CLOption<Boolean> helpFlag;
     private CLOption<String>  configFile;
 
 
-    protected CLApp() {
-        this( new LiveSystem() );
+    protected CLApp( String name ) {
+        this( new LiveSystem(name) );
     }
 
     protected CLApp( SystemX system ) {
         this.system = system;
-        this.name   = this.getClass().getName();
+        this.name   = system.getServiceName();
     }
 
 
     protected abstract int _run() throws Exception;
 
-    protected void setUpCallback() {}
-    protected void tearDownCallback() {}
+    /**
+     * Override if you want to invoke code before the app starts to shutdown the services that it
+     * depends upon.
+     */
+    protected void beforeShutdown() {}
 
+    /**
+     * Override if you want to invoke code after the app has finished shutting down the services
+     * that it depends upon.
+     */
+    protected void afterShutdown() {}
 
 
     private void handleSetUp() {
-        setUpCallback();
-
         configFile = registerOption( "c", "config", "file", "Any command line option may be included within a properties file and specified here." );
         helpFlag   = registerFlag( "?", "help", "Display this usage information." );
 
@@ -70,7 +79,11 @@ public abstract class CLApp {
 
 
     private void handleTearDown() {
-        tearDownCallback();
+        beforeShutdown();
+
+        system.stop();
+
+        afterShutdown();
 
         DTM      nowDTM   = system.getCurrentDTM();
         Duration duration = nowDTM.subtract( startedAt );
@@ -120,6 +133,18 @@ public abstract class CLApp {
             return 1;
         }
 
+        system.start();
+
+        final AtomicBoolean hasShutdownAlready = new AtomicBoolean( false ); // flag to prevent running the shutdown twice
+        Runtime.getRuntime().addShutdownHook( new Thread() {
+            public void run() {
+                if ( !hasShutdownAlready.get() ) {
+                    handleTearDown();
+                }
+            }
+        });
+
+
         try {
             return _run();
         } catch ( Throwable ex ) {
@@ -129,6 +154,8 @@ public abstract class CLApp {
             return 1;
         } finally {
             handleTearDown();
+
+            hasShutdownAlready.set( true );
         }
     }
 
@@ -269,6 +296,17 @@ public abstract class CLApp {
         return arg;
     }
 
+    protected <T> CLArgument<T> registerArgumentOptional( String argumentName, String argumentDescription, Function1<String,T> parseFunction ) {
+        CLArgument<T> arg = new CLArgument( argumentName, argumentDescription, parseFunction );
+        arg.setOptional( true );
+
+
+        this.args.add( arg );
+        this.allParameters.add( arg );
+
+        return arg;
+    }
+
     protected CLArgument<String> registerArgumentOptional( String argumentName, String argumentDescription ) {
         CLArgument<String> arg = CLArgument.stringArgument( argumentName, argumentDescription );
         arg.setOptional( true );
@@ -278,6 +316,22 @@ public abstract class CLApp {
         this.allParameters.add( arg );
 
         return arg;
+    }
+
+    protected <T> Function0<T> registerService( final Function0<T> serviceFactory ) {
+        return new Function0<T>() {
+            private T service;
+
+            public T invoke() {
+                if ( service == null ) {
+                    this.service = serviceFactory.invoke();
+
+                    system.registerService( service );
+                }
+
+                return service;
+            }
+        };
     }
 
     protected CLArgument<Iterable<FileX>> scanForFilesArgument( String argumentName, String argumentDescription, final String filePostfix ) {

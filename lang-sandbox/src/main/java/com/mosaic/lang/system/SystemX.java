@@ -5,6 +5,9 @@ import com.mosaic.io.filesystemx.FileSystemX;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.IllegalStateExceptionX;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.StartStopMixin;
+import com.mosaic.lang.StartStoppable;
+import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.time.DTM;
 import com.mosaic.lang.time.SystemClock;
 
@@ -16,7 +19,7 @@ import java.util.concurrent.ForkJoinPool;
 /**
  *
  */
-public abstract class SystemX {
+public abstract class SystemX extends StartStopMixin<SystemX> {
 
     public static final int KILOBYTE              = 1024;
     public static final int MEGABYTE              = KILOBYTE*1024;
@@ -130,6 +133,7 @@ public abstract class SystemX {
 
 
     protected SystemX(
+        String          systemName,
         FileSystemX     fileSystem,
         SystemClock     clock,
 
@@ -142,6 +146,8 @@ public abstract class SystemX {
         CharacterStream warnLog,
         CharacterStream fatalLog
     ) {
+        super(systemName);
+
         this.fileSystem         = fileSystem;
         this.clock              = clock;
 
@@ -328,4 +334,19 @@ public abstract class SystemX {
     public void setCurrentWorkingDirectory( DirectoryX cwd ) {
         this.currentWorkingDirectory = cwd;
     }
+
+
+    /**
+     * Registers an instance of StartStoppable to share the same life cycle as this instance of
+     * SystemX.
+     */
+    public <T> T registerService( T newService ) {
+        this.serviceDependsUpon( newService );
+
+        return newService;
+    }
+
+    protected void doStart() {}
+
+    protected void doStop() {}
 }

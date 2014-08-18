@@ -20,7 +20,7 @@ public class UTF8Builder implements CharacterStream {
 
     private static final double[] ROUNDING_OFFSETS_BY_PRECISION = precalculateRoundingOffsets();
 
-    private static final double[] precalculateRoundingOffsets() {
+    private static double[] precalculateRoundingOffsets() {
         double[] roundingOffsets = new double[10];
 
         for ( int i=1; i<roundingOffsets.length; i++ ) {
@@ -38,7 +38,7 @@ public class UTF8Builder implements CharacterStream {
 
 
     public UTF8Builder() {
-        this( Bytes.allocAutoResizingOnHeap("auto", new LiveSystem(), 100, 10000) );
+        this( Bytes.allocAutoResizingOnHeap("auto", new LiveSystem(""), 100, 10000) );
     }
 
     public UTF8Builder( Bytes destinationBytes ) {

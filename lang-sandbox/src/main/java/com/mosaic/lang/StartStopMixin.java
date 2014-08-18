@@ -100,10 +100,21 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
         return isShuttingDown.get();
     }
 
-    public T chainTo( Object... others ) {
-        for ( Object o : others ) {
+    /**
+     * Connect the life cycles of this service with the specified others.  Thus when this service
+     * starts, the other services will be started first and when this service is stopped then the
+     * other services will be stopped first.
+     */
+    public T serviceDependsUpon( Object... otherServices ) {
+        for ( Object o : otherServices ) {
             if ( o instanceof StartStoppable ) {
-                chainedToOthers.add( (StartStoppable) o );
+                StartStoppable ss = (StartStoppable) o;
+
+                chainedToOthers.add( ss );
+
+                if ( this.isRunning() ) {
+                    ss.start();
+                }
             }
         }
 

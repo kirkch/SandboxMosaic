@@ -107,4 +107,12 @@ public class ReflectionUtils {
             throw ReflectionException.recast( e );
         }
     }
+
+    public static Class getCallersClass() {
+        try {
+            return Class.forName( new Exception().getStackTrace()[2].getClassName() );
+        } catch ( ClassNotFoundException e ) {
+            throw ReflectionException.recast( e );
+        }
+    }
 }

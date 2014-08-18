@@ -3,6 +3,7 @@ package com.mosaic.lang.system;
 import com.mosaic.io.filesystemx.disk.ActualFileSystem;
 import com.mosaic.io.streams.NullCharacterStream;
 import com.mosaic.io.streams.PrintStreamCharacterStream;
+import com.mosaic.lang.reflect.ReflectionUtils;
 import com.mosaic.lang.time.SystemClock;
 
 
@@ -11,23 +12,28 @@ import com.mosaic.lang.time.SystemClock;
  */
 public class LiveSystem extends SystemX {
 
-    public static SystemX newSystem() {
+    public static SystemX newSystem( String systemName ) {
         SystemClock clock = new SystemClock();
 
-        LiveSystem liveSystem = new LiveSystem( clock );
+        LiveSystem liveSystem = new LiveSystem( systemName, clock );
         liveSystem.setCurrentWorkingDirectory( liveSystem.getDirectory(System.getProperty("user.dir")) );
 
         return liveSystem;
     }
 
     public LiveSystem() {
-        this( new SystemClock() );
+        this( ReflectionUtils.getCallersClass().getSimpleName() );
+    }
+
+    public LiveSystem( String systemName ) {
+        this( systemName, new SystemClock() );
 
         setCurrentWorkingDirectory( getDirectory(System.getProperty("user.dir")) );
     }
 
-    public LiveSystem( SystemClock clock ) {
+    public LiveSystem( String systemName, SystemClock clock ) {
         super(
+            systemName,
             new ActualFileSystem(),
             clock,
             new PrintStreamCharacterStream(System.out), // stdout
