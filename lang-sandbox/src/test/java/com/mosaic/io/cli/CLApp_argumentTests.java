@@ -562,6 +562,36 @@ public class CLApp_argumentTests {
     }
 
     @Test
+    public void givenArgumentThatScansDirectoryForFiles_giveFile_expectFileFound() {
+        CLApp app = new CLApp(system) {
+            public CLArgument<Iterable<FileX>> files = scanForFilesArgument( "directory", "The directory to scan.", ".xml" );
+
+            protected int _run() {
+                List<String> actualFileNames = ListUtils.map( files.getValue(), new Function1<FileX, String>() {
+                    public String invoke( FileX f ) {
+                        return f.getFileName();
+                    }
+                } );
+
+                Collections.sort(actualFileNames);
+
+                assertEquals( Arrays.asList("a.xml"), actualFileNames );
+
+                return 42;
+            }
+        };
+
+        DirectoryX dir = system.getOrCreateDirectory( "dir" );
+        dir.addFile( "a.xml", "123" );
+
+        system.setCurrentWorkingDirectory( dir );
+
+        runAppAndAssertReturnCode( app, 42, "a.xml" );
+
+        system.assertNoAlerts();
+    }
+
+    @Test
     public void getOrCreateDirectoryArgument_givenDirectory_expectDirectoryToBeReturned() {
         CLApp app = new CLApp(system) {
             public CLArgument<DirectoryX> dir = getOrCreateDirectoryArgument( "directory", "The directory to scan." );

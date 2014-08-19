@@ -346,12 +346,14 @@ public abstract class CLApp {
             argumentDescription,
             new Function1<String, Iterable<FileX>>() {
                 public Iterable<FileX> invoke( String path ) {
-                    FileX file = system.fileSystem.getFile( path );
+                    DirectoryX cwd  = system.getCurrentWorkingDirectory();
+                    FileX      file = cwd.getFile( path );
+
                     if ( file != null ) {
                         return Arrays.asList( file );
                     }
 
-                    DirectoryX cwd = system.getCurrentWorkingDirectory();
+
 
                     DirectoryX inputDirectory = cwd.getDirectory( path );
                     if ( inputDirectory == null )  {
@@ -371,7 +373,7 @@ public abstract class CLApp {
             new Function1<String, DirectoryX>() {
                 public DirectoryX invoke( String path ) {
                     DirectoryX cwd = system.getCurrentWorkingDirectory();
-System.out.println( "cwd.getFullPath() = " + cwd.getFullPath() );
+
                     return cwd.getOrCreateDirectory( path );
                 }
             }
