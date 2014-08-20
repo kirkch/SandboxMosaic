@@ -2,6 +2,8 @@ package com.mosaic.lang.text;
 
 import com.mosaic.io.bytes.Bytes;
 import com.mosaic.io.bytes.InputBytes;
+import com.mosaic.io.filesystemx.FileModeEnum;
+import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.NotThreadSafe;
 import com.mosaic.lang.QA;
 
@@ -40,6 +42,10 @@ public class PullParser {
         }
 
         return lines;
+    }
+
+    public static PullParser parseFile( FileX f ) {
+        return new PullParser( f.loadBytes( FileModeEnum.READ_ONLY) );
     }
 
 
