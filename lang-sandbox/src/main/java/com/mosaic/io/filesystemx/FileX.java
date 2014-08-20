@@ -63,4 +63,11 @@ public interface FileX {
 
     public void isExecutable( boolean isExecutable );
     public boolean isExecutable();
+
+    public default String getFileNameExcludingTag() {
+        String name = getFileName();
+        int    i    = name.lastIndexOf('.');
+
+        return i < 0 ? name : name.substring(0,i);
+    }
 }

@@ -22,7 +22,7 @@ public class AlgorithmicSpreadSheetTest {
         AlgorithmicSpreadSheet table = new AlgorithmicSpreadSheet();
 
         table.setCell( 0, 0, 101 );
-        assertEquals( 101, table.get( 0, 0 ) );
+        assertEquals( Integer.valueOf(101), table.get(0, 0) );
     }
 
     @Test
@@ -44,9 +44,9 @@ public class AlgorithmicSpreadSheetTest {
         } );
 
         assertEquals( null, table.get(1, 0) );
-        assertEquals( 0, table.get(0, 1) );
-        assertEquals( 1, table.get(1, 1) );
-        assertEquals( 2, table.get(2, 1) );
+        assertEquals( Integer.valueOf(0), table.get(0, 1) );
+        assertEquals( Integer.valueOf(1), table.get(1, 1) );
+        assertEquals( Integer.valueOf(2), table.get(2, 1) );
     }
 
 
