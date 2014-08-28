@@ -411,7 +411,7 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
 
         ProcessRunner runner = new ProcessRunner( this, javaCmd, javaCmdArgs, stdoutCallback );
 
-        return runner.run();
+        return runner.run().getPromise();
     }
 
     public Cancelable addShutdownHook( VoidFunction0 callback ) {

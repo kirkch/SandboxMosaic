@@ -6,14 +6,17 @@ import com.mosaic.io.bytes.WrappedBytes;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.reflect.ReflectionUtils;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.utils.PropertyUtils;
 import com.mosaic.utils.StringUtils;
+import sun.management.VMManagement;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.management.ManagementFactory;
 import java.nio.channels.FileLock;
 import java.util.Collections;
 import java.util.HashMap;
@@ -130,7 +133,15 @@ public class ActualFile implements FileX {
         }
 
         try {
-            this.fileLock = new RandomAccessFile( file, "rw" ).getChannel().tryLock();
+            RandomAccessFile raf = new RandomAccessFile( file, "rw" );
+
+            this.fileLock = raf.getChannel().tryLock();
+
+            VMManagement vmManagement = ReflectionUtils.getPrivateField( ManagementFactory.getRuntimeMXBean(), "jvm" );
+
+            Integer pid = ReflectionUtils.invokePrivateMethod( vmManagement, "getProcessId" );
+
+            raf.writeChars( pid.toString() );
 
             return isLocked();
         } catch ( IOException e ) {

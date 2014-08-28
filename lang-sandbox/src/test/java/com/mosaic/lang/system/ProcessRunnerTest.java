@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.util.Vector;
 
+import static com.mosaic.lang.system.ProcessRunner.*;
 import static org.junit.Assert.*;
 
 
@@ -22,8 +23,9 @@ public class ProcessRunnerTest {
 
     @Test(threadCheck=true)
     public void runCommandThatDoesNotExist_expectFailure() {
-        ProcessRunner   runner = new ProcessRunner(system, "ffff");
-        Future<Integer> result = runner.run();
+        ProcessRunner   runner  = new ProcessRunner(system, "ffff");
+        ProcessResult   process = runner.run();
+        Future<Integer> result  = process.getPromise();
 
         result.spinUntilComplete(1000);
 
@@ -33,8 +35,9 @@ public class ProcessRunnerTest {
 
     @Test(threadCheck=true)
     public void runCommand_thatExitsWithZero() {
-        ProcessRunner   runner = new ProcessRunner(system, "java", "-version");
-        Future<Integer> result = runner.run();
+        ProcessRunner   runner  = new ProcessRunner(system, "java", "-version");
+        ProcessResult   process = runner.run();
+        Future<Integer> result  = process.getPromise();
 
         result.spinUntilComplete(1000);
 
@@ -43,8 +46,9 @@ public class ProcessRunnerTest {
 
     @Test(threadCheck=true)
     public void runCommand_thatExitsWithOne() {
-        ProcessRunner   runner = new ProcessRunner(system, "java");
-        Future<Integer> result = runner.run();
+        ProcessRunner   runner  = new ProcessRunner(system, "java");
+        ProcessResult   process = runner.run();
+        Future<Integer> result  = process.getPromise();
 
         result.spinUntilComplete(1000);
 
@@ -53,8 +57,9 @@ public class ProcessRunnerTest {
 
     @Test(threadCheck=true)
     public void runCommand_that() {
-        ProcessRunner   runner = new ProcessRunner(system, "java", "-cp", System.getProperty("java.class.path"), SleepMain.class.getName());
-        Future<Integer> result = runner.run();
+        ProcessRunner   runner  = new ProcessRunner(system, "java", "-cp", System.getProperty("java.class.path"), SleepMain.class.getName());
+        ProcessResult   process = runner.run();
+        Future<Integer> result  = process.getPromise();
 
         long startMillis = System.currentTimeMillis();
         result.spinUntilComplete(1000);
@@ -72,7 +77,8 @@ public class ProcessRunnerTest {
         Vector<String>  capturedOutput = new Vector<>();
         String[]        args           = {"-cp", System.getProperty("java.class.path"), NoisyMain.class.getName()};
         ProcessRunner   runner         = new ProcessRunner(system, "java", args, capturedOutput::add);
-        Future<Integer> result         = runner.run();
+        ProcessResult   process        = runner.run();
+        Future<Integer> result         = process.getPromise();
 
 
         JUnitMosaic.spinUntilTrue( () -> capturedOutput.size() >= 2 );
@@ -89,7 +95,8 @@ public class ProcessRunnerTest {
     public void abortARunningChildProcess() {
         String[]        args           = {"-cp", System.getProperty("java.class.path"), NeverCompletesMain.class.getName()};
         ProcessRunner   runner         = new ProcessRunner(system, "java", args);
-        Future<Integer> result         = runner.run();
+        ProcessResult   process        = runner.run();
+        Future<Integer> result         = process.getPromise();
 
 
         result.completeWithFailure( new Failure(this.getClass(), "abort") );

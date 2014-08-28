@@ -4,7 +4,6 @@ import com.mosaic.collections.concurrent.Future;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.Failure;
-import com.mosaic.lang.IllegalStateExceptionX;
 import com.mosaic.lang.system.LiveSystem;
 import com.mosaic.lang.system.SystemX;
 import com.softwaremosaic.junit.JUnitMosaic;
@@ -12,10 +11,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
-import java.nio.channels.FileLock;
 import java.util.Vector;
 
 import static org.junit.Assert.assertEquals;
@@ -148,31 +149,31 @@ public class CLApp_fileLockChildProcessTests {
     }
 
 
+//    @Test
+    public void pidInLockFile() throws IOException {
+        Vector<String> processOutput1 = new Vector<>();
+
+        Future<Integer> process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, dataDir.getAbsolutePath() );
+        JUnitMosaic.spinUntilTrue( () -> processOutput1.contains("App has started") );
 
 
-    //    @Test
-    public void f() throws IOException, InterruptedException {
-        File f = new File("/Users/ck/f.txt");
+        File lockFile = new File(dataDir,"LOCK");
+        BufferedReader in = new BufferedReader( new InputStreamReader(new FileInputStream(lockFile)) );
+
+        String contents = in.readLine();
+
+        assertEquals( "", contents );
+
+        signalChildProcessesToStop( dataDir );
+        spinUntilProcessesHaveStopped( process1, process1 );
 
 
-        RandomAccessFile raf = new RandomAccessFile( f, "rw" );
-        FileLock lock = raf.getChannel().tryLock();
-
-        if ( lock == null ) {
-            System.out.println("unable to acquire lock");
-            return;
-        }
-
-        System.out.println( "is locked = " + lock.isValid() );
-
-        raf.write( "Hello CK\n".getBytes("UTF-8") );
-
-
-        Thread.sleep( 10000 );
-        lock.release();
-        raf.close();
+        assertEquals( 0, process1.getResultNoBlock().intValue() );
     }
 
+    // todo
+    //
+    // childPIDsInLockFile
 
 
     private void spinUntilProcessesHaveStopped( Future<Integer> process1, Future<Integer> process2 ) {
