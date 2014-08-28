@@ -13,6 +13,7 @@ import com.mosaic.utils.StringUtils;
 import org.junit.ComparisonFailure;
 
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Vector;
 
@@ -21,6 +22,11 @@ import java.util.Vector;
  *
  */
 public class DebugSystem extends SystemX {
+    private static final String DEV   = "DEV";
+    private static final String OPS   = "OPS";
+    private static final String USER  = "USER";
+    private static final String WARN  = "WARN";
+    private static final String FATAL = "FATAL";
 
     /**
      * Format:
@@ -65,11 +71,11 @@ public class DebugSystem extends SystemX {
             clock,
             new CapturingCharacterStream( stdOutText ),
             new CapturingCharacterStream( stdErrorText ),
-            new CapturingLogCharacterStream("DEV", logOutput, startTime),
-            new CapturingLogCharacterStream("OPS", logOutput, startTime),
-            new CapturingLogCharacterStream("USER", logOutput, startTime),
-            new CapturingLogCharacterStream("WARN", logOutput, startTime),
-            new CapturingLogCharacterStream("FATAL", logOutput, startTime)
+            new CapturingLogCharacterStream(DEV, logOutput, startTime),
+            new CapturingLogCharacterStream(OPS, logOutput, startTime),
+            new CapturingLogCharacterStream(USER, logOutput, startTime),
+            new CapturingLogCharacterStream(WARN, logOutput, startTime),
+            new CapturingLogCharacterStream(FATAL, logOutput, startTime)
         );
 
         this.standardOutText   = stdOutText;
@@ -83,23 +89,39 @@ public class DebugSystem extends SystemX {
     }
 
     public void assertDevAuditContains( String expectedMessage ) {
-        assertLogMessageContains( "DEV", expectedMessage );
+        assertLogMessageContains( DEV, expectedMessage );
     }
 
     public void assertDevAuditContains( Class<? extends Throwable> expectedExceptionType, String expectedMessage ) {
         assertDevAuditContains( expectedExceptionType.getSimpleName() + ": " + expectedMessage );
     }
 
+    public boolean doesDevAuditContain( String expectedMessage ) {
+        return doesLogContain( DEV, expectedMessage );
+    }
+
     public void assertOpsAuditContains( String expectedMessage ) {
-        assertLogMessageContains( "OPS", expectedMessage );
+        assertLogMessageContains( OPS, expectedMessage );
+    }
+
+    public boolean doesOpsAuditContain( String expectedMessage ) {
+        return doesLogContain( OPS, expectedMessage );
     }
 
     public void assertUserAuditContains( String expectedMessage ) {
-        assertLogMessageContains( "USER", expectedMessage );
+        assertLogMessageContains( USER, expectedMessage );
+    }
+
+    public boolean doesUserAuditContain( String expectedMessage ) {
+        return doesLogContain( USER, expectedMessage );
     }
 
     public void assertWarnContains( String expectedMessage ) {
-        assertLogMessageContains( "WARN", expectedMessage );
+        assertLogMessageContains( WARN, expectedMessage );
+    }
+
+    public boolean doesWarnAuditContain( String expectedMessage ) {
+        return doesLogContain( WARN, expectedMessage );
     }
 
     public void assertFatalContains( Class<? extends Throwable> expectedExceptionType, String expectedMessage ) {
@@ -107,7 +129,11 @@ public class DebugSystem extends SystemX {
     }
 
     public void assertFatalContains( String expectedMessage ) {
-        assertLogMessageContains( "FATAL", expectedMessage );
+        assertLogMessageContains( FATAL, expectedMessage );
+    }
+
+    public boolean doesFatalAuditContain( String expectedMessage ) {
+        return doesLogContain( FATAL, expectedMessage );
     }
 
     private void assertNoLogMessages( String logLevel ) {
@@ -127,23 +153,23 @@ public class DebugSystem extends SystemX {
     }
 
     public void assertNoDeveloperMessages() {
-        assertNoLogMessages( "DEV" );
+        assertNoLogMessages( DEV );
     }
 
     public void assertNoOpsMessages() {
-        assertNoLogMessages( "OPS" );
+        assertNoLogMessages( OPS );
     }
 
     public void assertNoUserMessages() {
-        assertNoLogMessages( "USER" );
+        assertNoLogMessages( USER );
     }
 
     public void assertNoWarnings() {
-        assertNoLogMessages( "WARN" );
+        assertNoLogMessages( WARN );
     }
 
     public void assertNoFatals() {
-        assertNoLogMessages( "FATAL" );
+        assertNoLogMessages( FATAL );
     }
 
     public void assertHasFile( String filePath, String...expectedLines ) {
@@ -194,22 +220,34 @@ public class DebugSystem extends SystemX {
     }
 
     private void assertLogMessageContains( String expectedLogLevel, String expectedMessage ) {
-        String expectedPrefix = "["+expectedLogLevel+" ";
+        if ( !doesLogContain(expectedLogLevel, expectedMessage) ) {
+            reportError(
+                String.format(
+                    "Failed to find '%s' amongst the " + expectedLogLevel.toLowerCase() + " messages",
+                    expectedMessage
+                )
+            );
+        }
+    }
 
-        expectedMessage = expectedMessage.trim();
+    private boolean doesLogContain( String expectedLogLevel, String expectedMessage ) {
+        try {
+            String expectedPrefix = "[" + expectedLogLevel + " ";
 
-        for ( String x : logOutput ) {
-            if ( x.startsWith(expectedPrefix) && x.endsWith(expectedMessage) ) {
-                return;
+            expectedMessage = expectedMessage.trim();
+
+            for ( String x : logOutput ) {
+                if ( x.startsWith( expectedPrefix ) && x.contains(expectedMessage) ) {
+                    return true;
+                }
             }
+        } catch ( ConcurrentModificationException ex ) {
+            // asserting a log is done during unit tests only; when spinning on a log
+            // waiting for an event to occur then ConcurrentModificationException is
+            // a very real possibility but is totally benign... so we skip it
         }
 
-        reportError(
-            String.format(
-                "Failed to find '%s' amongst the " + expectedLogLevel.toLowerCase() + " messages",
-                expectedMessage
-            )
-        );
+        return false;
     }
 
     private void reportError( String msg ) {

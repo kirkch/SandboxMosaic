@@ -1,17 +1,27 @@
 package com.mosaic.lang.system;
 
+import com.mosaic.collections.concurrent.Future;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileSystemX;
 import com.mosaic.io.streams.CharacterStream;
+import com.mosaic.lang.Cancelable;
 import com.mosaic.lang.IllegalStateExceptionX;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.StartStopMixin;
-import com.mosaic.lang.StartStoppable;
-import com.mosaic.lang.functional.Function0;
+import com.mosaic.lang.functional.VoidFunction0;
+import com.mosaic.lang.functional.VoidFunction1;
+import com.mosaic.lang.reflect.ReflectionUtils;
 import com.mosaic.lang.time.DTM;
 import com.mosaic.lang.time.SystemClock;
+import com.mosaic.utils.ListUtils;
+import sun.management.VMManagement;
 
+import java.io.File;
+import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ForkJoinPool;
 
@@ -132,6 +142,9 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
     // NB stdin, when needed will be done by subscription with callbacks and not the Java blocking approach
 
 
+    private final List<VoidFunction0> shutdownHooks = new ArrayList<>();
+    private       Thread              masterShutdownHook;
+
     protected SystemX(
         String          systemName,
         FileSystemX     fileSystem,
@@ -146,27 +159,35 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
         CharacterStream warnLog,
         CharacterStream fatalLog
     ) {
-        super(systemName);
+        super( systemName );
 
-        this.fileSystem         = fileSystem;
-        this.clock              = clock;
+        this.fileSystem = fileSystem;
+        this.clock = clock;
 
-        this.stdout             = stdout;
-        this.stderr             = stderr;
+        this.stdout = stdout;
+        this.stderr = stderr;
 
-        this.devLog             = devLog;
-        this.opsLog             = opsLog;
-        this.userLog            = userLog;
-        this.warnLog            = warnLog;
-        this.fatalLog           = fatalLog;
+        this.devLog = devLog;
+        this.opsLog = opsLog;
+        this.userLog = userLog;
+        this.warnLog = warnLog;
+        this.fatalLog = fatalLog;
 
-        this.isDevAuditEnabled  = devLog.isEnabled();
-        this.isOpsAuditEnabled  = opsLog.isEnabled();
+        this.isDevAuditEnabled = devLog.isEnabled();
+        this.isOpsAuditEnabled = opsLog.isEnabled();
         this.isUserAuditEnabled = userLog.isEnabled();
-        this.isWarnEnabled      = warnLog.isEnabled();
-        this.isFatalEnabled     = fatalLog.isEnabled();
+        this.isWarnEnabled = warnLog.isEnabled();
+        this.isFatalEnabled = fatalLog.isEnabled();
 
         this.currentWorkingDirectory = fileSystem.getRoot();
+
+        this.masterShutdownHook = new Thread() {
+            public void run() {
+                runShutdownHooks();
+            }
+        };
+
+        Runtime.getRuntime().addShutdownHook(masterShutdownHook);
     }
 
 
@@ -348,5 +369,93 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
 
     protected void doStart() {}
 
-    protected void doStop() {}
+    protected void doStop() {
+        runShutdownHooks();
+
+        Runtime.getRuntime().removeShutdownHook( masterShutdownHook );
+    }
+
+
+    public int getProcessId() {
+        VMManagement vmManagement = ReflectionUtils.getPrivateField( ManagementFactory.getRuntimeMXBean(), "jvm" );
+
+        return ReflectionUtils.invokePrivateMethod( vmManagement, "getProcessId" );
+    }
+
+
+
+
+    /**
+     * Invokes the specified Java Class as a child OS process.  The child process will use the
+     * same classpath as the currently running process.
+     */
+    public Future<Integer> runJavaProcess( Class main, String... args ) {
+        return runJavaProcess( main, line -> {
+        }, args );
+    }
+
+    /**
+     * Invokes the specified Java Class as a child OS process.  The child process will use the
+     * same classpath as the currently running process.
+     */
+    public Future<Integer> runJavaProcess( Class main, VoidFunction1<String> stdoutCallback, String... args ) {
+        String javaHome  = System.getProperty( "java.home" );
+        String javaCmd   = new File( javaHome, "bin/java" ).getAbsolutePath();
+        String classPath = System.getProperty( "java.class.path" );
+
+        List<String> javaCmdArgs = new ArrayList<>(3+args.length);
+        javaCmdArgs.add( "-cp" );
+        javaCmdArgs.add( classPath );
+        javaCmdArgs.add( main.getName() );
+        Collections.addAll( javaCmdArgs, args );
+
+        ProcessRunner runner = new ProcessRunner( this, javaCmd, javaCmdArgs, stdoutCallback );
+
+        return runner.run();
+    }
+
+    public Cancelable addShutdownHook( VoidFunction0 callback ) {
+        synchronized (shutdownHooks) {
+            shutdownHooks.add( callback );
+
+            return () -> {
+                shutdownHooks.remove( callback );
+            };
+        }
+    }
+
+
+    private void runShutdownHooks() {
+        synchronized (shutdownHooks) {
+            devAudit( "Shutdown hook triggered: running "+shutdownHooks.size() + " shutdown hooks" );
+
+            // originally used a list of shutdown hooks, with no extra threads.. however
+            // when working with child processes via ProcessBuilder; I found that only the
+            // first child process would be terminated.
+
+            List<Thread> threads = ListUtils.map( shutdownHooks, hook -> {
+                    Thread t = new Thread() {
+                        @Override
+                        public void run() {
+                            hook.invoke();
+                        }
+                    };
+
+                    t.start();
+
+                    return t;
+                }
+            );
+
+            for ( Thread t : threads ) {
+                try {
+                    t.join();
+
+                    shutdownHooks.clear();
+                } catch ( InterruptedException e ) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }

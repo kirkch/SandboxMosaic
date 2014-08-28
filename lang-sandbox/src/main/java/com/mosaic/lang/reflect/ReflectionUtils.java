@@ -15,7 +15,7 @@ import java.util.Arrays;
 public class ReflectionUtils {
 
     // TODO move to using MethodHandle instead (it is faster)
-    private static final Method CLONE_METHOD = ReflectionUtils.findFirstInstanceMethodByName( Object.class, "clone" );
+    private static final Method CLONE_METHOD = ReflectionUtils.findFirstMethodByName( Object.class, "clone" );
 
     static {
         CLONE_METHOD.setAccessible( true );
@@ -55,9 +55,9 @@ public class ReflectionUtils {
         }
     }
 
-    public static Object invoke( Object instance, Method method, Object...args ) {
+    public static <T> T invoke( Object instance, Method method, Object...args ) {
         try {
-            return method.invoke( instance, args );
+            return (T) method.invoke( instance, args );
         } catch ( Throwable e ) {
             throw ReflectionException.recast(e);
         }
@@ -73,7 +73,7 @@ public class ReflectionUtils {
         return null;
     }
 
-    public static Method findFirstInstanceMethodByName( Class c, String methodName ) {
+    public static Method findFirstMethodByName( Class c, String methodName ) {
         for ( Method m : c.getDeclaredMethods() ) {
             if ( m.getName().equals(methodName) ) {
                 return m;
@@ -98,6 +98,15 @@ public class ReflectionUtils {
         }
 
         throw ReflectionException.recast( new NoSuchFieldException(fieldName) );
+    }
+
+    public static <T> T invokePrivateMethod( Object o, String methodName, Object...args ) {
+        Class c = o.getClass();
+
+        Method m = findFirstMethodByName(c, methodName);
+        m.setAccessible( true );
+
+        return invoke( o, m, args );
     }
 
     public static Class findClass( String className ) {

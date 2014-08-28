@@ -1,6 +1,8 @@
 package com.mosaic.lang;
 
 
+import com.mosaic.lang.reflect.ReflectionUtils;
+
 import java.util.Objects;
 
 /**
@@ -22,6 +24,10 @@ public class Failure {
     private Throwable ex;
     private Failure   chained;
 
+
+    public Failure( String message ) {
+        this( ReflectionUtils.getCallersClass(), message );
+    }
 
     public Failure( Class source, String message ) {
         this.source  = source;

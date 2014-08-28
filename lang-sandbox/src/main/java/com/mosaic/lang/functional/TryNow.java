@@ -12,6 +12,16 @@ public class TryNow {
 
     public static final TryNbl NULL = successfulNbl(Nullable.NULL);
 
+    public static Try<Void> tryNow( VoidFunction0 op ) {
+        try {
+            op.invoke();
+
+            return successful( null );
+        } catch ( Exception ex ) {
+            return failed( new Failure(ex) );
+        }
+    }
+
     /**
      * Wraps the specified operation with a try/catch block and returns
      * the result as an instance of Try.

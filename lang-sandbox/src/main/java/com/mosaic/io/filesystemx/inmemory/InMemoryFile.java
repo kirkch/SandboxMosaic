@@ -31,7 +31,7 @@ public class InMemoryFile implements FileX {
 
 
     InMemoryFile( InMemoryDirectory parentDirectory, String fileName ) {
-        this( parentDirectory, fileName, Bytes.wrap("") );
+        this( parentDirectory, fileName, Bytes.wrap( "" ) );
     }
 
     InMemoryFile( InMemoryDirectory parentDirectory, String fileName, Bytes bytes ) {
@@ -146,6 +146,32 @@ public class InMemoryFile implements FileX {
 
     public boolean isExecutable() {
         return isExecutable;
+    }
+
+    private boolean isLocked;
+
+    public boolean lockFile() {
+        if ( isLocked ) {
+            return false;
+        } else {
+            isLocked = true;
+
+            return true;
+        }
+    }
+
+    public boolean isLocked() {
+        return isLocked;
+    }
+
+    public boolean unlockFile() {
+        if ( isLocked ) {
+            isLocked = false;
+
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public String toString() {

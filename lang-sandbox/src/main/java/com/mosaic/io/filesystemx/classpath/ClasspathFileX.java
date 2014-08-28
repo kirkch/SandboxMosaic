@@ -111,6 +111,19 @@ public class ClassPathFileX implements FileX {
     }
 
 
+    public boolean lockFile() {
+        throw new UnsupportedOperationException( "files on the classpath cannot be locked" );
+    }
+
+    public boolean isLocked() {
+        return false;
+    }
+
+    public boolean unlockFile() {
+        throw new UnsupportedOperationException( "files on the classpath cannot be locked" );
+    }
+
+
     private InputBytes bytes;
 
     private InputBytes lazyLoad() {

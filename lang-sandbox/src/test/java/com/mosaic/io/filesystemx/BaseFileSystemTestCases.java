@@ -277,4 +277,61 @@ public abstract class BaseFileSystemTestCases {
         }
     }
 
+
+// FILE LOCK
+
+    @Test
+    public void givenFileThatDoesNotExist_callIsLocked_expectFalse() {
+        FileX file = fileSystem.getOrCreateFile( "file.lock" );
+
+        assertFalse( file.isLocked() );
+    }
+
+    @Test
+    public void givenFileThatDoesNotExist_requestLock_expectFileToBeLocked() {
+        FileX file = fileSystem.getOrCreateFile( "file.lock" );
+
+        assertTrue( file.lockFile() );
+        assertTrue( file.isLocked() );
+    }
+
+    @Test
+    public void givenLockedFile_tryToLockAgain_expectLockFileToReturnFalseAndTheFileToRemainLocked() {
+        FileX file = fileSystem.getOrCreateFile( "file.lock" );
+
+        file.lockFile();
+
+        assertFalse( file.lockFile() );
+        assertTrue( file.isLocked() );
+    }
+
+    @Test
+    public void givenLockedFile_callUnlock_expectFileToBeUnlocked() {
+        FileX file = fileSystem.getOrCreateFile( "file.lock" );
+
+        file.lockFile();
+
+        assertTrue( file.unlockFile() );
+        assertFalse( file.isLocked() );
+    }
+
+    @Test
+    public void givenExistingUnlockedFile_requestLock_expectLockToBeAcquired() {
+        FileX file = fileSystem.getOrCreateFile( "file.lock" );
+
+        file.lockFile();
+        file.unlockFile();
+
+        assertTrue( file.lockFile() );
+        assertTrue( file.isLocked() );
+    }
+
+    @Test
+    public void givenNonLockedFile_callUnlock_expectNoChange() {
+        FileX file = fileSystem.getOrCreateFile( "file.lock" );
+
+        assertFalse( file.unlockFile() );
+        assertFalse( file.isLocked() );
+    }
+
 }

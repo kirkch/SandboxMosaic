@@ -45,7 +45,7 @@ public abstract class BaseMatcher implements Matcher {
 
     public Method resolveCallbackMethod( Object targetInstance ) {
         if ( lazilyCachedCallbackMethod == null && callbackMethodName != null ) {
-            lazilyCachedCallbackMethod = ReflectionUtils.findFirstInstanceMethodByName(targetInstance.getClass(), callbackMethodName);
+            lazilyCachedCallbackMethod = ReflectionUtils.findFirstMethodByName( targetInstance.getClass(), callbackMethodName );
 
             lazilyCachedCallbackMethod.setAccessible(true);
         }

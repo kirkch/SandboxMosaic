@@ -27,6 +27,10 @@ public class InMemoryFileSystem extends InMemoryDirectory implements FileSystemX
         return openFileCount;
     }
 
+    public boolean supportsLocking() {
+        return true;
+    }
+
     @Override
     void incrementOpenFileCount() {
         openFileCount++;

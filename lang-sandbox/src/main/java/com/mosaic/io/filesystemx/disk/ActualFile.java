@@ -1,5 +1,6 @@
 package com.mosaic.io.filesystemx.disk;
 
+import com.mosaic.io.FileUtils;
 import com.mosaic.io.bytes.Bytes;
 import com.mosaic.io.bytes.WrappedBytes;
 import com.mosaic.io.filesystemx.FileModeEnum;
@@ -12,6 +13,8 @@ import com.mosaic.utils.StringUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileLock;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +30,7 @@ public class ActualFile implements FileX {
 
     private File            file;
     private ActualDirectory parentDirectory;
+    private FileLock        fileLock;
 
     ActualFile( ActualDirectory parentDirectory, File file ) {
         QA.argNotNull( file, "file" );
@@ -34,6 +38,8 @@ public class ActualFile implements FileX {
 
         this.file            = file;
         this.parentDirectory = parentDirectory;
+
+        mkdirs();
     }
 
     public String getFileName() {
@@ -118,6 +124,44 @@ public class ActualFile implements FileX {
         return file.canExecute();
     }
 
+    public boolean lockFile() {
+        if ( isLocked() ) {
+            return false;
+        }
+
+        try {
+            this.fileLock = new RandomAccessFile( file, "rw" ).getChannel().tryLock();
+
+            return isLocked();
+        } catch ( IOException e ) {
+            Backdoor.throwException( e );
+            return false;
+        }
+    }
+
+    public boolean isLocked() {
+        return fileLock != null && fileLock.isValid();
+    }
+
+    public boolean unlockFile() {
+        if ( !isLocked() ) {
+            return false;
+        }
+
+        try {
+            this.fileLock.release();
+
+            QA.isFalse( isLocked(), "requested release of file lock but it remains" );
+
+            this.fileLock = null;
+
+            return true;
+        } catch ( IOException e ) {
+            Backdoor.throwException( e );
+            return false;
+        }
+    }
+
     public String toString() {
         return file.toString();
     }
@@ -133,4 +177,13 @@ public class ActualFile implements FileX {
 
         return props;
     }
+
+    private void mkdirs() {
+        File parentFile = file.getParentFile();
+
+        if ( parentFile != null ) {
+            parentFile.mkdirs();
+        }
+    }
+
 }

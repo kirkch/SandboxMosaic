@@ -4,7 +4,7 @@ import com.mosaic.collections.ConsList;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.io.streams.PrettyPrinter;
-import com.mosaic.lang.StartStoppable;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.system.LiveSystem;
@@ -30,19 +30,21 @@ public abstract class CLApp {
 
     protected final SystemX system;
 
-    private String            name;
-    private List<String>      description;
+    private String                name;
+    private List<String>          description;
 
-    private List<CLParameter> allParameters = new ArrayList<>();
+    private List<CLParameter>     allParameters  = new ArrayList<>();
 
-    private Set<String>       optionNames    = new HashSet<>();
-    private List<CLArgument>  args           = new ArrayList<>();
-    private List<CLOption>    options        = new ArrayList<>();
+    private Set<String>           optionNames    = new HashSet<>();
+    private List<CLArgument>      args           = new ArrayList<>();
+    private List<CLOption>        options        = new ArrayList<>();
 
-    private DTM               startedAt;
+    private DTM                   startedAt;
 
-    private CLOption<Boolean> helpFlag;
-    private CLOption<String>  configFile;
+    private CLOption<Boolean>     helpFlag;
+    private CLOption<String>      configFile;
+
+    private Function0<DirectoryX> dataDirectoryFetcherNbl;
 
 
     protected CLApp( String name ) {
@@ -146,9 +148,15 @@ public abstract class CLApp {
 
 
         try {
-            return _run();
+            if ( dataDirectoryFetcherNbl != null ) {
+                return checkLockFileAndPossiblyRun();
+            } else {
+                return _run();
+            }
+
+
         } catch ( Throwable ex ) {
-            system.stderr.writeLine( name + " errored unexpectedly and was aborted. The error was 'RuntimeException:whoops'." );
+            system.stderr.writeLine( name + " errored unexpectedly and was aborted. The error was '"+ex.getMessage()+"'." );
             system.fatal( ex );
 
             return 1;
@@ -156,6 +164,39 @@ public abstract class CLApp {
             handleTearDown();
 
             hasShutdownAlready.set( true );
+        }
+    }
+
+    private int checkLockFileAndPossiblyRun() throws Exception {
+        DirectoryX dataDir          = dataDirectoryFetcherNbl.invoke();
+        FileX      existingLockFile = dataDir.getFile( "LOCK" );
+
+        boolean needsToRunRecoveryMethod = false;
+        if ( existingLockFile != null ) {
+            if ( !existingLockFile.lockFile() ) {
+                system.fatal( "Application is already running, only one instance is allowed at a time." );
+
+                return 1;
+            } else {
+                needsToRunRecoveryMethod = true;
+
+                existingLockFile.delete();
+            }
+        }
+
+
+        FileX newLockFile = dataDir.getOrCreateFile( "LOCK" );
+        newLockFile.lockFile();
+
+        try {
+            if ( needsToRunRecoveryMethod ) {
+                recoverFromCrash();
+            }
+
+            return _run();
+        } finally {
+            newLockFile.unlockFile();
+            newLockFile.delete();
         }
     }
 
@@ -437,6 +478,44 @@ public abstract class CLApp {
 
         return opt;
     }
+
+    private FileX lockFile;
+
+    /**
+     * Specify that the app is to take out a lock file in the specified directory on startup.
+     * If the lock file already exists and owned by a running process, verified by the PID stored
+     * as text within the LOCK file, then the app will not start up and will exit with
+     * a fatal message reporting that another instance is running. <p/>
+     *
+     * Once the app has finished, the LOCK file will be removed automatically.  However, if the app
+     * crashes and thus does not get a chance to cleanup gracefully then the LOCK file will remain
+     * and the PID stored within the LOCK file will not point to a valid process.  In this event,
+     * restarting the application will detect that the application did not shutdown cleanly and will
+     * take over ownership of the LOCK file before invoking 'recoverFromCrash()'.  Which will
+     * allow the application to perform any custom cleanup from the crashed app before restarting
+     * the application.
+     *
+     * @param dataDirectoryFetcher the function that retrieves which directory is to store the lock file
+     *
+     * @see #recoverFromCrash()
+     */
+    protected void useLockFile( Function0<DirectoryX> dataDirectoryFetcher ) {
+        QA.argNotNull( dataDirectoryFetcher, "dataDirectoryFetcher" );
+
+        this.dataDirectoryFetcherNbl = dataDirectoryFetcher;
+    }
+
+    /**
+     * Invoked when restarting an application that did not shutdown cleanly previously.  If it
+     * is not possible to recover, then throw an exception in order to prevent the app from
+     * starting.
+     *
+     * @see #useLockFile(com.mosaic.lang.functional.Function0)
+     */
+    protected void recoverFromCrash() {
+        system.opsAudit( "Previous run did not shutdown cleanly, recovering" );
+    }
+
 
     private void throwIfInvalidShortName( String shortName ) {
         if ( shortName.length() > 1 ) {

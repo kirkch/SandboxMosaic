@@ -64,6 +64,31 @@ public interface FileX {
     public void isExecutable( boolean isExecutable );
     public boolean isExecutable();
 
+    /**
+     * Takes out a file system level lock.  Depending on the underlying OS, the lock may only
+     * be honored if the lock is explicitly checked;  So be sure to test the lock before using
+     * the file.
+     *
+     * @return true if the lock has been acquired by this call
+     */
+    public boolean lockFile();
+
+    /**
+     * Returns true if this file is currently locked.  NB one must have invoked lockFile() first,
+     * otherwise this method will always return true even if the file has been locked by another
+     * JVM.  This is because of a limitation in the underlying API, which requires a lock attempt
+     * before determining if the file is locked.
+     */
+    public boolean isLocked();
+
+    /**
+     * Releases the file lock.
+     *
+     * @return returns true if the lock was released by this call, otherwise false
+     */
+    public boolean unlockFile();
+
+
     public default String getFileNameExcludingTag() {
         String name = getFileName();
         int    i    = name.lastIndexOf('.');

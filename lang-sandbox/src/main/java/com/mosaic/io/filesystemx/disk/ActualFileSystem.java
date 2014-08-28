@@ -40,4 +40,8 @@ public class ActualFileSystem extends ActualDirectory implements FileSystemX {
         QA.isGTEZero( openFileCount, "openFileCount" );
     }
 
+    public boolean supportsLocking() {
+        return true;
+    }
+
 }

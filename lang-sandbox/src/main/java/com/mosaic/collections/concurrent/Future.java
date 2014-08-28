@@ -820,6 +820,10 @@ public class Future<T> implements Try<T> {
         public boolean hasFailure() {
             return stateEnum == FutureStateEnum.HAS_FAILURE;
         }
+
+        public String toString() {
+            return stateEnum.toString();
+        }
     }
 
 }
