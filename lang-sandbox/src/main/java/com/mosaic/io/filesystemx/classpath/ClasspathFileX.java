@@ -4,6 +4,7 @@ import com.mosaic.io.bytes.Bytes;
 import com.mosaic.io.bytes.InputBytes;
 import com.mosaic.io.bytes.InputBytesAdapter;
 import com.mosaic.io.bytes.InputStreamAdapter;
+import com.mosaic.io.filesystemx.FileContents;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.NotFoundException;
@@ -36,54 +37,34 @@ public class ClassPathFileX implements FileX {
         }
     }
 
-    public String getFullPath() {
-        return fullPath;
-    }
-
-    public Bytes loadBytes( FileModeEnum mode ) {
+    @Override
+    public FileContents openFile( FileModeEnum mode ) {
         if ( mode.isWritable() || !mode.isReadable() ) {
             throw new UnsupportedOperationException( "not implemented, use loadBytesRO" );
         }
 
-        return new InputBytesAdapter( loadBytesRO() );
+        return new ClassPathFileContents( new InputBytesAdapter(lazyLoad()) );
     }
 
-    public Bytes loadBytes( FileModeEnum mode, int sizeInBytes ) {
+    @Override
+    public FileContents openFile( FileModeEnum mode, int sizeInBytes ) {
         throw new UnsupportedOperationException( "not implemented, use loadBytesRO" );
+    }
+
+    public String getFullPath() {
+        return fullPath;
     }
 
     public void delete() {
         throw new UnsupportedOperationException( "cannot delete files from the classpath" );
     }
 
-    public InputBytes loadBytesRO() {
-        return lazyLoad();
-    }
-
-    public InputBytes loadBytesRW() {
-        throw new UnsupportedOperationException( "cannot modify files from the classpath" );
-    }
 
     public long sizeInBytes() {
         lazyLoad();
 
 
         return lazyLoad().bufferLength();
-    }
-
-    public Map<String, String> loadProperties() {
-        InputBytes b = loadBytesRO();
-
-        Properties props = new Properties();
-        try {
-            props.load( new InputStreamAdapter(b) );
-        } catch ( IOException e ) {
-            Backdoor.throwException( e );
-        } finally {
-            b.release();
-        }
-
-        return PropertyUtils.processProperties( props );
     }
 
     public void isReadable( boolean isReadable ) {
@@ -111,18 +92,6 @@ public class ClassPathFileX implements FileX {
     }
 
 
-    public boolean lockFile() {
-        throw new UnsupportedOperationException( "files on the classpath cannot be locked" );
-    }
-
-    public boolean isLocked() {
-        return false;
-    }
-
-    public boolean unlockFile() {
-        throw new UnsupportedOperationException( "files on the classpath cannot be locked" );
-    }
-
 
     private InputBytes bytes;
 
@@ -140,5 +109,24 @@ public class ClassPathFileX implements FileX {
         }
 
         return bytes;
+    }
+
+
+    private class ClassPathFileContents extends FileContents {
+        public ClassPathFileContents( Bytes delegate ) {
+            super( delegate );
+        }
+
+        public boolean lockFile() {
+            throw new UnsupportedOperationException( "files on the classpath cannot be locked" );
+        }
+
+        public boolean isLocked() {
+            return false;
+        }
+
+        public boolean unlockFile() {
+            throw new UnsupportedOperationException( "files on the classpath cannot be locked" );
+        }
     }
 }

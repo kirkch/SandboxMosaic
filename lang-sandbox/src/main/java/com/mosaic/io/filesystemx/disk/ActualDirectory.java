@@ -241,7 +241,7 @@ public class ActualDirectory implements DirectoryX {
 
         destinationFile.getParentFile().mkdirs();
 
-        Bytes sourceBytes = sourceFile.loadBytes( FileModeEnum.READ_ONLY );
+        Bytes sourceBytes = sourceFile.openFile( FileModeEnum.READ_ONLY );
         try {
             Bytes textFileBytes = Bytes.memoryMapFile(destinationFile, FileModeEnum.READ_WRITE, sourceBytes.bufferLength() );
 

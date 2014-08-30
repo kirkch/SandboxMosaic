@@ -35,12 +35,11 @@ public class CLApp_fileLockInMemoryTests {
         SingleInstanceApp app2 = new SingleInstanceApp(system1, continuationLatch);
 
         new Thread( () -> app1.runApp("data") ).start();
-
         app1.spinUntilAppIsRunning();
 
         new Thread( () -> app2.runApp("data") ).start();
 
-        JUnitMosaic.spinUntilTrue( () -> system1.doesFatalAuditContain("Application is already running, only one instance is allowed at a time.") );
+        JUnitMosaic.spinUntilTrue( Integer.MAX_VALUE, () -> system1.doesFatalAuditContain("Application is already running, only one instance is allowed at a time.") );
 
         continuationLatch.countDown();
 

@@ -218,10 +218,10 @@ public class ResizableBytes extends WrappedBytes {
         return super.writeUTF8( v );
     }
 
-    public int writeUTF8String( CharSequence characters ) {
+    public int writeUTF8StringWithLengthPrefix( CharSequence characters ) {
         resizeIfNeeded( super.positionIndex()+characters.length()*3 );
 
-        return super.writeUTF8String( characters );
+        return super.writeUTF8StringWithLengthPrefix( characters );
     }
 
     public void writeBytes( byte[] array, int fromInc, int toExc ) {

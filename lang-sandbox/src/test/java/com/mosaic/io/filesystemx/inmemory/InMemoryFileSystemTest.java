@@ -26,7 +26,7 @@ public class InMemoryFileSystemTest extends BaseFileSystemTestCases {
 
         FileX newFile = fs.addFile( "welcome_msg.txt", "Hello" );
 
-        Bytes fileContents = newFile.loadBytes( FileModeEnum.READ_ONLY );
+        Bytes fileContents = newFile.openFile( FileModeEnum.READ_ONLY );
 
         assertEquals( "Hello", fileContents.toString() );
     }

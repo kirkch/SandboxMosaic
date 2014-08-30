@@ -254,7 +254,7 @@ public abstract class BaseBytesTest {
 
 
         b.positionIndex( 2 );
-        assertEquals( 7, b.writeUTF8String( "hello" ) );
+        assertEquals( 7, b.writeUTF8StringWithLengthPrefix( "hello" ) );
 
         assertEquals( 9, b.positionIndex() );
         assertAllBytesAreZero( b, 0, 2 );
@@ -276,7 +276,7 @@ public abstract class BaseBytesTest {
 
 
         b.positionIndex( 2 );
-        assertEquals( 12, b.writeUTF8String( "h£グoグ" ) );
+        assertEquals( 12, b.writeUTF8StringWithLengthPrefix( "h£グoグ" ) );
 
         assertEquals( 14, b.positionIndex() );
         assertAllBytesAreZero( b, 0, 2 );

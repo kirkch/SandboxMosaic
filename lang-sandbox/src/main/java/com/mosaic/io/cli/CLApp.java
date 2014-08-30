@@ -2,6 +2,8 @@ package com.mosaic.io.cli;
 
 import com.mosaic.collections.ConsList;
 import com.mosaic.io.filesystemx.DirectoryX;
+import com.mosaic.io.filesystemx.FileContents;
+import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.io.streams.PrettyPrinter;
 import com.mosaic.lang.QA;
@@ -14,8 +16,6 @@ import com.mosaic.lang.time.DTM;
 import com.mosaic.lang.time.Duration;
 import com.mosaic.utils.StringUtils;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -170,37 +170,74 @@ public abstract class CLApp {
         }
     }
 
+    private FileX lockFile;
+
+    private FileX getLockFile( DirectoryX dir ) {
+        if ( lockFile == null  ) {
+            lockFile = dir.getFile( "LOCK" );
+        }
+
+        return lockFile;
+    }
+
+    private FileX getOrCreateLockFile( DirectoryX dir ) {
+        if ( lockFile == null  ) {
+            lockFile = dir.getOrCreateFile( "LOCK" );
+        }
+
+        return lockFile;
+    }
+
     private int checkLockFileAndPossiblyRun() throws Exception {
         DirectoryX dataDir          = dataDirectoryFetcherNbl.invoke();
-        FileX      existingLockFile = dataDir.getFile( "LOCK" );
+        FileX      existingLockFile = getLockFile( dataDir );
 
-        boolean needsToRunRecoveryMethod = false;
+        boolean needsToRunRecoveryMethod;
         if ( existingLockFile != null ) {
-            if ( !existingLockFile.lockFile() ) {
-                system.fatal( "Application is already running, only one instance is allowed at a time." );
+            FileContents fc = existingLockFile.openFile( FileModeEnum.READ_ONLY );
 
-                return 1;
-            } else {
+            if ( fc.lockFile() ) {
                 needsToRunRecoveryMethod = true;
 
                 existingLockFile.delete();
+                lockFile = null;
+
+                // NB no need to release fc lock as we deleted the file
+            } else {
+                system.fatal( "Application is already running, only one instance is allowed at a time." );
+
+                // NB no need to release fc lock as we failed to get it
+
+                return 1;
             }
+        } else {
+            needsToRunRecoveryMethod = false;
         }
 
 
-        FileX newLockFile = dataDir.getOrCreateFile( "LOCK" );
-        newLockFile.lockFile();
+        FileX newLockFile = getOrCreateLockFile( dataDir );
 
-        try {
-            if ( needsToRunRecoveryMethod ) {
-                recoverFromCrash();
+        return newLockFile.rw( fc -> {
+            fc.lockFile();
+
+            try {
+                if ( needsToRunRecoveryMethod ) {
+                    recoverFromCrash();
+                }
+
+                String pid = Integer.toString( system.getProcessId() );
+                fc.resize( pid.length() );
+                fc.writeText( pid );
+
+                return _run();
+            } catch ( Exception e ) {
+                Backdoor.throwException( e );
+                return 1; // unreachable ;)
+            } finally {
+                fc.unlockFile();
+                newLockFile.delete();
             }
-
-            return _run();
-        } finally {
-            newLockFile.unlockFile();
-            newLockFile.delete();
-        }
+        });
     }
 
     private void auditParameters() {
@@ -481,8 +518,6 @@ public abstract class CLApp {
 
         return opt;
     }
-
-    private FileX lockFile;
 
     /**
      * Specify that the app is to take out a lock file in the specified directory on startup.

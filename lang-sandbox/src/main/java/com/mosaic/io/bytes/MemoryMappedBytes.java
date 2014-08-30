@@ -8,6 +8,7 @@ import sun.misc.Cleaner;
 import sun.nio.ch.DirectBuffer;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
@@ -23,15 +24,16 @@ public class MemoryMappedBytes extends NativeBytes {
         QA.argIsGTZero( numBytes, "numBytes" );
 
         try {
-            RandomAccessFile raf     = new RandomAccessFile( f, mode.toString() );
-            FileChannel      channel = raf.getChannel();
+            RandomAccessFile raf = new RandomAccessFile( f, mode.toString() );
+            FileChannel channel = raf.getChannel();
+            MappedByteBuffer buf = channel.map( mode.toMemoryMapMode(), 0, numBytes );
 
-            MappedByteBuffer buf  = channel.map( mode.toMemoryMapMode(), 0, numBytes );
+            DirectBuffer db = (DirectBuffer) buf;
+            long addr = db.address();
 
-            DirectBuffer     db   = (DirectBuffer) buf;
-            long             addr = db.address();
-
-            return new MemoryMappedBytes( f.getName(), raf, mode, db, addr, addr, addr+buf.capacity() );
+            return new MemoryMappedBytes( f.getName(), raf, mode, db, addr, addr, addr + buf.capacity() );
+        } catch ( FileNotFoundException ex ) {
+            throw new RuntimeIOException( "File not found, and cannot create it on a RO request.  Change the call to RW and try again. " + f );
         } catch ( IOException ex ) {
             throw RuntimeIOException.recast( ex );
         }

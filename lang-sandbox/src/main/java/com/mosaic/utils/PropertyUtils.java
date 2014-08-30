@@ -12,6 +12,9 @@ import java.util.Set;
  */
 public class PropertyUtils {
 
+    /**
+     * Remove comments placed on the same line as a key/value pair.
+     */
     public static Map<String, String> processProperties( Properties props ) {
         Map<String,String> processedProps = stripComments(props);
 

@@ -3,6 +3,7 @@ package com.mosaic.io.filesystemx.inmemory;
 import com.mosaic.io.bytes.Bytes;
 import com.mosaic.io.bytes.InputStreamAdapter;
 import com.mosaic.io.bytes.WrappedBytes;
+import com.mosaic.io.filesystemx.FileContents;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
@@ -52,59 +53,36 @@ public class InMemoryFile implements FileX {
         return fileName;
     }
 
-    public void setBytes( Bytes newBytes ) {
-        this.bytes = newBytes;
-
-        newBytes.setName( fileName );
-    }
-
-    public Bytes loadBytesRO() {
-        return loadBytes( FileModeEnum.READ_ONLY );
-    }
-
-    public Bytes loadBytesRW() {
-        return loadBytes( FileModeEnum.READ_WRITE );
-    }
-
-    public Bytes loadBytes( FileModeEnum mode ) {
+    public FileContents openFile( FileModeEnum mode ) {
         throwIfDeleted();
 
         parentDirectory.incrementOpenFileCount();
 
-        return new WrappedBytes(bytes) {
-            public void release() {
-                if ( parentDirectory == null ) { // already deleted
-                    return;
-                }
+        if ( this.bytes.bufferLength() > 0 ) {
+            this.bytes.positionIndex( 0 );
+        }
 
-                parentDirectory.decrementOpenFileCount();
+        return new InMemoryFileContents(
+            new WrappedBytes(bytes) {
+                public void release() {
+                    if ( parentDirectory == null ) { // already deleted
+                        return;
+                    }
+
+                    parentDirectory.decrementOpenFileCount();
+                }
             }
-        };
+        );
     }
 
-    public Bytes loadBytes( FileModeEnum mode, int sizeInBytes ) {
+    public FileContents openFile( FileModeEnum mode, int sizeInBytes ) {
         bytes.resize( sizeInBytes );
 
-        return loadBytes( mode );
+        return openFile( mode );
     }
 
     public long sizeInBytes() {
         return bytes == null ? 0 : bytes.bufferLength();
-    }
-
-    public Map<String, String> loadProperties() {
-        Bytes b = loadBytes( FileModeEnum.READ_ONLY );
-
-        Properties props = new Properties();
-        try {
-            props.load( new InputStreamAdapter(b) );
-        } catch ( IOException e ) {
-            Backdoor.throwException( e );
-        } finally {
-            b.release();
-        }
-
-        return PropertyUtils.processProperties( props );
     }
 
     public String getFullPath() {
@@ -148,32 +126,6 @@ public class InMemoryFile implements FileX {
         return isExecutable;
     }
 
-    private boolean isLocked;
-
-    public boolean lockFile() {
-        if ( isLocked ) {
-            return false;
-        } else {
-            isLocked = true;
-
-            return true;
-        }
-    }
-
-    public boolean isLocked() {
-        return isLocked;
-    }
-
-    public boolean unlockFile() {
-        if ( isLocked ) {
-            isLocked = false;
-
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     public String toString() {
         return hasBeenDeletedFlag ? "DELETED" : getFullPath();
     }
@@ -181,6 +133,44 @@ public class InMemoryFile implements FileX {
     private void throwIfDeleted() {
         if ( hasBeenDeletedFlag ) {
             throw new IllegalStateException( this.fileName + " has been deleted" );
+        }
+    }
+
+    void setBytes( Bytes newBytes ) {
+        this.bytes = newBytes;
+
+        newBytes.setName( fileName );
+    }
+
+    private boolean isLocked;
+    private class InMemoryFileContents extends FileContents {
+
+        public InMemoryFileContents( Bytes delegate ) {
+            super( delegate );
+        }
+
+        public boolean lockFile() {
+            if ( isLocked ) {
+                return false;
+            } else {
+                isLocked = true;
+
+                return true;
+            }
+        }
+
+        public boolean isLocked() {
+            return isLocked;
+        }
+
+        public boolean unlockFile() {
+            if ( isLocked ) {
+                isLocked = false;
+
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 }

@@ -30,7 +30,7 @@ public abstract class Bytes implements OutputBytes, InputBytes {
     }
 
     public static Bytes memoryMapFile( File f, FileModeEnum mode ) {
-        return MemoryMappedBytes.mapFile( f, mode, f.length() );
+        return MemoryMappedBytes.mapFile( f, mode, Math.max(1,f.length()) );
     }
 
     public static Bytes memoryMapFile( File f, FileModeEnum mode, long numBytes ) {

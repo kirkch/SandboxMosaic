@@ -1,6 +1,5 @@
 package com.mosaic.lang.system;
 
-import com.mosaic.collections.concurrent.Future;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileSystemX;
 import com.mosaic.io.streams.CharacterStream;
@@ -389,16 +388,15 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
      * Invokes the specified Java Class as a child OS process.  The child process will use the
      * same classpath as the currently running process.
      */
-    public Future<Integer> runJavaProcess( Class main, String... args ) {
-        return runJavaProcess( main, line -> {
-        }, args );
+    public OSProcess runJavaProcess( Class main, String... args ) {
+        return runJavaProcess( main, line -> {}, args );
     }
 
     /**
      * Invokes the specified Java Class as a child OS process.  The child process will use the
      * same classpath as the currently running process.
      */
-    public Future<Integer> runJavaProcess( Class main, VoidFunction1<String> stdoutCallback, String... args ) {
+    public OSProcess runJavaProcess( Class main, VoidFunction1<String> stdoutCallback, String... args ) {
         String javaHome  = System.getProperty( "java.home" );
         String javaCmd   = new File( javaHome, "bin/java" ).getAbsolutePath();
         String classPath = System.getProperty( "java.class.path" );
@@ -411,7 +409,7 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
 
         ProcessRunner runner = new ProcessRunner( this, javaCmd, javaCmdArgs, stdoutCallback );
 
-        return runner.run().getPromise();
+        return runner.run();
     }
 
     public Cancelable addShutdownHook( VoidFunction0 callback ) {

@@ -45,7 +45,7 @@ public class PullParser {
     }
 
     public static PullParser parseFile( FileX f ) {
-        return new PullParser( f.loadBytes( FileModeEnum.READ_ONLY) );
+        return new PullParser( f.openFile(FileModeEnum.READ_ONLY) );
     }
 
 

@@ -21,26 +21,6 @@ import java.util.List;
  */
 public class ProcessRunner {
 
-    public static class ProcessResult {
-        private final int             pid;
-        private final Future<Integer> promise;
-
-        public ProcessResult( int pid, Future<Integer> promise ) {
-            this.pid = pid;
-            this.promise = promise;
-        }
-
-        public int getPid() {
-            return pid;
-        }
-
-        public Future<Integer> getPromise() {
-            return promise;
-        }
-    }
-
-
-
     private List<String>          cmd;
     private VoidFunction1<String> stdoutCallback;
     private SystemX               system;
@@ -71,10 +51,11 @@ public class ProcessRunner {
 
 
 
-    public ProcessResult run() {
+    public OSProcess run() {
         ProcessBuilder b = new ProcessBuilder();
 
         b.command( this.cmd );
+        b.redirectErrorStream( true );
 
         Future<Integer> promise = Future.promise();
 
@@ -130,11 +111,11 @@ public class ProcessRunner {
                 }
             }.start();
 
-            return new ProcessResult(pid, promise);
+            return new OSProcess(pid, promise);
         } catch ( IOException ex ) {
             promise.completeWithFailure( new Failure(ex) );
 
-            return new ProcessResult(-1, promise);
+            return new OSProcess(-1, promise);
         }
     }
 

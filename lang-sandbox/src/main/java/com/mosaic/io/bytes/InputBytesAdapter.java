@@ -316,7 +316,7 @@ public class InputBytesAdapter extends Bytes {
         throw new UnsupportedOperationException(  );
     }
 
-    public int writeUTF8String( CharSequence characters ) {
+    public int writeUTF8StringWithLengthPrefix( CharSequence characters ) {
         throw new UnsupportedOperationException(  );
     }
 

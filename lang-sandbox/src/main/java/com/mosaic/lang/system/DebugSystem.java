@@ -179,7 +179,7 @@ public class DebugSystem extends SystemX {
             throw new AssertionError( "File not found: " + filePath );
         }
 
-        Bytes fileContents = f.loadBytes( FileModeEnum.READ_ONLY );
+        Bytes fileContents = f.openFile( FileModeEnum.READ_ONLY );
         List<String> actualLines = PullParser.toLines( fileContents );
 
         assertEquals(

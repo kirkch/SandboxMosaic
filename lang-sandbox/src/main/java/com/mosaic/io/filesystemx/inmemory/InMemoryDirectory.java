@@ -98,7 +98,7 @@ public class InMemoryDirectory implements DirectoryX {
     }
 
     public FileX copyFile( FileX sourceFile, String destinationPath ) {
-        Bytes data = sourceFile.loadBytes( FileModeEnum.READ_ONLY );
+        Bytes data = sourceFile.openFile( FileModeEnum.READ_ONLY );
 
         try {
             Bytes copy = Bytes.allocOnHeap( data.bufferLength() );

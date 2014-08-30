@@ -143,7 +143,7 @@ public abstract class BaseFileSystemTestCases {
 
         assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
 
-        Bytes fileContents = newFile.loadBytes( FileModeEnum.READ_ONLY );
+        Bytes fileContents = newFile.openFile( FileModeEnum.READ_ONLY );
 
         assertEquals( "abc\n123", fileContents.toString() );
         assertEquals( 1, fileSystem.getNumberOfOpenFiles() );
@@ -157,7 +157,7 @@ public abstract class BaseFileSystemTestCases {
 
         assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
 
-        Bytes fileContents = newFile.loadBytes( FileModeEnum.READ_ONLY );
+        Bytes fileContents = newFile.openFile( FileModeEnum.READ_ONLY );
 
         fileContents.release();
 
@@ -217,7 +217,7 @@ public abstract class BaseFileSystemTestCases {
         FileX newFile   = fileSystem.addFile( "foo.txt", "abc", "123" );
         FileX copiedFile = fileSystem.copyFile( newFile, "copy.txt" );
 
-        Bytes fileContents = copiedFile.loadBytes( FileModeEnum.READ_ONLY );
+        Bytes fileContents = copiedFile.openFile( FileModeEnum.READ_ONLY );
 
         assertEquals( "abc\n123", fileContents.toString() );
         assertEquals( 1, fileSystem.getNumberOfOpenFiles() );
@@ -226,6 +226,73 @@ public abstract class BaseFileSystemTestCases {
         copiedFile.delete();
     }
 
+// UPDATE AN EXISTING FILE
+
+    @Test
+    public void givenFile_editContents_expectContentsToPersist() {
+        FileX newFile = fileSystem.addFile( "foo.txt", "abc" );
+
+        assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
+
+        Bytes fileContents = newFile.openFile( FileModeEnum.READ_WRITE );
+
+        fileContents.resize( 6 );
+        fileContents.writeText( "123456" );
+        fileContents.release();
+
+        assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
+
+
+        Bytes fileContents2 = newFile.openFile( FileModeEnum.READ_WRITE );
+
+        assertEquals( "123456", fileContents2.toString() );
+        assertEquals( 1, fileSystem.getNumberOfOpenFiles() );
+
+        fileContents2.release();
+    }
+
+    @Test
+    public void givenFile_writeContentsViaWriteTextOnFileX_expectContentsToPersist() {
+        FileX newFile = fileSystem.addFile( "foo.txt", "abc" );
+
+        assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
+
+        newFile.writeText( "123456" );
+
+        assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
+
+
+        Bytes fileContents2 = newFile.openFile( FileModeEnum.READ_WRITE );
+
+        assertEquals( "123456", fileContents2.toString() );
+        assertEquals( 1, fileSystem.getNumberOfOpenFiles() );
+
+        fileContents2.release();
+    }
+
+    @Test
+    public void lockFileThenWriteToIt() {
+        FileX newFile = fileSystem.addFile( "foo.txt", "abc" );
+
+        assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
+
+        FileContents fc = newFile.openFile( FileModeEnum.READ_WRITE );
+        fc.lockFile();
+        fc.resize( 6 );
+        fc.writeText( "123456" );
+        fc.unlockFile();
+        fc.release();
+
+        assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
+
+
+        Bytes fileContents2 = newFile.openFile( FileModeEnum.READ_WRITE );
+
+        assertEquals( "123456", fileContents2.toString() );
+        assertEquals( 1, fileSystem.getNumberOfOpenFiles() );
+
+        fileContents2.release();
+    }
 
 // LOAD PROPERTIES
 
@@ -282,56 +349,68 @@ public abstract class BaseFileSystemTestCases {
 
     @Test
     public void givenFileThatDoesNotExist_callIsLocked_expectFalse() {
-        FileX file = fileSystem.getOrCreateFile( "file.lock" );
-
-        assertFalse( file.isLocked() );
+        FileContents file = fileSystem.getOrCreateFile( "file.lock" ).rw( fc -> {
+                assertFalse( fc.isLocked() );
+                return null;
+            }
+        );
     }
 
     @Test
     public void givenFileThatDoesNotExist_requestLock_expectFileToBeLocked() {
-        FileX file = fileSystem.getOrCreateFile( "file.lock" );
+        FileContents file = fileSystem.getOrCreateFile( "file.lock" ).openFile( FileModeEnum.READ_WRITE );
 
         assertTrue( file.lockFile() );
         assertTrue( file.isLocked() );
+
+        file.release();
     }
 
     @Test
     public void givenLockedFile_tryToLockAgain_expectLockFileToReturnFalseAndTheFileToRemainLocked() {
-        FileX file = fileSystem.getOrCreateFile( "file.lock" );
+        FileContents file = fileSystem.getOrCreateFile( "file.lock" ).openFile( FileModeEnum.READ_WRITE );
 
         file.lockFile();
 
         assertFalse( file.lockFile() );
         assertTrue( file.isLocked() );
+
+        file.release();
     }
 
     @Test
     public void givenLockedFile_callUnlock_expectFileToBeUnlocked() {
-        FileX file = fileSystem.getOrCreateFile( "file.lock" );
+        FileContents file = fileSystem.getOrCreateFile( "file.lock" ).openFile( FileModeEnum.READ_WRITE );
 
         file.lockFile();
 
         assertTrue( file.unlockFile() );
         assertFalse( file.isLocked() );
+
+        file.release();
     }
 
     @Test
     public void givenExistingUnlockedFile_requestLock_expectLockToBeAcquired() {
-        FileX file = fileSystem.getOrCreateFile( "file.lock" );
+        FileContents file = fileSystem.getOrCreateFile( "file.lock" ).openFile( FileModeEnum.READ_WRITE );
 
         file.lockFile();
         file.unlockFile();
 
         assertTrue( file.lockFile() );
         assertTrue( file.isLocked() );
+
+        file.release();
     }
 
     @Test
     public void givenNonLockedFile_callUnlock_expectNoChange() {
-        FileX file = fileSystem.getOrCreateFile( "file.lock" );
+        FileContents file = fileSystem.getOrCreateFile( "file.lock" ).openFile( FileModeEnum.READ_WRITE );
 
         assertFalse( file.unlockFile() );
         assertFalse( file.isLocked() );
+
+        file.release();
     }
 
 }

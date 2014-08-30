@@ -127,7 +127,22 @@ public interface OutputBytes {
     /**
      * Returns the number of bytes written.
      */
-    public int writeUTF8String( CharSequence characters );
+    public int writeUTF8StringWithLengthPrefix( CharSequence characters );
+
+    /**
+     * Writes a series of characters as a normal text file.  Does not prefix or postfix the
+     * characters.
+     */
+    public default int writeText( CharSequence txt ) {
+        int byteCount = 0;
+
+        int numChars = txt.length();
+        for ( int i=0; i<numChars; i++ ) {
+            byteCount += writeUTF8( txt.charAt(i) );
+        }
+
+        return byteCount;
+    }
 
     /**
      * Write all of the bytes within the array.

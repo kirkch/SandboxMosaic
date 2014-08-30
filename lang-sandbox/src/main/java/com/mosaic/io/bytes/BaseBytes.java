@@ -113,7 +113,7 @@ abstract class BaseBytes extends Bytes {
         return width;
     }
 
-    public int writeUTF8String( CharSequence characters ) {
+    public int writeUTF8StringWithLengthPrefix( CharSequence characters ) {
         int utf8ByteLength = UTF8Tools.countBytesFor( characters );
         int byteCount      = 2;
 

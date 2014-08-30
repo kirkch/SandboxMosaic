@@ -331,8 +331,8 @@ public abstract class WrappedBytes extends Bytes implements Cloneable {
         return delegate.writeUTF8( v );
     }
 
-    public int writeUTF8String( CharSequence characters ) {
-        return delegate.writeUTF8String( characters );
+    public int writeUTF8StringWithLengthPrefix( CharSequence characters ) {
+        return delegate.writeUTF8StringWithLengthPrefix( characters );
     }
 
     public void writeBytes( byte[] array ) {
