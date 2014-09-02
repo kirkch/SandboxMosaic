@@ -7,12 +7,17 @@ import com.mosaic.lang.Cancelable;
 import com.mosaic.lang.IllegalStateExceptionX;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.StartStopMixin;
+import com.mosaic.lang.ThreadedService;
+import com.mosaic.lang.functional.TryNow;
 import com.mosaic.lang.functional.VoidFunction0;
 import com.mosaic.lang.functional.VoidFunction1;
 import com.mosaic.lang.reflect.ReflectionUtils;
 import com.mosaic.lang.time.DTM;
+import com.mosaic.lang.time.Duration;
 import com.mosaic.lang.time.SystemClock;
+import com.mosaic.utils.ComparatorUtils;
 import com.mosaic.utils.ListUtils;
+import com.mosaic.utils.WatchDogTimer;
 import sun.management.VMManagement;
 
 import java.io.File;
@@ -20,8 +25,13 @@ import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ForkJoinPool;
 
 
@@ -366,12 +376,14 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
         return newService;
     }
 
-    protected void doStart() {}
+    protected void doStart() {
+        registerService( new TimerThread(getServiceName()) );
+    }
 
     protected void doStop() {
         runShutdownHooks();
 
-        Runtime.getRuntime().removeShutdownHook( masterShutdownHook );
+        TryNow.tryNow( () -> Runtime.getRuntime().removeShutdownHook( masterShutdownHook ) );
     }
 
 
@@ -425,6 +437,10 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
 
     private void runShutdownHooks() {
         synchronized (shutdownHooks) {
+            if ( shutdownHooks.isEmpty() ) {
+                return;
+            }
+
             devAudit( "Shutdown hook triggered: running "+shutdownHooks.size() + " shutdown hooks" );
 
             // originally used a list of shutdown hooks, with no extra threads.. however
@@ -454,6 +470,121 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    public Cancelable scheduleCallback( long delayMillis, VoidFunction0 callback ) {
+        return scheduleCallback( Duration.millis(delayMillis), callback );
+    }
+
+    public Cancelable scheduleCallback( Duration delay, VoidFunction0 callback ) {
+        QA.argIsGTEZero( delay.getMillis(), "delay" );
+
+        TimerJob job = new TimerJob(getCurrentMillis()+delay.getMillis(), callback);
+
+        synchronized (timerJobs) {
+            Map.Entry<Long, List<TimerJob>> nextJobEntry = timerJobs.firstEntry();
+            long oldNextJobMillis = nextJobEntry == null ? Long.MAX_VALUE : nextJobEntry.getKey().longValue();
+
+            timerJobs.compute(
+                job.getWhenMillis(),
+                (k,currentList) -> {
+                    if ( currentList == null ) {
+                        return ListUtils.newLinkedList(job);
+                    } else {
+                        currentList.add( job );
+
+                        return currentList;
+                    }
+                }
+            );
+        }
+
+        return job;
+    }
+
+    public WatchDogTimer scheduleWatchDog( long alertAfterMillis, VoidFunction0 callback ) {
+        return scheduleWatchDog( Duration.millis(alertAfterMillis), callback );
+    }
+
+    public WatchDogTimer scheduleWatchDog( Duration alertAfter, VoidFunction0 callback ) {
+        return new WatchDogTimer( this, alertAfter, callback );
+    }
+
+
+    // todo move timer out to its own class, and re-implement using a scalable timer algorithm
+
+    private final ConcurrentSkipListMap<Long,List<TimerJob>> timerJobs = new ConcurrentSkipListMap<>();
+
+    private class TimerThread extends ThreadedService<TimerThread> {
+        // the larger this value, the more jobs can miss their scheduled time.  On the whole,
+        // the timing should be fairly accurate.  However there is no interrupt implemented
+        // for the timer thread, so if the thread is asleep on an empty queue (which will be the MAX sleep)
+        // then it will not immediately here a new job come in.  Which if scheduled for 43ms, then it will
+        // be out.  For now I am accepting a 'fair' effort and moving on to other coding tasks.
+        private static final long MAX_SLEEP_MILLIS = 200;
+
+        public TimerThread( String serviceName ) {
+            super( serviceName + "TimerThread", ThreadType.DAEMON );
+        }
+
+        protected long loop() throws InterruptedException {
+            synchronized (timerJobs) {
+                Map.Entry<Long, List<TimerJob>> nextJobEntry = timerJobs.firstEntry();
+                if ( nextJobEntry == null ) {
+                    return MAX_SLEEP_MILLIS;
+                }
+
+                long nowMillis = getCurrentMillis();
+
+                if ( nowMillis >= nextJobEntry.getKey() ) {
+                    for ( TimerJob job : nextJobEntry.getValue() ) {
+                        if ( !job.isCancelled() ) {
+                            TryNow.tryNow( job::invoke );
+                        }
+                    }
+
+                    timerJobs.remove( nextJobEntry.getKey() );
+                }
+            }
+
+            Map.Entry<Long, List<TimerJob>> nextJobEntry = timerJobs.firstEntry();
+            return Math.min( MAX_SLEEP_MILLIS, nextJobEntry == null ? MAX_SLEEP_MILLIS : nextJobEntry.getKey() - getCurrentMillis() );
+        }
+    }
+
+    private static class TimerJob implements Cancelable, Comparable<TimerJob> {
+        private long          whenMillis;
+        private VoidFunction0 task;
+        private boolean       isCancelled;
+
+        public TimerJob( long whenMillis, VoidFunction0 task ) {
+            this.whenMillis = whenMillis;
+            this.task       = task;
+        }
+
+        public long getWhenMillis() {
+            return whenMillis;
+        }
+
+        public boolean isCancelled() {
+            return isCancelled;
+        }
+
+        public void cancel() {
+            isCancelled = true;
+        }
+
+        public void invoke() {
+            if ( isCancelled ) {
+                return;
+            }
+
+            task.invoke();
+        }
+
+        public int compareTo( TimerJob o ) {
+            return ComparatorUtils.compareAsc( this.getWhenMillis(), o.getWhenMillis() );
         }
     }
 }

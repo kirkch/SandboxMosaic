@@ -61,6 +61,16 @@ public class StringUtils {
         return chars == null || chars.getByteCount() == 0;
     }
 
+    public static String join( String...elements ) {
+        StringBuilder buf = new StringBuilder(100);
+
+        for ( String s: elements ) {
+            buf.append( s );
+        }
+
+        return buf.toString();
+    }
+
     public static <T> String join( Iterable<T> elements, String separator ) {
         StringBuilder buf = new StringBuilder();
 

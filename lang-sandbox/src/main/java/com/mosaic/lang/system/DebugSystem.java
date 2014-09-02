@@ -8,6 +8,7 @@ import com.mosaic.io.filesystemx.inmemory.InMemoryFileSystem;
 import com.mosaic.io.streams.CapturingCharacterStream;
 import com.mosaic.lang.reflect.ReflectionUtils;
 import com.mosaic.lang.text.PullParser;
+import com.mosaic.lang.time.Duration;
 import com.mosaic.lang.time.SystemClock;
 import com.mosaic.utils.StringUtils;
 import org.junit.ComparisonFailure;
@@ -273,6 +274,10 @@ public class DebugSystem extends SystemX {
 
     public void assertStandardErrorEquals( String...expectedLines ) {
         assertEquals( "standard error was not what we expected", Arrays.asList(expectedLines), this.standardErrorText );
+    }
+
+    public void incClock( Duration millis ) {
+        clock.add( millis );
     }
 
 

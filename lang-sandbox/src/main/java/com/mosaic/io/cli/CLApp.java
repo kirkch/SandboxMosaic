@@ -72,7 +72,11 @@ public abstract class CLApp {
      * Override if you want to invoke code after the app has finished shutting down the services
      * that it depends upon.
      */
-    protected void afterShutdown() {}
+    protected void afterShutdown() {
+//        if ( lockFile != null ) {
+//            lockFile.delete();
+//        }
+    }
 
 
     private void handleSetUp() {

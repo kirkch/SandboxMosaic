@@ -55,7 +55,9 @@ public class ActualFile implements FileX {
     }
 
     public void delete() {
-        this.file.delete();
+        if ( file != null ) {
+            this.file.delete();
+        }
 
         this.file            = null;
         this.parentDirectoryNbl = null;

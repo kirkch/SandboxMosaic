@@ -12,6 +12,9 @@ public class Duration {
     private static final long ONE_DAY_MILLIS    = ONE_HOUR_MILLIS   * 24;
 
 
+    public static final Duration INDEFINITE = millis( Long.MAX_VALUE );
+
+
     public static Duration millis( long millis ) {
         return new Duration(millis);
     }

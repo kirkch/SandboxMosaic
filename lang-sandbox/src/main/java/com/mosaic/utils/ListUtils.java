@@ -5,8 +5,11 @@ import com.mosaic.lang.functional.Function2;
 import com.mosaic.lang.functional.Nullable;
 import com.mosaic.lang.functional.Tuple2;
 import com.mosaic.lang.functional.VoidFunction1;
+import com.mosaic.lang.system.SystemX;
 
 import java.util.*;
+import java.util.function.Predicate;
+
 
 /**
  *
@@ -26,7 +29,7 @@ public class ListUtils {
 
     public static <T> Nullable<T> firstMatch( List<T> list, Function1<T,Boolean> predicateFunction ) {
         for ( T e : list ) {
-            if ( predicateFunction.invoke(e) ) {
+            if ( predicateFunction.invoke( e ) ) {
                 return Nullable.createNullable(e);
             }
         }
@@ -218,4 +221,11 @@ public class ListUtils {
         }
     }
 
+    public static <T> List<T> newLinkedList( T...elements ) {
+        List<T> list = new LinkedList<>();
+
+        Collections.addAll( list, elements );
+
+        return list;
+    }
 }

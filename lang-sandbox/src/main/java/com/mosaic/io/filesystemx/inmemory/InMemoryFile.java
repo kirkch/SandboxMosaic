@@ -92,14 +92,16 @@ public class InMemoryFile implements FileX {
     }
 
     public void delete() {
-        throwIfDeleted();
+        if ( hasBeenDeletedFlag ) {
+            return;
+        }
 
         bytes.release();
         parentDirectory.notificationThatChildFileHasBeenDeleted( this );
 
-        this.hasBeenDeletedFlag = true;
         this.bytes              = null;
         this.parentDirectory    = null;
+        this.hasBeenDeletedFlag = true;
     }
 
     public void isReadable( boolean isReadable ) {
