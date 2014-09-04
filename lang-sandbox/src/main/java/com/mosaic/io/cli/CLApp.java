@@ -203,7 +203,7 @@ public abstract class CLApp {
 
         boolean needsToRunRecoveryMethod;
         if ( existingLockFile != null ) {
-            FileContents fc = existingLockFile.openFile( FileModeEnum.READ_ONLY );
+            FileContents fc = existingLockFile.openFile( FileModeEnum.READ_WRITE );
 
             if ( fc.lockFile() ) {
                 needsToRunRecoveryMethod = true;
@@ -553,14 +553,14 @@ public abstract class CLApp {
     }
 
     /**
-     * Invoked when restarting an application that did not shutdown cleanly previously.  If it
-     * is not possible to recover, then throw an exception in order to prevent the app from
-     * starting.
+     * Invoked when restarting an application that did not shutdown cleanly previously.  Override
+     * to recover from crashes, as detected by a stale LOCK file.  By default this method will
+     * throw an exception, which will abort the application.
      *
      * @see #useLockFile(com.mosaic.lang.functional.Function0)
      */
     protected void recoverFromCrash() {
-        system.opsAudit( "Previous run did not shutdown cleanly, recovering" );
+        throw new IllegalStateException( "A previous run of the app did not clean up after itself, manual recovery required. Aborting.." );
     }
 
 

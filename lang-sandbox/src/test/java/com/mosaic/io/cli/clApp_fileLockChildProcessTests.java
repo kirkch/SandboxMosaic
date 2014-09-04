@@ -3,7 +3,6 @@ package com.mosaic.io.cli;
 import com.mosaic.io.FileUtils;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileX;
-import com.mosaic.lang.Failure;
 import com.mosaic.lang.system.LiveSystem;
 import com.mosaic.lang.system.OSProcess;
 import com.mosaic.lang.system.SystemX;
@@ -100,7 +99,7 @@ public class CLApp_fileLockChildProcessTests {
     }
 
     @Test
-    public void startTwoAppsInTheirOwnProcesses_killTheFirstProcessBeforeStartingTheSecond_expectTheSecondToRecoverTheLockFileAndToStart() throws IOException {
+    public void startTwoAppsInTheirOwnProcesses_killTheFirstProcessBeforeStartingTheSecond_expectTheSecondToTryToRecoverWhereTheDefaultImplIsToAbortTheApp() throws IOException {
         Vector<String> processOutput1 = new Vector<>();
         Vector<String> processOutput2 = new Vector<>();
 
@@ -112,15 +111,14 @@ public class CLApp_fileLockChildProcessTests {
 
 
         OSProcess process2 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput2::add, dataDir.getAbsolutePath(), "-v" );
-        JUnitMosaic.spinUntilTrue( () -> processOutput2.contains( "Previous run did not shutdown cleanly, recovering" ) );
-        JUnitMosaic.spinUntilTrue( () -> processOutput2.contains( "App has started" ) );
+        JUnitMosaic.spinUntilTrue( () -> processOutput2.contains( "A previous run of the app did not clean up after itself, manual recovery required. Aborting.." ) );
 
 
         signalChildProcessesToStop( dataDir );
         spinUntilProcessesHaveStopped( process1, process2 );
 
 
-        assertEquals( 0, process2.getResultNoBlock().intValue() );
+        assertEquals( 1, process2.getResultNoBlock().intValue() );
     }
 
     @Test
@@ -149,7 +147,7 @@ public class CLApp_fileLockChildProcessTests {
     }
 
     @Test
-    public void whenTryingToRecoverAnAbortedLock_throwAnException_expectRecoveryToFailAndTheDirtyLockFileToRemain() throws IOException {
+    public void whenTryingToRecoverAnAbortedLock_recoverApp_expectAppToStart() throws IOException {
         Vector<String> processOutput1 = new Vector<>();
         Vector<String> processOutput2 = new Vector<>();
 
@@ -160,15 +158,16 @@ public class CLApp_fileLockChildProcessTests {
         process1.spinUntilComplete(3000);
 
 
-        OSProcess process2 = system.runJavaProcess( FailRecoveryApp.class, processOutput2::add, dataDir.getAbsolutePath() );
-        JUnitMosaic.spinUntilTrue( () -> processOutput2.contains( "FailRecoveryApp errored unexpectedly and was aborted. The error was 'A previous run of the app did not clean up after itself, manual recovery required.'." ) );
+        OSProcess process2 = system.runJavaProcess( RecoveryApp.class, processOutput2::add, "-v", dataDir.getAbsolutePath() );
+        JUnitMosaic.spinUntilTrue( () -> processOutput2.contains( "Previous run did not shutdown cleanly, recovering" ) );
+        JUnitMosaic.spinUntilTrue( () -> processOutput2.contains( "App ran" ) );
 
 
         signalChildProcessesToStop( dataDir );
         spinUntilProcessesHaveStopped( process1, process2 );
 
 
-        assertEquals( 1, process2.getResultNoBlock().intValue() );
+        assertEquals( 0, process2.getResultNoBlock().intValue() );
     }
 
     @Test
@@ -255,29 +254,31 @@ public class CLApp_fileLockChildProcessTests {
         }
     }
 
-    public static class FailRecoveryApp extends CLApp {
+    public static class RecoveryApp extends CLApp {
         public static void main( String[] args ) {
-            CLApp app  = new FailRecoveryApp();
+            CLApp app  = new RecoveryApp();
 
             System.exit( app.runApp( args ) );
         }
 
         private final CLArgument<DirectoryX> dataDir = getOrCreateDirectoryArgument( "dir", "data directory" );
 
-        public FailRecoveryApp() {
-            super("FailRecoveryApp");
+        public RecoveryApp() {
+            super("RecoveryApp");
 
             useLockFile( dataDir::getValue );
         }
 
 
         protected int _run() throws Exception {
+            system.userAudit( "App ran" );
+
             return 0;
         }
 
         @Override
         protected void recoverFromCrash() {
-            throw new IllegalStateException( "A previous run of the app did not clean up after itself, manual recovery required." );
+            system.opsAudit( "Previous run did not shutdown cleanly, recovering" );
         }
     }
 }
