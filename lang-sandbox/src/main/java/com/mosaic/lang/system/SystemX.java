@@ -25,9 +25,6 @@ import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -141,12 +138,6 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
     public final CharacterStream warnLog;
     public final CharacterStream fatalLog;
 
-    private final boolean isDevAuditEnabled;
-    private final boolean isOpsAuditEnabled;
-    private final boolean isUserAuditEnabled;
-    private final boolean isWarnEnabled;
-    private final boolean isFatalEnabled;
-
 
     // NB stdin, when needed will be done by subscription with callbacks and not the Java blocking approach
 
@@ -171,22 +162,16 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
         super( systemName );
 
         this.fileSystem = fileSystem;
-        this.clock = clock;
+        this.clock      = clock;
 
-        this.stdout = stdout;
-        this.stderr = stderr;
+        this.stdout     = stdout;
+        this.stderr     = stderr;
 
-        this.devLog = devLog;
-        this.opsLog = opsLog;
-        this.userLog = userLog;
-        this.warnLog = warnLog;
-        this.fatalLog = fatalLog;
-
-        this.isDevAuditEnabled = devLog.isEnabled();
-        this.isOpsAuditEnabled = opsLog.isEnabled();
-        this.isUserAuditEnabled = userLog.isEnabled();
-        this.isWarnEnabled = warnLog.isEnabled();
-        this.isFatalEnabled = fatalLog.isEnabled();
+        this.devLog     = devLog;
+        this.opsLog     = opsLog;
+        this.userLog    = userLog;
+        this.warnLog    = warnLog;
+        this.fatalLog   = fatalLog;
 
         this.currentWorkingDirectory = fileSystem.getRoot();
 
@@ -232,23 +217,23 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
 
 
     public boolean isDevAuditEnabled() {
-        return isDevAuditEnabled;
+        return devLog.isEnabled();
     }
 
     public boolean isUserAuditEnabled() {
-        return isUserAuditEnabled;
+        return userLog.isEnabled();
     }
 
     public boolean isOpsAuditEnabled() {
-        return isOpsAuditEnabled;
+        return opsLog.isEnabled();
     }
 
     public boolean isWarnEnabled() {
-        return isWarnEnabled;
+        return warnLog.isEnabled();
     }
 
     public boolean isFatalEnabled() {
-        return isFatalEnabled;
+        return fatalLog.isEnabled();
     }
 
 
@@ -419,7 +404,11 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
         javaCmdArgs.add( main.getName() );
         Collections.addAll( javaCmdArgs, args );
 
+
         ProcessRunner runner = new ProcessRunner( this, javaCmd, javaCmdArgs, stdoutCallback );
+        if ( currentWorkingDirectory != null ) {
+            runner.setCWD( currentWorkingDirectory.getFullPath() );
+        }
 
         return runner.run();
     }
@@ -515,6 +504,14 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
     // todo move timer out to its own class, and re-implement using a scalable timer algorithm
 
     private final ConcurrentSkipListMap<Long,List<TimerJob>> timerJobs = new ConcurrentSkipListMap<>();
+
+    public void setDevAuditEnabled( boolean flag ) {
+        devLog.setEnabled( flag );
+    }
+
+    public void setOpsAuditEnabled( boolean flag ) {
+        opsLog.setEnabled( flag );
+    }
 
     private class TimerThread extends ThreadedService<TimerThread> {
         // the larger this value, the more jobs can miss their scheduled time.  On the whole,

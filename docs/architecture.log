@@ -1,0 +1,12 @@
+
+
+2014
+----
+
+4th September
+
+    Settled on using -ea to turn on 'debug' mode.  It is weird at first to overload the JVM flag
+    -ea; however by using it have a system wide way of stripping out debug code, whether we are
+    using CLApp or not.  Other options included a K/V pair in System.properties, a CLApp flag,
+    a compile time constant changed in the source code.  None of these alternatives would toggle
+    the JVM assertions which is part of debugging.

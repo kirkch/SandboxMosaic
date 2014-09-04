@@ -22,6 +22,7 @@ public class WrapperCharacterStream implements CharacterStream {
     public boolean isEnabled() {
         return delegate.isEnabled();
     }
+    public void setEnabled( boolean flag ) { delegate.setEnabled(flag); }
 
     public void writeBoolean( boolean v ) {
         delegate.writeBoolean(v);

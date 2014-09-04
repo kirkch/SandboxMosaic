@@ -11,6 +11,7 @@ import com.mosaic.lang.text.UTF8;
 public interface CharacterStream {
 
     public boolean isEnabled();
+    public void setEnabled( boolean flag );
 
     public void writeBoolean( boolean v );
     public void writeByteAsNumber( byte v );

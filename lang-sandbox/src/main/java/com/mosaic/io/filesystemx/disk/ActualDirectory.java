@@ -1,5 +1,6 @@
 package com.mosaic.io.filesystemx.disk;
 
+import com.mosaic.io.FileUtils;
 import com.mosaic.io.bytes.Bytes;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileModeEnum;
@@ -217,18 +218,7 @@ public class ActualDirectory implements DirectoryX {
     }
 
     public void deleteAll() {
-        File[] children = file.listFiles();
-        if ( children != null ) {
-            for ( File child : children ) {
-                if ( child.isDirectory() ) {
-                    new ActualDirectory(this,child).deleteAll();
-                } else {
-                    child.delete();
-                }
-            }
-        }
-
-        file.delete();
+        FileUtils.deleteAll( file );
     }
 
     public DirectoryX getParentDirectory() {

@@ -12,11 +12,13 @@ import com.mosaic.lang.time.SystemClock;
  */
 public class LogWriter implements CharacterStream {
 
-    private SystemClock clock;
-    private String      logLevel;
+    private SystemClock     clock;
+    private String          logLevel;
     private CharacterStream out;
 
     private boolean startOfLineFlag = true;
+
+    private boolean isEnabled = true;
 
 
     public LogWriter( SystemClock clock, String logLevel, CharacterStream out ) {
@@ -30,178 +32,240 @@ public class LogWriter implements CharacterStream {
 
 
     public boolean isEnabled() {
-        return true;
+        return isEnabled;
+    }
+
+    public void setEnabled( boolean flag ) {
+        this.isEnabled = flag;
     }
 
     public void writeBoolean( boolean v ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeBoolean( v );
+            out.writeBoolean( v );
+        }
     }
 
     public void writeByteAsNumber( byte v ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeByteAsNumber( v );
+            out.writeByteAsNumber( v );
+        }
     }
 
     public void writeUTF8Bytes( Bytes bytes ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeUTF8Bytes( bytes );
+            out.writeUTF8Bytes( bytes );
+        }
     }
 
     public void writeUTF8Bytes( Bytes bytes, int fromIndexInc, int toExc ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeUTF8Bytes( bytes, fromIndexInc, toExc );
+            out.writeUTF8Bytes( bytes, fromIndexInc, toExc );
+        }
     }
 
     public void writeUTF8Bytes( byte[] bytes ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeUTF8Bytes( bytes );
+            out.writeUTF8Bytes( bytes );
+        }
     }
 
     public void writeUTF8Bytes( byte[] bytes, int fromIndexInc, int toExc ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeUTF8Bytes( bytes, fromIndexInc, toExc );
+            out.writeUTF8Bytes( bytes, fromIndexInc, toExc );
+        }
     }
 
     public void writeCharacter( char v ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeCharacter( v );
+            out.writeCharacter( v );
+        }
     }
 
     public void writeCharacters( char[] chars ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeCharacters( chars );
+            out.writeCharacters( chars );
+        }
     }
 
     public void writeCharacters( char[] chars, int fromIndexInc, int toExc ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeCharacters( chars, fromIndexInc, toExc );
+            out.writeCharacters( chars, fromIndexInc, toExc );
+        }
     }
 
     public void writeShort( short v ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeShort( v );
+            out.writeShort( v );
+        }
     }
 
     public void writeUnsignedShort( int v ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeUnsignedShort( v );
+            out.writeUnsignedShort( v );
+        }
     }
 
     public void writeInt( int v ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeInt( v );
+            out.writeInt( v );
+        }
     }
 
     public void writeFixedWidthInt( int v, int fixedWidth, byte paddingByte ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeFixedWidthInt( v, fixedWidth, paddingByte );
+            out.writeFixedWidthInt( v, fixedWidth, paddingByte );
+        }
     }
 
     public void writeSmallCashMajorUnit( int v ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeSmallCashMajorUnit( v );
+            out.writeSmallCashMajorUnit( v );
+        }
     }
 
     public void writeSmallCashMinorUnit( int v ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeSmallCashMinorUnit( v );
+            out.writeSmallCashMinorUnit( v );
+        }
     }
 
     public void writeBigCashMajorUnit( long v ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeBigCashMajorUnit( v );
+            out.writeBigCashMajorUnit( v );
+        }
     }
 
     public void writeBigCashMinorUnit( long v ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeBigCashMinorUnit( v );
+            out.writeBigCashMinorUnit( v );
+        }
     }
 
     public void writeUnsignedInt( long v ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeUnsignedInt( v );
+            out.writeUnsignedInt( v );
+        }
     }
 
     public void writeLong( long v ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeLong( v );
+            out.writeLong( v );
+        }
     }
 
     public void writeFloat( float v, int numDecimalPlaces ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeFloat( v, numDecimalPlaces );
+            out.writeFloat( v, numDecimalPlaces );
+        }
     }
 
     public void writeDouble( double v, int numDecimalPlaces ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeDouble( v, numDecimalPlaces );
+            out.writeDouble( v, numDecimalPlaces );
+        }
     }
 
     public void writeString( String v ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeString( v );
+            out.writeString( v );
+        }
     }
 
     public void writeLine( String v ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeString( v );
-        printEndOfLine();
+            out.writeString( v );
+            printEndOfLine();
+        }
     }
 
     public void writeUTF8( UTF8 v ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeUTF8( v );
+            out.writeUTF8( v );
+        }
     }
 
     public void writeLine( UTF8 v ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeUTF8( v );
-        printEndOfLine();
+            out.writeUTF8( v );
+            printEndOfLine();
+        }
     }
 
     public void writeException( Throwable ex ) {
-        out.writeException( ex.getMessage(), ex );
+        if ( isEnabled ) {
+            out.writeException( ex.getMessage(), ex );
+        }
     }
 
     public void writeException( String msg, Throwable ex ) {
-        printLinePrefix();
+        if ( isEnabled ) {
+            printLinePrefix();
 
-        out.writeLine( msg );
-        out.writeException( ex );
+            out.writeLine( msg );
+            out.writeException( ex );
+        }
     }
 
     public void newLine() {
-        printEndOfLine();
+        if ( isEnabled ) {
+            printEndOfLine();
+        }
     }
 
     public void flush() {
-        printEndOfLine();
+        if ( isEnabled ) {
+            printEndOfLine();
+        }
     }
 
 

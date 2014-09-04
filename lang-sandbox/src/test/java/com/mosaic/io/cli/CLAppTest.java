@@ -30,7 +30,7 @@ public class CLAppTest {
             }
         };
 
-        assertEquals( 0, app.runApp() );
+        assertEquals( 0, app.runApp("-v") );
 
         system.assertNoAlerts();
     }
@@ -43,7 +43,7 @@ public class CLAppTest {
             }
         };
 
-        assertEquals( 1, app.runApp() );
+        assertEquals( 1, app.runApp("-v") );
 
         system.assertNoAlerts();
     }
@@ -70,6 +70,10 @@ public class CLAppTest {
             "",
             "    -?, --help",
             "        Display this usage information.",
+            "",
+            "    -v, --verbose",
+            "        Include operational context in logging suitable for Ops. To enable full",
+            "        developer debugging output then pass -ea to the JVM.",
             ""
         );
     }
@@ -102,6 +106,10 @@ public class CLAppTest {
             "",
             "    -?, --help",
             "        Display this usage information.",
+            "",
+            "    -v, --verbose",
+            "        Include operational context in logging suitable for Ops. To enable full",
+            "        developer debugging output then pass -ea to the JVM.",
             ""
         );
     }
@@ -267,7 +275,7 @@ public class CLAppTest {
             }
         };
 
-        assertEquals( 0, app.runApp() );
+        assertEquals( 0, app.runApp("-v") );
         assertTrue( "afterShutdown method was not invoked", wasTearDownInvoked.get() );
 
         system.assertNoAlerts();
@@ -287,7 +295,7 @@ public class CLAppTest {
             }
         };
 
-        assertEquals( 0, app.runApp() );
+        assertEquals( 0, app.runApp("-v") );
         assertTrue( "afterShutdown method was not invoked", wasTearDownInvoked.get() );
 
         system.assertNoAlerts();
@@ -307,7 +315,7 @@ public class CLAppTest {
             }
         };
 
-        assertEquals( 1, app.runApp() );
+        assertEquals( 1, app.runApp("-v") );
         assertTrue( "beforeShutdown method was not invoked", wasTearDownInvoked.get() );
     }
 
@@ -325,7 +333,7 @@ public class CLAppTest {
             }
         };
 
-        assertEquals( 1, app.runApp() );
+        assertEquals( 1, app.runApp("-v") );
         assertTrue( "afterShutdown method was not invoked", wasTearDownInvoked.get() );
     }
 
@@ -339,7 +347,7 @@ public class CLAppTest {
             }
         };
 
-        assertEquals( 0, app.runApp() );
+        assertEquals( 0, app.runApp("-v") );
 
         system.assertOpsAuditContains( "Started at 10:00:00 UTC on 2020/01/01" );
     }
@@ -358,7 +366,7 @@ public class CLAppTest {
             }
         };
 
-        assertEquals( 0, app.runApp() );
+        assertEquals( 0, app.runApp("-v") );
 
         system.assertOpsAuditContains( "Ran for 2m.  Ended at 10:02:00 UTC on 2020/01/01." );
     }
@@ -385,9 +393,9 @@ public class CLAppTest {
             }
         };
 
-        assertEquals( 0, app.runApp("-d", "-f", "-abr", "--long-form", "arg1", "arg2") );
+        assertEquals( 0, app.runApp("-d", "-f", "-abr", "--long-form", "-v", "arg1", "arg2") );
 
-        system.assertOpsAuditContains( app.getName() + " -d -f -a -b -r --long-form 'arg1' 'arg2'" );
+        system.assertOpsAuditContains( app.getName() + " -d -f -a -b -r --long-form -v 'arg1' 'arg2'" );
     }
 
     @Test
@@ -400,7 +408,7 @@ public class CLAppTest {
             }
         };
 
-        assertEquals( 0, app.runApp() );
+        assertEquals( 0, app.runApp("-v") );
 
         system.assertOpsAuditContains(
             "Java: " + System.getProperty( "java.runtime.version" ) + " (" +
@@ -418,7 +426,7 @@ public class CLAppTest {
             }
         };
 
-        assertEquals( 0, app.runApp() );
+        assertEquals( 0, app.runApp("-v") );
 
         system.assertOpsAuditContains( "Classpath: " + System.getProperty( "java.class.path" ) );
     }
@@ -433,7 +441,7 @@ public class CLAppTest {
             }
         };
 
-        assertEquals( 0, app.runApp() );
+        assertEquals( 0, app.runApp("-v") );
 
         system.assertOpsAuditContains( "Library Path: " + System.getProperty( "java.library.path" ) );
     }
@@ -453,7 +461,7 @@ public class CLAppTest {
             }
         };
 
-        assertEquals( 0, app.runApp("--flag2=f2") );
+        assertEquals( 0, app.runApp("--flag2=f2", "-v") );
 
         system.assertOpsAuditContains( "Config:" );
         system.assertOpsAuditContains( "  flag1=false" );

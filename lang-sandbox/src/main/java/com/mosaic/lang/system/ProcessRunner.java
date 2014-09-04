@@ -9,6 +9,7 @@ import com.mosaic.lang.reflect.ReflectionUtils;
 import com.mosaic.utils.ListUtils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class ProcessRunner {
     private List<String>          cmd;
     private VoidFunction1<String> stdoutCallback;
     private SystemX               system;
+    private File                  cwd;
 
 
     public ProcessRunner( SystemX system, String cmd, String...args ) {
@@ -56,6 +58,10 @@ public class ProcessRunner {
 
         b.command( this.cmd );
         b.redirectErrorStream( true );
+
+        if ( cwd != null ) {
+            b.directory( cwd );
+        }
 
         Future<Integer> promise = Future.promise();
 
@@ -119,4 +125,7 @@ public class ProcessRunner {
         }
     }
 
+    public void setCWD( String cwd ) {
+        this.cwd = new File(cwd);
+    }
 }

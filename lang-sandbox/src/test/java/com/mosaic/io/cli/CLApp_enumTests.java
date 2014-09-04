@@ -52,6 +52,10 @@ public class CLApp_enumTests {
             "",
             "    -?, --help",
             "        Display this usage information.",
+            "",
+            "    -v, --verbose",
+            "        Include operational context in logging suitable for Ops. To enable full",
+            "        developer debugging output then pass -ea to the JVM.",
             ""
         );
     }
@@ -175,6 +179,10 @@ public class CLApp_enumTests {
             "",
             "    -?, --help",
             "        Display this usage information.",
+            "",
+            "    -v, --verbose",
+            "        Include operational context in logging suitable for Ops. To enable full",
+            "        developer debugging output then pass -ea to the JVM.",
             ""
         );
     }

@@ -3,7 +3,9 @@ package com.mosaic.lang.system;
 import com.mosaic.io.bytes.Bytes;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileModeEnum;
+import com.mosaic.io.filesystemx.FileSystemX;
 import com.mosaic.io.filesystemx.FileX;
+import com.mosaic.io.filesystemx.disk.ActualFileSystem;
 import com.mosaic.io.filesystemx.inmemory.InMemoryFileSystem;
 import com.mosaic.io.streams.CapturingCharacterStream;
 import com.mosaic.lang.reflect.ReflectionUtils;
@@ -29,6 +31,20 @@ public class DebugSystem extends SystemX {
     private static final String WARN  = "WARN";
     private static final String FATAL = "FATAL";
 
+
+    public static DebugSystem withActualFileSystem() {
+        return new DebugSystem(
+            ReflectionUtils.getCallersClass().getSimpleName(),
+            new ActualFileSystem(),
+            new SystemClock(),
+            new Vector<String>(),
+            new Vector<String>(),
+            new Vector<String>(),
+            System.nanoTime()
+        );
+    }
+
+
     /**
      * Format:
      *
@@ -45,13 +61,17 @@ public class DebugSystem extends SystemX {
     }
 
     public DebugSystem( String systemName ) {
+        this( systemName, new InMemoryFileSystem() );
+    }
+
+    public DebugSystem( String systemName, FileSystemX fileSystem ) {
         this(
             systemName,
-            new InMemoryFileSystem(),
+            fileSystem,
             new SystemClock(),
-            new Vector<String>(),
-            new Vector<String>(),
-            new Vector<String>(),
+            new Vector<>(),
+            new Vector<>(),
+            new Vector<>(),
             System.nanoTime()
         );
     }
@@ -59,7 +79,7 @@ public class DebugSystem extends SystemX {
 
     private DebugSystem(
         String             systemName,
-        InMemoryFileSystem system,
+        FileSystemX        system,
         SystemClock        clock,
         List<String>       stdOutText,
         List<String>       stdErrorText,

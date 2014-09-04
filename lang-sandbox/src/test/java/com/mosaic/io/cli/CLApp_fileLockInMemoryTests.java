@@ -7,6 +7,7 @@ import com.mosaic.lang.time.DTM;
 import com.softwaremosaic.junit.JUnitMosaic;
 import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Test;
+import org.junit.After;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
@@ -21,10 +22,16 @@ import static org.junit.Assert.*;
 @RunWith( JUnitMosaicRunner.class )
 public class CLApp_fileLockInMemoryTests {
 
-    private DebugSystem    system1           = new DebugSystem();
-    private DebugSystem    system2           = new DebugSystem();
+    private DebugSystem    system1           = new DebugSystem("CLApp_fileLockInMemoryTests1");
+    private DebugSystem    system2           = new DebugSystem("CLApp_fileLockInMemoryTests2", system1.fileSystem);
     private CountDownLatch continuationLatch = new CountDownLatch(1);
 
+
+    @After
+    public void tearDown() {
+        system1.stop();
+        system2.stop();
+    }
 
     @Test(threadCheck=true)
     public void givenSingleInstanceApp_startTwoApps_expectSecondOneToNotStart() {
@@ -39,7 +46,7 @@ public class CLApp_fileLockInMemoryTests {
 
         new Thread( () -> app2.runApp("data") ).start();
 
-        JUnitMosaic.spinUntilTrue( Integer.MAX_VALUE, () -> system1.doesFatalAuditContain("Application is already running, only one instance is allowed at a time.") );
+        JUnitMosaic.spinUntilTrue( 3000, () -> system1.doesFatalAuditContain("Application is already running, only one instance is allowed at a time.") );
 
         continuationLatch.countDown();
 
@@ -92,19 +99,20 @@ public class CLApp_fileLockInMemoryTests {
 
         @Override
         protected int _run() throws Exception {
-            system.opsAudit( "app is running" );
+            system.userAudit( "app is running" );
 
-            assertTrue( continuationLatch.await(10, TimeUnit.SECONDS) );
+            assertTrue( continuationLatch.await(1, TimeUnit.SECONDS) );
 
+            system.userAudit( "app is shutting down" );
             return 0;
         }
 
         public void spinUntilAppIsRunning() {
-            JUnitMosaic.spinUntilTrue( () -> debugSystem().doesOpsAuditContain( "app is running" ) );
+            JUnitMosaic.spinUntilTrue( () -> debugSystem().doesUserAuditContain( "app is running" ) );
         }
 
         public void spinUntilAppShutsDown() {
-            JUnitMosaic.spinUntilTrue( () -> debugSystem().doesOpsAuditContain("Ended at") );
+            JUnitMosaic.spinUntilTrue( () -> debugSystem().doesUserAuditContain("app is shutting down") );
         }
 
         private DebugSystem debugSystem() {

@@ -3,7 +3,6 @@ package com.mosaic.lang.system;
 import com.mosaic.lang.Cancelable;
 import com.mosaic.lang.time.DTM;
 import com.mosaic.lang.time.Duration;
-import com.softwaremosaic.junit.JUnitMosaic;
 import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Test;
 import org.junit.After;

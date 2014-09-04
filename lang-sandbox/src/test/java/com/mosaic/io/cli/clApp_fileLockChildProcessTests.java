@@ -1,5 +1,6 @@
 package com.mosaic.io.cli;
 
+import com.mosaic.io.FileUtils;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.Failure;
@@ -32,10 +33,7 @@ public class CLApp_fileLockChildProcessTests {
 
     @Before
     public void setup() throws IOException {
-        this.dataDir = File.createTempFile( "CLApp_fileLockChildProcessTests", ".dataDir" );
-
-        this.dataDir.delete();
-        this.dataDir.mkdir();
+        this.dataDir = FileUtils.makeTempDirectory( "CLApp_fileLockChildProcessTests", ".dataDir" );
 
         system.start();
     }
@@ -106,14 +104,14 @@ public class CLApp_fileLockChildProcessTests {
         Vector<String> processOutput1 = new Vector<>();
         Vector<String> processOutput2 = new Vector<>();
 
-        OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, dataDir.getAbsolutePath() );
+        OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, dataDir.getAbsolutePath(), "-v" );
         JUnitMosaic.spinUntilTrue( () -> processOutput1.contains("App has started") );
 
         process1.completeWithFailure( new Failure( "abort the process" ) );
-        process1.spinUntilComplete(3000);
+        process1.spinUntilComplete( 3000);
 
 
-        OSProcess process2 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput2::add, dataDir.getAbsolutePath() );
+        OSProcess process2 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput2::add, dataDir.getAbsolutePath(), "-v" );
         JUnitMosaic.spinUntilTrue( () -> processOutput2.contains( "Previous run did not shutdown cleanly, recovering" ) );
         JUnitMosaic.spinUntilTrue( () -> processOutput2.contains( "App has started" ) );
 
@@ -208,9 +206,9 @@ public class CLApp_fileLockChildProcessTests {
             try {
                 DirectoryX dir = dataDir.getValue();
 
-                system.opsAudit( "dataDirectory=" + dir.getFullPath() );
-                system.opsAudit( system.fileSystem.getClass().getName() );
-                system.opsAudit( "App has started" );
+                system.userAudit( "dataDirectory=" + dir.getFullPath() );
+                system.userAudit( system.fileSystem.getClass().getName() );
+                system.userAudit( "App has started" );
 
                 pollForContinuationFile( dir );
 

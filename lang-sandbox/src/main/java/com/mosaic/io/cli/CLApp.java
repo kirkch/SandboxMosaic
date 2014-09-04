@@ -45,6 +45,7 @@ public abstract class CLApp {
     private DTM                   startedAt;
 
     private CLOption<Boolean>     helpFlag;
+    private CLOption<Boolean>     isVerboseFlag;   // NB there is no debug flag; to enable that pass -ea to the JVM on startup..
     private CLOption<String>      configFile;
 
     private Function0<DirectoryX> dataDirectoryFetcherNbl;
@@ -80,8 +81,9 @@ public abstract class CLApp {
 
 
     private void handleSetUp() {
-        configFile = registerOption( "c", "config", "file", "Any command line option may be included within a properties file and specified here." );
-        helpFlag   = registerFlag( "?", "help", "Display this usage information." );
+        configFile    = registerOption( "c", "config", "file", "Any command line option may be included within a properties file and specified here." );
+        helpFlag      = registerFlag( "?", "help", "Display this usage information." );
+        isVerboseFlag = registerFlag( "v", "verbose", "Include operational context in logging suitable for Ops. To enable full developer debugging output then pass -ea to the JVM." );
 
         startedAt = system.getCurrentDTM();
     }
@@ -114,13 +116,16 @@ public abstract class CLApp {
 
         ConsList<String> normalisedArgs = normaliseInputArgs( inputArgs );
 
-        auditArgs( normalisedArgs );
-        auditEnv();
-
         boolean successfullySetArgumentsFlag = consumeInputArgs( normalisedArgs );
         if ( !successfullySetArgumentsFlag ) {
             return 1;
         }
+
+        system.setDevAuditEnabled( SystemX.isDebugRun() );
+        system.setOpsAuditEnabled( isVerboseFlag.getValue() || SystemX.isDebugRun()  );
+
+        auditArgs( normalisedArgs );
+        auditEnv();
 
         auditParameters();
 

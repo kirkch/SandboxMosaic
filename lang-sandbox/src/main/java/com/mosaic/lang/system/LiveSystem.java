@@ -36,15 +36,19 @@ public class LiveSystem extends SystemX {
     }
 
     public LiveSystem( String systemName, SystemClock clock ) {
+        this( systemName, clock, false );
+    }
+
+    public LiveSystem( String systemName, SystemClock clock, boolean isVerbose ) {
         super(
             systemName,
             new ActualFileSystem(),
             clock,
-            new PrintStreamCharacterStream( System.out ), // stdout
-            new PrintStreamCharacterStream( System.out ), // stderr
-            SystemX.isDebugRun() ? new PrintStreamCharacterStream( System.out ) : new NullCharacterStream(), // dev
-            new PrintStreamCharacterStream( System.out ), // ops
-            new PrintStreamCharacterStream( System.out ), // users
+            new PrintStreamCharacterStream( System.out ),  // stdout
+            new PrintStreamCharacterStream( System.out ),  // stderr
+            new PrintStreamCharacterStream( System.out ),  // dev
+            new PrintStreamCharacterStream( System.out ),  // ops
+            new PrintStreamCharacterStream( System.out ),  // users
             new LogWriter( clock, "warn", new PrintStreamCharacterStream( System.err ) ),
             new LogWriter( clock, "fatal", new PrintStreamCharacterStream( System.err ) )
         );
