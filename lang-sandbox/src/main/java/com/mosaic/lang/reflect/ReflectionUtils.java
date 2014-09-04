@@ -1,9 +1,12 @@
 package com.mosaic.lang.reflect;
 
+import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.text.UTF8;
+import com.mosaic.utils.ArrayUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
@@ -51,7 +54,7 @@ public class ReflectionUtils {
 
             return c.newInstance( args );
         } catch ( Throwable e ) {
-            throw ReflectionException.recast(e);
+            return Backdoor.throwException( e );
         }
     }
 
@@ -59,7 +62,7 @@ public class ReflectionUtils {
         try {
             return (T) method.invoke( instance, args );
         } catch ( Throwable e ) {
-            throw ReflectionException.recast(e);
+            return Backdoor.throwException( e );
         }
     }
 
@@ -113,7 +116,7 @@ public class ReflectionUtils {
         try {
             return Class.forName( className );
         } catch ( ClassNotFoundException e ) {
-            throw ReflectionException.recast( e );
+            return Backdoor.throwException( e );
         }
     }
 
@@ -121,7 +124,45 @@ public class ReflectionUtils {
         try {
             return Class.forName( new Exception().getStackTrace()[2].getClassName() );
         } catch ( ClassNotFoundException e ) {
-            throw ReflectionException.recast( e );
+            return Backdoor.throwException( e );
         }
+    }
+
+    public static <T> T invokePrivateStaticMethod( Class clazz, String methodName, Object...args ) {
+        Class[] types = toTypes(args);
+
+        try {
+            Method m = clazz.getDeclaredMethod( methodName, types );
+
+            m.setAccessible( true );
+
+            return (T) m.invoke( null, args );
+        } catch ( Exception ex ) {
+            return Backdoor.throwException( ex );
+        }
+    }
+
+    public static Method getPrivateMethod( Class clazz, String methodName, Class...argTypes ) {
+        try {
+            Method m = clazz.getDeclaredMethod( methodName, argTypes );
+
+            m.setAccessible( true );
+
+            return m;
+        } catch ( Exception ex ) {
+            return Backdoor.throwException( ex );
+        }
+    }
+
+    public static <T> T invokeStaticMethod( Method m, Object...args ) {
+        try {
+            return (T) m.invoke( null, args );
+        } catch ( Exception ex ) {
+            return Backdoor.throwException( ex );
+        }
+    }
+
+    private static Class[] toTypes( Object[] args ) {
+        return ArrayUtils.map( Class.class, args, a -> a == null ? null : a.getClass() );
     }
 }

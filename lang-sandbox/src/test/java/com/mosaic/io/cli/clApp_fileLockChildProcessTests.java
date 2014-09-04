@@ -107,13 +107,38 @@ public class CLApp_fileLockChildProcessTests {
         OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, dataDir.getAbsolutePath(), "-v" );
         JUnitMosaic.spinUntilTrue( () -> processOutput1.contains("App has started") );
 
-        process1.completeWithFailure( new Failure( "abort the process" ) );
+        process1.killImmediately();
         process1.spinUntilComplete( 3000);
 
 
         OSProcess process2 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput2::add, dataDir.getAbsolutePath(), "-v" );
         JUnitMosaic.spinUntilTrue( () -> processOutput2.contains( "Previous run did not shutdown cleanly, recovering" ) );
         JUnitMosaic.spinUntilTrue( () -> processOutput2.contains( "App has started" ) );
+
+
+        signalChildProcessesToStop( dataDir );
+        spinUntilProcessesHaveStopped( process1, process2 );
+
+
+        assertEquals( 0, process2.getResultNoBlock().intValue() );
+    }
+
+    @Test
+    public void startTwoAppsInTheirOwnProcesses_cleanlyShutdownTheFirstProcessBeforeStartingTheSecond_expectTheSecondToStartNormally() throws IOException {
+        Vector<String> processOutput1 = new Vector<>();
+        Vector<String> processOutput2 = new Vector<>();
+
+        OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, dataDir.getAbsolutePath(), "-v" );
+        JUnitMosaic.spinUntilTrue( () -> processOutput1.contains("App has started") );
+
+        process1.abort();
+        process1.spinUntilComplete( 3000);
+
+
+        OSProcess process2 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput2::add, dataDir.getAbsolutePath(), "-v" );
+        JUnitMosaic.spinUntilTrue( () -> processOutput2.contains( "App has started" ) );
+
+        assertFalse( processOutput2.contains("Previous run did not shutdown cleanly, recovering") );
 
 
         signalChildProcessesToStop( dataDir );
@@ -131,7 +156,7 @@ public class CLApp_fileLockChildProcessTests {
         OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, dataDir.getAbsolutePath() );
         JUnitMosaic.spinUntilTrue( () -> processOutput1.contains("App has started") );
 
-        process1.completeWithFailure( new Failure("abort the process") );
+        process1.killImmediately();
         process1.spinUntilComplete(3000);
 
 

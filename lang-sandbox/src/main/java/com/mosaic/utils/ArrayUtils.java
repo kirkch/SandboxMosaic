@@ -42,6 +42,20 @@ public class ArrayUtils {
     }
 
     /**
+     * Creates a new array containing the result of calling mapFunction on each element of the original array.
+     */
+    public static <A,B> B[] map( Class<B> type, A[] array, Function1<A,B> mapFunction ) {
+        int arrayLength = array.length;
+        B[] newArray    = (B[]) Array.newInstance( type, arrayLength );;
+
+        for ( int i=0; i<arrayLength; i++ ) {
+            newArray[i] = mapFunction.invoke( array[i] );
+        }
+
+        return newArray;
+    }
+
+    /**
      * Replace each element of the array with the result of calling mapFunction with the previous element value.
      */
     public static <T> T[] mapInline( T[] array, Function1<T,T> mapFunction ) {

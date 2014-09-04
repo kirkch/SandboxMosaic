@@ -74,9 +74,9 @@ public abstract class CLApp {
      * that it depends upon.
      */
     protected void afterShutdown() {
-//        if ( lockFile != null ) {
-//            lockFile.delete();
-//        }
+        if ( lockFile != null ) {
+            lockFile.delete();
+        }
     }
 
 
