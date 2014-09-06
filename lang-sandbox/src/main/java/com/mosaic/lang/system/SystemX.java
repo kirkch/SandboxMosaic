@@ -4,7 +4,6 @@ import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileSystemX;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.Cancelable;
-import com.mosaic.lang.IllegalStateExceptionX;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.StartStopMixin;
 import com.mosaic.lang.ThreadedService;
@@ -74,7 +73,6 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
     private static final Random RND = new Random();
 
     private static final boolean areAssertionsEnabled = detectWhetherAssertionsAreEnabled();
-    private DirectoryX currentWorkingDirectory;
 
 
     public static int getCacheLineLengthBytes() {
@@ -173,8 +171,6 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
         this.warnLog    = warnLog;
         this.fatalLog   = fatalLog;
 
-        this.currentWorkingDirectory = fileSystem.getRoot();
-
         this.masterShutdownHook = new Thread() {
             public void run() {
                 runShutdownHooks();
@@ -186,26 +182,26 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
 
 
     public DirectoryX getDirectory( String path ) {
-        return fileSystem.getDirectory( path );
+        return fileSystem.getCurrentWorkingDirectory().getDirectory( path );
     }
 
-    public DirectoryX getNonEmptyDirectory( String path ) {
-        QA.argNotBlank( path, "path" );
-
-        DirectoryX dir = getDirectory( path );
-
-        if ( dir == null ) {
-            throw new IllegalStateExceptionX( "Unable to proceed, '%s' does not exist", path );
-        } else if ( dir.isEmpty() ) {
-            throw new IllegalStateExceptionX( "Unable to proceed, no files found at '%s'", path );
-        }
-
-        return dir;
-    }
-
-    public DirectoryX getOrCreateDirectory( String path ) {
-        return fileSystem.getOrCreateDirectory( path );
-    }
+//    public DirectoryX getNonEmptyDirectory( String path ) {
+//        QA.argNotBlank( path, "path" );
+//
+//        DirectoryX dir = getDirectory( path );
+//
+//        if ( dir == null ) {
+//            throw new IllegalStateExceptionX( "Unable to proceed, '%s' does not exist", path );
+//        } else if ( dir.isEmpty() ) {
+//            throw new IllegalStateExceptionX( "Unable to proceed, no files found at '%s'", path );
+//        }
+//
+//        return dir;
+//    }
+//
+//    public DirectoryX getOrCreateDirectory( String path ) {
+//        return fileSystem.getOrCreateDirectory( path );
+//    }
 
     public long getCurrentMillis() {
         return clock.getCurrentMillis();
@@ -343,11 +339,11 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
     }
 
     public DirectoryX getCurrentWorkingDirectory() {
-        return currentWorkingDirectory;
+        return fileSystem.getCurrentWorkingDirectory();
     }
 
     public void setCurrentWorkingDirectory( DirectoryX cwd ) {
-        this.currentWorkingDirectory = cwd;
+        fileSystem.setCurrentWorkingDirectory( cwd );
     }
 
 
@@ -406,9 +402,8 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
 
 
         ProcessRunner runner = new ProcessRunner( this, javaCmd, javaCmdArgs, stdoutCallback );
-        if ( currentWorkingDirectory != null ) {
-            runner.setCWD( currentWorkingDirectory.getFullPath() );
-        }
+
+        runner.setCWD( fileSystem.getCurrentWorkingDirectory().getFullPath() );
 
         return runner.run();
     }

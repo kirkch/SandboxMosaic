@@ -27,19 +27,21 @@ import static org.junit.Assert.*;
  */
 public class CLApp_fileLockChildProcessTests {
 
-    private SystemX system  = LiveSystem.withNoLogging();
+    private SystemX system;
     private File    dataDir;
 
     @Before
     public void setup() throws IOException {
         this.dataDir = FileUtils.makeTempDirectory( "CLApp_fileLockChildProcessTests", ".dataDir" );
 
+        this.system = LiveSystem.withNoLogging(dataDir);
+
         system.start();
     }
 
     @After
     public void tearDown() {
-        DirectoryX dir = system.getDirectory( dataDir.getAbsolutePath() );
+        DirectoryX dir = system.getCurrentWorkingDirectory();
         dir.deleteAll();
 
         system.stop();
@@ -51,10 +53,10 @@ public class CLApp_fileLockChildProcessTests {
         Vector<String> processOutput1 = new Vector<>();
         Vector<String> processOutput2 = new Vector<>();
 
-        OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, dataDir.getAbsolutePath() );
+        OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, "data" );
         JUnitMosaic.spinUntilTrue( () -> processOutput1.contains("App has started") );
 
-        OSProcess process2 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput2::add, dataDir.getAbsolutePath() );
+        OSProcess process2 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput2::add, "data" );
 
         JUnitMosaic.spinUntilTrue( () -> processOutput2.contains("Application is already running, only one instance is allowed at a time.") );
 
@@ -77,7 +79,7 @@ public class CLApp_fileLockChildProcessTests {
         Vector<String> processOutput1 = new Vector<>();
         Vector<String> processOutput2 = new Vector<>();
 
-        OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, dataDir.getAbsolutePath() );
+        OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, "data" );
         JUnitMosaic.spinUntilTrue( () -> processOutput1.contains("App has started") );
 
         signalChildProcessesToStop( dataDir );
@@ -86,7 +88,7 @@ public class CLApp_fileLockChildProcessTests {
         removeSignalForChildProcessesToStop( dataDir );
 
 
-        OSProcess process2 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput2::add, dataDir.getAbsolutePath() );
+        OSProcess process2 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput2::add, "data" );
         JUnitMosaic.spinUntilTrue( () -> processOutput2.contains( "App has started" ) );
 
 
@@ -103,14 +105,14 @@ public class CLApp_fileLockChildProcessTests {
         Vector<String> processOutput1 = new Vector<>();
         Vector<String> processOutput2 = new Vector<>();
 
-        OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, dataDir.getAbsolutePath(), "-v" );
+        OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, "data", "-v" );
         JUnitMosaic.spinUntilTrue( () -> processOutput1.contains("App has started") );
 
         process1.killImmediately();
         process1.spinUntilComplete( 3000);
 
 
-        OSProcess process2 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput2::add, dataDir.getAbsolutePath(), "-v" );
+        OSProcess process2 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput2::add, "data", "-v" );
         JUnitMosaic.spinUntilTrue( () -> processOutput2.contains( "A previous run of the app did not clean up after itself, manual recovery required. Aborting.." ) );
 
 
@@ -126,14 +128,14 @@ public class CLApp_fileLockChildProcessTests {
         Vector<String> processOutput1 = new Vector<>();
         Vector<String> processOutput2 = new Vector<>();
 
-        OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, dataDir.getAbsolutePath(), "-v" );
+        OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, "data", "-v" );
         JUnitMosaic.spinUntilTrue( () -> processOutput1.contains("App has started") );
 
         process1.abort();
         process1.spinUntilComplete( 3000);
 
 
-        OSProcess process2 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput2::add, dataDir.getAbsolutePath(), "-v" );
+        OSProcess process2 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput2::add, "data", "-v" );
         JUnitMosaic.spinUntilTrue( () -> processOutput2.contains( "App has started" ) );
 
         assertFalse( processOutput2.contains("Previous run did not shutdown cleanly, recovering") );
@@ -151,14 +153,14 @@ public class CLApp_fileLockChildProcessTests {
         Vector<String> processOutput1 = new Vector<>();
         Vector<String> processOutput2 = new Vector<>();
 
-        OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, dataDir.getAbsolutePath() );
+        OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, "data" );
         JUnitMosaic.spinUntilTrue( () -> processOutput1.contains("App has started") );
 
         process1.killImmediately();
         process1.spinUntilComplete(3000);
 
 
-        OSProcess process2 = system.runJavaProcess( RecoveryApp.class, processOutput2::add, "-v", dataDir.getAbsolutePath() );
+        OSProcess process2 = system.runJavaProcess( RecoveryApp.class, processOutput2::add, "-v", "data" );
         JUnitMosaic.spinUntilTrue( () -> processOutput2.contains( "Previous run did not shutdown cleanly, recovering" ) );
         JUnitMosaic.spinUntilTrue( () -> processOutput2.contains( "App ran" ) );
 
@@ -174,11 +176,11 @@ public class CLApp_fileLockChildProcessTests {
     public void pidInLockFile() throws IOException {
         Vector<String> processOutput1 = new Vector<>();
 
-        OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, dataDir.getAbsolutePath() );
+        OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, "data" );
         JUnitMosaic.spinUntilTrue( () -> processOutput1.contains("App has started") );
 
 
-        File lockFile = new File(dataDir,"LOCK");
+        File lockFile = new File(dataDir,"data/LOCK");
         BufferedReader in = new BufferedReader( new InputStreamReader(new FileInputStream(lockFile)) );
 
         String contents = in.readLine();
@@ -200,7 +202,11 @@ public class CLApp_fileLockChildProcessTests {
     }
 
     private void signalChildProcessesToStop( File dataDir ) throws IOException {
-        RandomAccessFile doneFile = new RandomAccessFile( new File(dataDir,"DONE"), "rw" );
+        File doneFileF = new File( dataDir, "data/DONE" );
+        doneFileF.getParentFile().mkdirs();
+
+        RandomAccessFile doneFile = new RandomAccessFile( doneFileF, "rw" );
+        System.out.println( "doneFile = " + doneFileF );
         doneFile.close();
     }
 

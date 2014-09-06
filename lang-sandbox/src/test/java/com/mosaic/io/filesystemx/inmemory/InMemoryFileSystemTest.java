@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 public class InMemoryFileSystemTest extends BaseFileSystemTestCases {
 
     protected FileSystemX createFileSystem( String path ) {
-        return new InMemoryFileSystem( path );
+        return new InMemoryFileSystem(path);
     }
 
 
@@ -24,7 +24,7 @@ public class InMemoryFileSystemTest extends BaseFileSystemTestCases {
     public void createUnnamedInMemoryFileSystem() {
         InMemoryFileSystem fs = new InMemoryFileSystem();
 
-        FileX newFile = fs.addFile( "welcome_msg.txt", "Hello" );
+        FileX newFile = fs.getCurrentWorkingDirectory().addFile( "welcome_msg.txt", "Hello" );
 
         Bytes fileContents = newFile.openFile( FileModeEnum.READ_ONLY );
 

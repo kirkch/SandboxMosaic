@@ -31,7 +31,7 @@ public class CLApp_configTests {
             }
         };
 
-        system.fileSystem.addFile( "props.conf", "max.size=1024kb" );
+        system.fileSystem.getCurrentWorkingDirectory().addFile( "props.conf", "max.size=1024kb" );
 
         assertEquals( 42, app.runApp("-c", "props.conf") );
 
@@ -54,7 +54,7 @@ public class CLApp_configTests {
             }
         };
 
-        system.fileSystem.addFile( "props.conf", "max.size=1024kb" );
+        system.fileSystem.getCurrentWorkingDirectory().addFile( "props.conf", "max.size=1024kb" );
 
         assertEquals( 42, app.runApp("--config=props.conf") );
 
@@ -77,7 +77,7 @@ public class CLApp_configTests {
             }
         };
 
-        system.fileSystem.addFile( "props.conf", "max.size=1024kb" );
+        system.fileSystem.getCurrentWorkingDirectory().addFile( "props.conf", "max.size=1024kb" );
 
         assertEquals( 42, app.runApp("--config=props.conf", "--max.size=1mb") );
 
@@ -100,7 +100,7 @@ public class CLApp_configTests {
             }
         };
 
-        system.fileSystem.addFile( "props.conf", "# comment 1", "", "max.size=  1024kb    # comment 2" );
+        system.fileSystem.getCurrentWorkingDirectory().addFile( "props.conf", "# comment 1", "", "max.size=  1024kb    # comment 2" );
 
         assertEquals( 42, app.runApp("--config=props.conf") );
 
@@ -145,7 +145,7 @@ public class CLApp_configTests {
             }
         };
 
-        FileX file = system.fileSystem.addFile( "props.conf", "max.size=1024kb" );
+        FileX file = system.fileSystem.getCurrentWorkingDirectory().addFile( "props.conf", "max.size=1024kb" );
         file.isReadable( false );
 
         assertEquals( 1, app.runApp("--config=props.conf") );
@@ -170,7 +170,7 @@ public class CLApp_configTests {
             }
         };
 
-        system.fileSystem.addFile( "props.conf", "max.size=1024kb", "key2=123" );
+        system.fileSystem.getCurrentWorkingDirectory().addFile( "props.conf", "max.size=1024kb", "key2=123" );
 
         assertEquals( 1, app.runApp("--config=props.conf") );
 

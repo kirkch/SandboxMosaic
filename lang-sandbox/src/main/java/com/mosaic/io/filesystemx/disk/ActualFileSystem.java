@@ -1,5 +1,6 @@
 package com.mosaic.io.filesystemx.disk;
 
+import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileSystemX;
 import com.mosaic.lang.QA;
 
@@ -10,17 +11,23 @@ import java.io.File;
  *
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-public class ActualFileSystem extends ActualDirectory implements FileSystemX {
+public class ActualFileSystem implements FileSystemX {
 
-    private int openFileCount;
+    private DirectoryX root;
+    private DirectoryX cwd;
+
+    private int        openFileCount;
 
 
-    public ActualFileSystem() {
-        this( new File( "/" ) );
+    public ActualFileSystem( String root ) {
+        this( new File(root) );
     }
 
-    public ActualFileSystem( File file ) {
-        super( null, file );
+    public ActualFileSystem( File root ) {
+        QA.argIsNotEqualTo( "/", root.getAbsolutePath(), "root" );
+
+        this.root = new ActualDirectory( this, root );
+        this.cwd  = this.root;
     }
 
 
@@ -28,12 +35,10 @@ public class ActualFileSystem extends ActualDirectory implements FileSystemX {
         return openFileCount;
     }
 
-    @Override
     void incrementOpenFileCount() {
         openFileCount++;
     }
 
-    @Override
     void decrementOpenFileCount() {
         openFileCount--;
 
@@ -42,6 +47,20 @@ public class ActualFileSystem extends ActualDirectory implements FileSystemX {
 
     public boolean supportsLocking() {
         return true;
+    }
+
+    public DirectoryX getRoot() {
+        return root;
+    }
+
+    public DirectoryX getCurrentWorkingDirectory() {
+        return cwd;
+    }
+
+    public void setCurrentWorkingDirectory( DirectoryX newCWD ) {
+        QA.argIsTrue( cwd.getFullPath().startsWith(this.root.getFullPath()), "newCWD" );
+
+        this.cwd = newCWD;
     }
 
 }

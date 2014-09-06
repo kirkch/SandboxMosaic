@@ -553,7 +553,7 @@ public class CLApp_argumentTests {
             }
         };
 
-        DirectoryX files = system.getOrCreateDirectory( "files" );
+        DirectoryX files = system.getCurrentWorkingDirectory().getOrCreateDirectory( "files" );
         files.addFile( "a.xml", "123" );
         files.addFile( "b.xml", "123" );
 
@@ -601,7 +601,7 @@ public class CLApp_argumentTests {
             }
         };
 
-        DirectoryX dir = system.getOrCreateDirectory( "dir" );
+        DirectoryX dir = system.getCurrentWorkingDirectory().getOrCreateDirectory( "dir" );
         dir.addFile( "a.xml", "123" );
 
         system.setCurrentWorkingDirectory( dir );
@@ -617,12 +617,12 @@ public class CLApp_argumentTests {
             public CLArgument<DirectoryX> dir = getOrCreateDirectoryArgument( "directory", "The directory to scan." );
 
             protected int _run() {
-                assertEquals("logs", dir.getValue().getDirectoryName());
+                assertEquals("logs", dir.getValue().getDirectoryNameNbl());
                 return 42;
             }
         };
 
-        system.getOrCreateDirectory( "logs" );
+        system.getCurrentWorkingDirectory().getOrCreateDirectory( "logs" );
 
         assertEquals( 42, app.runApp( "logs" ) );
 
@@ -640,7 +640,7 @@ public class CLApp_argumentTests {
             }
         };
 
-        DirectoryX cwd = system.getOrCreateDirectory( "abc" );
+        DirectoryX cwd = system.getCurrentWorkingDirectory().getOrCreateDirectory( "abc" );
         system.setCurrentWorkingDirectory( cwd );
 
         runAppAndAssertReturnCode( app, 42, "logs" );
@@ -654,7 +654,7 @@ public class CLApp_argumentTests {
             public CLArgument<DirectoryX> dir = getOrCreateDirectoryArgument( "directory", "The directory to scan." );
 
             protected int _run() {
-                assertEquals( "logs", dir.getValue().getDirectoryName() );
+                assertEquals( "logs", dir.getValue().getDirectoryNameNbl() );
                 return 42;
             }
         };

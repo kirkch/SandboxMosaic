@@ -267,7 +267,7 @@ public abstract class CLApp {
             return true;
         }
 
-        FileX configFile = system.fileSystem.getFile(path);
+        FileX configFile = system.getCurrentWorkingDirectory().getFile(path);
         if ( configFile == null ) {
             system.fatal( "Unable to find file '"+path+"' specified by --config." );
 

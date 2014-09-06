@@ -20,26 +20,29 @@ import java.util.Properties;
  */
 public class InMemoryFile implements FileX {
 
-    private InMemoryDirectory parentDirectory;
-    private String            fileName;
-    private Bytes             bytes;
+    private InMemoryFileSystem fileSystem;
+    private InMemoryDirectory  parentDirectory;
+    private String             fileName;
+    private Bytes              bytes;
 
-    private boolean           hasBeenDeletedFlag;
+    private boolean            hasBeenDeletedFlag;
 
     private boolean isReadable   = true;
     private boolean isWritable   = true;
     private boolean isExecutable = false;
 
 
-    InMemoryFile( InMemoryDirectory parentDirectory, String fileName ) {
-        this( parentDirectory, fileName, Bytes.wrap( "" ) );
+    InMemoryFile( InMemoryFileSystem fileSystem, InMemoryDirectory parentDirectory, String fileName ) {
+        this( fileSystem, parentDirectory, fileName, Bytes.wrap( "" ) );
     }
 
-    InMemoryFile( InMemoryDirectory parentDirectory, String fileName, Bytes bytes ) {
+    InMemoryFile( InMemoryFileSystem fileSystem, InMemoryDirectory parentDirectory, String fileName, Bytes bytes ) {
+        QA.argNotNull( fileSystem, "fileSystem" );
         QA.argNotNull( parentDirectory, "parentDirectory" );
         QA.argNotBlank( fileName, "fileName" );
         QA.argNotNull( bytes, "bytes" );
 
+        this.fileSystem      = fileSystem;
         this.parentDirectory = parentDirectory;
         this.fileName        = fileName;
         this.bytes           = bytes;
@@ -56,7 +59,7 @@ public class InMemoryFile implements FileX {
     public FileContents openFile( FileModeEnum mode ) {
         throwIfDeleted();
 
-        parentDirectory.incrementOpenFileCount();
+        fileSystem.incrementOpenFileCount();
 
         if ( this.bytes.bufferLength() > 0 ) {
             this.bytes.positionIndex( 0 );
@@ -69,7 +72,7 @@ public class InMemoryFile implements FileX {
                         return;
                     }
 
-                    parentDirectory.decrementOpenFileCount();
+                    fileSystem.decrementOpenFileCount();
                 }
             }
         );

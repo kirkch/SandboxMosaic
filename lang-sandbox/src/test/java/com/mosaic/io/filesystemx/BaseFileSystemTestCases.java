@@ -6,6 +6,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -24,44 +25,46 @@ public abstract class BaseFileSystemTestCases {
 
     @Before
     public void setup() {
-        this.fileSystem = createFileSystem( SystemX.getTempDirectory() + "/junit/mosaic/FileSystemTests" + SystemX.nextRandomLong() );
+        File loc = new File(new File(SystemX.getTempDirectory()), "junit/mosaic/FileSystemTests" + SystemX.nextRandomLong());
+
+        this.fileSystem = createFileSystem( loc.getAbsolutePath() );
     }
 
     @After
     public void tearDown() {
         assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
 
-        fileSystem.deleteAll();
+        fileSystem.getCurrentWorkingDirectory().deleteAll();
     }
 
 
     @Test
     public void givenEmptyFileSystem_directories_expectNone() {
-        assertEquals( 0, fileSystem.directories().size() );
+        assertEquals( 0, fileSystem.getCurrentWorkingDirectory().directories().size() );
     }
 
     @Test
     public void givenEmptyFileSystem_createDirectory_expectToSeeDirectoryInListings() {
-        fileSystem.createDirectory( "foo" );
+        fileSystem.getCurrentWorkingDirectory().createDirectory( "foo" );
 
-        assertEquals( 1, fileSystem.directories().size() );
-        assertEquals( fileSystem.getFullPath()+"/foo", fileSystem.directories().get(0).getFullPath() );
-        assertEquals( "foo", fileSystem.directories().get( 0 ).getDirectoryName() );
+        assertEquals( 1, fileSystem.getCurrentWorkingDirectory().directories().size() );
+        assertEquals( fileSystem.getCurrentWorkingDirectory().getFullPath()+"/foo", fileSystem.getCurrentWorkingDirectory().directories().get(0).getFullPath() );
+        assertEquals( "foo", fileSystem.getCurrentWorkingDirectory().directories().get( 0 ).getDirectoryNameNbl() );
     }
 
     @Test
     public void givenFileSystemWithDirectory_createDirectoryAgain_expectItToSilentlyIgnoreTheRequest() {
-        fileSystem.createDirectory( "foo" );
-        fileSystem.createDirectory( "foo" );
+        fileSystem.getCurrentWorkingDirectory().createDirectory( "foo" );
+        fileSystem.getCurrentWorkingDirectory().createDirectory( "foo" );
 
-        assertEquals( 1, fileSystem.directories().size() );
-        assertEquals( fileSystem.getFullPath()+"/foo", fileSystem.directories().get(0).getFullPath() );
-        assertEquals( "foo", fileSystem.directories().get( 0 ).getDirectoryName() );
+        assertEquals( 1, fileSystem.getCurrentWorkingDirectory().directories().size() );
+        assertEquals( fileSystem.getCurrentWorkingDirectory().getFullPath()+"/foo", fileSystem.getCurrentWorkingDirectory().directories().get(0).getFullPath() );
+        assertEquals( "foo", fileSystem.getCurrentWorkingDirectory().directories().get( 0 ).getDirectoryNameNbl() );
     }
 
     @Test
     public void givenFileSystemWithDirectory_fromChildDirectoryGiveAbsoluteDirectoryRef() {
-        DirectoryX dir    = fileSystem.createDirectory( "foo" );
+        DirectoryX dir    = fileSystem.getCurrentWorkingDirectory().createDirectory( "foo" );
         DirectoryX absDir = dir.getDirectory( "/foo" );
 
 
@@ -70,11 +73,11 @@ public abstract class BaseFileSystemTestCases {
 
     @Test
     public void givenEmptyFileSystem_createRandomDirectory_expectToSeeDirectoryInListings() {
-        fileSystem.createDirectoryWithRandomName( "foo", "bar" );
+        fileSystem.getCurrentWorkingDirectory().createDirectoryWithRandomName( "foo", "bar" );
 
-        assertEquals( 1, fileSystem.directories().size() );
+        assertEquals( 1, fileSystem.getCurrentWorkingDirectory().directories().size() );
 
-        String dirName = fileSystem.directories().get(0).getDirectoryName();
+        String dirName = fileSystem.getCurrentWorkingDirectory().directories().get(0).getDirectoryNameNbl();
 
         assertTrue( dirName.startsWith( "foo" ) );
         assertTrue( dirName.endsWith( "bar" ) );
@@ -83,63 +86,63 @@ public abstract class BaseFileSystemTestCases {
 
     @Test
     public void givenFileSystemWithDirectory_deleteAll_expectDirectoryToVanish() {
-        fileSystem.createDirectory( "foo" );
+        fileSystem.getCurrentWorkingDirectory().createDirectory( "foo" );
 
-        fileSystem.deleteAll();
+        fileSystem.getCurrentWorkingDirectory().deleteAll();
 
-        assertNull( fileSystem.getDirectory( "foo" ) );
-        assertEquals( 0, fileSystem.directories().size() );
+        assertNull( fileSystem.getCurrentWorkingDirectory().getDirectory( "foo" ) );
+        assertEquals( 0, fileSystem.getCurrentWorkingDirectory().directories().size() );
     }
 
     @Test
     public void givenFileSystemWithDirectory_deleteDirectory_expectDirectoryToVanish() {
-        DirectoryX dir = fileSystem.createDirectory( "foo" );
+        DirectoryX dir = fileSystem.getCurrentWorkingDirectory().createDirectory( "foo" );
 
         dir.deleteAll();
 
-        assertNull( fileSystem.getDirectory( "foo" ) );
-        assertEquals( 0, fileSystem.directories().size() );
+        assertNull( fileSystem.getCurrentWorkingDirectory().getDirectory( "foo" ) );
+        assertEquals( 0, fileSystem.getCurrentWorkingDirectory().directories().size() );
     }
 
     @Test
     public void givenFileSystem_addFile_expectItToBeVisibleInListFiles() {
-        FileX newFile = fileSystem.addFile( "foo.txt", "abc", "123" );
+        FileX newFile = fileSystem.getCurrentWorkingDirectory().addFile( "foo.txt", "abc", "123" );
 
-        assertEquals( 1, fileSystem.files().size() );
-        assertEquals( newFile.getFullPath(), fileSystem.files().get( 0 ).getFullPath() );
+        assertEquals( 1, fileSystem.getCurrentWorkingDirectory().files().size() );
+        assertEquals( newFile.getFullPath(), fileSystem.getCurrentWorkingDirectory().files().get( 0 ).getFullPath() );
     }
 
     @Test
     public void givenFileSystem_addFile_expectItToBeVisibleViaGetFile() {
-        FileX newFile = fileSystem.addFile( "foo.txt", "abc", "123" );
+        FileX newFile = fileSystem.getCurrentWorkingDirectory().addFile( "foo.txt", "abc", "123" );
 
-        assertEquals( newFile.getFullPath(), fileSystem.getFile( "foo.txt" ).getFullPath() );
+        assertEquals( newFile.getFullPath(), fileSystem.getCurrentWorkingDirectory().getFile( "foo.txt" ).getFullPath() );
     }
 
     @Test
     public void givenFileSystem_addNestedFile_expectItToBeVisibleViaGetFile() {
-        FileX newFile = fileSystem.addFile( "/foo/foo.txt", "abc", "123" );
+        FileX newFile = fileSystem.getCurrentWorkingDirectory().addFile( "/foo/foo.txt", "abc", "123" );
 
-        assertEquals( newFile.getFullPath(), fileSystem.getFile( "/foo/foo.txt" ).getFullPath() );
+        assertEquals( newFile.getFullPath(), fileSystem.getCurrentWorkingDirectory().getFile( "foo/foo.txt" ).getFullPath() );
 
-        assertNotNull( fileSystem.getDirectory("foo") );
-        assertNotNull( fileSystem.getDirectory("foo").getFile("foo.txt") );
-        assertNotNull( fileSystem.getDirectory("foo").getFile("/foo/foo.txt") );
+        assertNotNull( fileSystem.getCurrentWorkingDirectory().getDirectory("foo") );
+        assertNotNull( fileSystem.getCurrentWorkingDirectory().getDirectory("foo").getFile("foo.txt") );
+        assertNotNull( fileSystem.getCurrentWorkingDirectory().getDirectory("foo").getFile("/foo/foo.txt") );
     }
 
     @Test
     public void givenFile_deleteIt_expectItToNoLongerBeVisible() {
-        FileX newFile = fileSystem.addFile( "foo.txt", "abc", "123" );
+        FileX newFile = fileSystem.getCurrentWorkingDirectory().addFile( "foo.txt", "abc", "123" );
 
         newFile.delete();
 
-        assertNull( fileSystem.getFile("foo.txt") );
-        assertEquals( 0, fileSystem.files().size() );
+        assertNull( fileSystem.getCurrentWorkingDirectory().getFile("foo.txt") );
+        assertEquals( 0, fileSystem.getCurrentWorkingDirectory().files().size() );
     }
 
     @Test
     public void givenFile_loadItIn() {
-        FileX newFile = fileSystem.addFile( "foo.txt", "abc", "123" );
+        FileX newFile = fileSystem.getCurrentWorkingDirectory().addFile( "foo.txt", "abc", "123" );
 
         assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
 
@@ -153,7 +156,7 @@ public abstract class BaseFileSystemTestCases {
 
     @Test
     public void givenFile_loadItInThenRelease_expectOpenFileCountToDropByOne() {
-        FileX newFile = fileSystem.addFile( "foo.txt", "abc", "123" );
+        FileX newFile = fileSystem.getCurrentWorkingDirectory().addFile( "foo.txt", "abc", "123" );
 
         assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
 
@@ -166,56 +169,56 @@ public abstract class BaseFileSystemTestCases {
 
     @Test
     public void givenEmptyFileSystem_getOrCreateDirectory_expectDirectoryToBeCreated() {
-        DirectoryX dir = fileSystem.getOrCreateDirectory( "dir1" );
+        DirectoryX dir = fileSystem.getCurrentWorkingDirectory().getOrCreateDirectory( "dir1" );
 
-        assertEquals( "dir1", dir.getDirectoryName() );
-        assertEquals( fileSystem.getFullPath() + "/dir1", dir.getFullPath() );
+        assertEquals( "dir1", dir.getDirectoryNameNbl() );
+        assertEquals( fileSystem.getCurrentWorkingDirectory().getFullPath() + "/dir1", dir.getFullPath() );
     }
 
     @Test
     public void givenEmptyFileSystem_getOrCreateNestedRelativeDirectory_expectDirectoryToBeCreated() {
-        DirectoryX dir = fileSystem.getOrCreateDirectory( "dir1/dir2" );
+        DirectoryX dir = fileSystem.getCurrentWorkingDirectory().getOrCreateDirectory( "dir1/dir2" );
 
-        assertEquals( "dir2", dir.getDirectoryName() );
-        assertEquals( fileSystem.getFullPath() + "/dir1/dir2", dir.getFullPath() );
-        assertEquals( fileSystem.getFullPath() + "/dir1", fileSystem.getDirectory( "dir1" ).getFullPath() );
+        assertEquals( "dir2", dir.getDirectoryNameNbl() );
+        assertEquals( fileSystem.getCurrentWorkingDirectory().getFullPath() + "/dir1/dir2", dir.getFullPath() );
+        assertEquals( fileSystem.getCurrentWorkingDirectory().getFullPath() + "/dir1", fileSystem.getCurrentWorkingDirectory().getDirectory( "dir1" ).getFullPath() );
     }
 
     @Test
     public void givenEmptyFileSystem_getOrCreateNestedAbsoluteDirectory_expectDirectoryToBeCreated() {
-        DirectoryX dir = fileSystem.getOrCreateDirectory( "/dir1/dir2" );
+        DirectoryX dir = fileSystem.getCurrentWorkingDirectory().getOrCreateDirectory( "/dir1/dir2" );
 
-        assertEquals( "dir2", dir.getDirectoryName() );
-        assertEquals( fileSystem.getFullPath() + "/dir1/dir2", dir.getFullPath() );
-        assertEquals( fileSystem.getFullPath() + "/dir1", fileSystem.getDirectory( "dir1" ).getFullPath() );
+        assertEquals( "dir2", dir.getDirectoryNameNbl() );
+        assertEquals( fileSystem.getCurrentWorkingDirectory().getFullPath() + "/dir1/dir2", dir.getFullPath() );
+        assertEquals( fileSystem.getCurrentWorkingDirectory().getFullPath() + "/dir1", fileSystem.getCurrentWorkingDirectory().getDirectory( "dir1" ).getFullPath() );
     }
 
     @Test
     public void givenNestedDirectory_getRelativeNestedDirectory() {
-        fileSystem.getOrCreateDirectory( "dir1/dir2" );
+        fileSystem.getCurrentWorkingDirectory().getOrCreateDirectory( "dir1/dir2" );
 
-        DirectoryX dir = fileSystem.getDirectory( "dir1/dir2" );
+        DirectoryX dir = fileSystem.getCurrentWorkingDirectory().getDirectory( "dir1/dir2" );
 
-        assertEquals( "dir2", dir.getDirectoryName() );
-        assertEquals( fileSystem.getFullPath()+"/dir1/dir2", dir.getFullPath() );
-        assertEquals( fileSystem.getFullPath() + "/dir1", fileSystem.getDirectory( "dir1" ).getFullPath() );
+        assertEquals( "dir2", dir.getDirectoryNameNbl() );
+        assertEquals( fileSystem.getCurrentWorkingDirectory().getFullPath()+"/dir1/dir2", dir.getFullPath() );
+        assertEquals( fileSystem.getCurrentWorkingDirectory().getFullPath() + "/dir1", fileSystem.getCurrentWorkingDirectory().getDirectory( "dir1" ).getFullPath() );
     }
 
     @Test
     public void givenNestedDirectory_getAbsoluteNestedDirectory() {
-        fileSystem.getOrCreateDirectory( "dir1/dir2" );
+        fileSystem.getCurrentWorkingDirectory().getOrCreateDirectory( "dir1/dir2" );
 
-        DirectoryX dir = fileSystem.getDirectory( "/dir1/dir2" );
+        DirectoryX dir = fileSystem.getCurrentWorkingDirectory().getDirectory( "/dir1/dir2" );
 
-        assertEquals( "dir2", dir.getDirectoryName() );
-        assertEquals( fileSystem.getFullPath()+"/dir1/dir2", dir.getFullPath() );
-        assertEquals( fileSystem.getFullPath()+"/dir1", fileSystem.getDirectory("dir1").getFullPath() );
+        assertEquals( "dir2", dir.getDirectoryNameNbl() );
+        assertEquals( fileSystem.getCurrentWorkingDirectory().getFullPath()+"/dir1/dir2", dir.getFullPath() );
+        assertEquals( fileSystem.getCurrentWorkingDirectory().getFullPath()+"/dir1", fileSystem.getCurrentWorkingDirectory().getDirectory("dir1").getFullPath() );
     }
 
     @Test
     public void givenFile_copyFile() {
-        FileX newFile   = fileSystem.addFile( "foo.txt", "abc", "123" );
-        FileX copiedFile = fileSystem.copyFile( newFile, "copy.txt" );
+        FileX newFile   = fileSystem.getCurrentWorkingDirectory().addFile( "foo.txt", "abc", "123" );
+        FileX copiedFile = fileSystem.getCurrentWorkingDirectory().copyFile( newFile, "copy.txt" );
 
         Bytes fileContents = copiedFile.openFile( FileModeEnum.READ_ONLY );
 
@@ -230,7 +233,7 @@ public abstract class BaseFileSystemTestCases {
 
     @Test
     public void givenFile_editContents_expectContentsToPersist() {
-        FileX newFile = fileSystem.addFile( "foo.txt", "abc" );
+        FileX newFile = fileSystem.getCurrentWorkingDirectory().addFile( "foo.txt", "abc" );
 
         assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
 
@@ -253,7 +256,7 @@ public abstract class BaseFileSystemTestCases {
 
     @Test
     public void givenFile_writeContentsViaWriteTextOnFileX_expectContentsToPersist() {
-        FileX newFile = fileSystem.addFile( "foo.txt", "abc" );
+        FileX newFile = fileSystem.getCurrentWorkingDirectory().addFile( "foo.txt", "abc" );
 
         assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
 
@@ -272,7 +275,7 @@ public abstract class BaseFileSystemTestCases {
 
     @Test
     public void lockFileThenWriteToIt() {
-        FileX newFile = fileSystem.addFile( "foo.txt", "abc" );
+        FileX newFile = fileSystem.getCurrentWorkingDirectory().addFile( "foo.txt", "abc" );
 
         assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
 
@@ -298,9 +301,9 @@ public abstract class BaseFileSystemTestCases {
 
     @Test
     public void givenFile_loadProperties() {
-        fileSystem.addFile( "foo.txt", "key1=a", "key2=b" );
+        fileSystem.getCurrentWorkingDirectory().addFile( "foo.txt", "key1=a", "key2=b" );
 
-        Map<String,String> properties = fileSystem.getFile( "foo.txt" ).loadProperties();
+        Map<String,String> properties = fileSystem.getCurrentWorkingDirectory().getFile( "foo.txt" ).loadProperties();
 
         assertEquals( "a", properties.get("key1") );
         assertEquals( "b", properties.get("key2") );
@@ -309,9 +312,9 @@ public abstract class BaseFileSystemTestCases {
 
     @Test
     public void givenFileWithComments_loadProperties() {
-        fileSystem.addFile( "foo.txt", "#properties with comment", "key1=a  # comment2", "key2= b " );
+        fileSystem.getCurrentWorkingDirectory().addFile( "foo.txt", "#properties with comment", "key1=a  # comment2", "key2= b " );
 
-        Map<String,String> properties = fileSystem.getFile( "foo.txt" ).loadProperties();
+        Map<String,String> properties = fileSystem.getCurrentWorkingDirectory().getFile( "foo.txt" ).loadProperties();
 
         assertEquals( "a", properties.get("key1") );
         assertEquals( "b", properties.get("key2") );
@@ -320,9 +323,9 @@ public abstract class BaseFileSystemTestCases {
 
     @Test
     public void givenFileWithKeyWithNoValue() {
-        fileSystem.addFile( "foo.txt", "#properties with comment", "key1", "key2=" );
+        fileSystem.getCurrentWorkingDirectory().addFile( "foo.txt", "#properties with comment", "key1", "key2=" );
 
-        Map<String,String> properties = fileSystem.getFile( "foo.txt" ).loadProperties();
+        Map<String,String> properties = fileSystem.getCurrentWorkingDirectory().getFile( "foo.txt" ).loadProperties();
 
         assertEquals( "", properties.get("key1") );
         assertEquals( "", properties.get("key2") );
@@ -331,9 +334,9 @@ public abstract class BaseFileSystemTestCases {
 
     @Test
     public void givenFile_tryToMutateProperties_expectError() {
-        fileSystem.addFile( "foo.txt", "key1=a", "key2=b" );
+        fileSystem.getCurrentWorkingDirectory().addFile( "foo.txt", "key1=a", "key2=b" );
 
-        Map<String,String> properties = fileSystem.getFile( "foo.txt" ).loadProperties();
+        Map<String,String> properties = fileSystem.getCurrentWorkingDirectory().getFile( "foo.txt" ).loadProperties();
 
 
         try {
@@ -349,7 +352,7 @@ public abstract class BaseFileSystemTestCases {
 
     @Test
     public void givenFileThatDoesNotExist_callIsLocked_expectFalse() {
-        FileContents file = fileSystem.getOrCreateFile( "file.lock" ).rw( fc -> {
+        FileContents file = fileSystem.getCurrentWorkingDirectory().getOrCreateFile( "file.lock" ).rw( fc -> {
                 assertFalse( fc.isLocked() );
                 return null;
             }
@@ -358,7 +361,7 @@ public abstract class BaseFileSystemTestCases {
 
     @Test
     public void givenFileThatDoesNotExist_requestLock_expectFileToBeLocked() {
-        FileContents file = fileSystem.getOrCreateFile( "file.lock" ).openFile( FileModeEnum.READ_WRITE );
+        FileContents file = fileSystem.getCurrentWorkingDirectory().getOrCreateFile( "file.lock" ).openFile( FileModeEnum.READ_WRITE );
 
         assertTrue( file.lockFile() );
         assertTrue( file.isLocked() );
@@ -368,7 +371,7 @@ public abstract class BaseFileSystemTestCases {
 
     @Test
     public void givenLockedFile_tryToLockAgain_expectLockFileToReturnFalseAndTheFileToRemainLocked() {
-        FileContents file = fileSystem.getOrCreateFile( "file.lock" ).openFile( FileModeEnum.READ_WRITE );
+        FileContents file = fileSystem.getCurrentWorkingDirectory().getOrCreateFile( "file.lock" ).openFile( FileModeEnum.READ_WRITE );
 
         file.lockFile();
 
@@ -380,7 +383,7 @@ public abstract class BaseFileSystemTestCases {
 
     @Test
     public void givenLockedFile_callUnlock_expectFileToBeUnlocked() {
-        FileContents file = fileSystem.getOrCreateFile( "file.lock" ).openFile( FileModeEnum.READ_WRITE );
+        FileContents file = fileSystem.getCurrentWorkingDirectory().getOrCreateFile( "file.lock" ).openFile( FileModeEnum.READ_WRITE );
 
         file.lockFile();
 
@@ -392,7 +395,7 @@ public abstract class BaseFileSystemTestCases {
 
     @Test
     public void givenExistingUnlockedFile_requestLock_expectLockToBeAcquired() {
-        FileContents file = fileSystem.getOrCreateFile( "file.lock" ).openFile( FileModeEnum.READ_WRITE );
+        FileContents file = fileSystem.getCurrentWorkingDirectory().getOrCreateFile( "file.lock" ).openFile( FileModeEnum.READ_WRITE );
 
         file.lockFile();
         file.unlockFile();
@@ -405,7 +408,7 @@ public abstract class BaseFileSystemTestCases {
 
     @Test
     public void givenNonLockedFile_callUnlock_expectNoChange() {
-        FileContents file = fileSystem.getOrCreateFile( "file.lock" ).openFile( FileModeEnum.READ_WRITE );
+        FileContents file = fileSystem.getCurrentWorkingDirectory().getOrCreateFile( "file.lock" ).openFile( FileModeEnum.READ_WRITE );
 
         assertFalse( file.unlockFile() );
         assertFalse( file.isLocked() );

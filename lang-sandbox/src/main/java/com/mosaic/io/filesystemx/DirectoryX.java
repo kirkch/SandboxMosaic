@@ -39,7 +39,7 @@ public interface DirectoryX {
      */
     public FileX addFile( String filePath, String...contents );
 
-    public String getDirectoryName();
+    public String getDirectoryNameNbl();
 
     public void deleteAll();
 
@@ -54,6 +54,6 @@ public interface DirectoryX {
      */
     public FileX copyFile( FileX sourceFile, String destinationPath );
 
-    public DirectoryX getParentDirectory();
+    public DirectoryX getParentDirectoryNbl();
     public DirectoryX getRoot();
 }

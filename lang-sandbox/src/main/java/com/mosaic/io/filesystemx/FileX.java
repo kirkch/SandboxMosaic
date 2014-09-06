@@ -89,7 +89,7 @@ public interface FileX {
      */
     public default void writeText( String s ) {
         rw( f -> {
-            int   byteLength = UTF8Tools.countBytesFor( s );
+            int byteLength = UTF8Tools.countBytesFor( s );
 
             f.resize( byteLength );
             f.writeText( s );

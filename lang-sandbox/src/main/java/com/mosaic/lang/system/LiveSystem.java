@@ -6,23 +6,22 @@ import com.mosaic.io.streams.PrintStreamCharacterStream;
 import com.mosaic.lang.reflect.ReflectionUtils;
 import com.mosaic.lang.time.SystemClock;
 
+import java.io.File;
+
 
 /**
  *
  */
 public class LiveSystem extends SystemX {
 
-    public static SystemX withNoLogging() {
-        return new LiveSystem( ReflectionUtils.getCallersClass().getSimpleName(), new SystemClock(), new NullCharacterStream() );
+    public static SystemX withNoLogging( File rootDir ) {
+        return new LiveSystem( ReflectionUtils.getCallersClass().getSimpleName(), new SystemClock(), new NullCharacterStream(), rootDir );
     }
 
     public static SystemX newSystem( String systemName ) {
         SystemClock clock = new SystemClock();
 
-        LiveSystem liveSystem = new LiveSystem( systemName, clock );
-        liveSystem.setCurrentWorkingDirectory( liveSystem.getDirectory(System.getProperty("user.dir")) );
-
-        return liveSystem;
+        return new LiveSystem( systemName, clock );
     }
 
     public LiveSystem() {
@@ -31,8 +30,6 @@ public class LiveSystem extends SystemX {
 
     public LiveSystem( String systemName ) {
         this( systemName, new SystemClock() );
-
-        setCurrentWorkingDirectory( getDirectory( System.getProperty( "user.dir" ) ) );
     }
 
     public LiveSystem( String systemName, SystemClock clock ) {
@@ -42,7 +39,7 @@ public class LiveSystem extends SystemX {
     public LiveSystem( String systemName, SystemClock clock, boolean isVerbose ) {
         super(
             systemName,
-            new ActualFileSystem(),
+            new ActualFileSystem(System.getProperty("user.dir")),
             clock,
             new PrintStreamCharacterStream( System.out ),  // stdout
             new PrintStreamCharacterStream( System.out ),  // stderr
@@ -52,14 +49,12 @@ public class LiveSystem extends SystemX {
             new LogWriter( clock, "warn", new PrintStreamCharacterStream( System.err ) ),
             new LogWriter( clock, "fatal", new PrintStreamCharacterStream( System.err ) )
         );
-
-        setCurrentWorkingDirectory( getDirectory( System.getProperty( "user.dir" ) ) );
     }
 
-    public LiveSystem( String systemName, SystemClock clock, NullCharacterStream noLogging ) {
+    public LiveSystem( String systemName, SystemClock clock, NullCharacterStream noLogging, File rootDir ) {
         super(
             systemName,
-            new ActualFileSystem(),
+            new ActualFileSystem( rootDir.getAbsolutePath() ),
             clock,
             noLogging, // stdout
             noLogging, // stderr
@@ -69,7 +64,5 @@ public class LiveSystem extends SystemX {
             noLogging,
             noLogging
         );
-
-        setCurrentWorkingDirectory( getDirectory( System.getProperty( "user.dir" ) ) );
     }
 }

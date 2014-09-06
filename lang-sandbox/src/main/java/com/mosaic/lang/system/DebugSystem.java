@@ -32,10 +32,10 @@ public class DebugSystem extends SystemX {
     private static final String FATAL = "FATAL";
 
 
-    public static DebugSystem withActualFileSystem() {
+    public static DebugSystem withActualFileSystem( String root ) {
         return new DebugSystem(
             ReflectionUtils.getCallersClass().getSimpleName(),
-            new ActualFileSystem(),
+            new ActualFileSystem(root),
             new SystemClock(),
             new Vector<String>(),
             new Vector<String>(),
@@ -50,14 +50,17 @@ public class DebugSystem extends SystemX {
      *
      * [LEVEL nanosFromStart]: message
      */
-    private final List<String> logOutput;
+    public final List<String> logOutput;
 
-    private final List<String> standardOutText;
-    private final List<String> standardErrorText;
+    public final List<String> standardOutText;
+    public final List<String> standardErrorText;
 
 
     public DebugSystem() {
         this( ReflectionUtils.getCallersClass().getSimpleName() );
+    }
+    public DebugSystem(FileSystemX fs) {
+        this( ReflectionUtils.getCallersClass().getSimpleName(), fs );
     }
 
     public DebugSystem( String systemName ) {
@@ -102,11 +105,6 @@ public class DebugSystem extends SystemX {
         this.standardOutText   = stdOutText;
         this.standardErrorText = stdErrorText;
         this.logOutput         = logOutput;
-    }
-
-
-    public void tearDown() {
-        fileSystem.deleteAll();
     }
 
     public void assertDevAuditContains( String expectedMessage ) {
@@ -194,7 +192,7 @@ public class DebugSystem extends SystemX {
     }
 
     public void assertHasFile( String filePath, String...expectedLines ) {
-        FileX f = fileSystem.getFile( filePath );
+        FileX f = fileSystem.getCurrentWorkingDirectory().getFile( filePath );
 
         if ( f == null ) {
             throw new AssertionError( "File not found: " + filePath );
@@ -211,7 +209,7 @@ public class DebugSystem extends SystemX {
     }
 
     public void assertEmptyDirectory( String dirPath ) {
-        DirectoryX dir = fileSystem.getDirectory( dirPath );
+        DirectoryX dir = fileSystem.getCurrentWorkingDirectory().getDirectory( dirPath );
 
         if ( dir != null ) {
             List<FileX> files = dir.files();

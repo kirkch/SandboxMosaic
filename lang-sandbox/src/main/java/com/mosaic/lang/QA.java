@@ -8,6 +8,8 @@ import com.mosaic.lang.text.UTF8;
 import com.mosaic.utils.MathUtils;
 import com.mosaic.utils.StringUtils;
 
+import java.util.Objects;
+
 
 /**
  * A suite of argument and state validations.  Use to enforce api contracts
@@ -918,7 +920,11 @@ public class QA {
         }
     }
 
-
+    public static <T> void argIsNotEqualTo( T a, T b, String argName ) {
+        if ( Objects.equals(a,b) ) {
+            throwException(  "%s (%s) must be != %s", argName, a, b );
+        }
+    }
 
     /**
      * Validates that minInc <= n < maxExc and throws IndexOutOfBoundsException if it fails.

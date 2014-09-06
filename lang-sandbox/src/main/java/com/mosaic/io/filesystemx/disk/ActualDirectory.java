@@ -9,10 +9,12 @@ import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.Predicate;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.ArrayUtils;
+import com.mosaic.utils.SetUtils;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -21,15 +23,31 @@ import java.util.List;
 @SuppressWarnings("ConstantConditions")
 public class ActualDirectory implements DirectoryX {
 
-    private ActualDirectory parentDirectory;
-    private File            file;
+    private static final Set<String> SecurePaths = SetUtils.asImmutableSet(
+        "/", "/bin", "/usr", "/home", "/var", "/User", "/Applications", "/Network", "/mnt", "/Volumes", ""
+    );
 
 
-    public ActualDirectory( ActualDirectory parentDirectory, File file ) {
+    private ActualFileSystem fileSystem;
+    private ActualDirectory parentDirectoryNbl;
+    private File             file;
+
+
+    public ActualDirectory( ActualFileSystem fileSystem, File file ) {
         QA.argNotNull( file, "file" );
 
-        this.parentDirectory = parentDirectory;
+        this.fileSystem      = fileSystem;
         this.file            = file;
+    }
+
+    public ActualDirectory( ActualFileSystem fileSystem, ActualDirectory parentDirectory, File file ) {
+        QA.argNotNull( fileSystem, "fileSystem" );
+        QA.argNotNull( parentDirectory, "parentDirectory" );
+        QA.argNotNull( file, "file" );
+
+        this.fileSystem         = fileSystem;
+        this.parentDirectoryNbl = parentDirectory;
+        this.file               = file;
     }
 
 
@@ -50,7 +68,7 @@ public class ActualDirectory implements DirectoryX {
         if ( children != null ) {
             for ( File f : children ) {
                 if ( f.isFile() ) {
-                    files.add( new ActualFile(this, f) );
+                    files.add( new ActualFile(fileSystem, f) );
                 }
             }
         }
@@ -65,7 +83,7 @@ public class ActualDirectory implements DirectoryX {
         if ( children != null ) {
             for ( File f : children ) {
                 if ( f.isFile() && f.getName().endsWith(targetFileExtension) ) {
-                    files.add( new ActualFile(this, f) );
+                    files.add( new ActualFile(fileSystem, f) );
                 }
             }
         }
@@ -80,7 +98,7 @@ public class ActualDirectory implements DirectoryX {
         if ( children != null ) {
             for ( File f : children ) {
                 if ( f.isFile()  ) {
-                    ActualFile wrappedFile = new ActualFile( this, f );
+                    ActualFile wrappedFile = new ActualFile( fileSystem, f );
 
                     if ( matchingCondition.invoke(wrappedFile) ) {
                         files.add( wrappedFile );
@@ -107,7 +125,7 @@ public class ActualDirectory implements DirectoryX {
             return null;
         }
 
-        return new ActualFile( this, child );
+        return new ActualFile( fileSystem, child );
     }
 
     public FileX getOrCreateFile( String fileName ) {
@@ -117,7 +135,7 @@ public class ActualDirectory implements DirectoryX {
 
         throwIfDirectory( child );
 
-        return new ActualFile( this, child );
+        return new ActualFile( fileSystem, child );
     }
 
     public List<DirectoryX> directories() {
@@ -127,7 +145,7 @@ public class ActualDirectory implements DirectoryX {
         if ( children != null ) {
             for ( File f : children ) {
                 if ( f.isDirectory() ) {
-                    files.add( new ActualDirectory(this, f) );
+                    files.add( new ActualDirectory(fileSystem, this, f) );
                 }
             }
         }
@@ -138,7 +156,7 @@ public class ActualDirectory implements DirectoryX {
     public DirectoryX getDirectory( String dirPath ) {
         QA.argNotBlank( dirPath, "dirPath" );
 
-        if ( isAbsolutePath(dirPath) && parentDirectory != null ) {
+        if ( isAbsolutePath(dirPath) && parentDirectoryNbl != null ) {
             return getRoot().getDirectory(dirPath);
         }
 
@@ -150,16 +168,16 @@ public class ActualDirectory implements DirectoryX {
 
         throwIfNotDirectory(child);
 
-        return new ActualDirectory( this, child );
+        return new ActualDirectory( fileSystem, this, child );
     }
 
     public DirectoryX getRoot() {
         DirectoryX c = this;
-        DirectoryX p = c.getParentDirectory();
+        DirectoryX p = c.getParentDirectoryNbl();
 
         while ( p != null ) {
             c = p;
-            p = c.getParentDirectory();
+            p = c.getParentDirectoryNbl();
         }
 
         return c;
@@ -188,7 +206,7 @@ public class ActualDirectory implements DirectoryX {
             throwIfNotDirectory(child);
         }
 
-        return new ActualDirectory( this, child );
+        return new ActualDirectory( fileSystem, this, child );
     }
 
     public DirectoryX createDirectoryWithRandomName( String prefix, String postfix ) {
@@ -210,19 +228,23 @@ public class ActualDirectory implements DirectoryX {
         textFileBytes.writeBytes( bytes );
         textFileBytes.release();
 
-        return new ActualFile( this, child );
+        return new ActualFile( fileSystem, child );
     }
 
-    public String getDirectoryName() {
+    public String getDirectoryNameNbl() {
         return file.getName();
     }
 
     public void deleteAll() {
+        if ( SecurePaths.contains( file.getAbsolutePath() ) ) {
+            throw new SecurityException( file.getAbsolutePath() );
+        }
+
         FileUtils.deleteAll( file );
     }
 
-    public DirectoryX getParentDirectory() {
-        return parentDirectory;
+    public DirectoryX getParentDirectoryNbl() {
+        return parentDirectoryNbl;
     }
 
     public FileX copyFile( FileX sourceFile, String destinationPath ) {
@@ -244,23 +266,11 @@ public class ActualDirectory implements DirectoryX {
             sourceBytes.release();
         }
 
-        return new ActualFile( this, destinationFile );
+        return new ActualFile( fileSystem, destinationFile );
     }
 
     public String toString() {
         return file.toString();
-    }
-
-    void incrementOpenFileCount() {
-        if ( parentDirectory != null ) {
-            parentDirectory.incrementOpenFileCount();
-        }
-    }
-
-    void decrementOpenFileCount() {
-        if ( parentDirectory != null ) {
-            parentDirectory.decrementOpenFileCount();
-        }
     }
 
     private void throwIfNotDirectory( File child ) {
@@ -276,10 +286,10 @@ public class ActualDirectory implements DirectoryX {
     }
 
     private ActualDirectory rootDirectory() {
-        if ( parentDirectory == null ) {
+        if ( parentDirectoryNbl == null ) {
             return this;
         } else {
-            return parentDirectory.rootDirectory();
+            return parentDirectoryNbl.rootDirectory();
         }
     }
 }

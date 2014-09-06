@@ -3,6 +3,7 @@ package com.mosaic.io.filesystemx.inmemory;
 import com.mosaic.io.bytes.Bytes;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileModeEnum;
+import com.mosaic.io.filesystemx.FileSystemX;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.Predicate;
@@ -19,19 +20,34 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public class InMemoryDirectory implements DirectoryX {
 
-    private InMemoryDirectory parentDirectory;
-    private String            directoryName;
+    private final InMemoryFileSystem fileSystem;
+    private final InMemoryDirectory  parentDirectoryNbl;
+
+    private       String      directoryNameNbl;
 
 
     private List<InMemoryFile>      files       = new ArrayList();
     private List<InMemoryDirectory> directories = new ArrayList();
 
 
-    public InMemoryDirectory( InMemoryDirectory parentDirectory, String directoryName ) {
-        QA.argNotNull( directoryName, "directoryName" );
+    /**
+     * Create the root directory for a file system.
+     */
+    public InMemoryDirectory( InMemoryFileSystem fileSystem ) {
+        QA.argNotNull( fileSystem, "fileSystem" );
 
-        this.parentDirectory = parentDirectory;
-        this.directoryName   = directoryName;
+        this.fileSystem         = fileSystem;
+        this.parentDirectoryNbl = null;
+    }
+
+    public InMemoryDirectory( InMemoryFileSystem fileSystem, InMemoryDirectory parentDirectory, String directoryName ) {
+        QA.argNotNull( fileSystem,      "fileSystem" );
+        QA.argNotNull( parentDirectory, "parentDirectory" );
+        QA.argNotNull( directoryName,   "directoryName" );
+
+        this.fileSystem         = fileSystem;
+        this.parentDirectoryNbl = parentDirectory;
+        this.directoryNameNbl   = directoryName;
     }
 
 
@@ -44,17 +60,17 @@ public class InMemoryDirectory implements DirectoryX {
     }
 
     public String getFullPath() {
-        if ( parentDirectory == null ) {
-            return "/" + directoryName;
+        if ( parentDirectoryNbl == null ) {
+            return "/";
         } else {
-            String parentPath = parentDirectory.getFullPath();
+            String parentPath = parentDirectoryNbl.getFullPath();
 
-            return parentPath.equals("/")  ? parentPath + directoryName : parentDirectory.getFullPath()+"/"+directoryName;
+            return parentPath.equals("/")  ? parentPath + directoryNameNbl : parentDirectoryNbl.getFullPath()+"/"+ directoryNameNbl;
         }
     }
 
-    public String getDirectoryName() {
-        return directoryName;
+    public String getDirectoryNameNbl() {
+        return directoryNameNbl;
     }
 
     public void deleteAll() {
@@ -66,8 +82,8 @@ public class InMemoryDirectory implements DirectoryX {
             d.deleteAll();
         }
 
-        if ( parentDirectory != null ) {
-            parentDirectory.notificationThatChildDirectoryHasBeenDeleted( this );
+        if ( parentDirectoryNbl != null ) {
+            parentDirectoryNbl.notificationThatChildDirectoryHasBeenDeleted( this );
         }
     }
 
@@ -77,7 +93,7 @@ public class InMemoryDirectory implements DirectoryX {
     }
 
     public List<DirectoryX> directories() {
-        return new ArrayList<DirectoryX>(directories);
+        return new ArrayList<>(directories);
     }
 
     public DirectoryX getOrCreateDirectory( String directoryName ) {
@@ -89,12 +105,12 @@ public class InMemoryDirectory implements DirectoryX {
         return d;
     }
 
-    public DirectoryX getParentDirectory() {
-        return parentDirectory;
+    public DirectoryX getParentDirectoryNbl() {
+        return parentDirectoryNbl;
     }
 
     public DirectoryX getRoot() {
-        return parentDirectory == null ? this : parentDirectory.getRoot();
+        return parentDirectoryNbl == null ? this : parentDirectoryNbl.getRoot();
     }
 
     public FileX copyFile( FileX sourceFile, String destinationPath ) {
@@ -210,12 +226,12 @@ public class InMemoryDirectory implements DirectoryX {
 
     private InMemoryDirectory getOrCreateDirectory0( String directoryName ) {
         for ( InMemoryDirectory d : directories ) {
-            if ( d.getDirectoryName().equals(directoryName) ) {
+            if ( d.getDirectoryNameNbl().equals(directoryName) ) {
                 return d;
             }
         }
 
-        InMemoryDirectory newDirectory = new InMemoryDirectory( this, directoryName );
+        InMemoryDirectory newDirectory = new InMemoryDirectory( fileSystem, this, directoryName );
 
         directories.add( newDirectory );
 
@@ -244,7 +260,7 @@ public class InMemoryDirectory implements DirectoryX {
             }
         }
 
-        InMemoryFile newFile = new InMemoryFile( this, fileName );
+        InMemoryFile newFile = new InMemoryFile( fileSystem, this, fileName );
 
         files.add( newFile );
 
@@ -259,23 +275,10 @@ public class InMemoryDirectory implements DirectoryX {
         files.remove( f );
     }
 
-    void incrementOpenFileCount() {
-        if ( parentDirectory != null ) {
-            parentDirectory.incrementOpenFileCount();
-        }
-    }
-
-    void decrementOpenFileCount() {
-        if ( parentDirectory != null ) {
-            parentDirectory.decrementOpenFileCount();
-        }
-    }
-
-
 
 
     private InMemoryDirectory getDirectory0( String dirPath ) {
-        QA.argNotBlank( dirPath, "dirPath" );
+//        QA.argNotBlank( dirPath, "dirPath" );
 
         InMemoryDirectory fromDir      = dirPath.startsWith("/") ? rootDirectory() : this;
         String[]          pathElements = dirPath.split( "/" );
@@ -288,7 +291,7 @@ public class InMemoryDirectory implements DirectoryX {
             String dirName = pathElements[i];
 
             for ( InMemoryDirectory d : directories ) {
-                if ( d.getDirectoryName().equals(dirName) ) {
+                if ( d.getDirectoryNameNbl().equals(dirName) ) {
                     return d;
                 }
             }
@@ -311,7 +314,7 @@ public class InMemoryDirectory implements DirectoryX {
 
         InMemoryDirectory d = getDirectory0( path[i] );
         if ( d == null ) {
-            d = new InMemoryDirectory( this, path[i] );
+            d = new InMemoryDirectory( fileSystem, this, path[i] );
 
             directories.add(d);
         }
@@ -320,10 +323,6 @@ public class InMemoryDirectory implements DirectoryX {
     }
 
     private InMemoryDirectory rootDirectory() {
-        if ( parentDirectory == null ) {
-            return this;
-        } else {
-            return parentDirectory.rootDirectory();
-        }
+        return (InMemoryDirectory) fileSystem.getRoot();
     }
 }

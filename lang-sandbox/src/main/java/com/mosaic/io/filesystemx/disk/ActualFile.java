@@ -20,16 +20,16 @@ import java.nio.channels.FileLock;
 @SuppressWarnings({"unchecked", "ConstantConditions"})
 public class ActualFile implements FileX {
 
-    private File            file;
-    private ActualDirectory parentDirectoryNbl;
+    private ActualFileSystem fileSystem;
+    private File             file;
 
 
-    ActualFile( ActualDirectory parentDirectory, File file ) {
+    ActualFile( ActualFileSystem fileSystem, File file ) {
+        QA.argNotNull( fileSystem, "fileSystem" );
         QA.argNotNull( file, "file" );
-        QA.argNotNull( parentDirectory, "parentDirectory" );
 
-        this.file               = file;
-        this.parentDirectoryNbl = parentDirectory;
+        this.fileSystem = fileSystem;
+        this.file       = file;
 
         mkdirs();
     }
@@ -59,8 +59,7 @@ public class ActualFile implements FileX {
             this.file.delete();
         }
 
-        this.file            = null;
-        this.parentDirectoryNbl = null;
+        this.file = null;
     }
 
     public long sizeInBytes() {
@@ -99,16 +98,14 @@ public class ActualFile implements FileX {
 
 
     private Bytes wrapMemoryMappedBytes( final Bytes bytes ) {
-        parentDirectoryNbl.incrementOpenFileCount();
+        fileSystem.incrementOpenFileCount();
 
         return new WrappedBytes(bytes) {
             @Override
             public void release() {
                 super.release();
 
-                if ( parentDirectoryNbl != null ) { // will be null after being deleted
-                    parentDirectoryNbl.decrementOpenFileCount();
-                }
+                fileSystem.decrementOpenFileCount();
             }
         };
     }

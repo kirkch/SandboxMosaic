@@ -30,7 +30,7 @@ public class ActualFileSystemTest extends BaseFileSystemTestCases {
 
     @Test
     public void givenLockedFile_tryToLockItAgainFromAnotherProcess_expectThatAttemptToFail() {
-        FileX file = fileSystem.getOrCreateFile( "file.lock" );
+        FileX file = fileSystem.getCurrentWorkingDirectory().getOrCreateFile( "file.lock" );
 
         file.rw( f -> {
             f.lockFile();
@@ -49,15 +49,15 @@ public class ActualFileSystemTest extends BaseFileSystemTestCases {
 
     @Test
     public void givenLockedFile_unlockTheFileThenTryToLockItAgainFromAnotherProcess_expectThatAttemptToSucceed() {
-        FileX file = fileSystem.getOrCreateFile( "file.lock" );
+        FileX file = fileSystem.getCurrentWorkingDirectory().getOrCreateFile( "file.lock" );
 
         file.rw( f -> {
             f.lockFile();
             f.unlockFile();
 
 
-            DebugSystem system  = new DebugSystem();
-            OSProcess   process = system.runJavaProcess( LockFileMain.class, file.getFullPath() );
+            DebugSystem system  = new DebugSystem(fileSystem);
+            OSProcess   process = system.runJavaProcess( LockFileMain.class, System.out::println, "file.lock" );
 
             process.spinUntilComplete( 3000 );
 
@@ -72,7 +72,7 @@ public class ActualFileSystemTest extends BaseFileSystemTestCases {
         public static void main( String[] args ) {
             SystemX system = new LiveSystem();
 
-            FileX file = system.fileSystem.getFile( args[0] );
+            FileX file = system.fileSystem.getCurrentWorkingDirectory().getFile( args[0] );
             FileContents fc = file.openFile( FileModeEnum.READ_ONLY );
 
             if ( fc.lockFile() ) {

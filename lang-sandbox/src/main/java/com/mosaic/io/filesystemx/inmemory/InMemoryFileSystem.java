@@ -1,7 +1,7 @@
 package com.mosaic.io.filesystemx.inmemory;
 
+import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileSystemX;
-import com.mosaic.lang.QA;
 import com.mosaic.lang.QA;
 
 
@@ -9,17 +9,23 @@ import com.mosaic.lang.QA;
  *
  */
 @SuppressWarnings("unchecked")
-public class InMemoryFileSystem extends InMemoryDirectory implements FileSystemX {
+public class InMemoryFileSystem implements FileSystemX {
 
-    private int openFileCount;
+    private DirectoryX root;
+    private DirectoryX cwd;
+
+    private int        openFileCount;
 
 
     public InMemoryFileSystem() {
-        this("");
+        this.root = new InMemoryDirectory( this );
+        this.cwd  = this.root;
     }
 
-    public InMemoryFileSystem( String name ) {
-        super( null, name );
+    public InMemoryFileSystem( String path ) {
+        this.root = new InMemoryDirectory( this );
+        this.cwd  = root.createDirectory( path );
+        this.root = cwd;
     }
 
 
@@ -31,15 +37,27 @@ public class InMemoryFileSystem extends InMemoryDirectory implements FileSystemX
         return true;
     }
 
-    @Override
     void incrementOpenFileCount() {
         openFileCount++;
     }
 
-    @Override
     void decrementOpenFileCount() {
         openFileCount--;
 
         QA.isGTEZero( openFileCount, "openFileCount" );
+    }
+
+    public DirectoryX getRoot() {
+        return root;
+    }
+
+    public DirectoryX getCurrentWorkingDirectory() {
+        return cwd;
+    }
+
+    public void setCurrentWorkingDirectory( DirectoryX newCWD ) {
+        QA.argIsTrue( cwd.getFullPath().startsWith(this.root.getFullPath()), "newCWD" );
+
+        this.cwd = newCWD;
     }
 }
