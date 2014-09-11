@@ -59,6 +59,7 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
     public static final long UNSIGNED_INT_MASK   = 0xFFFFFFFF;
 
     public static final int MAX_UNSIGNED_INT = (Short.MAX_VALUE << 1)+1;
+    public static final char NULL_BYTE = 0;
 
 
     public static Charset UTF8  = Charset.forName( "UTF8" );

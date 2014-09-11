@@ -10,7 +10,7 @@ import java.util.Arrays;
 /**
  *
  */
-public class UTF8 implements Text {
+public class UTF8  {
 
 
     private static byte[] toArray( Bytes b, long fromInc, long toExc ) {
