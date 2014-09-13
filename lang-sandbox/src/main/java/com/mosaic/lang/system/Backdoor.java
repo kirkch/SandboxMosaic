@@ -22,6 +22,8 @@ public class Backdoor {
 
 
     public static long alloc( long numBytes ) {
+        QA.argIsGTZero( numBytes, "numBytes" );
+
         long ptr = unsafe.allocateMemory( numBytes );
 
         mallocCounter.incrementAndGet();
@@ -77,8 +79,16 @@ public class Backdoor {
         return unsafe.getByte( address );
     }
 
-    public static int getUnsignedByte( long address ) {
-        return unsafe.getByte( address ) & 0xFF;
+    public static short getUnsignedByte( long address ) {
+        return (short) (unsafe.getByte( address ) & UNSIGNED_BYTE_MASK);
+    }
+
+    public static int getUnsignedShort( long address ) {
+        return (unsafe.getShort(address) & UNSIGNED_SHORT_MASK);
+    }
+
+    public static long getUnsignedInt( long address ) {
+        return (unsafe.getInt(address) & UNSIGNED_INT_MASK);
     }
 
     public static char getCharacter( long address ) {
@@ -181,6 +191,10 @@ public class Backdoor {
         unsafe.copyMemory( null, fromAddress, toArray, BYTE_ARRAY_BASE_OFFSET+arrayIndex, numBytes );
     }
 
+    public static void copyBytes( byte[] fromArray, long fromArrayIndex, byte[] toArray, long toArrayIndex, long numBytes ) {
+        copyBytes( fromArray, toInt(fromArrayIndex), toArray, toInt(toArrayIndex), numBytes);
+    }
+
     public static void copyBytes( byte[] fromArray, int fromArrayIndex, byte[] toArray, int toArrayIndex, long numBytes ) {
         if ( SystemX.isDebugRun() ) {
             QA.argIsBetween( 0, fromArrayIndex, fromArray.length, "fromArrayIndex" );
@@ -256,8 +270,16 @@ public class Backdoor {
         return unsafe.getByte( array, BYTE_ARRAY_BASE_OFFSET + offset*BYTE_ARRAY_SCALE );
     }
 
+    public static short getUnsignedByteFrom( byte[] array, long offset ) {
+        return (short) (Backdoor.getByteFrom(array,offset) & UNSIGNED_BYTE_MASK);
+    }
+
     public static short getShortFrom( byte[] array, long offset ) {
         return unsafe.getShort( array, BYTE_ARRAY_BASE_OFFSET + offset*BYTE_ARRAY_SCALE );
+    }
+
+    public static int getUnsignedShortFrom( byte[] array, long offset ) {
+        return Backdoor.getShortFrom(array,offset) & UNSIGNED_SHORT_MASK;
     }
 
     public static char getCharacterFrom( byte[] array, long offset ) {
@@ -265,7 +287,11 @@ public class Backdoor {
     }
 
     public static int getIntegerFrom( byte[] array, long offset ) {
-        return unsafe.getInt( array, BYTE_ARRAY_BASE_OFFSET + offset*BYTE_ARRAY_SCALE );
+        return unsafe.getInt( array, BYTE_ARRAY_BASE_OFFSET + offset * BYTE_ARRAY_SCALE );
+    }
+
+    public static long getUnsignedIntegerFrom( byte[] array, long offset ) {
+        return Backdoor.getIntegerFrom(array,offset) & UNSIGNED_INT_MASK;
     }
 
     public static long getLongFrom( byte[] array, long offset ) {
@@ -289,6 +315,14 @@ public class Backdoor {
         unsafe.putByte( array, BYTE_ARRAY_BASE_OFFSET + offset*BYTE_ARRAY_SCALE, v );
     }
 
+    public static void setUnsignedByteIn( byte[] array, long offset, short v ) {
+        setByteIn( array, offset, (byte) (v & UNSIGNED_BYTE_MASK) );
+    }
+
+    public static void setUnsignedByte( long offset, short v ) {
+        setByte( offset, (byte) (v & UNSIGNED_BYTE_MASK) );
+    }
+
     public static void setCharacterIn( byte[] array, long offset, char v ) {
         debugAddress( offset, SIZEOF_CHAR );
 
@@ -301,10 +335,26 @@ public class Backdoor {
         unsafe.putShort( array, BYTE_ARRAY_BASE_OFFSET + offset * BYTE_ARRAY_SCALE, v );
     }
 
+    public static void setUnsignedShortIn( byte[] array, long offset, int v ) {
+        setShortIn( array, offset, (short) (v & UNSIGNED_SHORT_MASK) );
+    }
+
+    public static void setUnsignedShort( long offset, int v ) {
+        setShort( offset, (short) (v & UNSIGNED_SHORT_MASK) );
+    }
+
+    public static void setUnsignedInt( long offset, long v ) {
+        setInteger( offset, (int) (v & UNSIGNED_INT_MASK) );
+    }
+
     public static void setIntegerIn( byte[] array, long offset, int v ) {
         debugAddress( offset, SIZEOF_INT );
 
         unsafe.putInt( array, BYTE_ARRAY_BASE_OFFSET + offset * BYTE_ARRAY_SCALE, v );
+    }
+
+    public static void setUnsignedIntegerIn( byte[] array, long offset, long v ) {
+        setIntegerIn( array, offset, (int) (v & UNSIGNED_INT_MASK) );
     }
 
     public static void setLongIn( byte[] array, long offset, long v ) {
@@ -336,6 +386,8 @@ public class Backdoor {
      */
     private static void debugAddress( long offset, long numBytes ) {
         if ( SystemX.isDebugRun() ) {
+            // todo also consider verifying against a registry of allocated addresses
+
             if ( targetAddress > 0 && offset <= targetAddress && (offset+numBytes) > targetAddress ) {
                 new RuntimeException( "wrote to "+offset+" "+numBytes+" bytes (was watching "+targetAddress+")" ).printStackTrace();
             }

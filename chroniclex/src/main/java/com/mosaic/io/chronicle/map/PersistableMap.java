@@ -1,12 +1,12 @@
 package com.mosaic.io.chronicle.map;
 
-import com.mosaic.bytes.ByteFlyWeight;
+import com.mosaic.bytes.ByteView;
 
 
 /**
  * A hash map that is capable of storing its data to disk.
  */
-public interface PersistableMap<K,V extends ByteFlyWeight> {
+public interface PersistableMap<K,V extends ByteView> {
 
     /**
      * Retrieves an entry by key.  If the value does not exist, then the flyweight will point to

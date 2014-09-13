@@ -1,6 +1,6 @@
 package com.mosaic.bytes.struct;
 
-import com.mosaic.bytes.ByteFlyWeight;
+import com.mosaic.bytes.ByteView;
 import com.mosaic.io.bytes.Bytes;
 import com.mosaic.lang.QA;
 
@@ -8,7 +8,7 @@ import com.mosaic.lang.QA;
 /**
 *
 */
-public class Struct implements ByteFlyWeight {
+public class Struct implements ByteView {
 
     private final long structSizeBytes;
 

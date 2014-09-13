@@ -1031,12 +1031,12 @@ public class QA {
     /**
      * The specified range must equal or be within specified range.
      */
-    public static void argIsWithinRange( long minInc, long minValue, long maxValue, long maxExc, String minValueName, String maxValueName ) {
-        argIsBetween( minInc, minValue, maxExc, minValueName );
-        argIsBetween( minInc, maxValue, maxExc + 1, maxValueName );
+    public static void argIsWithinRange( long minInc, long v1, long v2, long maxExc, String minValueName, String maxValueName ) {
+        argIsBetween( minInc, v1, maxExc, minValueName );
+        argIsBetween( minInc, v2, maxExc + 1, maxValueName );
 
-        if ( !(minValue < maxValue) ) {
-            throwException( "%s (%s) < %s (%s)", minValueName, minValue, maxValueName, maxValue );
+        if ( !(v1 < v2) ) {
+            throwException( "%s (%s) < %s (%s)", minValueName, v1, maxValueName, v2 );
         }
     }
 

@@ -4,11 +4,12 @@ import com.mosaic.io.bytes.Bytes;
 
 
 /**
- * Implementations of ByteFlyWeight reduces memory consumption, buffer copying and object allocations
+ * Implementations of ByteView reduces memory consumption, buffer copying and object allocations
  * by sharing mutable state.  A trade-off that favours performance over the risk of mutating data
- * that should not be mutated.  Only use this class when it is clear that the la
+ * that should not be mutated.  Only use this class when it is clear that mutating the underlying
+ * bytes will change data in the views and visa versa.
  */
-public interface ByteFlyWeight {
+public interface ByteView {
 
     /**
      * Updates the shared data region of this fly weight.

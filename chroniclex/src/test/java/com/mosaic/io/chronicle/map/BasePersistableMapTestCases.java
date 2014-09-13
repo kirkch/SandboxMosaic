@@ -1,6 +1,6 @@
 package com.mosaic.io.chronicle.map;
 
-import com.mosaic.bytes.ByteFlyWeight;
+import com.mosaic.bytes.ByteView;
 import com.mosaic.io.bytes.Bytes;
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ public abstract class BasePersistableMapTestCases {
 
 
 
-    protected class Account implements ByteFlyWeight {
+    protected class Account implements ByteView {
         private Bytes bytes;
         private long  base;
         private long  maxExc;
