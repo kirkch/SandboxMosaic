@@ -1,6 +1,6 @@
 package com.mosaic.lang.system;
 
-import com.mosaic.io.bytes.Bytes;
+import com.mosaic.bytes.Bytes2;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileSystemX;
@@ -198,7 +198,7 @@ public class DebugSystem extends SystemX {
             throw new AssertionError( "File not found: " + filePath );
         }
 
-        Bytes fileContents = f.openFile( FileModeEnum.READ_ONLY );
+        Bytes2 fileContents = f.openFile( FileModeEnum.READ_ONLY );
         List<String> actualLines = PullParser.toLines( fileContents );
 
         assertEquals(

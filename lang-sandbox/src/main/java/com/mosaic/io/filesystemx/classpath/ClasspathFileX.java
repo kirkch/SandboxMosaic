@@ -1,19 +1,14 @@
 package com.mosaic.io.filesystemx.classpath;
 
-import com.mosaic.io.bytes.Bytes;
-import com.mosaic.io.bytes.InputBytes;
-import com.mosaic.io.bytes.InputBytesAdapter;
-import com.mosaic.io.bytes.InputStreamAdapter;
+import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.ClassPathBytes2;
 import com.mosaic.io.filesystemx.FileContents;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.NotFoundException;
 import com.mosaic.lang.system.Backdoor;
-import com.mosaic.utils.PropertyUtils;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.Properties;
 
 
 /**
@@ -43,7 +38,7 @@ public class ClassPathFileX implements FileX {
             throw new UnsupportedOperationException( "not implemented, use loadBytesRO" );
         }
 
-        return new ClassPathFileContents( new InputBytesAdapter(lazyLoad()) );
+        return new ClassPathFileContents( lazyLoad() );
     }
 
     @Override
@@ -64,7 +59,7 @@ public class ClassPathFileX implements FileX {
         lazyLoad();
 
 
-        return lazyLoad().bufferLength();
+        return lazyLoad().sizeBytes();
     }
 
     public void isReadable( boolean isReadable ) {
@@ -93,12 +88,12 @@ public class ClassPathFileX implements FileX {
 
 
 
-    private InputBytes bytes;
+    private Bytes2 bytes;
 
-    private InputBytes lazyLoad() {
+    private Bytes2 lazyLoad() {
         if ( bytes == null ) {
             try {
-                bytes = Bytes.loadFromClassPath( this.getClass().getClassLoader(), fullPath );
+                bytes = ClassPathBytes2.loadFromClassPath( this.getClass().getClassLoader(), fullPath );
 
                 if ( bytes == null ) {
                     throw new NotFoundException( String.format("unable to find '%s' on the classpath", fullPath) );
@@ -113,7 +108,7 @@ public class ClassPathFileX implements FileX {
 
 
     private class ClassPathFileContents extends FileContents {
-        public ClassPathFileContents( Bytes delegate ) {
+        public ClassPathFileContents( Bytes2 delegate ) {
             super( delegate );
         }
 

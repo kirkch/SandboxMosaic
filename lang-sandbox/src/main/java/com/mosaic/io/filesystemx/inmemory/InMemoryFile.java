@@ -1,18 +1,12 @@
 package com.mosaic.io.filesystemx.inmemory;
 
-import com.mosaic.io.bytes.Bytes;
-import com.mosaic.io.bytes.InputStreamAdapter;
-import com.mosaic.io.bytes.WrappedBytes;
+import com.mosaic.bytes.ArrayBytes2;
+import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.WrappedBytes2;
 import com.mosaic.io.filesystemx.FileContents;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
-import com.mosaic.lang.system.Backdoor;
-import com.mosaic.utils.PropertyUtils;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.Properties;
 
 
 /**
@@ -23,7 +17,7 @@ public class InMemoryFile implements FileX {
     private InMemoryFileSystem fileSystem;
     private InMemoryDirectory  parentDirectory;
     private String             fileName;
-    private Bytes              bytes;
+    private Bytes2             bytes;
 
     private boolean            hasBeenDeletedFlag;
 
@@ -32,11 +26,11 @@ public class InMemoryFile implements FileX {
     private boolean isExecutable = false;
 
 
-    InMemoryFile( InMemoryFileSystem fileSystem, InMemoryDirectory parentDirectory, String fileName ) {
-        this( fileSystem, parentDirectory, fileName, Bytes.wrap( "" ) );
+    InMemoryFile( InMemoryFileSystem fileSystem, InMemoryDirectory parentDirectory, String fileName, int size ) {
+        this( fileSystem, parentDirectory, fileName, new ArrayBytes2(size) );
     }
 
-    InMemoryFile( InMemoryFileSystem fileSystem, InMemoryDirectory parentDirectory, String fileName, Bytes bytes ) {
+    InMemoryFile( InMemoryFileSystem fileSystem, InMemoryDirectory parentDirectory, String fileName, Bytes2 bytes ) {
         QA.argNotNull( fileSystem, "fileSystem" );
         QA.argNotNull( parentDirectory, "parentDirectory" );
         QA.argNotBlank( fileName, "fileName" );
@@ -46,8 +40,6 @@ public class InMemoryFile implements FileX {
         this.parentDirectory = parentDirectory;
         this.fileName        = fileName;
         this.bytes           = bytes;
-
-        bytes.setName(fileName);
     }
 
     public String getFileName() {
@@ -61,17 +53,9 @@ public class InMemoryFile implements FileX {
 
         fileSystem.incrementOpenFileCount();
 
-        if ( this.bytes.bufferLength() > 0 ) {
-            this.bytes.positionIndex( 0 );
-        }
-
         return new InMemoryFileContents(
-            new WrappedBytes(bytes) {
+            new WrappedBytes2(bytes) {
                 public void release() {
-                    if ( parentDirectory == null ) { // already deleted
-                        return;
-                    }
-
                     fileSystem.decrementOpenFileCount();
                 }
             }
@@ -85,7 +69,7 @@ public class InMemoryFile implements FileX {
     }
 
     public long sizeInBytes() {
-        return bytes == null ? 0 : bytes.bufferLength();
+        return bytes == null ? 0 : bytes.sizeBytes();
     }
 
     public String getFullPath() {
@@ -141,16 +125,14 @@ public class InMemoryFile implements FileX {
         }
     }
 
-    void setBytes( Bytes newBytes ) {
+    void setBytes( Bytes2 newBytes ) {
         this.bytes = newBytes;
-
-        newBytes.setName( fileName );
     }
 
     private boolean isLocked;
     private class InMemoryFileContents extends FileContents {
 
-        public InMemoryFileContents( Bytes delegate ) {
+        public InMemoryFileContents( Bytes2 delegate ) {
             super( delegate );
         }
 

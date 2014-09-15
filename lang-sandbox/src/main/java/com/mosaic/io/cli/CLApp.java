@@ -236,7 +236,7 @@ public abstract class CLApp {
 
                 String pid = Integer.toString( system.getProcessId() );
                 fc.resize( pid.length() );
-                fc.writeText( pid );
+                fc.writeUTF8StringUndemarcated( 0, pid.length(), pid );
 
                 return _run();
             } catch ( Exception e ) {

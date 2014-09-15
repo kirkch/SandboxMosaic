@@ -18,7 +18,9 @@ public class ArrayBytes2 extends BaseBytes2 {
     private byte[] array;
 
 
-
+    public ArrayBytes2( String s ) {
+        this( s.getBytes(SystemX.UTF8) );
+    }
 
     public ArrayBytes2( long numBytes ) {
         this( new byte[(int) numBytes] );

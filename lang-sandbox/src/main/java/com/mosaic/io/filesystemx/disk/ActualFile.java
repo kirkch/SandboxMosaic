@@ -1,7 +1,8 @@
 package com.mosaic.io.filesystemx.disk;
 
-import com.mosaic.io.bytes.Bytes;
-import com.mosaic.io.bytes.WrappedBytes;
+import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.MemoryMappedBytes2;
+import com.mosaic.bytes.WrappedBytes2;
 import com.mosaic.io.filesystemx.FileContents;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
@@ -39,13 +40,13 @@ public class ActualFile implements FileX {
     }
 
     public FileContents openFile( FileModeEnum mode ) {
-        Bytes bytes = Bytes.memoryMapFile( file, mode );
+        Bytes2 bytes = MemoryMappedBytes2.mapFile( file, mode );
 
         return new ActualFileContents( wrapMemoryMappedBytes(bytes) );
     }
 
     public FileContents openFile( FileModeEnum mode, int sizeInBytes ) {
-        Bytes bytes = Bytes.memoryMapFile( file, mode, sizeInBytes );
+        Bytes2 bytes = MemoryMappedBytes2.mapFile( file, mode, sizeInBytes );
 
         return new ActualFileContents( wrapMemoryMappedBytes(bytes) );
     }
@@ -97,14 +98,11 @@ public class ActualFile implements FileX {
 
 
 
-    private Bytes wrapMemoryMappedBytes( final Bytes bytes ) {
+    private Bytes2 wrapMemoryMappedBytes( final Bytes2 bytes ) {
         fileSystem.incrementOpenFileCount();
 
-        return new WrappedBytes(bytes) {
-            @Override
+        return new WrappedBytes2(bytes) {
             public void release() {
-                super.release();
-
                 fileSystem.decrementOpenFileCount();
             }
         };
@@ -123,7 +121,7 @@ public class ActualFile implements FileX {
     private class ActualFileContents extends FileContents {
         private FileLock fileLock;
 
-        public ActualFileContents( Bytes delegate ) {
+        public ActualFileContents( Bytes2 delegate ) {
             super( delegate );
         }
 

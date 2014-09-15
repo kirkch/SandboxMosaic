@@ -20,6 +20,12 @@ import java.nio.channels.FileChannel;
  */
 public class MemoryMappedBytes2 extends NativeBytes {
 
+    public static Bytes2 mapFile( File f, FileModeEnum mode ) {
+        long size = Math.max( f.length(), 1 );  // if the file does not exist, use a default size.. 0  was not suitable for native buffers
+
+        return mapFile( f, mode, size );
+    }
+
     public static Bytes2 mapFile( File f, FileModeEnum mode, long numBytes ) {
         QA.argIsGTZero( numBytes, "numBytes" );
 

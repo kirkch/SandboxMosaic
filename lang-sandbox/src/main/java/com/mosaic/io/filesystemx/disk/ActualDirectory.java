@@ -1,7 +1,8 @@
 package com.mosaic.io.filesystemx.disk;
 
+import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.MemoryMappedBytes2;
 import com.mosaic.io.FileUtils;
-import com.mosaic.io.bytes.Bytes;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
@@ -223,9 +224,9 @@ public class ActualDirectory implements DirectoryX {
         byte[] bytes = text.getBytes( SystemX.UTF8 );
 
 
-        Bytes textFileBytes = Bytes.memoryMapFile(child, FileModeEnum.READ_WRITE, bytes.length );
+        Bytes2 textFileBytes = MemoryMappedBytes2.mapFile( child, FileModeEnum.READ_WRITE, bytes.length );
 
-        textFileBytes.writeBytes( bytes );
+        textFileBytes.writeBytes( 0, bytes.length, bytes );
         textFileBytes.release();
 
         return new ActualFile( fileSystem, child );
@@ -253,12 +254,12 @@ public class ActualDirectory implements DirectoryX {
 
         destinationFile.getParentFile().mkdirs();
 
-        Bytes sourceBytes = sourceFile.openFile( FileModeEnum.READ_ONLY );
+        Bytes2 sourceBytes = sourceFile.openFile( FileModeEnum.READ_ONLY );
         try {
-            Bytes textFileBytes = Bytes.memoryMapFile(destinationFile, FileModeEnum.READ_WRITE, sourceBytes.bufferLength() );
+            Bytes2 textFileBytes = MemoryMappedBytes2.mapFile(destinationFile, FileModeEnum.READ_WRITE, sourceBytes.sizeBytes() );
 
             try {
-                textFileBytes.writeBytes( sourceBytes );
+                textFileBytes.writeBytes( 0, sourceBytes.sizeBytes(), sourceBytes );
             } finally {
                 textFileBytes.release();
             }

@@ -3,6 +3,8 @@ package com.mosaic.bytes;
 import com.mosaic.lang.text.DecodedCharacter;
 import com.mosaic.lang.text.UTF8;
 
+import java.io.InputStream;
+
 
 /**
  *
@@ -85,6 +87,8 @@ public interface Bytes2 {
     public int writeUTF8String( long offset, long maxExc, CharSequence txt );
     public int writeUTF8String( long offset, long maxExc, UTF8 txt );
 
+    public int writeNullTerminatedUTF8String( long offset, long maxExc, CharSequence txt );
+    public int writeUTF8StringUndemarcated( long offset, long maxExc, CharSequence txt );
 
     /**
      * Copies as many bytes as are available, or will fit into the supplied
@@ -121,4 +125,8 @@ public interface Bytes2 {
     public int readBytes( long offset, long maxExc, long toAddressBase, long toAddressInc, long toAddressExc );
     public int writeBytes( long offset, long maxExc, long fromAddressBase, long fromAddressInc, long fromAddressExc );
 
+
+
+
+    public InputStream toInputStream();
 }

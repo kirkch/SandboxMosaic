@@ -1,6 +1,5 @@
 package com.mosaic.io.filesystemx;
 
-import com.mosaic.io.bytes.InputStreamAdapter;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.text.UTF8Tools;
@@ -92,7 +91,7 @@ public interface FileX {
             int byteLength = UTF8Tools.countBytesFor( s );
 
             f.resize( byteLength );
-            f.writeText( s );
+            f.writeUTF8StringUndemarcated( 0, byteLength, s );
 
             return null;
         });
@@ -105,7 +104,7 @@ public interface FileX {
         return ro( f -> {
             Properties props = new Properties();
             try {
-                props.load( new InputStreamAdapter(f) );
+                props.load( f.toInputStream() );
             } catch ( IOException e ) {
                 Backdoor.throwException( e );
             }

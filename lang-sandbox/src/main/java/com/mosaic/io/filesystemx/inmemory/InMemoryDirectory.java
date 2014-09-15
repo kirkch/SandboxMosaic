@@ -1,9 +1,9 @@
 package com.mosaic.io.filesystemx.inmemory;
 
-import com.mosaic.io.bytes.Bytes;
+import com.mosaic.bytes.ArrayBytes2;
+import com.mosaic.bytes.Bytes2;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileModeEnum;
-import com.mosaic.io.filesystemx.FileSystemX;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.Predicate;
@@ -54,7 +54,7 @@ public class InMemoryDirectory implements DirectoryX {
     public FileX addFile( String filePath, String...contents ) {
         InMemoryFile file = getOrCreateFile0( filePath );
 
-        file.setBytes( Bytes.wrap(ArrayUtils.makeString(contents, "\n")) );
+        file.setBytes( new ArrayBytes2(ArrayUtils.makeString(contents, "\n")) );
 
         return file;
     }
@@ -114,11 +114,11 @@ public class InMemoryDirectory implements DirectoryX {
     }
 
     public FileX copyFile( FileX sourceFile, String destinationPath ) {
-        Bytes data = sourceFile.openFile( FileModeEnum.READ_ONLY );
+        Bytes2 data = sourceFile.openFile( FileModeEnum.READ_ONLY );
 
         try {
-            Bytes copy = Bytes.allocOnHeap( data.bufferLength() );
-            copy.writeBytes( data );
+            Bytes2 copy = new ArrayBytes2( data.sizeBytes() );
+            copy.writeBytes( 0, copy.sizeBytes(), data );
 
             InMemoryFile destinationFile = getOrCreateFile0( destinationPath );
 
@@ -260,7 +260,7 @@ public class InMemoryDirectory implements DirectoryX {
             }
         }
 
-        InMemoryFile newFile = new InMemoryFile( fileSystem, this, fileName );
+        InMemoryFile newFile = new InMemoryFile( fileSystem, this, fileName, 50 );
 
         files.add( newFile );
 

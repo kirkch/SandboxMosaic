@@ -1,7 +1,7 @@
 package com.mosaic.lang.text;
 
-import com.mosaic.io.bytes.Bytes;
-import com.mosaic.io.bytes.InputBytes;
+import com.mosaic.bytes.ArrayBytes2;
+import com.mosaic.bytes.Bytes2;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.NotThreadSafe;
@@ -21,13 +21,13 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public class PullParser {
 
-    public static PullParser wrap( String name, String txt ) {
-        Bytes hdr = Bytes.wrap( txt );
+    public static PullParser wrap( String txt ) {
+        Bytes2 hdr = new ArrayBytes2( txt );
 
-        return new PullParser( name, hdr );
+        return new PullParser( hdr );
     }
 
-    public static List<String> toLines( Bytes bytes ) {
+    public static List<String> toLines( Bytes2 bytes ) {
         List<String>  lines = new ArrayList<>();
         PullParser    p     = new PullParser(bytes);
 
@@ -49,20 +49,13 @@ public class PullParser {
     }
 
 
-    private String     name;
-    private long       position = 0;
-    private InputBytes source;
+    private long   position = 0;
+    private Bytes2 source;
 
 
-    public PullParser( InputBytes bytes ) {
-        this( bytes.getName() == null ? "blank" : bytes.getName(), bytes );
-    }
-
-    public PullParser( String name, InputBytes bytes ) {
-        QA.argNotBlank( name, "name" );
+    public PullParser( Bytes2 bytes ) {
         QA.argNotNull( bytes, "bytes" );
 
-        this.name   = name;
         this.source = bytes;
     }
 
@@ -90,13 +83,8 @@ public class PullParser {
         this.autoSkipParser = skipParser;
     }
 
-
-    public String getName() {
-        return name;
-    }
-
     public boolean hasMore() {
-        return position < source.bufferLength();
+        return position < source.sizeBytes();
     }
 
     /**
@@ -107,8 +95,9 @@ public class PullParser {
         doAutoSkip();
 
         long i=position;
-        for ( ; i<source.getEndIndexExc(); i+=charBuf.numBytesConsumed ) {
-            source.readUTF8Character( i, charBuf );
+        long sizeBytes = source.sizeBytes();
+        for ( ; i< sizeBytes; i+=charBuf.numBytesConsumed ) {
+            source.readUTF8Character( i, sizeBytes, charBuf );
 
             if ( charBuf.c == '\n' ) {
                 i += charBuf.numBytesConsumed;
@@ -397,7 +386,7 @@ public class PullParser {
     public void optionallyPullVoid( ByteMatcher p ) {
         doAutoSkip();
 
-        p.parse( source, position, source.getEndIndexExc(), result );
+        p.parse( source, position, source.sizeBytes(), result );
 
         if ( result.hasMatched() ) {
             this.position = result.getToExc();
@@ -411,7 +400,7 @@ public class PullParser {
      * @return number of bytes reversed over.
      */
     public long rewindLine() {
-        long minInc = source.startIndex();
+        long minInc = 0;
 
         long i     = position-1;
         long count = 0;
@@ -437,7 +426,7 @@ public class PullParser {
     }
 
     private boolean isEOL( long i ) {
-        byte b = source.readByte( i );
+        byte b = source.readByte( i, source.sizeBytes() );
 
         return b == '\n' || b == '\r';
     }
@@ -451,12 +440,12 @@ public class PullParser {
     }
 
     public long getEndIndexExc() {
-        return source.getEndIndexExc();
+        return source.sizeBytes();
     }
 
 
     private void doAutoSkip() {
-        autoSkipParser.parse( source, position, source.getEndIndexExc(), result );
+        autoSkipParser.parse( source, position, source.sizeBytes(), result );
 
         if ( result.hasMatched() ) {
             this.position = result.getToExc();
@@ -464,16 +453,16 @@ public class PullParser {
     }
 
     private ParseException newParseException( String msg, long position ) {
-        return ParseException.newParseException( source, position, name, msg );
+        return ParseException.newParseException( source, position, msg );
     }
 
     private <T> ParserResult<T> parse( ByteMatcher<T> p ) {
         ParserResult<T> r = result;  // NB trick to avoid casting at runtime; uses compile time erasure instead
 
         try {
-            p.parse( source, position, source.getEndIndexExc(), r );
+            p.parse( source, position, source.sizeBytes(), r );
         } catch ( Throwable ex ) {
-            throw ParseException.newParseException( source, position, name, ex.getMessage(), ex );
+            throw ParseException.newParseException( source, position, ex.getMessage(), ex );
         }
 
         return r;
@@ -484,11 +473,11 @@ public class PullParser {
 
 
     private static final ByteMatcher INT_PARSER = new ByteMatcher() {
-        public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
+        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
             int num = 0;
 
             long i=fromInc;
-            byte v = source.readByte(i);
+            byte v = source.readByte(i, toExc);
 
             boolean isNeg = v == '-';
             if ( isNeg ) {
@@ -496,7 +485,7 @@ public class PullParser {
             }
 
             for ( ; i<toExc; i++ ) {
-                v = source.readByte(i);
+                v = source.readByte(i, toExc);
 
                 if ( v < '0' || v > '9' ) {
                     break;
@@ -533,8 +522,8 @@ public class PullParser {
     };
 
     private static final ByteMatcher BOOLEAN_PARSER = new ByteMatcher() {
-        public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
-            byte v = source.readByte();
+        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
+            byte v = source.readByte(fromInc, toExc);
             if ( v == 'T' || v == 't' ) {
                 result.resultMatchedBoolean( true, fromInc, fromInc+1 );
             } else if ( v == 'F' || v == 'f' ) {
@@ -567,11 +556,11 @@ public class PullParser {
             }
         }
 
-        public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
+        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
             int num = 0;
 
             long i=fromInc;
-            byte v = source.readByte(i);
+            byte v = source.readByte(i, toExc);
 
             boolean isNeg = v == '-';
             if ( isNeg ) {
@@ -579,7 +568,7 @@ public class PullParser {
             }
 
             for ( ; i<toExc; i++ ) {
-                v = source.readByte(i);
+                v = source.readByte(i, toExc);
 
                 if ( v < '0' || v > '9' ) {
                     break;
@@ -597,7 +586,7 @@ public class PullParser {
                 long maxIndex          = Math.min(i+dpMultipliers.length-1,toExc);
 
                 for ( ; i<maxIndex; i++ ) {
-                    v = source.readByte(i);
+                    v = source.readByte(i, toExc);
 
                     if ( v < '0' || v > '9' ) {
                         break;
@@ -611,7 +600,7 @@ public class PullParser {
                 num *= dpMultipliers[numDecimalDigitsParsed];
 
                 if ( i<toExc ) {  // if we have truncated the input, round the last decimal place
-                    v = source.readByte(i);
+                    v = source.readByte(i, toExc);
 
                     if ( v >= '5' && v <= '9' ) {
                         i++;
@@ -621,7 +610,7 @@ public class PullParser {
                 }
 
                 for ( ; i<toExc; i++ ) {  // skip the rest of any digits
-                    v = source.readByte(i);
+                    v = source.readByte(i, toExc);
 
                     if ( v < '0' || v > '9' ) {
                         break;
@@ -675,11 +664,11 @@ public class PullParser {
             }
         }
 
-        public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
+        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
             long num = 0;
 
             long i=fromInc;
-            byte v = source.readByte(i);
+            byte v = source.readByte(i, toExc);
 
             boolean isNeg = v == '-';
             if ( isNeg ) {
@@ -687,7 +676,7 @@ public class PullParser {
             }
 
             for ( ; i<toExc; i++ ) {
-                v = source.readByte(i);
+                v = source.readByte(i, toExc);
 
                 if ( v < '0' || v > '9' ) {
                     break;
@@ -705,7 +694,7 @@ public class PullParser {
                 long maxIndex          = Math.min(i+dpMultipliers.length-1,toExc);
 
                 for ( ; i<maxIndex; i++ ) {
-                    v = source.readByte(i);
+                    v = source.readByte(i, toExc);
 
                     if ( v < '0' || v > '9' ) {
                         break;
@@ -719,7 +708,7 @@ public class PullParser {
                 num *= dpMultipliers[numDecimalDigitsParsed];
 
                 if ( i<toExc ) {  // if we have truncated the input, round the last decimal place
-                    v = source.readByte(i);
+                    v = source.readByte(i, toExc);
 
                     if ( v >= '5' && v <= '9' ) {
                         i++;
@@ -729,7 +718,7 @@ public class PullParser {
                 }
 
                 for ( ; i<toExc; i++ ) {  // skip the rest of any digits
-                    v = source.readByte(i);
+                    v = source.readByte(i, toExc);
 
                     if ( v < '0' || v > '9' ) {
                         break;
@@ -768,11 +757,11 @@ public class PullParser {
 
 
     private static final ByteMatcher BIGCASH_PARSEROLD = new ByteMatcher() {
-        public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
+        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
             long num = 0;
 
             long i=fromInc;
-            byte v = source.readByte(i);
+            byte v = source.readByte(i, toExc);
 
             boolean isNeg = v == '-';
             if ( isNeg ) {
@@ -780,7 +769,7 @@ public class PullParser {
             }
 
             for ( ; i<toExc; i++ ) {
-                v = source.readByte(i);
+                v = source.readByte(i, toExc);
 
                 if ( v < '0' || v > '9' ) {
                     break;
@@ -799,7 +788,7 @@ public class PullParser {
                 i++;
 
                 for ( ; i<maxIndex; i++ ) {
-                    v = source.readByte(i);
+                    v = source.readByte(i, toExc);
 
                     if ( v < '0' || v > '9' ) {
                         break;
@@ -826,7 +815,7 @@ public class PullParser {
 
 
                 if ( i<toExc ) {  // round the 3rd decimal place
-                    v = source.readByte(i);
+                    v = source.readByte(i, toExc);
 
                     if ( v >= '5' && v <= '9' ) {
                         i++;
@@ -836,7 +825,7 @@ public class PullParser {
                 }
 
                 for ( ; i<toExc; i++ ) {  // skip the rest of any digits
-                    v = source.readByte(i);
+                    v = source.readByte(i, toExc);
 
                     if ( v < '0' || v > '9' ) {
                         break;
@@ -877,11 +866,11 @@ public class PullParser {
 
 
     private static final ByteMatcher LONG_PARSER = new ByteMatcher() {
-        public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
+        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
             long num = 0;
 
             long i=fromInc;
-            byte v = source.readByte(i);
+            byte v = source.readByte(i, toExc);
 
             boolean isNeg = v == '-';
             if ( isNeg ) {
@@ -889,7 +878,7 @@ public class PullParser {
             }
 
             for ( ; i<toExc; i++ ) {
-                v = source.readByte(i);
+                v = source.readByte(i, toExc);
 
                 if ( v < '0' || v > '9' ) {
                     break;
@@ -926,8 +915,8 @@ public class PullParser {
     };
 
     private static final ByteMatcher FLOAT_PARSER = new ByteMatcher() {
-        public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
-            byte v = source.readByte(fromInc);
+        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
+            byte v = source.readByte(fromInc, toExc);
 
             boolean isNeg;
             long    isNegOffset;
@@ -952,12 +941,12 @@ public class PullParser {
             }
         }
 
-        private void parseIntegerPart( InputBytes source, long fromInc, long toExc, ParserResult result ) {
+        private void parseIntegerPart( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
             float num = 0;
 
             long i=fromInc;
             for ( ; i<toExc; i++ ) {
-                byte v = source.readByte(i);
+                byte v = source.readByte(i, toExc);
 
                 if ( v < '0' || v > '9' ) {
                     break;
@@ -980,12 +969,12 @@ public class PullParser {
          * @param fromInc where to expect the '.'
          * @param result contains the result so far, including where the parsing started from originally
          */
-        private void parseDecimalPart( InputBytes source, float num, long fromInc, long toExc, ParserResult result ) {
+        private void parseDecimalPart( Bytes2 source, float num, long fromInc, long toExc, ParserResult result ) {
             if ( fromInc >= toExc ) {
                 return;
             }
 
-            byte v = source.readByte(fromInc);
+            byte v = source.readByte(fromInc, toExc);
 
             if ( v != '.' ) {
                 return;
@@ -994,7 +983,7 @@ public class PullParser {
             float offsetCount = 1;
             long i=fromInc+1;
             for ( ; i<toExc; i++ ) {
-                v = source.readByte(i);
+                v = source.readByte(i, toExc);
 
                 if ( v < '0' || v > '9' ) {
                     break;
@@ -1017,8 +1006,8 @@ public class PullParser {
 
 
     private static final ByteMatcher DOUBLE_PARSER = new ByteMatcher() {
-        public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
-            byte v = source.readByte(fromInc);
+        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
+            byte v = source.readByte(fromInc, toExc);
 
             boolean isNeg;
             long    isNegOffset;
@@ -1044,12 +1033,12 @@ public class PullParser {
 
         }
 
-        private void parseIntegerPart( InputBytes source, long fromInc, long toExc, ParserResult result ) {
+        private void parseIntegerPart( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
             double num = 0;
 
             long i=fromInc;
             for ( ; i<toExc; i++ ) {
-                byte v = source.readByte(i);
+                byte v = source.readByte(i, toExc);
 
                 if ( v < '0' || v > '9' ) {
                     break;
@@ -1072,12 +1061,12 @@ public class PullParser {
          * @param fromInc where to expect the '.'
          * @param result contains the result so far, including where the parsing started from originally
          */
-        private void parseDecimalPart( InputBytes source, double num, long fromInc, long toExc, ParserResult result ) {
+        private void parseDecimalPart( Bytes2 source, double num, long fromInc, long toExc, ParserResult result ) {
             if ( fromInc >= toExc ) {
                 return;
             }
 
-            byte v = source.readByte(fromInc);
+            byte v = source.readByte(fromInc, toExc);
 
             if ( v != '.' ) {
                 return;
@@ -1086,7 +1075,7 @@ public class PullParser {
             double offsetCount = 1.0;
             long i=fromInc+1;
             for ( ; i<toExc; i++ ) {
-                v = source.readByte(i);
+                v = source.readByte(i, toExc);
 
                 if ( v < '0' || v > '9' ) {
                     break;
@@ -1111,7 +1100,7 @@ public class PullParser {
     private static class NoOpParser implements ByteMatcher {
         public static final ByteMatcher INSTANCE = new NoOpParser();
 
-        public void parse( InputBytes source, long fromInc, long toExc, ParserResult result ) {
+        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
             result.resultNoMatch();
         }
     }

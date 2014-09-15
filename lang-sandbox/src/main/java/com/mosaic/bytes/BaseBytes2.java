@@ -1,5 +1,6 @@
 package com.mosaic.bytes;
 
+import com.mosaic.io.bytes.InputBytes;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
@@ -8,6 +9,7 @@ import com.mosaic.lang.text.UTF8;
 import com.mosaic.lang.text.UTF8Tools;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import static com.mosaic.lang.system.SystemX.SIZEOF_SHORT;
 
@@ -121,6 +123,30 @@ public abstract class BaseBytes2 implements Bytes2 {
         return width;
     }
 
+    public int writeNullTerminatedUTF8String( long offset, long maxExc, CharSequence txt ) {
+        long i = offset;
+        for ( int n=0; n<txt.length(); n++ ) {
+            char c = txt.charAt( n );
+
+            i += writeUTF8Character( i, maxExc, c );
+        }
+
+        writeByte( i, maxExc, SystemX.NULL_BYTE );
+
+        return Backdoor.toInt( i - offset + 1 );
+    }
+
+    public int writeUTF8StringUndemarcated( long offset, long maxExc, CharSequence txt ) {
+        long i = offset;
+        for ( int n=0; n<txt.length(); n++ ) {
+            char c = txt.charAt( n );
+
+            i += writeUTF8Character( i, maxExc, c );
+        }
+
+        return Backdoor.toInt( i - offset );
+    }
+
     public int writeBytes( long offset, long maxExc, byte[] sourceBytes ) {
         return writeBytes( offset, maxExc, sourceBytes, 0, sourceBytes.length );
     }
@@ -135,6 +161,34 @@ public abstract class BaseBytes2 implements Bytes2 {
 
     public int writeBytes( long offset, long maxExc, Bytes2 sourceBytes ) {
         return writeBytes( offset, maxExc, sourceBytes, 0, sourceBytes.sizeBytes() );
+    }
+
+
+    public InputStream toInputStream() {
+        return new InputStream() {
+            private long nextIndex = 0;
+
+            public int read() throws IOException {
+                if ( nextIndex == sizeBytes() ) {
+                    return -1;
+                }
+
+                return readByte( nextIndex++, sizeBytes() );
+            }
+        };
+    }
+
+    public String toString() {
+        StringBuilder buf = new StringBuilder();
+
+        long maxExc = sizeBytes();
+        for (long i=0; i< maxExc; i++ ) {
+            byte b = readByte( i, maxExc );
+
+            buf.append((char) b);
+        }
+
+        return buf.toString();
     }
 
 

@@ -1,6 +1,6 @@
 package com.mosaic.lang.text;
 
-import com.mosaic.io.bytes.InputBytes;
+import com.mosaic.bytes.Bytes2;
 
 
 /**
@@ -19,6 +19,6 @@ public interface ByteMatcher<T> {
      * become significant.  For this reason ParserResult is passed in as an OUT parameter,
      * thus supporting zero copy parsing.
      */
-    public void parse( InputBytes source, long fromInc, long toExc, ParserResult<T> result );
+    public void parse( Bytes2 source, long fromInc, long toExc, ParserResult<T> result );
 
 }

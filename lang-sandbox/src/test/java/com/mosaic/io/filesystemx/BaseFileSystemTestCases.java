@@ -1,6 +1,6 @@
 package com.mosaic.io.filesystemx;
 
-import com.mosaic.io.bytes.Bytes;
+import com.mosaic.bytes.Bytes2;
 import com.mosaic.lang.system.SystemX;
 import org.junit.After;
 import org.junit.Before;
@@ -146,12 +146,13 @@ public abstract class BaseFileSystemTestCases {
 
         assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
 
-        Bytes fileContents = newFile.openFile( FileModeEnum.READ_ONLY );
+        Bytes2 fileContents = newFile.openFile( FileModeEnum.READ_ONLY );
 
         assertEquals( "abc\n123", fileContents.toString() );
         assertEquals( 1, fileSystem.getNumberOfOpenFiles() );
 
         fileContents.release();
+        newFile.delete();
     }
 
     @Test
@@ -160,7 +161,7 @@ public abstract class BaseFileSystemTestCases {
 
         assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
 
-        Bytes fileContents = newFile.openFile( FileModeEnum.READ_ONLY );
+        Bytes2 fileContents = newFile.openFile( FileModeEnum.READ_ONLY );
 
         fileContents.release();
 
@@ -220,7 +221,7 @@ public abstract class BaseFileSystemTestCases {
         FileX newFile   = fileSystem.getCurrentWorkingDirectory().addFile( "foo.txt", "abc", "123" );
         FileX copiedFile = fileSystem.getCurrentWorkingDirectory().copyFile( newFile, "copy.txt" );
 
-        Bytes fileContents = copiedFile.openFile( FileModeEnum.READ_ONLY );
+        Bytes2 fileContents = copiedFile.openFile( FileModeEnum.READ_ONLY );
 
         assertEquals( "abc\n123", fileContents.toString() );
         assertEquals( 1, fileSystem.getNumberOfOpenFiles() );
@@ -237,16 +238,16 @@ public abstract class BaseFileSystemTestCases {
 
         assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
 
-        Bytes fileContents = newFile.openFile( FileModeEnum.READ_WRITE );
+        Bytes2 fileContents = newFile.openFile( FileModeEnum.READ_WRITE );
 
         fileContents.resize( 6 );
-        fileContents.writeText( "123456" );
+        fileContents.writeUTF8StringUndemarcated( 0, 6, "123456" );
         fileContents.release();
 
         assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
 
 
-        Bytes fileContents2 = newFile.openFile( FileModeEnum.READ_WRITE );
+        Bytes2 fileContents2 = newFile.openFile( FileModeEnum.READ_WRITE );
 
         assertEquals( "123456", fileContents2.toString() );
         assertEquals( 1, fileSystem.getNumberOfOpenFiles() );
@@ -265,7 +266,7 @@ public abstract class BaseFileSystemTestCases {
         assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
 
 
-        Bytes fileContents2 = newFile.openFile( FileModeEnum.READ_WRITE );
+        Bytes2 fileContents2 = newFile.openFile( FileModeEnum.READ_WRITE );
 
         assertEquals( "123456", fileContents2.toString() );
         assertEquals( 1, fileSystem.getNumberOfOpenFiles() );
@@ -282,14 +283,14 @@ public abstract class BaseFileSystemTestCases {
         FileContents fc = newFile.openFile( FileModeEnum.READ_WRITE );
         fc.lockFile();
         fc.resize( 6 );
-        fc.writeText( "123456" );
+        fc.writeUTF8StringUndemarcated( 0, 6, "123456" );
         fc.unlockFile();
         fc.release();
 
         assertEquals( 0, fileSystem.getNumberOfOpenFiles() );
 
 
-        Bytes fileContents2 = newFile.openFile( FileModeEnum.READ_WRITE );
+        Bytes2 fileContents2 = newFile.openFile( FileModeEnum.READ_WRITE );
 
         assertEquals( "123456", fileContents2.toString() );
         assertEquals( 1, fileSystem.getNumberOfOpenFiles() );
