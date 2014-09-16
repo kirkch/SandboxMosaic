@@ -2,6 +2,7 @@ package com.mosaic.columnstore.aggregates;
 
 import com.mosaic.columnstore.LongColumn;
 import com.mosaic.columnstore.columns.LongColumnFormula1;
+import com.mosaic.lang.system.SystemX;
 
 
 /**
@@ -11,14 +12,15 @@ public class SumLastNLongColumn extends LongColumnFormula1 {
 
     private final long numSamples;
 
-    public SumLastNLongColumn( String columnName, String description, String opLabel, LongColumn source, int numSamples ) {
-        super( columnName, description, opLabel, source, numSamples );
+    public SumLastNLongColumn( SystemX system, String columnName, String description, String opLabel, LongColumn source, int numSamples ) {
+        super( system, columnName, description, opLabel, source, numSamples );
 
         this.numSamples = numSamples;
     }
 
-    public SumLastNLongColumn( LongColumn source, int numSamples ) {
+    public SumLastNLongColumn( SystemX system, LongColumn source, int numSamples ) {
         super(
+            system,
             "Sum " + numSamples + " " + source.getColumnName(),                           // column name
             "Sum of the previous "+numSamples+" set values from "+source.getColumnName(), // description
             "SUM" + numSamples,                                                           // op label

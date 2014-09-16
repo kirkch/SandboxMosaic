@@ -2,6 +2,8 @@ package com.mosaic.columnstore.aggregates;
 
 import com.mosaic.columnstore.FloatColumn;
 import com.mosaic.columnstore.columns.FloatColumnArray;
+import com.mosaic.lang.system.DebugSystem;
+import com.mosaic.lang.system.SystemX;
 import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Benchmark;
 import org.junit.Before;
@@ -15,9 +17,14 @@ import org.junit.runner.RunWith;
 public class MovingAverageFloatColumnBenchmark {
     private final int ROW_COUNT = 1000000;
 
-    private final FloatColumn price       = new FloatColumnArray( "cost", "d", ROW_COUNT );
-    private final FloatColumn ma100       = new MovingAverageFloatColumn( price, 100 );
-    private final FloatColumn cachedMA100 = new FloatColumnArray( "cost", "d", ROW_COUNT );
+
+    private SystemX system = new DebugSystem();
+
+
+    private final FloatColumn price       = new FloatColumnArray( system, "cost", "d", ROW_COUNT );
+    private final FloatColumn ma100       = new MovingAverageFloatColumn( system, price, 100 );
+    private final FloatColumn cachedMA100 = new FloatColumnArray( system, "cost", "d", ROW_COUNT );
+
 
     @Before
     public void setup() {

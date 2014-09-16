@@ -7,6 +7,7 @@ import com.mosaic.columnstore.LongColumn;
 import com.mosaic.io.codecs.LongCodec;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.MapUtils;
 
 import java.util.Map;
@@ -17,6 +18,7 @@ import java.util.Map;
  */
 public abstract class BooleanLong2LongFormula extends BaseLongColumn {
 
+    private SystemX       system;
     private String        columnName;
     private String        description;
 
@@ -25,7 +27,8 @@ public abstract class BooleanLong2LongFormula extends BaseLongColumn {
     private LongColumn    sourceColumn2;
 
 
-    protected BooleanLong2LongFormula( String columnName, String description, String opName, BooleanColumn sourceColumn1, LongColumn sourceColumn2 ) {
+    protected BooleanLong2LongFormula( SystemX system, String columnName, String description, String opName, BooleanColumn sourceColumn1, LongColumn sourceColumn2 ) {
+        this.system            = system;
         this.columnName        = columnName;
         this.description       = description;
 
@@ -98,7 +101,7 @@ public abstract class BooleanLong2LongFormula extends BaseLongColumn {
     protected abstract long get( long row, BooleanColumn col1, LongColumn col2 );
 
     private String encodeValue( long v ) {
-        return getCodec().toString(v);
+        return getCodec().toString(system,v);
     }
 
     /**

@@ -7,6 +7,7 @@ import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
+import com.mosaic.lang.system.SystemX;
 
 import java.util.Arrays;
 
@@ -16,10 +17,11 @@ import java.util.Arrays;
 */
 public class LongColumnArray extends BaseLongColumn {
 
-    public static LongColumn cache( LongColumn col ) {
-        return new LongColumnArray( col.getColumnName()+" Cache", col.getDescription(), col.size(), col.getCodec() );
+    public static LongColumn cache( SystemX system, LongColumn col ) {
+        return new LongColumnArray( system, col.getColumnName()+" Cache", col.getDescription(), col.size(), col.getCodec() );
     }
 
+    private final SystemX          system;
 
     private final String           columnName;
     private final String           description;
@@ -29,12 +31,14 @@ public class LongColumnArray extends BaseLongColumn {
     private long[]    cells;
     private boolean[] isSet;
 
-    public LongColumnArray( String columnName, String description, long size ) {
-        this( columnName, description, size, LongCodec.LONG_CODEC );
+    public LongColumnArray( SystemX system, String columnName, String description, long size ) {
+        this( system, columnName, description, size, LongCodec.LONG_CODEC );
     }
 
-    public LongColumnArray( String columnName, String description, long size, LongCodec codec ) {
+    public LongColumnArray( SystemX system, String columnName, String description, long size, LongCodec codec ) {
         QA.isInt( size, "size" );
+
+        this.system      = system;
 
         this.columnName  = columnName;
         this.description = description;
@@ -120,7 +124,7 @@ public class LongColumnArray extends BaseLongColumn {
         int  r = Backdoor.safeDowncast( row );
         long v = cells[r];
 
-        UTF8Builder buf = new UTF8Builder();
+        UTF8Builder buf = new UTF8Builder(system);
 
         getCodec().encode( v, buf );
 

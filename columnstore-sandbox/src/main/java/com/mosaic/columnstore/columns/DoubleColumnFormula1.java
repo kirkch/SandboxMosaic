@@ -5,6 +5,7 @@ import com.mosaic.columnstore.CellExplanation;
 import com.mosaic.columnstore.DoubleColumn;
 import com.mosaic.io.codecs.DoubleCodec;
 import com.mosaic.io.streams.CharacterStream;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.MapUtils;
 
 import java.util.Map;
@@ -15,6 +16,7 @@ import java.util.Map;
  */
 public abstract class DoubleColumnFormula1 extends BaseDoubleColumn {
 
+    private SystemX      system;
     private String       columnName;
     private String       description;
 
@@ -27,7 +29,8 @@ public abstract class DoubleColumnFormula1 extends BaseDoubleColumn {
      *
      * @param expectedCellCount how many source cells are probably used to calculate a single cell in this column? (hint only)
      */
-    protected DoubleColumnFormula1( String columnName, String description, String opName, DoubleColumn sourceColumn, long expectedCellCount ) {
+    protected DoubleColumnFormula1( SystemX system, String columnName, String description, String opName, DoubleColumn sourceColumn, long expectedCellCount ) {
+        this.system            = system;
         this.columnName        = columnName;
         this.description       = description;
 
@@ -96,7 +99,7 @@ public abstract class DoubleColumnFormula1 extends BaseDoubleColumn {
     protected abstract double get( long row, DoubleColumn col );
 
     private String encodeValue( double v ) {
-        return getCodec().toString(v);
+        return getCodec().toString(system,v);
     }
 
     /**

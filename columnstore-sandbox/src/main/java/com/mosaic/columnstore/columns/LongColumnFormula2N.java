@@ -8,6 +8,7 @@ import com.mosaic.io.codecs.LongCodec;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.Function1;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.ListUtils;
 
 import java.util.ArrayList;
@@ -21,6 +22,8 @@ import java.util.Map;
  */
 public abstract class LongColumnFormula2N extends BaseLongColumn {
 
+    private   final SystemX          system;
+
     private   final String           columnName;
     private   final String           description;
 
@@ -29,7 +32,9 @@ public abstract class LongColumnFormula2N extends BaseLongColumn {
     private   final List<LongColumn> sourceColumnsB  = new ArrayList<>();
 
 
-    protected LongColumnFormula2N( String columnName, String description, String opName) {
+    protected LongColumnFormula2N( SystemX system, String columnName, String description, String opName) {
+        this.system      = system;
+
         this.columnName  = columnName;
         this.description = description;
         this.opName      = opName;
@@ -141,7 +146,7 @@ public abstract class LongColumnFormula2N extends BaseLongColumn {
     protected abstract <T extends LongColumn> long get( long row, List<T> columnsA, List<T> columnsB );
 
     private String encodeValue( long v ) {
-        return getCodec().toString(v);
+        return getCodec().toString(system,v);
     }
 
     /**

@@ -1,6 +1,10 @@
 package com.mosaic.io.streams;
 
+import com.mosaic.bytes.ArrayBytes2;
+import com.mosaic.bytes.Bytes2;
 import com.mosaic.io.bytes.Bytes;
+import com.mosaic.lang.system.DebugSystem;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.text.UTF8;
 import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Benchmark;
@@ -41,8 +45,10 @@ public class BytesWriterBenchmarkTests {
 
 
 //    private Bytes bytes = Bytes.allocOffHeap( 8024 );
-    private Bytes       bytes = Bytes.allocOnHeap( 8024 );
-    private UTF8Builder out   = new UTF8Builder( bytes );
+
+    private SystemX     system = new DebugSystem();
+    private Bytes2      bytes  = new ArrayBytes2( 8024 );
+    private UTF8Builder out    = new UTF8Builder( system, bytes );
 /*
 3 byte array hack
     714.89ns per call
@@ -102,9 +108,8 @@ Conclusion:  6.5x faster than the standard Java approach, and has no GC impact.
             for ( int i=0; i<100; i++ ) {
                 out.writeByteAsNumber( (byte) i );
             }
-            bytes.positionIndex(0);
 
-            v += bytes.readByte( 1 );
+            v += bytes.readByte( 10, 1 );
 
             numIterations--;
         }
@@ -150,9 +155,8 @@ Conclusion:  Hotspot is doing a fine job of optimising the bounds check out for 
             for ( int i=0; i<10; i++ ) {
                 out.writeUTF8Bytes( bytesConstant, 2, 8 );
             }
-            bytes.positionIndex(6);
 
-            v += bytes.readByte( 1 );
+            v += bytes.readByte( 10, 1 );
 
             numIterations--;
         }
@@ -177,9 +181,8 @@ first stab (uses optimised code in UTF8Tools)
             for ( int i=0; i<10; i++ ) {
                 out.writeCharacter( (char) i );
             }
-            bytes.positionIndex(2);
 
-            v += bytes.readByte( 1 );
+            v += bytes.readByte( 10, 1 );
 
             numIterations--;
         }
@@ -200,9 +203,8 @@ first stab (uses optimised code in UTF8Tools)
     public void writeInt( int numIterations ) {
         while ( numIterations > 0 ) {
             for ( int i=0; i<5000; i++ ) {
-                bytes.writeByte( (byte) i );
+                bytes.writeByte( 10, 100, (byte) i );
             }
-            bytes.positionIndex(0);
 
             numIterations--;
         }
@@ -261,9 +263,8 @@ specify the precision.  Five times faster than String.format().
             for ( int i=0; i<10; i++ ) {
                 out.writeFloat( i + 0.3f, 2 );
             }
-            bytes.positionIndex(0);
 
-            v += bytes.readByte( 1 );
+            v += bytes.readByte( 10, 1 );
 
             numIterations--;
         }
@@ -291,9 +292,8 @@ private String[] STRINGS = new String[] {"££foo bar££", "man of war", "man o
             for ( String s : STRINGS ) {
                 out.writeString( s );
             }
-            bytes.positionIndex(0);
 
-            v += bytes.readByte( 1 );
+            v += bytes.readByte( 10, 1 );
 
             numIterations--;
         }
@@ -325,9 +325,8 @@ private UTF8[] UTF8S = new UTF8[] {
             for ( UTF8 s : UTF8S ) {
                 out.writeUTF8( s );
             }
-            bytes.positionIndex(0);
 
-            v += bytes.readByte( 1 );
+            v += bytes.readByte( 10, 1 );
 
             numIterations--;
         }
@@ -360,9 +359,8 @@ rewrote to be simpler (less if/elseif/else logic)
             for ( int i=0; i<20; i++ ) {
                 out.writeSmallCashMajorUnit( i );
             }
-            bytes.positionIndex(0);
 
-            v += bytes.readByte( 1 );
+            v += bytes.readByte( 10, 1 );
 
             numIterations--;
         }

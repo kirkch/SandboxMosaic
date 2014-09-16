@@ -3,6 +3,8 @@ package com.mosaic.columnstore.aggregates;
 import com.mosaic.columnstore.CellExplanation;
 import com.mosaic.columnstore.LongColumn;
 import com.mosaic.columnstore.columns.LongColumnArray;
+import com.mosaic.lang.system.DebugSystem;
+import com.mosaic.lang.system.SystemX;
 import org.junit.Test;
 
 import static com.mosaic.columnstore.ColumnTestUtils.assertReferencedCellsEquals;
@@ -14,12 +16,15 @@ import static org.junit.Assert.assertEquals;
  */
 public class SumLastNLongColumnTest {
 
+    private SystemX system = new DebugSystem();
+
+
     // EMPTY SOURCE COLUMN, CALC SUM3
 
     @Test
     public void givenEmptySourceColumn_expectExplanationOfSUM3ForAnyRow_toBeZeroWithNoTouchedCells() {
-        LongColumn            price = new LongColumnArray( "cost", "d", 0 );
-        SumLastNLongColumn sum3   = new SumLastNLongColumn( price, 3 );
+        LongColumn            price = new LongColumnArray( system, "cost", "d", 0 );
+        SumLastNLongColumn sum3   = new SumLastNLongColumn( system, price, 3 );
 
         assertEquals( 0, sum3.size() );
 
@@ -37,8 +42,8 @@ public class SumLastNLongColumnTest {
 
     @Test
     public void givenSourceWithSingleRowAt10_expectSUM3OfAnyRowBelow10ToBeZero() {
-        LongColumn            price = new LongColumnArray( "cost", "d", 11 );
-        SumLastNLongColumn sum3  = new SumLastNLongColumn( "colName", "desc", "OP", price, 3 );
+        LongColumn            price = new LongColumnArray( system, "cost", "d", 11 );
+        SumLastNLongColumn sum3  = new SumLastNLongColumn( system, "colName", "desc", "OP", price, 3 );
 
         price.set( 10, 100 );
 
@@ -55,8 +60,8 @@ public class SumLastNLongColumnTest {
 
     @Test
     public void givenSourceWithSingleRowAt10_expectSUM3OfAnyRowGTE10_toBeValue() {
-        LongColumn            price = new LongColumnArray( "cost", "d", 11 );
-        SumLastNLongColumn sum3  = new SumLastNLongColumn( price, 3 );
+        LongColumn            price = new LongColumnArray( system, "cost", "d", 11 );
+        SumLastNLongColumn sum3  = new SumLastNLongColumn( system, price, 3 );
 
         price.set( 10, 100 );
 
@@ -74,8 +79,8 @@ public class SumLastNLongColumnTest {
 
     @Test
     public void givenSourceWithRowsAt10And12_expectSUM3OfAnyRowBelow10ToBeZero() {
-        LongColumn            price = new LongColumnArray( "cost", "d", 13 );
-        SumLastNLongColumn sum3  = new SumLastNLongColumn( price, 3 );
+        LongColumn            price = new LongColumnArray( system, "cost", "d", 13 );
+        SumLastNLongColumn sum3  = new SumLastNLongColumn( system, price, 3 );
 
         price.set( 10, 4 );
         price.set( 12, 6 );
@@ -93,8 +98,8 @@ public class SumLastNLongColumnTest {
 
     @Test
     public void givenSourceWithRowsAt10And12_expectSUM3OfAnyRowBetween10And11_toBeEqualToFirstValue() {
-        LongColumn            price = new LongColumnArray( "cost", "d", 13 );
-        SumLastNLongColumn sum3  = new SumLastNLongColumn( price, 3 );
+        LongColumn            price = new LongColumnArray( system, "cost", "d", 13 );
+        SumLastNLongColumn sum3  = new SumLastNLongColumn( system, price, 3 );
 
         price.set( 10, 4 );
         price.set( 12, 6 );
@@ -110,8 +115,8 @@ public class SumLastNLongColumnTest {
 
     @Test
     public void givenSourceWithRowsAtRow12_expectSUM3OfAnyRowFrom12OnwardsToBeTheSumOfTheTwoValues() {
-        LongColumn            price = new LongColumnArray( "cost", "d", 13 );
-        SumLastNLongColumn sum3  = new SumLastNLongColumn( price, 3 );
+        LongColumn            price = new LongColumnArray( system, "cost", "d", 13 );
+        SumLastNLongColumn sum3  = new SumLastNLongColumn( system, price, 3 );
 
         price.set( 10, 4 );
         price.set( 12, 6 );
@@ -130,8 +135,8 @@ public class SumLastNLongColumnTest {
 
     @Test
     public void givenSourceFourRows_expectSUM3OfFourthRow_toEqualSumOfLastThreeRows() {
-        LongColumn            price = new LongColumnArray( "cost", "d", 15 );
-        SumLastNLongColumn sum3  = new SumLastNLongColumn( price, 3 );
+        LongColumn            price = new LongColumnArray( system, "cost", "d", 15 );
+        SumLastNLongColumn sum3  = new SumLastNLongColumn( system, price, 3 );
 
         price.set( 10, 1 );
         price.set( 12, 2 );
@@ -147,8 +152,8 @@ public class SumLastNLongColumnTest {
 
     @Test
     public void givenSourceFourRows_expectSUM3OfThirdRow_toEqualSumOfLastThreeRows() {
-        LongColumn            price = new LongColumnArray( "cost", "d", 15 );
-        SumLastNLongColumn sum3  = new SumLastNLongColumn( price, 3 );
+        LongColumn            price = new LongColumnArray( system, "cost", "d", 15 );
+        SumLastNLongColumn sum3  = new SumLastNLongColumn( system, price, 3 );
 
         price.set( 10, 1 );
         price.set( 12, 2 );
@@ -164,8 +169,8 @@ public class SumLastNLongColumnTest {
 
     @Test
     public void givenSourceFourRows_expectSUM3OfRow11_toEqualRow10Only() {
-        LongColumn            price = new LongColumnArray( "cost", "d", 15 );
-        SumLastNLongColumn sum3  = new SumLastNLongColumn( price, 3 );
+        LongColumn            price = new LongColumnArray( system, "cost", "d", 15 );
+        SumLastNLongColumn sum3  = new SumLastNLongColumn( system, price, 3 );
 
         price.set( 10, 1 );
         price.set( 12, 2 );

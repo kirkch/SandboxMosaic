@@ -6,6 +6,7 @@ import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
+import com.mosaic.lang.system.SystemX;
 
 import java.util.Arrays;
 
@@ -15,20 +16,25 @@ import java.util.Arrays;
 */
 public class IntColumnArray extends BaseIntColumn {
 
-    private final String           columnName;
-    private final String           description;
+    private final SystemX system;
+
+    private final String  columnName;
+    private final String  description;
 
     private final IntCodec codec;
 
     private int[]     cells;
     private boolean[] isSet;
 
-    public IntColumnArray( String columnName, String description, long size ) {
-        this( columnName, description, size, IntCodec.INT_CODEC );
+
+    public IntColumnArray( SystemX system, String columnName, String description, long size ) {
+        this( system, columnName, description, size, IntCodec.INT_CODEC );
     }
 
-    public IntColumnArray( String columnName, String description, long size, IntCodec codec ) {
+    public IntColumnArray( SystemX system, String columnName, String description, long size, IntCodec codec ) {
         QA.isInt( size, "size" );
+
+        this.system      = system;
 
         this.columnName  = columnName;
         this.description = description;
@@ -118,7 +124,7 @@ public class IntColumnArray extends BaseIntColumn {
         int  r = Backdoor.safeDowncast( row );
         int v = cells[r];
 
-        UTF8Builder buf = new UTF8Builder();
+        UTF8Builder buf = new UTF8Builder(system);
 
         getCodec().encode( v, buf );
 

@@ -6,6 +6,7 @@ import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
+import com.mosaic.lang.system.SystemX;
 
 import java.util.Arrays;
 
@@ -17,6 +18,7 @@ import java.util.Arrays;
 @SuppressWarnings("unchecked")
 public class ObjectColumnArray<T> extends BaseObjectColumn<T> {
 
+    private final SystemX        system;
     private final String         columnName;
     private final String         description;
     private final ObjectCodec<T> codec;
@@ -24,13 +26,14 @@ public class ObjectColumnArray<T> extends BaseObjectColumn<T> {
     private T[] cells;
 
 
-    public ObjectColumnArray( String columnName, String description, long size ) {
-        this( columnName, description, size, ObjectCodec.TOSTRING_FORMATTING_CODEC );
+    public ObjectColumnArray( SystemX system, String columnName, String description, long size ) {
+        this( system, columnName, description, size, ObjectCodec.TOSTRING_FORMATTING_CODEC );
     }
 
-    public ObjectColumnArray( String columnName, String description, long size, ObjectCodec<T> codec ) {
+    public ObjectColumnArray( SystemX system, String columnName, String description, long size, ObjectCodec<T> codec ) {
         QA.isInt( size, "size" );
 
+        this.system      = system;
         this.columnName  = columnName;
         this.description = description;
         this.codec       = codec;
@@ -113,7 +116,7 @@ public class ObjectColumnArray<T> extends BaseObjectColumn<T> {
         int r = Backdoor.safeDowncast( row );
         T   v = cells[r];
 
-        UTF8Builder buf = new UTF8Builder();
+        UTF8Builder buf = new UTF8Builder(system);
 
         getCodec().encode( v, buf );
 

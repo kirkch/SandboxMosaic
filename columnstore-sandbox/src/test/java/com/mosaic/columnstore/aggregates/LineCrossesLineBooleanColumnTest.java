@@ -6,6 +6,8 @@ import com.mosaic.columnstore.CellExplanation;
 import com.mosaic.columnstore.Columns;
 import com.mosaic.columnstore.LongColumn;
 import com.mosaic.columnstore.columns.LongColumnArray;
+import com.mosaic.lang.system.DebugSystem;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.MapUtils;
 import org.junit.Test;
 
@@ -18,12 +20,14 @@ import static org.junit.Assert.*;
  */
 public class LineCrossesLineBooleanColumnTest {
 
+    private SystemX system = new DebugSystem();
+
 
     @Test
     public void givenEmptySourceColumns_expectIsSetToReturnFalse() {
-        LongColumn    a      = new LongColumnArray("a","desc", 3);
-        LongColumn    b      = new LongColumnArray("b","desc", 3);
-        BooleanColumn signal = new LineCrossesLineBooleanColumn( "signal", "desc", "a^b", a, b );
+        LongColumn    a      = new LongColumnArray(system, "a", "desc", 3);
+        LongColumn    b      = new LongColumnArray(system, "b", "desc", 3);
+        BooleanColumn signal = new LineCrossesLineBooleanColumn( system, "signal", "desc", "a^b", a, b );
 
         assertEquals( 3, signal.size() );
 
@@ -40,9 +44,9 @@ public class LineCrossesLineBooleanColumnTest {
 
     @Test
     public void givenTwoLinesThatDoNotCross() {
-        LongColumn    a      = Columns.newLongColumn( "a", "desc", 1, 1, 1 );
-        LongColumn    b      = Columns.newLongColumn("b","desc", 2, 2, 2);
-        BooleanColumn signal = new LineCrossesLineBooleanColumn( "signal", "desc", "a^b", a, b );
+        LongColumn    a      = Columns.newLongColumn( system, "a", "desc", 1, 1, 1 );
+        LongColumn    b      = Columns.newLongColumn( system, "b", "desc", 2, 2, 2 );
+        BooleanColumn signal = new LineCrossesLineBooleanColumn( system, "signal", "desc", "a^b", a, b );
 
         assertEquals( 3, signal.size() );
 
@@ -62,9 +66,9 @@ public class LineCrossesLineBooleanColumnTest {
 
     @Test
     public void givenTwoLinesThatDoCross() {
-        LongColumn    a      = Columns.newLongColumn( "a", "desc", 1, 2, 1 );
-        LongColumn    b      = Columns.newLongColumn("b","desc", 2, 1, 2);
-        BooleanColumn signal = new LineCrossesLineBooleanColumn( "signal", "desc", "a^b", a, b );
+        LongColumn    a      = Columns.newLongColumn( system, "a", "desc", 1, 2, 1 );
+        LongColumn    b      = Columns.newLongColumn( system, "b", "desc", 2, 1, 2 );
+        BooleanColumn signal = new LineCrossesLineBooleanColumn( system, "signal", "desc", "a^b", a, b );
 
         assertEquals( 3, signal.size() );
 
@@ -85,9 +89,9 @@ public class LineCrossesLineBooleanColumnTest {
 
     @Test
     public void givenLinesThatCrossANDLineAHasAGap() {
-        LongColumn    a      = new LongColumnArray("a","desc", 10);
-        LongColumn    b      = new LongColumnArray("b","desc", 10);
-        BooleanColumn signal = new LineCrossesLineBooleanColumn( "signal", "desc", "a^b", a, b );
+        LongColumn    a      = new LongColumnArray(system, "a", "desc", 10);
+        LongColumn    b      = new LongColumnArray(system, "b", "desc", 10);
+        BooleanColumn signal = new LineCrossesLineBooleanColumn( system, "signal", "desc", "a^b", a, b );
 
         a.set( 0, 1 );
         a.set( 2, 3 );

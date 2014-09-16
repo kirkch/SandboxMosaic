@@ -1,7 +1,7 @@
 package com.mosaic.io.streams;
 
 import com.mosaic.io.RuntimeIOException;
-import com.mosaic.io.bytes.Bytes;
+import com.mosaic.bytes.Bytes2;
 import com.mosaic.lang.BigCashType;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.SmallCashType;
@@ -58,20 +58,20 @@ public class WriterCharacterStream implements CharacterStream {
         }
     }
 
-    public void writeUTF8Bytes( Bytes bytes ) {
+    public void writeUTF8Bytes( Bytes2 bytes ) {
         if ( isEnabled ) {
             try {
-                out.write( new UTF8( bytes, 0, bytes.bufferLength() ).toString() );
+                out.write( new UTF8( bytes, 0, bytes.sizeBytes() ).toString() );
             } catch ( IOException ex ) {
                 throw new RuntimeIOException( ex );
             }
         }
     }
 
-    public void writeUTF8Bytes( Bytes bytes, int fromIndexInc, int toExc ) {
+    public void writeUTF8Bytes( Bytes2 bytes, int fromIndexInc, int toExc ) {
         if ( isEnabled ) {
             try {
-                out.write( new UTF8( bytes, fromIndexInc, toExc ).toString() );
+                out.write( new UTF8(bytes, fromIndexInc, toExc).toString() );
             } catch ( IOException ex ) {
                 throw new RuntimeIOException( ex );
             }

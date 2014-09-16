@@ -1,6 +1,8 @@
 package com.mosaic.lang;
 
 import com.mosaic.io.streams.UTF8Builder;
+import com.mosaic.lang.system.DebugSystem;
+import com.mosaic.lang.system.SystemX;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -10,6 +12,9 @@ import static org.junit.Assert.assertEquals;
  *
  */
 public class BigCashTypeTest {
+
+    private SystemX system = new DebugSystem();
+
 
     @Test
     public void roundUp() {
@@ -143,7 +148,7 @@ public class BigCashTypeTest {
     }
 
     private String encodeMajor( long amt ) {
-        UTF8Builder buf = new UTF8Builder();
+        UTF8Builder buf = new UTF8Builder(system);
 
         BigCashType.CODEC_MAJOR.encode( amt, buf );
 
@@ -151,7 +156,7 @@ public class BigCashTypeTest {
     }
 
     private String encodeMinor( long amt ) {
-        UTF8Builder buf = new UTF8Builder();
+        UTF8Builder buf = new UTF8Builder(system);
 
         BigCashType.CODEC_MINOR.encode( amt, buf );
 

@@ -1,6 +1,7 @@
 package com.mosaic.io.streams;
 
 import com.mosaic.collections.SimpleSpreadSheet;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -265,8 +266,8 @@ public class PrettyPrinter {
         }
     }
 
-    public static String formatFloat( float v, int numDP ) {
-        UTF8Builder buf = new UTF8Builder();
+    public static String formatFloat( SystemX system, float v, int numDP ) {
+        UTF8Builder buf = new UTF8Builder(system);
 
         buf.writeFloat( v, numDP );
 

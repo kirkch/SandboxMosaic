@@ -3,6 +3,7 @@ package com.mosaic.columnstore.aggregates;
 import com.mosaic.collections.LongSet;
 import com.mosaic.columnstore.LongColumn;
 import com.mosaic.columnstore.columns.LongColumnFormula1;
+import com.mosaic.lang.system.SystemX;
 
 import java.util.Map;
 
@@ -14,8 +15,9 @@ public class StandardDeviationLongColumn extends LongColumnFormula1 {
 
     private final long numSamples;
 
-    public StandardDeviationLongColumn( LongColumn source, int numSamples ) {
+    public StandardDeviationLongColumn( SystemX system, LongColumn source, int numSamples ) {
         super(
+            system,
             source.getColumnName() + " StdDev" + numSamples,                                // column name
             "The standard deviation of "+numSamples+" values from "+source.getColumnName(), // description
             "StdDev" + numSamples,                                                          // op label

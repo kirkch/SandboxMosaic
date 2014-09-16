@@ -5,6 +5,7 @@ import com.mosaic.columnstore.CellExplanation;
 import com.mosaic.columnstore.Column;
 import com.mosaic.io.codecs.BooleanCodec;
 import com.mosaic.io.streams.CharacterStream;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.MapUtils;
 
 import java.util.Map;
@@ -15,19 +16,21 @@ import java.util.Map;
  */
 public abstract class BooleanColumnFormula1<T extends Column> extends BaseBooleanColumn {
 
-    private String columnName;
-    private String description;
+    private SystemX system;
+    private String  columnName;
+    private String  description;
 
-    private String opName;
-    private T      sourceColumn;
-    private int    expectedCellCount;
+    private String  opName;
+    private T       sourceColumn;
+    private int     expectedCellCount;
 
 
     /**
      *
      * @param expectedCellCount how many source cells are probably used to calculate a single cell in this column? (hint only)
      */
-    protected BooleanColumnFormula1( String columnName, String description, String opName, T sourceColumn, int expectedCellCount ) {
+    protected BooleanColumnFormula1( SystemX system, String columnName, String description, String opName, T sourceColumn, int expectedCellCount ) {
+        this.system            = system;
         this.columnName        = columnName;
         this.description       = description;
 
@@ -98,7 +101,7 @@ public abstract class BooleanColumnFormula1<T extends Column> extends BaseBoolea
     protected abstract boolean get( long row, T col );
 
     private String encodeValue( boolean v ) {
-        return getCodec().toString(v);
+        return getCodec().toString(system,v);
     }
 
     /**

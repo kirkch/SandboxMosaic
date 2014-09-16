@@ -2,6 +2,7 @@ package com.mosaic.columnstore.aggregates;
 
 import com.mosaic.columnstore.LongColumn;
 import com.mosaic.columnstore.columns.LongLong2BooleanFormula;
+import com.mosaic.lang.system.SystemX;
 
 
 /**
@@ -13,8 +14,8 @@ public class LineCrossesLineBooleanColumn extends LongLong2BooleanFormula {
     private LongColumn sourceColumn2;
 
 
-    public LineCrossesLineBooleanColumn( String columnName, String description, String opName, LongColumn sourceColumn1, LongColumn sourceColumn2 ) {
-        super( columnName, description, opName, sourceColumn1, sourceColumn2 );
+    public LineCrossesLineBooleanColumn( SystemX system, String columnName, String description, String opName, LongColumn sourceColumn1, LongColumn sourceColumn2 ) {
+        super( system, columnName, description, opName, sourceColumn1, sourceColumn2 );
 
         this.sourceColumn1 = sourceColumn1;
         this.sourceColumn2 = sourceColumn2;

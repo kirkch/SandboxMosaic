@@ -2,6 +2,7 @@ package com.mosaic.columnstore.aggregates;
 
 import com.mosaic.columnstore.FloatColumn;
 import com.mosaic.columnstore.columns.FloatColumnFormula1;
+import com.mosaic.lang.system.SystemX;
 
 
 /**
@@ -11,8 +12,8 @@ public class MovingAverageFloatColumn extends FloatColumnFormula1 {
 
     private final int numSamples;
 
-    public MovingAverageFloatColumn( FloatColumn source, int numSamples ) {
-        super( source.getColumnName() + " MA" + numSamples, "desc", "MA" + numSamples, source, numSamples );
+    public MovingAverageFloatColumn( SystemX system, FloatColumn source, int numSamples ) {
+        super( system, source.getColumnName() + " MA" + numSamples, "desc", "MA" + numSamples, source, numSamples );
 
         this.numSamples = numSamples;
     }

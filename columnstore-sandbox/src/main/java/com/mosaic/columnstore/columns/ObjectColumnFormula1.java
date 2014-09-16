@@ -5,6 +5,7 @@ import com.mosaic.columnstore.CellExplanation;
 import com.mosaic.columnstore.ObjectColumn;
 import com.mosaic.io.codecs.ObjectCodec;
 import com.mosaic.io.streams.CharacterStream;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.MapUtils;
 
 import java.util.Map;
@@ -14,6 +15,8 @@ import java.util.Map;
  * A formula that processes a single float column into a new float column.
  */
 public abstract class ObjectColumnFormula1<T> extends BaseObjectColumn<T> {
+
+    private SystemX      system;
 
     private String       columnName;
     private String       description;
@@ -27,7 +30,9 @@ public abstract class ObjectColumnFormula1<T> extends BaseObjectColumn<T> {
      *
      * @param expectedCellCount how many source cells are probably used to calculate a single cell in this column?
      */
-    protected ObjectColumnFormula1( String columnName, String description, String opName, ObjectColumn sourceColumn, int expectedCellCount ) {
+    protected ObjectColumnFormula1( SystemX system, String columnName, String description, String opName, ObjectColumn sourceColumn, int expectedCellCount ) {
+        this.system            = system;
+
         this.columnName        = columnName;
         this.description       = description;
 
@@ -96,7 +101,7 @@ public abstract class ObjectColumnFormula1<T> extends BaseObjectColumn<T> {
     protected abstract T get( long row, ObjectColumn col );
 
     private String encodeValue( T v ) {
-        return getCodec().toString(v);
+        return getCodec().toString(system,v);
     }
 
     /**

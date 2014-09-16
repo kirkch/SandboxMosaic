@@ -7,6 +7,7 @@ import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
+import com.mosaic.lang.system.SystemX;
 
 import java.util.Arrays;
 
@@ -16,9 +17,11 @@ import java.util.Arrays;
  */
 public class BooleanColumnArray extends BaseBooleanColumn {
 
-    public static BooleanColumn cache( BooleanColumn col ) {
-        return new BooleanColumnArray( col.getColumnName()+" Cache", col.getDescription(), col.size(), col.getCodec() );
+    public static BooleanColumn cache( SystemX system, BooleanColumn col ) {
+        return new BooleanColumnArray( system, col.getColumnName()+" Cache", col.getDescription(), col.size(), col.getCodec() );
     }
+
+    private final SystemX    system;
 
     private final String     columnName;
     private final String     description;
@@ -29,12 +32,14 @@ public class BooleanColumnArray extends BaseBooleanColumn {
     private boolean[] isSet;
 
 
-    public BooleanColumnArray( String columnName, String description, long size ) {
-        this( columnName, description, size, BooleanCodec.BOOLEAN_CODEC );
+    public BooleanColumnArray( SystemX system, String columnName, String description, long size ) {
+        this( system, columnName, description, size, BooleanCodec.BOOLEAN_CODEC );
     }
 
-    public BooleanColumnArray( String columnName, String description, long size, BooleanCodec codec ) {
+    public BooleanColumnArray( SystemX system, String columnName, String description, long size, BooleanCodec codec ) {
         QA.isInt( size, "size" );
+
+        this.system      = system;
 
         this.columnName  = columnName;
         this.description = description;
@@ -120,7 +125,7 @@ public class BooleanColumnArray extends BaseBooleanColumn {
         int     i = Backdoor.safeDowncast( row );
         boolean v = cells[i];
 
-        UTF8Builder buf = new UTF8Builder();
+        UTF8Builder buf = new UTF8Builder(system);
 
         getCodec().encode( v, buf );
 

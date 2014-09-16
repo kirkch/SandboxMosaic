@@ -1,6 +1,6 @@
 package com.mosaic.lang.system;
 
-import com.mosaic.io.bytes.Bytes;
+import com.mosaic.bytes.Bytes2;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.text.UTF8;
@@ -55,7 +55,7 @@ public class LogWriter implements CharacterStream {
         }
     }
 
-    public void writeUTF8Bytes( Bytes bytes ) {
+    public void writeUTF8Bytes( Bytes2 bytes ) {
         if ( isEnabled ) {
             printLinePrefix();
 
@@ -63,7 +63,7 @@ public class LogWriter implements CharacterStream {
         }
     }
 
-    public void writeUTF8Bytes( Bytes bytes, int fromIndexInc, int toExc ) {
+    public void writeUTF8Bytes( Bytes2 bytes, int fromIndexInc, int toExc ) {
         if ( isEnabled ) {
             printLinePrefix();
 

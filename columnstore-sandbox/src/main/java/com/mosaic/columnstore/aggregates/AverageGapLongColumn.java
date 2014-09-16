@@ -3,6 +3,7 @@ package com.mosaic.columnstore.aggregates;
 import com.mosaic.collections.LongSet;
 import com.mosaic.columnstore.LongColumn;
 import com.mosaic.columnstore.columns.LongColumnFormula2;
+import com.mosaic.lang.system.SystemX;
 
 import java.util.Map;
 
@@ -14,8 +15,9 @@ public class AverageGapLongColumn extends LongColumnFormula2 {
 
     private final long numSamples;
 
-    public AverageGapLongColumn( String columnName, LongColumn col1, LongColumn col2, int numSamples ) {
+    public AverageGapLongColumn( SystemX system, String columnName, LongColumn col1, LongColumn col2, int numSamples ) {
         super(
+            system,
             columnName,
             "The average gap from the last "+numSamples+" values from "+col1.getColumnName()
             + " and " + col2.getColumnName(),                                                 // description

@@ -1,6 +1,6 @@
 package com.mosaic.io.streams;
 
-import com.mosaic.io.bytes.Bytes;
+import com.mosaic.bytes.Bytes2;
 import com.mosaic.lang.BigCashType;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.SmallCashType;
@@ -44,15 +44,15 @@ public class PrintStreamCharacterStream implements CharacterStream {
         }
     }
 
-    public void writeUTF8Bytes( Bytes bytes ) {
+    public void writeUTF8Bytes( Bytes2 bytes ) {
         if ( isEnabled ) {
-            out.append( new UTF8( bytes, 0, bytes.bufferLength() ).toString() );
+            out.append( new UTF8(bytes, 0, bytes.sizeBytes()).toString() );
         }
     }
 
-    public void writeUTF8Bytes( Bytes bytes, int fromIndexInc, int toExc ) {
+    public void writeUTF8Bytes( Bytes2 bytes, int fromIndexInc, int toExc ) {
         if ( isEnabled ) {
-            out.append( new UTF8( bytes, fromIndexInc, toExc ).toString() );
+            out.append( new UTF8(bytes, fromIndexInc, toExc).toString() );
         }
     }
 

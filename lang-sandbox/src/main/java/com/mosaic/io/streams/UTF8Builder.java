@@ -1,12 +1,14 @@
 package com.mosaic.io.streams;
 
-import com.mosaic.io.bytes.Bytes;
+import com.mosaic.bytes.ArrayBytes2;
+import com.mosaic.bytes.AutoResizingBytes2;
+import com.mosaic.bytes.Bytes2;
 import com.mosaic.lang.BigCashType;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.SmallCashType;
-import com.mosaic.lang.system.LiveSystem;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.text.UTF8;
+import com.mosaic.lang.text.UTF8Tools;
 import com.mosaic.utils.MathUtils;
 
 
@@ -15,8 +17,8 @@ import com.mosaic.utils.MathUtils;
  */
 public class UTF8Builder implements CharacterStream {
 
-    private static final byte[] FALSE = "false".getBytes(SystemX.UTF8);
-    private static final byte[] TRUE  = "true".getBytes(SystemX.UTF8);
+    private static final byte[] FALSE_BYTES = "false".getBytes(SystemX.UTF8);
+    private static final byte[] TRUE_BYTES = "true".getBytes(SystemX.UTF8);
 
     private static final double[] ROUNDING_OFFSETS_BY_PRECISION = precalculateRoundingOffsets();
 
@@ -31,26 +33,30 @@ public class UTF8Builder implements CharacterStream {
     }
 
 
-
-    private Bytes destinationBytes;
+    private long   pos;
+    private Bytes2 destinationBytes;
 
     private final byte[] formattingBuffer = new byte[40];
 
 
-    public UTF8Builder() {
-        this( Bytes.allocAutoResizingOnHeap("auto", new LiveSystem(""), 100, 10000) );
+    public UTF8Builder( SystemX system ) {
+        this( system, new ArrayBytes2(100) );
     }
 
-    public UTF8Builder( Bytes destinationBytes ) {
-        this.destinationBytes = destinationBytes;
+    public UTF8Builder( SystemX system, Bytes2 destinationBytes ) {
+        this.destinationBytes = new AutoResizingBytes2(system, destinationBytes, "UTF8Builder", 10000);
+    }
+
+    public long positionIndex() {
+        return pos;
     }
 
     public void clear() {
-        destinationBytes.positionIndex( 0 );
+        this.pos = 0;
     }
 
     public UTF8 toUTF8() {
-        return new UTF8( destinationBytes, 0, destinationBytes.positionIndex() );
+        return new UTF8( destinationBytes, 0, pos );
     }
 
     public String toString() {
@@ -63,7 +69,12 @@ public class UTF8Builder implements CharacterStream {
     public void setEnabled( boolean flag ) {}
 
     public void writeBoolean( boolean v ) {
-        destinationBytes.writeBytes( v ? TRUE : FALSE );
+        byte[] sourceBytes = v ? TRUE_BYTES : FALSE_BYTES;
+        int    numBytes    = sourceBytes.length;
+
+        destinationBytes.writeBytes( pos, pos+numBytes, sourceBytes );
+
+        pos += numBytes;
     }
 
     public void writeByteAsNumber( final byte v ) {
@@ -91,27 +102,50 @@ public class UTF8Builder implements CharacterStream {
             }
         }
 
-        destinationBytes.writeBytes( formattingBuffer, 0, numBytes );
+        destinationBytes.writeBytes( pos, pos+numBytes, formattingBuffer, 0, numBytes );
+        pos += numBytes;
     }
 
     public void writeUTF8Bytes( byte[] sourceBytes ) {
-        this.destinationBytes.writeBytes( sourceBytes );
+        long numBytes = sourceBytes.length;
+
+        this.destinationBytes.writeBytes( pos, pos+numBytes, sourceBytes );
+
+        pos += numBytes;
     }
 
     public void writeUTF8Bytes( byte[] sourceBytes, int fromIndexInc, int toExc ) {
-        this.destinationBytes.writeBytes( sourceBytes, fromIndexInc, toExc );
+        long numBytes = toExc - fromIndexInc;
+
+        if ( numBytes > 0 ) {
+            this.destinationBytes.writeBytes( pos, pos + numBytes, sourceBytes, fromIndexInc, toExc );
+
+            pos += numBytes;
+        }
     }
 
-    public void writeUTF8Bytes( Bytes bytes ) {
-        this.destinationBytes.writeBytes( bytes );
+    public void writeUTF8Bytes( Bytes2 bytes ) {
+        long numBytes = bytes.sizeBytes();
+
+        this.destinationBytes.writeBytes( pos, numBytes, bytes );
+
+        pos += numBytes;
     }
 
-    public void writeUTF8Bytes( Bytes bytes, int fromIndexInc, int toExc ) {
-        this.destinationBytes.writeBytes( bytes, fromIndexInc, toExc );
+    public void writeUTF8Bytes( Bytes2 bytes, int fromIndexInc, int toExc ) {
+        long numBytes = toExc - fromIndexInc;
+
+        this.destinationBytes.writeBytes( pos, pos+numBytes, bytes, fromIndexInc, toExc );
+
+        pos += numBytes;
     }
 
     public void writeCharacter( char c ) {
-        destinationBytes.writeUTF8( c );
+        long numBytes = UTF8Tools.countBytesFor( c );
+
+        destinationBytes.writeUTF8Character( pos, pos+numBytes, c );
+
+        pos += numBytes;
     }
 
     public void writeCharacters( char[] chars ) {
@@ -170,7 +204,8 @@ public class UTF8Builder implements CharacterStream {
             }
         }
 
-        destinationBytes.writeBytes( formattingBuffer, 0, fixedWidth );
+        destinationBytes.writeBytes( pos, pos+fixedWidth, formattingBuffer, 0, fixedWidth );
+        pos += fixedWidth;
     }
 
     public void writeSmallCashMajorUnit( int v ) {
@@ -191,7 +226,9 @@ public class UTF8Builder implements CharacterStream {
 
         i = writeToBufferPositiveNumber( formattingBuffer, i, minor, 2 );
 
-        destinationBytes.writeBytes( formattingBuffer, 0, i );
+        destinationBytes.writeBytes( pos, pos+i, formattingBuffer, 0, i );
+
+        pos += i;
     }
 
     public void writeSmallCashMinorUnit( int v ) {
@@ -212,7 +249,9 @@ public class UTF8Builder implements CharacterStream {
 
         i = writeToBufferPositiveNumber( formattingBuffer, i, minor, 1 );
 
-        destinationBytes.writeBytes( formattingBuffer, 0, i );
+        destinationBytes.writeBytes( pos, pos+i, formattingBuffer, 0, i );
+
+        pos += i;
     }
 
     /**
@@ -238,7 +277,9 @@ public class UTF8Builder implements CharacterStream {
 
         i = writeToBufferPositiveNumber( formattingBuffer, i, minor, 2 );
 
-        destinationBytes.writeBytes( formattingBuffer, 0, i );
+        destinationBytes.writeBytes( pos, pos+i, formattingBuffer, 0, i );
+
+        pos += i;
     }
 
     /**
@@ -264,7 +305,9 @@ public class UTF8Builder implements CharacterStream {
 
         i = writeToBufferPositiveNumber( formattingBuffer, i, minor, 2 );
 
-        destinationBytes.writeBytes( formattingBuffer, 0, i );
+        destinationBytes.writeBytes( pos, pos+i, formattingBuffer, 0, i );
+
+        pos += i;
     }
 
     private static int writeToBufferPositiveNumber( byte[] buf, int toInc, long value ) {
@@ -295,7 +338,9 @@ public class UTF8Builder implements CharacterStream {
     public void writeLong( long v ) {
         int numBytes = writeToBuffer( formattingBuffer, v );
 
-        destinationBytes.writeBytes( formattingBuffer, 0, numBytes );
+        destinationBytes.writeBytes( pos, pos+numBytes, formattingBuffer, 0, numBytes );
+
+        pos += numBytes;
     }
 
     private static int writeToBuffer( byte[] buf, long v ) {
@@ -352,17 +397,21 @@ public class UTF8Builder implements CharacterStream {
 
     public void writeLine( String v ) {
         writeString( v );
-        destinationBytes.writeByte( (byte) '\n' );
+        writeCharacter( '\n' );
     }
 
     public void writeUTF8( UTF8 v ) {
-        destinationBytes.writeBytes( v.getBytes() );
+        byte[] bytes = v.getBytes();
+
+        destinationBytes.writeBytes( pos, pos+bytes.length, bytes );
+
+        pos += bytes.length;
     }
 
 
     public void writeLine( UTF8 v ) {
-        destinationBytes.writeBytes( v.getBytes() );
-        destinationBytes.writeByte( (byte) '\n' );
+        writeUTF8( v );
+        newLine();
     }
 
     public void writeException( Throwable ex ) {
@@ -398,7 +447,7 @@ public class UTF8Builder implements CharacterStream {
     }
 
     public void newLine() {
-        destinationBytes.writeByte( (byte) '\n' );
+        writeCharacter( '\n' );
     }
 
     public void flush() {}

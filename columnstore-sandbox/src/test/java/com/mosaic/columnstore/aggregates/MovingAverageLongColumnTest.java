@@ -4,6 +4,8 @@ import com.mosaic.collections.LongSet;
 import com.mosaic.columnstore.CellExplanation;
 import com.mosaic.columnstore.LongColumn;
 import com.mosaic.columnstore.columns.LongColumnArray;
+import com.mosaic.lang.system.DebugSystem;
+import com.mosaic.lang.system.SystemX;
 import org.junit.Test;
 
 import java.util.Map;
@@ -18,13 +20,16 @@ import static org.junit.Assert.assertTrue;
  */
 public class MovingAverageLongColumnTest {
 
+    private SystemX system = new DebugSystem();
+
+
 // EMPTY SOURCE COLUMN, CALC MA3
 
 
     @Test
     public void givenEmptySourceColumn_expectExplanationOfMA3ForAnyRow_toBeZeroWithNoTouchedCells() {
-        LongColumn              price = new LongColumnArray( "cost", "d", 0 );
-        MovingAverageLongColumn ma3   = new MovingAverageLongColumn( price, 3 );
+        LongColumn              price = new LongColumnArray( system, "cost", "d", 0 );
+        MovingAverageLongColumn ma3   = new MovingAverageLongColumn( system, price, 3 );
 
         assertEquals( 0, ma3.size() );
 
@@ -42,8 +47,8 @@ public class MovingAverageLongColumnTest {
 
     @Test
     public void givenSourceWithSingleRowAt10_expectMA3OfAnyRowBelow10ToBeZero() {
-        LongColumn              price = new LongColumnArray( "cost", "d", 11 );
-        MovingAverageLongColumn ma3   = new MovingAverageLongColumn( price, 3 );
+        LongColumn              price = new LongColumnArray( system, "cost", "d", 11 );
+        MovingAverageLongColumn ma3   = new MovingAverageLongColumn( system, price, 3 );
 
         price.set( 10, 100 );
 
@@ -60,8 +65,8 @@ public class MovingAverageLongColumnTest {
 
     @Test
     public void givenSourceWithSingleRowAt10_expectMA3OfAnyRowGTE10_toBeValue() {
-        LongColumn              price = new LongColumnArray( "cost", "d", 11 );
-        MovingAverageLongColumn ma3   = new MovingAverageLongColumn( price, 3 );
+        LongColumn              price = new LongColumnArray( system, "cost", "d", 11 );
+        MovingAverageLongColumn ma3   = new MovingAverageLongColumn( system, price, 3 );
 
         price.set( 10, 100 );
 
@@ -80,8 +85,8 @@ public class MovingAverageLongColumnTest {
 
     @Test
     public void givenSourceWithRowsAt10And12_expectMA3OfAnyRowBelow10ToBeZero() {
-        LongColumn              price = new LongColumnArray( "cost", "d", 13 );
-        MovingAverageLongColumn ma3   = new MovingAverageLongColumn( price, 3 );
+        LongColumn              price = new LongColumnArray( system, "cost", "d", 13 );
+        MovingAverageLongColumn ma3   = new MovingAverageLongColumn( system, price, 3 );
 
         price.set( 10, 4 );
         price.set( 12, 6 );
@@ -99,8 +104,8 @@ public class MovingAverageLongColumnTest {
 
     @Test
     public void givenSourceWithRowsAt10And12_expectMA3OfAnyRowBetween10And11_toBeEqualToFirstValue() {
-        LongColumn              price = new LongColumnArray( "cost", "d", 13 );
-        MovingAverageLongColumn ma3   = new MovingAverageLongColumn( price, 3 );
+        LongColumn              price = new LongColumnArray( system, "cost", "d", 13 );
+        MovingAverageLongColumn ma3   = new MovingAverageLongColumn( system, price, 3 );
 
         price.set( 10, 4 );
         price.set( 12, 6 );
@@ -116,8 +121,8 @@ public class MovingAverageLongColumnTest {
 
     @Test
     public void givenSourceWithRowsAtRow12_expectMA3OfAnyRowFrom12OnwardsToBeTheAvgOfTheTwoValues() {
-        LongColumn              price = new LongColumnArray( "cost", "d", 13 );
-        MovingAverageLongColumn ma3   = new MovingAverageLongColumn( price, 3 );
+        LongColumn              price = new LongColumnArray( system, "cost", "d", 13 );
+        MovingAverageLongColumn ma3   = new MovingAverageLongColumn( system, price, 3 );
 
         price.set( 10, 4 );
         price.set( 12, 6 );
@@ -136,8 +141,8 @@ public class MovingAverageLongColumnTest {
 
     @Test
     public void givenSourceFourRows_expectMA3OfFourthRow_toEqualAverageOfLastThreeRows() {
-        LongColumn              price = new LongColumnArray( "cost", "d", 15 );
-        MovingAverageLongColumn ma3   = new MovingAverageLongColumn( price, 3 );
+        LongColumn              price = new LongColumnArray( system, "cost", "d", 15 );
+        MovingAverageLongColumn ma3   = new MovingAverageLongColumn( system, price, 3 );
 
         price.set( 10, 1 );
         price.set( 12, 2 );
@@ -153,8 +158,8 @@ public class MovingAverageLongColumnTest {
 
     @Test
     public void givenSourceFourRows_expectMA3OfThirdRow_toEqualAverageOfLastThreeRows() {
-        LongColumn              price = new LongColumnArray( "cost", "d", 15 );
-        MovingAverageLongColumn ma3   = new MovingAverageLongColumn( price, 3 );
+        LongColumn              price = new LongColumnArray( system, "cost", "d", 15 );
+        MovingAverageLongColumn ma3   = new MovingAverageLongColumn( system, price, 3 );
 
         price.set( 10, 1 );
         price.set( 12, 2 );
@@ -193,8 +198,8 @@ public class MovingAverageLongColumnTest {
 
 
     private void bulkMATest( long numRows, int numSamples ) {
-        LongColumn              price = new LongColumnArray( "cost", "d", numRows );
-        MovingAverageLongColumn ma3   = new MovingAverageLongColumn( price, numSamples );
+        LongColumn              price = new LongColumnArray( system, "cost", "d", numRows );
+        MovingAverageLongColumn ma3   = new MovingAverageLongColumn( system, price, numSamples );
 
         for ( long i=0; i<numRows; i++ ) {
             price.set(i, i+1 );

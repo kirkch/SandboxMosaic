@@ -6,6 +6,7 @@ import com.mosaic.columnstore.CellExplanation;
 import com.mosaic.io.codecs.BooleanCodec;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.MapUtils;
 
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.Map;
  */
 public abstract class BooleanColumnFormula2 extends BaseBooleanColumn {
 
+    private SystemX       system;
     private String        columnName;
     private String        description;
 
@@ -29,7 +31,8 @@ public abstract class BooleanColumnFormula2 extends BaseBooleanColumn {
      *
      * @param expectedCellCount how many source cells are probably used to calculate a single cell in this column? (hlong only)
      */
-    protected BooleanColumnFormula2( String columnName, String description, String opName, BooleanColumn sourceColumn1, BooleanColumn sourceColumn2, int expectedCellCount ) {
+    protected BooleanColumnFormula2( SystemX system, String columnName, String description, String opName, BooleanColumn sourceColumn1, BooleanColumn sourceColumn2, int expectedCellCount ) {
+        this.system            = system;
         this.columnName        = columnName;
         this.description       = description;
 
@@ -104,7 +107,7 @@ public abstract class BooleanColumnFormula2 extends BaseBooleanColumn {
     protected abstract boolean get( long row, BooleanColumn col1, BooleanColumn col2 );
 
     private String encodeValue( boolean v ) {
-        return getCodec().toString(v);
+        return getCodec().toString(system,v);
     }
 
     /**

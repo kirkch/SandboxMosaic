@@ -3,6 +3,7 @@ package com.mosaic.io.codecs;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.text.PullParser;
 
 
@@ -17,8 +18,8 @@ public abstract class FloatCodec {
     public abstract int reserveWidth();
 
 
-    public String toString( float v ) {
-        UTF8Builder buf = new UTF8Builder();
+    public String toString( SystemX system, float v ) {
+        UTF8Builder buf = new UTF8Builder(system);
 
         encode( v, buf );
 

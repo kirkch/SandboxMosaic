@@ -1,6 +1,6 @@
 package com.mosaic.lang.text;
 
-import com.mosaic.io.bytes.Bytes;
+import com.mosaic.bytes.Bytes2;
 import com.mosaic.lang.system.Backdoor;
 
 
@@ -211,8 +211,8 @@ public class ParserResult<T> {
         return toExc - from;
     }
 
-    public UTF8 getMatchedText( Bytes b ) {
-        return new UTF8( b, from, toExc );
+    public UTF8 getMatchedText( Bytes2 b ) {
+        return new UTF8(b, from, toExc);
     }
 
 }

@@ -3,6 +3,8 @@ package com.mosaic.columnstore.aggregates;
 import com.mosaic.columnstore.CellExplanation;
 import com.mosaic.columnstore.LongColumn;
 import com.mosaic.columnstore.columns.LongColumnArray;
+import com.mosaic.lang.system.DebugSystem;
+import com.mosaic.lang.system.SystemX;
 import org.junit.Test;
 
 import static com.mosaic.columnstore.ColumnTestUtils.assertReferencedCellsEquals;
@@ -14,13 +16,15 @@ import static org.junit.Assert.assertEquals;
  */
 public class StandardDeviationLongColumnTest {
 
-// EMPTY SOURCE COLUMN, CALC STDDEV
+    private SystemX system = new DebugSystem();
 
+
+// EMPTY SOURCE COLUMN, CALC STDDEV
 
     @Test
     public void givenEmptySourceColumn_expectExplanationOfStdDev3ForAnyRow_toBeZeroWithNoTouchedCells() {
-        LongColumn                  price  = new LongColumnArray( "cost", "d", 0 );
-        StandardDeviationLongColumn stdDev = new StandardDeviationLongColumn( price, 3 );
+        LongColumn                  price  = new LongColumnArray( system, "cost", "d", 0 );
+        StandardDeviationLongColumn stdDev = new StandardDeviationLongColumn( system, price, 3 );
 
         assertEquals( 0, stdDev.size() );
 
@@ -38,8 +42,8 @@ public class StandardDeviationLongColumnTest {
 
     @Test
     public void givenSourceWithSingleRowAt10_expectStdDev3OfAnyRowBelow10ToBeZero() {
-        LongColumn                  price  = new LongColumnArray( "cost", "d", 11 );
-        StandardDeviationLongColumn stdDev = new StandardDeviationLongColumn( price, 3 );
+        LongColumn                  price  = new LongColumnArray( system, "cost", "d", 11 );
+        StandardDeviationLongColumn stdDev = new StandardDeviationLongColumn( system, price, 3 );
 
         price.set( 10, 100 );
 
@@ -56,8 +60,8 @@ public class StandardDeviationLongColumnTest {
 
     @Test
     public void givenSourceWithSingleRowAt10_expectStdDev3OfAnyRowGTE10_toBeZero() {
-        LongColumn                  price  = new LongColumnArray( "cost", "d", 11 );
-        StandardDeviationLongColumn stdDev = new StandardDeviationLongColumn( price, 3 );
+        LongColumn                  price  = new LongColumnArray( system, "cost", "d", 11 );
+        StandardDeviationLongColumn stdDev = new StandardDeviationLongColumn( system, price, 3 );
 
         price.set( 10, 100 );
 
@@ -76,8 +80,8 @@ public class StandardDeviationLongColumnTest {
 
     @Test
     public void givenSourceWithRowsAt10And12_expectStdDev3OfAnyRowBelow10ToBeZero() {
-        LongColumn                  price  = new LongColumnArray( "cost", "d", 13 );
-        StandardDeviationLongColumn stdDev = new StandardDeviationLongColumn( price, 3 );
+        LongColumn                  price  = new LongColumnArray( system, "cost", "d", 13 );
+        StandardDeviationLongColumn stdDev = new StandardDeviationLongColumn( system, price, 3 );
 
         price.set( 10, 4 );
         price.set( 12, 6 );
@@ -95,8 +99,8 @@ public class StandardDeviationLongColumnTest {
 
     @Test
     public void givenSourceWithRowsAt10And12_expectStdDev3OfAnyRowBetween10And11_toBeEqualZero() {
-        LongColumn                  price  = new LongColumnArray( "cost", "d", 13 );
-        StandardDeviationLongColumn stdDev = new StandardDeviationLongColumn( price, 3 );
+        LongColumn                  price  = new LongColumnArray( system, "cost", "d", 13 );
+        StandardDeviationLongColumn stdDev = new StandardDeviationLongColumn( system, price, 3 );
 
         price.set( 10, 4 );
         price.set( 12, 6 );
@@ -112,8 +116,8 @@ public class StandardDeviationLongColumnTest {
 
     @Test
     public void givenSourceWithRowsAtRow12_expectStdDev3OfAnyRowFrom12OnwardsToBeTheStdDevOfTheTwoValues() {
-        LongColumn                  price  = new LongColumnArray( "cost", "d", 13 );
-        StandardDeviationLongColumn stdDev = new StandardDeviationLongColumn( price, 3 );
+        LongColumn                  price  = new LongColumnArray( system, "cost", "d", 13 );
+        StandardDeviationLongColumn stdDev = new StandardDeviationLongColumn( system, price, 3 );
 
         price.set( 10, 4 );
         price.set( 12, 6 );
@@ -132,8 +136,8 @@ public class StandardDeviationLongColumnTest {
 
     @Test
     public void givenSourceFourRows_expectStdDev3OfFourthRow_toEqualStdDevOfLastThreeRows() {
-        LongColumn                  price     = new LongColumnArray( "cost", "d", 15 );
-        StandardDeviationLongColumn stdDevCol = new StandardDeviationLongColumn( price, 3 );
+        LongColumn                  price     = new LongColumnArray( system, "cost", "d", 15 );
+        StandardDeviationLongColumn stdDevCol = new StandardDeviationLongColumn( system, price, 3 );
 
         price.set( 10, -100 );
         price.set( 12, 11 );
@@ -153,8 +157,8 @@ public class StandardDeviationLongColumnTest {
 
     @Test
     public void givenSourceFourRows_expectStdDev3OfThirdRow_toEqualFirstThreeRows() {
-        LongColumn                  price     = new LongColumnArray( "cost", "d", 15 );
-        StandardDeviationLongColumn stdDevCol = new StandardDeviationLongColumn( price, 3 );
+        LongColumn                  price     = new LongColumnArray( system, "cost", "d", 15 );
+        StandardDeviationLongColumn stdDevCol = new StandardDeviationLongColumn( system, price, 3 );
 
         price.set( 10, -100 );
         price.set( 12, 11 );

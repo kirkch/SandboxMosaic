@@ -395,7 +395,7 @@ public abstract class BaseBytesTest {
 
     private void assertAllBytes2AreZero( Bytes2 b, long from, long toExc ) {
         for ( long i=from; i<toExc; i++ ) {
-            assertEquals( 0, b.readByte(i, 100) );
+            assertEquals( 0, b.readByte(i, b.sizeBytes()) );
         }
     }
 }

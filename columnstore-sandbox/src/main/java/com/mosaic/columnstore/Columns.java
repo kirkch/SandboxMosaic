@@ -10,6 +10,7 @@ import com.mosaic.columnstore.columns.ObjectColumnArray;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.Long2BooleanFunction;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.text.UTF8;
 import com.mosaic.utils.ArrayUtils;
 import com.mosaic.utils.ListUtils;
@@ -26,8 +27,8 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public class Columns<T extends Column> implements Iterable<T> {
 
-    public static BooleanColumn newBooleanColumn( String columnName, String description, boolean...values ) {
-        BooleanColumn col = new BooleanColumnArray( columnName, description, values.length );
+    public static BooleanColumn newBooleanColumn( SystemX system, String columnName, String description, boolean...values ) {
+        BooleanColumn col = new BooleanColumnArray( system, columnName, description, values.length );
 
         for ( int i=0; i<values.length; i++ ) {
             col.set(i, values[i]);
@@ -36,8 +37,8 @@ public class Columns<T extends Column> implements Iterable<T> {
         return col;
     }
 
-    public static IntColumn newIntColumn( String columnName, String description, int...values ) {
-        IntColumn col = new IntColumnArray( columnName, description, values.length );
+    public static IntColumn newIntColumn( SystemX system, String columnName, String description, int...values ) {
+        IntColumn col = new IntColumnArray( system, columnName, description, values.length );
 
         for ( int i=0; i<values.length; i++ ) {
             col.set(i, values[i]);
@@ -46,8 +47,8 @@ public class Columns<T extends Column> implements Iterable<T> {
         return col;
     }
 
-    public static LongColumn newLongColumn( String columnName, String description, long...values ) {
-        LongColumn col = new LongColumnArray( columnName, description, values.length );
+    public static LongColumn newLongColumn( SystemX system, String columnName, String description, long...values ) {
+        LongColumn col = new LongColumnArray( system, columnName, description, values.length );
 
         for ( int i=0; i<values.length; i++ ) {
             col.set(i, values[i]);
@@ -56,8 +57,8 @@ public class Columns<T extends Column> implements Iterable<T> {
         return col;
     }
 
-    public static FloatColumn newFloatColumn( String columnName, String description, float...values ) {
-        FloatColumn col = new FloatColumnArray( columnName, description, values.length );
+    public static FloatColumn newFloatColumn( SystemX system, String columnName, String description, float...values ) {
+        FloatColumn col = new FloatColumnArray( system, columnName, description, values.length );
 
         for ( int i=0; i<values.length; i++ ) {
             col.set(i, values[i]);
@@ -66,8 +67,8 @@ public class Columns<T extends Column> implements Iterable<T> {
         return col;
     }
 
-    public static DoubleColumn newDoubleColumn( String columnName, String description, double...values ) {
-        DoubleColumn col = new DoubleColumnArray( columnName, description, values.length );
+    public static DoubleColumn newDoubleColumn( SystemX system, String columnName, String description, double...values ) {
+        DoubleColumn col = new DoubleColumnArray( system, columnName, description, values.length );
 
         for ( int i=0; i<values.length; i++ ) {
             col.set(i, values[i]);
@@ -76,8 +77,8 @@ public class Columns<T extends Column> implements Iterable<T> {
         return col;
     }
 
-    public static <T> ObjectColumn<T> newObjectColumn( String columnName, String description, T...values ) {
-        ObjectColumn<T> col = new ObjectColumnArray<>( columnName, description, values.length );
+    public static <T> ObjectColumn<T> newObjectColumn( SystemX system, String columnName, String description, T...values ) {
+        ObjectColumn<T> col = new ObjectColumnArray<>( system, columnName, description, values.length );
 
         for ( int i=0; i<values.length; i++ ) {
             col.set(i, values[i]);
@@ -257,32 +258,32 @@ public class Columns<T extends Column> implements Iterable<T> {
         return new Columns(cachedColumns);
     }
 
-    public static BooleanColumn isGTZero( LongColumn col ) {
-        return new BooleanColumnFormula1<LongColumn>(col.getColumnName()+" > 0", col.getDescription(), "GTZ", col, 1) {
+    public static BooleanColumn isGTZero( SystemX system, LongColumn col ) {
+        return new BooleanColumnFormula1<LongColumn>(system, col.getColumnName()+" > 0", col.getDescription(), "GTZ", col, 1) {
             protected boolean get( long row, LongColumn col ) {
                 return col.get(row) > 0;
             }
         };
     }
 
-    public static BooleanColumn isGT( LongColumn col, final long v ) {
-        return new BooleanColumnFormula1<LongColumn>(col.getColumnName()+" > 0", col.getDescription(), "GTZ", col, 1) {
+    public static BooleanColumn isGT( SystemX system, LongColumn col, final long v ) {
+        return new BooleanColumnFormula1<LongColumn>(system, col.getColumnName()+" > 0", col.getDescription(), "GTZ", col, 1) {
             protected boolean get( long row, LongColumn col ) {
                 return col.get(row) > v;
             }
         };
     }
 
-    public static BooleanColumn isLTZero( LongColumn col ) {
-        return new BooleanColumnFormula1<LongColumn>(col.getColumnName()+" > 0", col.getDescription(), "GTZ", col, 1) {
+    public static BooleanColumn isLTZero( SystemX system, LongColumn col ) {
+        return new BooleanColumnFormula1<LongColumn>(system, col.getColumnName()+" > 0", col.getDescription(), "GTZ", col, 1) {
             protected boolean get( long row, LongColumn col ) {
                 return col.get(row) < 0;
             }
         };
     }
 
-    public static BooleanColumn isLT( LongColumn col, final long v ) {
-        return new BooleanColumnFormula1<LongColumn>(col.getColumnName()+" > 0", col.getDescription(), "GTZ", col, 1) {
+    public static BooleanColumn isLT( SystemX system, LongColumn col, final long v ) {
+        return new BooleanColumnFormula1<LongColumn>(system, col.getColumnName()+" > 0", col.getDescription(), "GTZ", col, 1) {
             protected boolean get( long row, LongColumn col ) {
                 return col.get(row) < v;
             }

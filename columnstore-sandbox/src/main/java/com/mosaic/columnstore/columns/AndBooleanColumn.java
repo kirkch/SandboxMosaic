@@ -1,6 +1,7 @@
 package com.mosaic.columnstore.columns;
 
 import com.mosaic.columnstore.BooleanColumn;
+import com.mosaic.lang.system.SystemX;
 
 
 /**
@@ -8,8 +9,9 @@ import com.mosaic.columnstore.BooleanColumn;
  */
 public class AndBooleanColumn extends BooleanColumnFormula2 {
 
-    public AndBooleanColumn( BooleanColumn col1, BooleanColumn col2 ) {
+    public AndBooleanColumn( SystemX system, BooleanColumn col1, BooleanColumn col2 ) {
         super(
+            system,
             col1.getColumnName() + " AND " + col2.getColumnName(),
             col1.getColumnName() + " AND " + col2.getColumnName(),
             "AND",

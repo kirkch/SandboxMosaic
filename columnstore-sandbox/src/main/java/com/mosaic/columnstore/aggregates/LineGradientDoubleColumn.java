@@ -3,6 +3,7 @@ package com.mosaic.columnstore.aggregates;
 import com.mosaic.columnstore.DoubleColumn;
 import com.mosaic.columnstore.columns.DoubleColumnFormula1;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.system.SystemX;
 
 
 /**
@@ -33,8 +34,8 @@ public class LineGradientDoubleColumn extends DoubleColumnFormula1 {
 
     private final long numSamples;
 
-    public LineGradientDoubleColumn( DoubleColumn y, long numSamples ) {
-        super( y.getColumnName()+" Gradient", "Gradient of "+y.getColumnName(), "GRADIENT", y, numSamples );
+    public LineGradientDoubleColumn( SystemX system, DoubleColumn y, long numSamples ) {
+        super( system, y.getColumnName()+" Gradient", "Gradient of "+y.getColumnName(), "GRADIENT", y, numSamples );
 
         QA.argIsGT( numSamples, 1, "numSamples" );
 

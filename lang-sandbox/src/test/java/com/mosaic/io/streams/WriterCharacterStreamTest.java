@@ -1,7 +1,5 @@
 package com.mosaic.io.streams;
 
-import com.mosaic.io.bytes.Bytes;
-
 import java.io.StringWriter;
 
 import static org.junit.Assert.assertEquals;

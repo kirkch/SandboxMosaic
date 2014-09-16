@@ -1,6 +1,8 @@
 package com.mosaic.columnstore.columns;
 
 import com.mosaic.columnstore.LongColumn;
+import com.mosaic.lang.system.DebugSystem;
+import com.mosaic.lang.system.SystemX;
 import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Benchmark;
 import org.junit.runner.RunWith;
@@ -12,10 +14,13 @@ import org.junit.runner.RunWith;
 @RunWith(JUnitMosaicRunner.class)
 public class LongColumnFormula1Benchmark {
 
+    private SystemX    system       = new DebugSystem();
+
+
     private int        rowCount     = 1000000;
-    private LongColumn columnA      = LongColumnFormula1Test.createColumn("A", rowCount);
-    private LongColumn columnB      = LongColumnFormula1Test.createFormulaColumn( "B", columnA );
-    private LongColumn columnBCache = new LongColumnArray( "BCache", "cache of B", rowCount );
+    private LongColumn columnA      = LongColumnFormula1Test.createColumn(system, "A", rowCount);
+    private LongColumn columnB      = LongColumnFormula1Test.createFormulaColumn( system, "B", columnA );
+    private LongColumn columnBCache = new LongColumnArray( system, "BCache", "cache of B", rowCount );
 
     /**
       Serial version:     8.88ms per call

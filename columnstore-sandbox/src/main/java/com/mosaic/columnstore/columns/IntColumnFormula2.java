@@ -6,6 +6,7 @@ import com.mosaic.columnstore.IntColumn;
 import com.mosaic.io.codecs.IntCodec;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.MapUtils;
 
 import java.util.Map;
@@ -15,6 +16,8 @@ import java.util.Map;
  *
  */
 public abstract class IntColumnFormula2 extends BaseIntColumn {
+
+    private SystemX   system;
 
     private String    columnName;
     private String    description;
@@ -29,7 +32,9 @@ public abstract class IntColumnFormula2 extends BaseIntColumn {
      *
      * @param expectedCellCount how many source cells are probably used to calculate a single cell in this column? (hint only)
      */
-    protected IntColumnFormula2( String columnName, String description, String opName, IntColumn sourceColumn1, IntColumn sourceColumn2, int expectedCellCount ) {
+    protected IntColumnFormula2( SystemX system, String columnName, String description, String opName, IntColumn sourceColumn1, IntColumn sourceColumn2, int expectedCellCount ) {
+        this.system            = system;
+
         this.columnName        = columnName;
         this.description       = description;
 
@@ -107,7 +112,7 @@ public abstract class IntColumnFormula2 extends BaseIntColumn {
     protected abstract int get( long row, IntColumn col1, IntColumn col2 );
 
     private String encodeValue( int v ) {
-        return getCodec().toString(v);
+        return getCodec().toString(system,v);
     }
 
     /**

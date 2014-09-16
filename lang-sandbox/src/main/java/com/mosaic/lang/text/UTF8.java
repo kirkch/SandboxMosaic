@@ -1,6 +1,6 @@
 package com.mosaic.lang.text;
 
-import com.mosaic.io.bytes.Bytes;
+import com.mosaic.bytes.Bytes2;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
 
@@ -13,11 +13,11 @@ import java.util.Arrays;
 public class UTF8  {
 
 
-    private static byte[] toArray( Bytes b, long fromInc, long toExc ) {
+    private static byte[] toArray( Bytes2 b, long fromInc, long toExc ) {  // todo move to Bytes2
         int    numBytes = Backdoor.toInt( toExc - fromInc );
         byte[] buf      = new byte[numBytes];
 
-        b.readBytes( fromInc, buf, 0, numBytes );
+        b.readBytes( fromInc, toExc, buf, 0, numBytes );
 
         return buf;
     }
@@ -27,15 +27,7 @@ public class UTF8  {
     private byte[] encodedCharacters;
 
 
-//    public UTF8( String text ) {
-//
-//    }
-//
-//    public UTF8( byte[] text, int fromInc, int toExc ) {
-//
-//    }
-
-    public UTF8( Bytes b, long fromInc, long toExc ) {
+    public UTF8( Bytes2 b, long fromInc, long toExc ) {
         this( toArray(b,fromInc,toExc) );
     }
 

@@ -186,4 +186,14 @@ public class UTF8Tools {
         return count;
     }
 
+    public static int countBytesFor( char c ) {
+        if ( (c >= 0x0000) && (c <= 0x007F) ) {
+            return 1;
+        } else if ( c > 0x07FF ) {
+            return 3;
+        } else {
+            return 2;
+        }
+    }
+
 }

@@ -6,6 +6,7 @@ import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
+import com.mosaic.lang.system.SystemX;
 
 import java.util.Arrays;
 
@@ -15,8 +16,9 @@ import java.util.Arrays;
  */
 public class DoubleColumnArray extends BaseDoubleColumn {
 
-    private final String     columnName;
-    private final String     description;
+    private final SystemX     system;
+    private final String      columnName;
+    private final String      description;
 
     private final DoubleCodec codec;
 
@@ -24,11 +26,12 @@ public class DoubleColumnArray extends BaseDoubleColumn {
     private boolean[] isSet;
 
 
-    public DoubleColumnArray( String columnName, String description, int size ) {
-        this( columnName, description, size, DoubleCodec.DOUBLE2DP_CODEC );
+    public DoubleColumnArray( SystemX system, String columnName, String description, int size ) {
+        this( system, columnName, description, size, DoubleCodec.DOUBLE2DP_CODEC );
     }
 
-    public DoubleColumnArray( String columnName, String description, int size, DoubleCodec codec ) {
+    public DoubleColumnArray( SystemX system, String columnName, String description, int size, DoubleCodec codec ) {
+        this.system = system;
         this.columnName  = columnName;
         this.description = description;
         this.codec       = codec;
@@ -113,7 +116,7 @@ public class DoubleColumnArray extends BaseDoubleColumn {
         int   i = Backdoor.safeDowncast( row );
         double v = cells[i];
 
-        UTF8Builder buf = new UTF8Builder();
+        UTF8Builder buf = new UTF8Builder(system);
 
         getCodec().encode( v, buf );
 

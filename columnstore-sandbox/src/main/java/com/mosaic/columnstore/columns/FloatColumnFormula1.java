@@ -5,6 +5,7 @@ import com.mosaic.columnstore.CellExplanation;
 import com.mosaic.columnstore.FloatColumn;
 import com.mosaic.io.codecs.FloatCodec;
 import com.mosaic.io.streams.CharacterStream;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.MapUtils;
 
 import java.util.Map;
@@ -15,19 +16,22 @@ import java.util.Map;
  */
 public abstract class FloatColumnFormula1 extends BaseFloatColumn {
 
-    private String             columnName;
-    private String             description;
+    private SystemX     system;
+    private String      columnName;
+    private String      description;
 
-    private String             opName;
-    private FloatColumn        sourceColumn;
-    private int                expectedCellCount;
+    private String      opName;
+    private FloatColumn sourceColumn;
+    private int         expectedCellCount;
 
 
     /**
      *
      * @param expectedCellCount how many source cells are probably used to calculate a single cell in this column? (hint only)
      */
-    protected FloatColumnFormula1( String columnName, String description, String opName, FloatColumn sourceColumn, int expectedCellCount ) {
+    protected FloatColumnFormula1( SystemX system, String columnName, String description, String opName, FloatColumn sourceColumn, int expectedCellCount ) {
+        this.system            = system;
+
         this.columnName        = columnName;
         this.description       = description;
 
@@ -96,7 +100,7 @@ public abstract class FloatColumnFormula1 extends BaseFloatColumn {
     protected abstract float get( long row, FloatColumn col );
 
     private String encodeValue( float v ) {
-        return getCodec().toString(v);
+        return getCodec().toString(system,v);
     }
 
     /**

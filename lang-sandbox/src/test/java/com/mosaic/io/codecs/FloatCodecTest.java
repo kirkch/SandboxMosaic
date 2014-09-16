@@ -2,6 +2,8 @@ package com.mosaic.io.codecs;
 
 import com.mosaic.bytes.ArrayBytes2;
 import com.mosaic.io.streams.UTF8Builder;
+import com.mosaic.lang.system.DebugSystem;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.text.PullParser;
 import org.junit.Test;
 
@@ -12,6 +14,9 @@ import static org.junit.Assert.assertEquals;
  *
  */
 public class FloatCodecTest {
+
+    private SystemX system = new DebugSystem();
+
 
     @Test
     public void encode3dp_roundDown() {
@@ -50,7 +55,7 @@ public class FloatCodecTest {
     }
 
     private void assertEncode( String expectation, FloatCodec codec, float v ) {
-        UTF8Builder buf = new UTF8Builder();
+        UTF8Builder buf = new UTF8Builder(system);
 
         codec.encode( v, buf );
 

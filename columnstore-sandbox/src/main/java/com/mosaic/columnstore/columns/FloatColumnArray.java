@@ -6,6 +6,7 @@ import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
+import com.mosaic.lang.system.SystemX;
 
 import java.util.Arrays;
 
@@ -15,6 +16,7 @@ import java.util.Arrays;
  */
 public class FloatColumnArray extends BaseFloatColumn {
 
+    private final SystemX    system;
     private final String     columnName;
     private final String     description;
 
@@ -24,11 +26,13 @@ public class FloatColumnArray extends BaseFloatColumn {
     private boolean[] isSet;
 
 
-    public FloatColumnArray( String columnName, String description, int size ) {
-        this( columnName, description, size, FloatCodec.FLOAT2DP_CODEC );
+    public FloatColumnArray( SystemX system, String columnName, String description, int size ) {
+        this( system, columnName, description, size, FloatCodec.FLOAT2DP_CODEC );
     }
 
-    public FloatColumnArray( String columnName, String description, int size, FloatCodec codec ) {
+    public FloatColumnArray( SystemX system, String columnName, String description, int size, FloatCodec codec ) {
+        this.system      = system;
+
         this.columnName  = columnName;
         this.description = description;
         this.codec       = codec;
@@ -113,7 +117,7 @@ public class FloatColumnArray extends BaseFloatColumn {
         int   i = Backdoor.safeDowncast(row);
         float v = cells[i];
 
-        UTF8Builder buf = new UTF8Builder();
+        UTF8Builder buf = new UTF8Builder(system);
 
         getCodec().encode( v, buf );
 

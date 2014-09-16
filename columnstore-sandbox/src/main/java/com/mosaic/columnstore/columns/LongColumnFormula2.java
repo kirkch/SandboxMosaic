@@ -6,6 +6,7 @@ import com.mosaic.columnstore.LongColumn;
 import com.mosaic.io.codecs.LongCodec;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.MapUtils;
 
 import java.util.Map;
@@ -15,6 +16,8 @@ import java.util.Map;
  *
  */
 public abstract class LongColumnFormula2 extends BaseLongColumn {
+
+    private SystemX    system;
 
     private String     columnName;
     private String     description;
@@ -29,7 +32,9 @@ public abstract class LongColumnFormula2 extends BaseLongColumn {
      *
      * @param expectedCellCount how many source cells are probably used to calculate a single cell in this column? (hlong only)
      */
-    protected LongColumnFormula2( String columnName, String description, String opName, LongColumn sourceColumn1, LongColumn sourceColumn2, int expectedCellCount ) {
+    protected LongColumnFormula2( SystemX system, String columnName, String description, String opName, LongColumn sourceColumn1, LongColumn sourceColumn2, int expectedCellCount ) {
+        this.system            = system;
+
         this.columnName        = columnName;
         this.description       = description;
 
@@ -105,7 +110,7 @@ public abstract class LongColumnFormula2 extends BaseLongColumn {
     protected abstract long get( long row, LongColumn col1, LongColumn col2 );
 
     private String encodeValue( long v ) {
-        return getCodec().toString(v);
+        return getCodec().toString(system,v);
     }
 
     /**
