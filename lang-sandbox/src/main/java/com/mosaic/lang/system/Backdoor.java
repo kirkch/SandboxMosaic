@@ -400,6 +400,12 @@ public class Backdoor {
         return (int) v;
     }
 
+    public static byte toByte( int v ) {
+        QA.argIsLTE( v, Byte.MAX_VALUE, "v" );
+
+        return (byte) v;
+    }
+
     public static long calculateOffsetForField( Class clazz, String fieldName ) {
         try {
             return unsafe.objectFieldOffset( clazz.getDeclaredField( fieldName ) );

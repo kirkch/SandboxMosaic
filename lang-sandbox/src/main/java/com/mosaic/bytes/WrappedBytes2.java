@@ -192,6 +192,9 @@ public class WrappedBytes2 implements Bytes2 {
         return delegate.writeBytes( offset, maxExc, fromAddressBase, fromAddressInc, fromAddressExc );
     }
 
+    public byte[] toArray() {
+        return delegate.toArray();
+    }
 
     public InputStream toInputStream() {
         return delegate.toInputStream();

@@ -37,18 +37,8 @@ public abstract class Bytes implements OutputBytes, InputBytes {
         return MemoryMappedBytes.mapFile( f, mode, numBytes );
     }
 
-    public static Bytes allocAutoResizingOffHeap( String name, SystemX system, long numBytes, long maxExpectedSize ) {
-        Bytes alloc = MallocedBytes.alloc( numBytes );
-
-        return new ResizableBytes(name, system, alloc, maxExpectedSize);
-    }
-
     public static Bytes allocAutoResizingOnHeap( String name, SystemX system, long numBytes, long maxExpectedSize ) {
         return new ResizableBytes(name, system, new ArrayBytes(numBytes), maxExpectedSize);
-    }
-
-    public static Bytes memoryAutoResizingMapFile( String name, SystemX system, File f, FileModeEnum mode, long numBytes, long maxExpectedSize ) {
-        return new ResizableBytes(name, system, MemoryMappedBytes.mapFile(f, mode, numBytes), maxExpectedSize);
     }
 
 

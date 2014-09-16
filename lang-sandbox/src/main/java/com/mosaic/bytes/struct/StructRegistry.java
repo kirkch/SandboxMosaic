@@ -5,13 +5,12 @@ import com.mosaic.lang.system.SystemX;
 
 
 /**
- * Provides functionality similar to a C struct.  The structs fields are backed by an
- * instance of com.mosaic.bytes.Bytes, which could be on or off heap.<p/>
+ * Provides type safe utils for accessing a Struct.
  *
  * Example usage:
  *
  * <pre>
- * public Account implements ByteFlyWeight {
+ * public Account implements ByteView {
  *     // Create a single registry for defining the fixed width struct.
  *     private static final StructRegistry structRegistry = new StructRegistry();
  *
@@ -40,15 +39,13 @@ import com.mosaic.lang.system.SystemX;
  *     }
  *
  *
- *     // Method declared on ByteFlyWeight, implement simply as a pass through to the struct
+ *     // Method declared on ByteView, implement simply as a pass through to the struct
  *     // which also implements the same interface.  Thus the struct will be told which underlying
  *     // Bytes to use.
- *     public void setFlyWeightBytes( Bytes bytes, long base, long maxExc ) {
- *         this.struct.setFlyWeightBytes( bytes, base, maxExc );
+ *     public void setBytes( Bytes bytes, long base, long maxExc ) {
+ *         this.struct.setBytes( bytes, base, maxExc );
  *     }
  * }
- * </pre>
- *
  */
 public class StructRegistry {
 

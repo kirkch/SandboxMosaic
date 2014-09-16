@@ -1,7 +1,7 @@
 package com.mosaic.io.chronicle.map;
 
 import com.mosaic.bytes.ByteView;
-import com.mosaic.io.bytes.Bytes;
+import com.mosaic.bytes.Bytes2;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -28,11 +28,11 @@ public abstract class BasePersistableMapTestCases {
 
 
     protected class Account implements ByteView {
-        private Bytes bytes;
+        private Bytes2 bytes;
         private long  base;
         private long  maxExc;
 
-        public void setFlyWeightBytes( Bytes bytes, long base, long maxExc ) {
+        public void setBytes( Bytes2 bytes, long base, long maxExc ) {
             this.bytes  = bytes;
             this.base   = base;
             this.maxExc = maxExc;
@@ -42,7 +42,7 @@ public abstract class BasePersistableMapTestCases {
             assertEquals( expectedSize, maxExc-base );
 
             for ( long i=base; i<maxExc; i++ ) {
-                assertEquals( 0, bytes.readByte(i) );
+                assertEquals( 0, bytes.readByte(i, maxExc) );
             }
         }
     }

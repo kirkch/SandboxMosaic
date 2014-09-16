@@ -1,5 +1,12 @@
 
 
 
+Impl structs using Bytes2
+Move TradeFlyWeight over to struct
+Remove FlyWeight code
+Carry on removing Bytes
+
+
+
 
 FastStackTest

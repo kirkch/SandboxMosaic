@@ -178,6 +178,17 @@ public abstract class BaseBytes2 implements Bytes2 {
         };
     }
 
+    public byte[] toArray() {
+        int    n   = Backdoor.toInt( sizeBytes() );
+        byte[] out = new byte[n];
+
+        for ( int i=0; i<n; i++ ) {
+            out[i] = readByte( i, n );
+        }
+
+        return out;
+    }
+
     public String toString() {
         StringBuilder buf = new StringBuilder();
 

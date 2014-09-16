@@ -1,7 +1,5 @@
 package com.mosaic.bytes;
 
-import com.mosaic.io.bytes.Bytes;
-
 
 /**
  * Implementations of ByteView reduces memory consumption, buffer copying and object allocations
@@ -18,6 +16,6 @@ public interface ByteView {
      * @param base The base address that this entry starts at.
      * @param maxExc The max address-1 that may safely be written to/read from.
      */
-    public void setFlyWeightBytes( Bytes bytes, long base, long maxExc );
+    public void setBytes( Bytes2 bytes, long base, long maxExc );
 
 }

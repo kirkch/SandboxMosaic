@@ -129,4 +129,7 @@ public interface Bytes2 {
 
 
     public InputStream toInputStream();
+
+    public byte[] toArray();
+
 }
