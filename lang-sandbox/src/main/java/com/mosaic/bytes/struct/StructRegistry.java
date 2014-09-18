@@ -66,8 +66,52 @@ public class StructRegistry {
         return new Struct( structSizeBytes );
     }
 
+    public long sizeBytes() {
+        return structSizeBytes;
+    }
+
     public BooleanField registerBoolean() {
         return registerNewField( new BooleanField(structSizeBytes) );
+    }
+
+    public ByteField registerByte() {
+        return registerNewField( new ByteField(structSizeBytes) );
+    }
+
+    public UnsignedByteField registerUnsignedByte() {
+        return registerNewField( new UnsignedByteField(structSizeBytes) );
+    }
+
+    public ShortField registerShort() {
+        return registerNewField( new ShortField(structSizeBytes) );
+    }
+
+    public UnsignedShortField registerUnsignedShort() {
+        return registerNewField( new UnsignedShortField(structSizeBytes) );
+    }
+
+    public CharacterField registerCharacter() {
+        return registerNewField( new CharacterField(structSizeBytes) );
+    }
+
+    public IntField registerInteger() {
+        return registerNewField( new IntField(structSizeBytes) );
+    }
+
+    public UnsignedIntField registerUnsignedInteger() {
+        return registerNewField( new UnsignedIntField(structSizeBytes) );
+    }
+
+    public LongField registerLong() {
+        return registerNewField( new LongField(structSizeBytes) );
+    }
+
+    public FloatField registerFloat() {
+        return registerNewField( new FloatField(structSizeBytes) );
+    }
+
+    public DoubleField registerDouble() {
+        return registerNewField( new DoubleField(structSizeBytes) );
     }
 
 

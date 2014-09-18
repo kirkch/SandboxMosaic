@@ -47,6 +47,9 @@ public class Struct implements ByteView {
         this.maxExc = Math.min( maxExc, base+structSizeBytes );
     }
 
+    public long sizeBytes() {
+        return structSizeBytes;
+    }
 
     public boolean readBoolean( long offset ) {
         assertValidIndex( offset, SystemX.SIZEOF_BOOLEAN );
@@ -60,16 +63,30 @@ public class Struct implements ByteView {
         bytes.writeBoolean( base+offset, maxExc, newValue );
     }
 
+
     public byte readByte( long offset ) {
         assertValidIndex( offset, SystemX.SIZEOF_BYTE );
 
-        return bytes.readByte( base+offset, maxExc );
+        return bytes.readByte( base + offset, maxExc );
     }
 
     public void writeByte( long offset, byte newValue ) {
         assertValidIndex( offset, SystemX.SIZEOF_BYTE );
 
-        bytes.writeByte( base+offset, maxExc, newValue );
+        bytes.writeByte( base + offset, maxExc, newValue );
+    }
+
+
+    public short readUnsignedByte( long offset ) {
+        assertValidIndex( offset, SystemX.SIZEOF_UNSIGNED_BYTE );
+
+        return bytes.readUnsignedByte( base + offset, maxExc );
+    }
+
+    public void writeUnsignedByte( long offset, short newValue ) {
+        assertValidIndex( offset, SystemX.SIZEOF_UNSIGNED_BYTE );
+
+        bytes.writeUnsignedByte( base + offset, maxExc, newValue );
     }
 
 
@@ -86,6 +103,32 @@ public class Struct implements ByteView {
     }
 
 
+    public int readUnsignedShort( long offset ) {
+        assertValidIndex( offset, SystemX.SIZEOF_UNSIGNED_SHORT );
+
+        return bytes.readUnsignedShort( base + offset, maxExc );
+    }
+
+    public void writeUnsignedShort( long offset, int newValue ) {
+        assertValidIndex( offset, SystemX.SIZEOF_UNSIGNED_SHORT );
+
+        bytes.writeUnsignedShort( base + offset, maxExc, newValue );
+    }
+
+
+    public char readCharacter( long offset ) {
+        assertValidIndex( offset, SystemX.SIZEOF_CHAR );
+
+        return bytes.readCharacter( base + offset, maxExc );
+    }
+
+    public void writeCharacter( long offset, char newValue ) {
+        assertValidIndex( offset, SystemX.SIZEOF_CHAR );
+
+        bytes.writeCharacter( base + offset, maxExc, newValue );
+    }
+
+
     public int readInt( long offset ) {
         assertValidIndex( offset, SystemX.SIZEOF_INT );
 
@@ -96,6 +139,19 @@ public class Struct implements ByteView {
         assertValidIndex( offset, SystemX.SIZEOF_INT );
 
         bytes.writeInt( base + offset, maxExc, newValue );
+    }
+
+
+    public long readUnsignedInt( long offset ) {
+        assertValidIndex( offset, SystemX.SIZEOF_UNSIGNED_INT );
+
+        return bytes.readUnsignedInt( base + offset, maxExc );
+    }
+
+    public void writeUnsignedInt( long offset, long newValue ) {
+        assertValidIndex( offset, SystemX.SIZEOF_UNSIGNED_INT );
+
+        bytes.writeUnsignedInt( base + offset, maxExc, newValue );
     }
 
 
