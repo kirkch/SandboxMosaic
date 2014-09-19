@@ -71,7 +71,7 @@ public abstract class Structs<T> implements Iterable<T> {
         return structSizeBytes;
     }
 
-    public long allocateNewRecords( int numRecords ) {
+    public long allocateNewRecords( long numRecords ) {
         QA.argIsGTEZero( numRecords, "numRecords" );
 
         long fromId = allocatedRecordCount;

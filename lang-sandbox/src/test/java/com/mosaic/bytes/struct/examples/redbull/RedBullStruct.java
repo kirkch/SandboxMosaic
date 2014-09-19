@@ -1,6 +1,6 @@
-package com.mosaic.bytes.struct;
+package com.mosaic.bytes.struct.examples.redbull;
 
-import static com.mosaic.bytes.struct.RedBullStructDefinition.*;
+import com.mosaic.bytes.struct.Struct;
 
 
 /**
@@ -11,37 +11,36 @@ public class RedBullStruct {
     Struct struct;
 
     public RedBullStruct() {
-        this( structRegistry.createNewStruct() );
+        this( RedBullStructDefinition.structRegistry.createNewStruct() );
     }
 
     public RedBullStruct( Struct struct ) {
-
         this.struct = struct;
     }
 
 
     public boolean getHasWings() {
-        return hasWingsField.get( struct );
+        return RedBullStructDefinition.hasWingsField.get( struct );
     }
 
     public void setHasWings( boolean hasWingsFlag ) {
-        hasWingsField.set( struct, hasWingsFlag );
+        RedBullStructDefinition.hasWingsField.set( struct, hasWingsFlag );
     }
 
     public int getAge() {
-        return ageField.get( struct );
+        return RedBullStructDefinition.ageField.get( struct );
     }
 
     public void setAge( int age ) {
-        ageField.set( struct, age );
+        RedBullStructDefinition.ageField.set( struct, age );
     }
 
     public float getWeight() {
-        return weightField.get(struct);
+        return RedBullStructDefinition.weightField.get(struct);
     }
 
     public void setWeight( float weight ) {
-        weightField.set( struct, weight );
+        RedBullStructDefinition.weightField.set( struct, weight );
     }
 
 

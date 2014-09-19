@@ -3,6 +3,7 @@ package com.mosaic.bytes.struct;
 import com.mosaic.bytes.ArrayBytes2;
 import com.mosaic.bytes.AutoResizingBytes2;
 import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.struct.examples.redbull.RedBullStructs;
 import com.mosaic.lang.system.DebugSystem;
 import com.mosaic.lang.system.SystemX;
 import org.junit.Test;

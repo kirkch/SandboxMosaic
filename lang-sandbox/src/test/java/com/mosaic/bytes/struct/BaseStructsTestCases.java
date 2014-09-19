@@ -2,6 +2,8 @@ package com.mosaic.bytes.struct;
 
 import com.mosaic.bytes.ArrayBytes2;
 import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.struct.examples.redbull.RedBullStruct;
+import com.mosaic.bytes.struct.examples.redbull.RedBullStructs;
 import com.mosaic.lang.ComparisonResult;
 import com.mosaic.lang.QA;
 import org.junit.Before;
@@ -18,7 +20,7 @@ import static org.junit.Assert.*;
 public abstract class BaseStructsTestCases {
 
     protected RedBullStructs redBulls;
-    protected RedBullStruct  redBull = new RedBullStruct();
+    protected RedBullStruct redBull = new RedBullStruct();
 
     protected abstract RedBullStructs createNewRedBull( long initialSize );
 

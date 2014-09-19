@@ -43,8 +43,10 @@ public class Struct implements ByteView {
         this.bytes  = bytes;
         this.base   = base;
 
-        // do not go over the registered fields, even if the supplied maxExc says that we can
-        this.maxExc = Math.min( maxExc, base+structSizeBytes );
+        if ( SystemX.isDebugRun() ) {  // maxExc is only used in debug builds
+            // do not go over the registered fields, even if the supplied maxExc says that we can
+            this.maxExc = Math.min( maxExc, base + structSizeBytes );
+        }
     }
 
     public long sizeBytes() {

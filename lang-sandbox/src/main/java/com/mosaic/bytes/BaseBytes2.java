@@ -216,7 +216,9 @@ public abstract class BaseBytes2 implements Bytes2 {
     protected long index( long offset, long maxExc, long numBytes ) {
         long i = this.base + offset;
 
-        throwIfInvalidIndex( i, base+maxExc, numBytes );
+        if ( SystemX.isDebugRun() ) {
+            throwIfInvalidIndex( i, base + maxExc, numBytes );
+        }
 
         return i;
     }

@@ -1,8 +1,10 @@
-package com.mosaic.bytes.struct;
+package com.mosaic.bytes.struct.examples.redbull;
 
 import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.struct.Struct;
+import com.mosaic.bytes.struct.Structs;
 
-import static com.mosaic.bytes.struct.RedBullStructDefinition.*;
+import static com.mosaic.bytes.struct.examples.redbull.RedBullStructDefinition.*;
 
 
 /**
