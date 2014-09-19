@@ -1,8 +1,7 @@
 package com.mosaic.io.streams;
 
-import com.mosaic.bytes.ArrayBytes2;
-import com.mosaic.bytes.Bytes2;
-import com.mosaic.io.bytes.Bytes;
+import com.mosaic.bytes.ArrayBytes;
+import com.mosaic.bytes.Bytes;
 import com.mosaic.lang.system.DebugSystem;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.text.UTF8;
@@ -47,7 +46,7 @@ public class BytesWriterBenchmarkTests {
 //    private Bytes bytes = Bytes.allocOffHeap( 8024 );
 
     private SystemX     system = new DebugSystem();
-    private Bytes2      bytes  = new ArrayBytes2( 8024 );
+    private Bytes bytes  = new ArrayBytes( 8024 );
     private UTF8Builder out    = new UTF8Builder( system, bytes );
 /*
 3 byte array hack

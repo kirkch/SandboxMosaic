@@ -1,8 +1,5 @@
 package com.mosaic.bytes.struct.examples.trades;
 
-import com.mosaic.bytes.struct.CharacterField;
-import com.mosaic.bytes.struct.IntField;
-import com.mosaic.bytes.struct.LongField;
 import com.mosaic.bytes.struct.Struct;
 
 import static com.mosaic.bytes.struct.examples.trades.TradeLayout.*;
@@ -12,6 +9,9 @@ import static com.mosaic.bytes.struct.examples.trades.TradeLayout.*;
  *
  */
 public class Trade {
+
+    public static final long SIZE_BYTES = structRegistry.sizeBytes();
+
 
     Struct struct;
 

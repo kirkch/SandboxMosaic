@@ -1,13 +1,9 @@
 package com.mosaic.bytes.struct;
 
-import com.mosaic.bytes.ArrayBytes2;
-import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.Bytes;
+import com.mosaic.bytes.OffHeapBytes;
 import com.mosaic.bytes.struct.examples.trades.Trade;
 import com.mosaic.bytes.struct.examples.trades.Trades;
-import com.mosaic.io.bytes.Bytes;
-import com.mosaic.io.memory.TradeFlyWeight;
-import com.mosaic.lang.system.DebugSystem;
-import com.mosaic.lang.system.SystemX;
 import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Benchmark;
 import org.junit.After;
@@ -23,8 +19,7 @@ public class StructsBenchmark {
 
     private static final long NUM_RECORDS = 2*1000*1000;
 
-//    private SystemX system = new DebugSystem();
-    private Bytes2 bytes  = new ArrayBytes2( TradeFlyWeight.SIZEOF_TRADE * (NUM_RECORDS + 1) );
+    private Bytes bytes  = new OffHeapBytes( Trade.SIZE_BYTES * (NUM_RECORDS + 1) );
     private Trades trades = new Trades( bytes );
     private Trade  trade  = new Trade();
 
@@ -63,18 +58,24 @@ In order, on heap
     4.57ms per query
     4.58ms per query
 
-    8.00ms per query
-    8.06ms per query
-    8.04ms per query
-    7.48ms per query
-    8.20ms per query
+    6.66ms per query
+    6.46ms per query
+    6.79ms per query
+    7.01ms per query
+    6.79ms per query
 
 in order off heap
-    5.37ms per query
+    5.37ms per query  // before Structs (went direct to Bytes)
     5.11ms per query
     5.13ms per query
     4.57ms per query
     5.20ms per query
+
+    6.95ms per query // after Structs -- most of the cost is in an extra addition; as we have the choice to use or to not
+    6.79ms per query //                  use then this cost is acceptable
+    7.14ms per query
+    6.84ms per query
+    7.90ms per query
      */
 
     @Benchmark( value=5, batchCount=5, units="query" )

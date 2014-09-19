@@ -13,26 +13,26 @@ import static com.mosaic.lang.system.SystemX.*;
 /**
  *
  */
-public class ArrayBytes2 extends BaseBytes2 {
+public class ArrayBytes extends BaseBytes {
 
     private byte[] array;
 
 
-    public ArrayBytes2( String s ) {
+    public ArrayBytes( String s ) {
         this( s.getBytes(SystemX.UTF8) );
     }
 
-    public ArrayBytes2( long numBytes ) {
+    public ArrayBytes( long numBytes ) {
         this( new byte[(int) numBytes] );
 
         QA.argIsBetween( 0, numBytes, Integer.MAX_VALUE, "numBytes" );
     }
 
-    public ArrayBytes2( byte[] array ) {
+    public ArrayBytes( byte[] array ) {
         this( array, 0, array.length );
     }
 
-    public ArrayBytes2( byte[] array, int offset, int maxExc ) {
+    public ArrayBytes( byte[] array, int offset, int maxExc ) {
         super( offset, maxExc );
 
         QA.argNotNull( array, "array" );
@@ -208,11 +208,11 @@ public class ArrayBytes2 extends BaseBytes2 {
         return numBytesUsed;
     }
 
-    public int readBytes( long offset, long maxExc, Bytes2 destination, long destinationInc, long destinationExc ) {
+    public int readBytes( long offset, long maxExc, Bytes destination, long destinationInc, long destinationExc ) {
         return destination.writeBytes( destinationInc, destinationExc, array, offset, maxExc );
     }
 
-    public int writeBytes( long offset, long maxExc, Bytes2 sourceBytes, long sourceInc, long sourceExc ) {
+    public int writeBytes( long offset, long maxExc, Bytes sourceBytes, long sourceInc, long sourceExc ) {
         return sourceBytes.readBytes( sourceInc, sourceExc, array, offset, maxExc );
     }
 

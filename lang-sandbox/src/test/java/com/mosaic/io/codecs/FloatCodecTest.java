@@ -1,6 +1,6 @@
 package com.mosaic.io.codecs;
 
-import com.mosaic.bytes.ArrayBytes2;
+import com.mosaic.bytes.ArrayBytes;
 import com.mosaic.io.streams.UTF8Builder;
 import com.mosaic.lang.system.DebugSystem;
 import com.mosaic.lang.system.SystemX;
@@ -47,7 +47,7 @@ public class FloatCodecTest {
     }
 
     private void assertDecode( String input, FloatCodec codec, float expectation ) {
-        PullParser parser = new PullParser( new ArrayBytes2(input) );
+        PullParser parser = new PullParser( new ArrayBytes(input) );
 
         assertEquals( 0, parser.getPosition() );
         assertEquals( expectation, codec.decode( parser ), 1e-6 );

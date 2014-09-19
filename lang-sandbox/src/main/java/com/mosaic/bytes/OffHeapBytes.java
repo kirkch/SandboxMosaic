@@ -7,17 +7,14 @@ import com.mosaic.lang.system.Backdoor;
 /**
  *
  */
-public class OffHeapBytes2 extends NativeBytes {
+public class OffHeapBytes extends NativeBytes {
 
-    public static Bytes2 alloc( long numBytes ) {
-        long baseAddress = Backdoor.alloc( numBytes );
-
-        return new OffHeapBytes2( baseAddress, baseAddress+numBytes );
+    public OffHeapBytes( long numBytes ) {
+        this( Backdoor.alloc(numBytes), numBytes );
     }
 
-
-    private OffHeapBytes2( long base, long maxExc ) {
-        super( base, maxExc );
+    private OffHeapBytes( long base, long length ) {
+        super( base, base+length);
     }
 
     public void release() {

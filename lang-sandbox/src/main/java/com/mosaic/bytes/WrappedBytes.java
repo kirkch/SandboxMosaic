@@ -1,6 +1,5 @@
 package com.mosaic.bytes;
 
-import com.mosaic.bytes.Bytes2;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.text.DecodedCharacter;
@@ -12,10 +11,10 @@ import java.io.InputStream;
 /**
  *
  */
-public class WrappedBytes2 implements Bytes2 {
-    private final Bytes2 delegate;
+public class WrappedBytes implements Bytes {
+    private final Bytes delegate;
 
-    public WrappedBytes2( Bytes2 delegate ) {
+    public WrappedBytes( Bytes delegate ) {
         QA.notNull( delegate, "delegate" );
 
         this.delegate = delegate;
@@ -238,25 +237,25 @@ public class WrappedBytes2 implements Bytes2 {
         return delegate.writeBytes( offset, maxExc, sourceBytes );
     }
 
-    public int readBytes( long offset, long maxExc, Bytes2 destination ) {
+    public int readBytes( long offset, long maxExc, Bytes destination ) {
         touchRO( offset, maxExc, maxExc - offset );
 
         return delegate.readBytes( offset, maxExc, destination );
     }
 
-    public int writeBytes( long offset, long maxExc, Bytes2 sourceBytes ) {
+    public int writeBytes( long offset, long maxExc, Bytes sourceBytes ) {
         touchRW( offset, maxExc, maxExc-offset );
 
         return delegate.writeBytes( offset, maxExc, sourceBytes );
     }
 
-    public int readBytes( long offset, long maxExc, Bytes2 destination, long destinationInc, long destinationExc ) {
+    public int readBytes( long offset, long maxExc, Bytes destination, long destinationInc, long destinationExc ) {
         touchRO( offset, maxExc, maxExc - offset );
 
         return delegate.readBytes( offset, maxExc, destination, destinationInc, destinationExc );
     }
 
-    public int writeBytes( long offset, long maxExc, Bytes2 sourceBytes, long sourceInc, long sourceExc ) {
+    public int writeBytes( long offset, long maxExc, Bytes sourceBytes, long sourceInc, long sourceExc ) {
         touchRW( offset, maxExc, maxExc - offset );
 
         return delegate.writeBytes( offset, maxExc, sourceBytes, sourceInc, sourceExc );

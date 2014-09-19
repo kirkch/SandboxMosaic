@@ -1,7 +1,5 @@
 package com.mosaic.bytes;
 
-import com.mosaic.io.bytes.Bytes;
-import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.text.DecodedCharacter;
 
 import static com.mosaic.lang.system.SystemX.NULL_BYTE;
@@ -25,7 +23,7 @@ public class ByteSerializers {
             for ( int i=0; i<numCharacters; i++ ) {
                 char c = v.charAt( i );
 
-                toAddress += b.writeUTF8Character( toAddress, c );
+                toAddress += b.writeUTF8Character( toAddress, maxExc, c );
             }
 
 //            b.writeByte( toAddress, NULL_BYTE, maxExc );

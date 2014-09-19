@@ -1,6 +1,5 @@
 package com.mosaic.bytes;
 
-import com.mosaic.io.bytes.InputBytes;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
@@ -17,7 +16,7 @@ import static com.mosaic.lang.system.SystemX.SIZEOF_SHORT;
 /**
  *
  */
-public abstract class BaseBytes2 implements Bytes2 {
+public abstract class BaseBytes implements Bytes {
 
     protected long base;
     protected long maxExc;
@@ -26,7 +25,7 @@ public abstract class BaseBytes2 implements Bytes2 {
     private DecodedCharacter myDecodedCharacterBuffer;
 
 
-    protected BaseBytes2( long base, long maxExc ) {
+    protected BaseBytes( long base, long maxExc ) {
         QA.argIsBetween( 0, base, maxExc, "base" );
 
         this.base   = base;
@@ -155,11 +154,11 @@ public abstract class BaseBytes2 implements Bytes2 {
         return readBytes( offset, maxExc, destinationArray, 0, destinationArray.length );
     }
 
-    public int readBytes( long offset, long maxExc, Bytes2 destination ) {
+    public int readBytes( long offset, long maxExc, Bytes destination ) {
         return readBytes( offset, maxExc, destination, 0, destination.sizeBytes() );
     }
 
-    public int writeBytes( long offset, long maxExc, Bytes2 sourceBytes ) {
+    public int writeBytes( long offset, long maxExc, Bytes sourceBytes ) {
         return writeBytes( offset, maxExc, sourceBytes, 0, sourceBytes.sizeBytes() );
     }
 

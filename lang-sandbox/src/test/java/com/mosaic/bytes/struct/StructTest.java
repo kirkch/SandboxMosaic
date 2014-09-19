@@ -1,7 +1,7 @@
 package com.mosaic.bytes.struct;
 
-import com.mosaic.bytes.ArrayBytes2;
-import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.ArrayBytes;
+import com.mosaic.bytes.Bytes;
 import com.mosaic.lang.system.SystemX;
 import org.junit.Before;
 import org.junit.ComparisonFailure;
@@ -14,13 +14,13 @@ import static org.junit.Assert.*;
 
 public class StructTest {
 
-    private Bytes2 bytes;
+    private Bytes bytes;
     private Struct struct;
 
 
     @Before
     public void setup() {
-        bytes  = new ArrayBytes2( 32 );
+        bytes  = new ArrayBytes( 32 );
         struct = new Struct( 8 );
 
         struct.setBytes( bytes, 3, 32 );
@@ -429,12 +429,12 @@ public class StructTest {
 
 
 
-    private void assertEmptyBytes( Bytes2 b ) {
+    private void assertEmptyBytes( Bytes b ) {
         assertBytes( b, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
     }
 
 
-    private void assertBytes( Bytes2 bytes, int...expectedByteValues ) {
+    private void assertBytes( Bytes bytes, int...expectedByteValues ) {
         int    n   = expectedByteValues.length;
         byte[] out = new byte[n];
 
@@ -445,7 +445,7 @@ public class StructTest {
         assertBytes( bytes, out );
     }
 
-    private void assertBytes( Bytes2 bytes, byte...expectedByteValues ) {
+    private void assertBytes( Bytes bytes, byte...expectedByteValues ) {
         for ( int i=0; i<expectedByteValues.length; i++ ) {
             byte expected = toByte( expectedByteValues[i] );
             byte actual   = bytes.readByte( i, expectedByteValues.length );
@@ -456,7 +456,7 @@ public class StructTest {
         }
     }
 
-    private String toString( Bytes2 b ) {
+    private String toString( Bytes b ) {
         return toString(b.toArray());
     }
 

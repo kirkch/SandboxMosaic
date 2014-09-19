@@ -1,4 +1,4 @@
-package com.mosaic.io.bytes;
+package com.mosaic.bytes;
 
 import com.mosaic.io.filesystemx.FileModeEnum;
 import org.junit.After;
@@ -14,12 +14,12 @@ public class MemoryMappedBytesTest extends BaseBytesTest {
 
     private File file;
 
-    protected Bytes doCreateBytes( long numBytes ) throws IOException {
+
+    protected Bytes _createBytes( long numBytes ) throws IOException {
         file = File.createTempFile( "MemoryMappedBytesTest", ".dat" );
 
-        return NativeBytes.memoryMapFile( file, FileModeEnum.READ_WRITE, numBytes );
+        return MemoryMappedBytes.mapFile( file, FileModeEnum.READ_WRITE, numBytes );
     }
-
 
     @After
     public void tearDown() {
@@ -27,4 +27,5 @@ public class MemoryMappedBytesTest extends BaseBytesTest {
 
         file.delete();
     }
+
 }

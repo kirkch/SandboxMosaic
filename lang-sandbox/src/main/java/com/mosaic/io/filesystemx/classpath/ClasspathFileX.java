@@ -1,6 +1,6 @@
 package com.mosaic.io.filesystemx.classpath;
 
-import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.Bytes;
 import com.mosaic.bytes.ClassPathBytes2;
 import com.mosaic.io.filesystemx.FileContents;
 import com.mosaic.io.filesystemx.FileModeEnum;
@@ -88,9 +88,9 @@ public class ClassPathFileX implements FileX {
 
 
 
-    private Bytes2 bytes;
+    private Bytes bytes;
 
-    private Bytes2 lazyLoad() {
+    private Bytes lazyLoad() {
         if ( bytes == null ) {
             try {
                 bytes = ClassPathBytes2.loadFromClassPath( this.getClass().getClassLoader(), fullPath );
@@ -108,7 +108,7 @@ public class ClassPathFileX implements FileX {
 
 
     private class ClassPathFileContents extends FileContents {
-        public ClassPathFileContents( Bytes2 delegate ) {
+        public ClassPathFileContents( Bytes delegate ) {
             super( delegate );
         }
 

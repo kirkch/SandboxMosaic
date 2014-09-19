@@ -1,7 +1,7 @@
 package com.mosaic.lang.text;
 
-import com.mosaic.bytes.ArrayBytes2;
-import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.ArrayBytes;
+import com.mosaic.bytes.Bytes;
 import com.softwaremosaic.junit.JUnitMosaicRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +22,7 @@ public class PullParserTest {
 
     @Test
     public void given123_pullWithCustomParserThatMatchesAndReturnsAnObject_expectResult() {
-        Bytes2 source = new ArrayBytes2("123");
+        Bytes source = new ArrayBytes("123");
         PullParser parser = new PullParser( source );
 
         Long v = parser.pullCustom( new NumberParser() );
@@ -33,7 +33,7 @@ public class PullParserTest {
 
     @Test
     public void given123_pullWithCustomParserThatDoesNotMatch_expectException() {
-        Bytes2 source = new ArrayBytes2("a");
+        Bytes source = new ArrayBytes("a");
         PullParser parser = new PullParser( source );
 
         try {
@@ -52,7 +52,7 @@ public class PullParserTest {
 
     @Test
     public void given123_pullBoolean_expectNoMatch() {
-        Bytes2 source = new ArrayBytes2("123");
+        Bytes source = new ArrayBytes("123");
         PullParser parser = new PullParser( source );
 
         try {
@@ -65,7 +65,7 @@ public class PullParserTest {
 
     @Test
     public void givenT_pullBoolean_expectTrue() {
-        Bytes2 source = new ArrayBytes2("T");
+        Bytes source = new ArrayBytes("T");
         PullParser parser = new PullParser( source );
 
 
@@ -75,7 +75,7 @@ public class PullParserTest {
 
     @Test
     public void givent_pullBoolean_expectTrue() {
-        Bytes2 source = new ArrayBytes2("t");
+        Bytes source = new ArrayBytes("t");
         PullParser parser = new PullParser( source );
 
 
@@ -85,7 +85,7 @@ public class PullParserTest {
 
     @Test
     public void givenF_pullBoolean_expectFalse() {
-        Bytes2 source = new ArrayBytes2("F");
+        Bytes source = new ArrayBytes("F");
         PullParser parser = new PullParser( source );
 
 
@@ -95,7 +95,7 @@ public class PullParserTest {
 
     @Test
     public void givenf_pullBoolean_expectFalse() {
-        Bytes2 source = new ArrayBytes2("f");
+        Bytes source = new ArrayBytes("f");
         PullParser parser = new PullParser( source );
 
 
@@ -108,7 +108,7 @@ public class PullParserTest {
 
     @Test
     public void given123_pullInt_expectResult() {
-        Bytes2 source = new ArrayBytes2("123");
+        Bytes source = new ArrayBytes("123");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullInt();
@@ -119,7 +119,7 @@ public class PullParserTest {
 
     @Test
     public void givenNeg123_pullInt_expectResult() {
-        Bytes2 source = new ArrayBytes2("-123");
+        Bytes source = new ArrayBytes("-123");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullInt();
@@ -130,7 +130,7 @@ public class PullParserTest {
 
     @Test
     public void givenMaxInt_pullInt_expectResult() {
-        Bytes2 source = new ArrayBytes2(Integer.MAX_VALUE+"");
+        Bytes source = new ArrayBytes(Integer.MAX_VALUE+"");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullInt();
@@ -141,7 +141,7 @@ public class PullParserTest {
 
     @Test
     public void givenMinInt_pullInt_expectResult() {
-        Bytes2 source = new ArrayBytes2(Integer.MIN_VALUE+"");
+        Bytes source = new ArrayBytes(Integer.MIN_VALUE+"");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullInt();
@@ -152,7 +152,7 @@ public class PullParserTest {
 
     @Test
     public void givenIntFollowedByText_pullInt_expectResult() {
-        Bytes2 source = new ArrayBytes2("1234abc");
+        Bytes source = new ArrayBytes("1234abc");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullInt();
@@ -163,7 +163,7 @@ public class PullParserTest {
 
     @Test
     public void givenNonInt_pullInt_expectError() {
-        Bytes2 source = new ArrayBytes2("abc");
+        Bytes source = new ArrayBytes("abc");
         PullParser parser = new PullParser( source );
 
         try {
@@ -176,7 +176,7 @@ public class PullParserTest {
 
     @Test
     public void givenDoubleNeg_pullInt_expectError() {
-        Bytes2 source = new ArrayBytes2("--123");
+        Bytes source = new ArrayBytes("--123");
         PullParser parser = new PullParser( source );
 
         try {
@@ -189,7 +189,7 @@ public class PullParserTest {
 
     @Test
     public void givenMaxIntPlus1_pullInt_expectError() {
-        Bytes2 source = new ArrayBytes2((((long) Integer.MAX_VALUE)+1)+"");
+        Bytes source = new ArrayBytes((((long) Integer.MAX_VALUE)+1)+"");
         PullParser parser = new PullParser( source );
 
         try {
@@ -204,7 +204,7 @@ public class PullParserTest {
 
     @Test
     public void given12303pence_pullSmallCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.03");
+        Bytes source = new ArrayBytes("123.03");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullSmallCashMajorUnit();
@@ -215,7 +215,7 @@ public class PullParserTest {
 
     @Test
     public void given1233pence_pullSmallCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.3");
+        Bytes source = new ArrayBytes("123.3");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullSmallCashMajorUnit();
@@ -226,7 +226,7 @@ public class PullParserTest {
 
     @Test
     public void given123dpence_pullSmallCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.");
+        Bytes source = new ArrayBytes("123.");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullSmallCashMajorUnit();
@@ -237,7 +237,7 @@ public class PullParserTest {
 
     @Test
     public void given123124pence_pullSmallCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.124");
+        Bytes source = new ArrayBytes("123.124");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullSmallCashMajorUnit();
@@ -248,7 +248,7 @@ public class PullParserTest {
 
     @Test
     public void given123125pence_pullSmallCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.125");
+        Bytes source = new ArrayBytes("123.125");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullSmallCashMajorUnit();
@@ -259,7 +259,7 @@ public class PullParserTest {
 
     @Test
     public void given1231246pence_pullSmallCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.1246");
+        Bytes source = new ArrayBytes("123.1246");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullSmallCashMajorUnit();
@@ -270,7 +270,7 @@ public class PullParserTest {
 
     @Test
     public void given123_pullSmallCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123");
+        Bytes source = new ArrayBytes("123");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullSmallCashMajorUnit();
@@ -281,7 +281,7 @@ public class PullParserTest {
 
     @Test
     public void givenNeg12303pence_pullSmallCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("-123.03");
+        Bytes source = new ArrayBytes("-123.03");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullSmallCashMajorUnit();
@@ -292,7 +292,7 @@ public class PullParserTest {
 
     @Test
     public void givenMaxSmallCash_pullSmallCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("1999999.99");
+        Bytes source = new ArrayBytes("1999999.99");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullSmallCashMajorUnit();
@@ -303,7 +303,7 @@ public class PullParserTest {
 
     @Test
     public void givenMinSmallCash_pullSmallCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("-1999999.99");
+        Bytes source = new ArrayBytes("-1999999.99");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullSmallCashMajorUnit();
@@ -314,7 +314,7 @@ public class PullParserTest {
 
     @Test
     public void givenSmallCashFollowedByTextMajor_pullSmallCash_expectResult() {
-        Bytes2 source = new ArrayBytes2("1234abc");
+        Bytes source = new ArrayBytes("1234abc");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullSmallCashMajorUnit();
@@ -325,7 +325,7 @@ public class PullParserTest {
 
     @Test
     public void givenNonSmallCash_pullSmallCashMajor_expectError() {
-        Bytes2 source = new ArrayBytes2("abc");
+        Bytes source = new ArrayBytes("abc");
         PullParser parser = new PullParser( source );
 
         try {
@@ -338,7 +338,7 @@ public class PullParserTest {
 
     @Test
     public void givenDoubleNeg_pullSmallCashMajor_expectError() {
-        Bytes2 source = new ArrayBytes2("--123");
+        Bytes source = new ArrayBytes("--123");
         PullParser parser = new PullParser( source );
 
         try {
@@ -353,7 +353,7 @@ public class PullParserTest {
 
     @Test
     public void given12303pence_pullSmallCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.03");
+        Bytes source = new ArrayBytes("123.03");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullSmallCashMinorUnit();
@@ -364,7 +364,7 @@ public class PullParserTest {
 
     @Test
     public void given1233pence_pullSmallCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.3");
+        Bytes source = new ArrayBytes("123.3");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullSmallCashMinorUnit();
@@ -375,7 +375,7 @@ public class PullParserTest {
 
     @Test
     public void given123dpence_pullSmallCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.");
+        Bytes source = new ArrayBytes("123.");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullSmallCashMinorUnit();
@@ -386,7 +386,7 @@ public class PullParserTest {
 
     @Test
     public void given123124pence_pullSmallCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.124");
+        Bytes source = new ArrayBytes("123.124");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullSmallCashMinorUnit();
@@ -397,7 +397,7 @@ public class PullParserTest {
 
     @Test
     public void given123125pence_pullSmallCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.125");
+        Bytes source = new ArrayBytes("123.125");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullSmallCashMinorUnit();
@@ -408,7 +408,7 @@ public class PullParserTest {
 
     @Test
     public void given1231246pence_pullSmallCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.124");
+        Bytes source = new ArrayBytes("123.124");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullSmallCashMinorUnit();
@@ -419,7 +419,7 @@ public class PullParserTest {
 
     @Test
     public void given123_pullSmallCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123");
+        Bytes source = new ArrayBytes("123");
         PullParser parser = new PullParser( source );
 
         int v = parser.pullSmallCashMinorUnit();
@@ -430,7 +430,7 @@ public class PullParserTest {
 
     @Test
     public void givenNeg12303pence_pullSmallCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("-123.03");
+        Bytes source = new ArrayBytes("-123.03");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullSmallCashMinorUnit();
@@ -441,7 +441,7 @@ public class PullParserTest {
 
     @Test
     public void givenMaxSmallCash_pullSmallCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("1999999.99");
+        Bytes source = new ArrayBytes("1999999.99");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullSmallCashMinorUnit();
@@ -452,7 +452,7 @@ public class PullParserTest {
 
     @Test
     public void givenMinSmallCash_pullSmallCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("-1999999.99");
+        Bytes source = new ArrayBytes("-1999999.99");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullSmallCashMinorUnit();
@@ -463,7 +463,7 @@ public class PullParserTest {
 
     @Test
     public void givenSmallCashFollowedByText_pullSmallCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("1234abc");
+        Bytes source = new ArrayBytes("1234abc");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullSmallCashMinorUnit();
@@ -474,7 +474,7 @@ public class PullParserTest {
 
     @Test
     public void givenNonSmallCash_pullSmallCashMinor_expectError() {
-        Bytes2 source = new ArrayBytes2("abc");
+        Bytes source = new ArrayBytes("abc");
         PullParser parser = new PullParser( source );
 
         try {
@@ -487,7 +487,7 @@ public class PullParserTest {
 
     @Test
     public void givenDoubleNeg_pullSmallCashMinor_expectError() {
-        Bytes2 source = new ArrayBytes2("--123");
+        Bytes source = new ArrayBytes("--123");
         PullParser parser = new PullParser( source );
 
         try {
@@ -502,7 +502,7 @@ public class PullParserTest {
 
     @Test
     public void given12303pence_pullBigCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.03");
+        Bytes source = new ArrayBytes("123.03");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMajorUnit();
@@ -513,7 +513,7 @@ public class PullParserTest {
 
     @Test
     public void given1233pence_pullBigCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.3");
+        Bytes source = new ArrayBytes("123.3");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMajorUnit();
@@ -524,7 +524,7 @@ public class PullParserTest {
 
     @Test
     public void given123dpence_pullBigCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.");
+        Bytes source = new ArrayBytes("123.");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMajorUnit();
@@ -535,7 +535,7 @@ public class PullParserTest {
 
     @Test
     public void given123124pence_pullBigCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.12344");
+        Bytes source = new ArrayBytes("123.12344");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMajorUnit();
@@ -546,7 +546,7 @@ public class PullParserTest {
 
     @Test
     public void given123125pence_pullBigCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.12345");
+        Bytes source = new ArrayBytes("123.12345");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMajorUnit();
@@ -557,7 +557,7 @@ public class PullParserTest {
 
     @Test
     public void given1231246pence_pullBigCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.124");
+        Bytes source = new ArrayBytes("123.124");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMajorUnit();
@@ -568,7 +568,7 @@ public class PullParserTest {
 
     @Test
     public void given123_pullBigCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123");
+        Bytes source = new ArrayBytes("123");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMajorUnit();
@@ -579,7 +579,7 @@ public class PullParserTest {
 
     @Test
     public void givenNeg12303pence_pullBigCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("-123.03");
+        Bytes source = new ArrayBytes("-123.03");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMajorUnit();
@@ -590,7 +590,7 @@ public class PullParserTest {
 
     @Test
     public void givenMaxBigCash_pullBigCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("1999999.99");
+        Bytes source = new ArrayBytes("1999999.99");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMajorUnit();
@@ -601,7 +601,7 @@ public class PullParserTest {
 
     @Test
     public void givenMinBigCash_pullBigCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("-1999999.99");
+        Bytes source = new ArrayBytes("-1999999.99");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMajorUnit();
@@ -612,7 +612,7 @@ public class PullParserTest {
 
     @Test
     public void givenBigCashFollowedByText_pullBigCashMajor_expectResult() {
-        Bytes2 source = new ArrayBytes2("1234abc");
+        Bytes source = new ArrayBytes("1234abc");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMajorUnit();
@@ -623,7 +623,7 @@ public class PullParserTest {
 
     @Test
     public void givenNonBigCash_pullBigCashMajor_expectError() {
-        Bytes2 source = new ArrayBytes2("abc");
+        Bytes source = new ArrayBytes("abc");
         PullParser parser = new PullParser( source );
 
         try {
@@ -636,7 +636,7 @@ public class PullParserTest {
 
     @Test
     public void givenDoubleNeg_pullBigCashMajor_expectError() {
-        Bytes2 source = new ArrayBytes2("--123");
+        Bytes source = new ArrayBytes("--123");
         PullParser parser = new PullParser( source );
 
         try {
@@ -651,7 +651,7 @@ public class PullParserTest {
 
     @Test
     public void given12303pence_pullBigCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.03");
+        Bytes source = new ArrayBytes("123.03");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMinorUnit();
@@ -662,7 +662,7 @@ public class PullParserTest {
 
     @Test
     public void given1233pence_pullBigCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.3");
+        Bytes source = new ArrayBytes("123.3");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMinorUnit();
@@ -673,7 +673,7 @@ public class PullParserTest {
 
     @Test
     public void given123dpence_pullBigCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.");
+        Bytes source = new ArrayBytes("123.");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMinorUnit();
@@ -684,7 +684,7 @@ public class PullParserTest {
 
     @Test
     public void given123124pence_pullBigCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.12344");
+        Bytes source = new ArrayBytes("123.12344");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMinorUnit();
@@ -695,7 +695,7 @@ public class PullParserTest {
 
     @Test
     public void given123125pence_pullBigCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.12345");
+        Bytes source = new ArrayBytes("123.12345");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMinorUnit();
@@ -706,7 +706,7 @@ public class PullParserTest {
 
     @Test
     public void given1231246pence_pullBigCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123.124");
+        Bytes source = new ArrayBytes("123.124");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMinorUnit();
@@ -717,7 +717,7 @@ public class PullParserTest {
 
     @Test
     public void given123_pullBigCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("123");
+        Bytes source = new ArrayBytes("123");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMinorUnit();
@@ -728,7 +728,7 @@ public class PullParserTest {
 
     @Test
     public void givenNeg12303pence_pullBigCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("-123.03");
+        Bytes source = new ArrayBytes("-123.03");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMinorUnit();
@@ -739,7 +739,7 @@ public class PullParserTest {
 
     @Test
     public void givenMaxBigCashLotsOfNines_pullBigCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("1999999.999");
+        Bytes source = new ArrayBytes("1999999.999");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMinorUnit();
@@ -750,7 +750,7 @@ public class PullParserTest {
 
     @Test
     public void givenMaxBigCash_pullBigCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("920999999999999.99");
+        Bytes source = new ArrayBytes("920999999999999.99");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMinorUnit();
@@ -761,7 +761,7 @@ public class PullParserTest {
 
     @Test
     public void givenMinBigCash_pullBigCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("-920999999999999.99");
+        Bytes source = new ArrayBytes("-920999999999999.99");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMinorUnit();
@@ -772,7 +772,7 @@ public class PullParserTest {
 
     @Test
     public void givenBigCashFollowedByText_pullBigCashMinor_expectResult() {
-        Bytes2 source = new ArrayBytes2("1234abc");
+        Bytes source = new ArrayBytes("1234abc");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullBigCashMinorUnit();
@@ -783,7 +783,7 @@ public class PullParserTest {
 
     @Test
     public void givenNonBigCash_pullBigCashMinor_expectError() {
-        Bytes2 source = new ArrayBytes2("abc");
+        Bytes source = new ArrayBytes("abc");
         PullParser parser = new PullParser( source );
 
         try {
@@ -796,7 +796,7 @@ public class PullParserTest {
 
     @Test
     public void givenDoubleNeg_pullBigCashMinor_expectError() {
-        Bytes2 source = new ArrayBytes2("--123");
+        Bytes source = new ArrayBytes("--123");
         PullParser parser = new PullParser( source );
 
         try {
@@ -812,7 +812,7 @@ public class PullParserTest {
 
     @Test
     public void given123_pullLong_expectResult() {
-        Bytes2 source = new ArrayBytes2("123");
+        Bytes source = new ArrayBytes("123");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullLong();
@@ -823,7 +823,7 @@ public class PullParserTest {
 
     @Test
     public void givenNeg123_pullLong_expectResult() {
-        Bytes2 source = new ArrayBytes2("-123");
+        Bytes source = new ArrayBytes("-123");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullLong();
@@ -834,7 +834,7 @@ public class PullParserTest {
 
     @Test
     public void givenMaxLong_pullLong_expectResult() {
-        Bytes2 source = new ArrayBytes2(Long.MAX_VALUE+"");
+        Bytes source = new ArrayBytes(Long.MAX_VALUE+"");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullLong();
@@ -845,7 +845,7 @@ public class PullParserTest {
 
     @Test
     public void givenMinLong_pullLong_expectResult() {
-        Bytes2 source = new ArrayBytes2(Long.MIN_VALUE+"");
+        Bytes source = new ArrayBytes(Long.MIN_VALUE+"");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullLong();
@@ -856,7 +856,7 @@ public class PullParserTest {
 
     @Test
     public void givenLongFollowedByText_pullLong_expectResult() {
-        Bytes2 source = new ArrayBytes2("1234abc");
+        Bytes source = new ArrayBytes("1234abc");
         PullParser parser = new PullParser( source );
 
         long v = parser.pullLong();
@@ -867,7 +867,7 @@ public class PullParserTest {
 
     @Test
     public void givenNonLong_pullLong_expectError() {
-        Bytes2 source = new ArrayBytes2("abc");
+        Bytes source = new ArrayBytes("abc");
         PullParser parser = new PullParser( source );
 
         try {
@@ -880,7 +880,7 @@ public class PullParserTest {
 
     @Test
     public void givenDoubleNeg_pullLong_expectError() {
-        Bytes2 source = new ArrayBytes2("--123");
+        Bytes source = new ArrayBytes("--123");
         PullParser parser = new PullParser( source );
 
         try {
@@ -893,7 +893,7 @@ public class PullParserTest {
 
     @Test
     public void givenMaxLongPlus1_pullLong_expectError() {
-        Bytes2 source = new ArrayBytes2((((long) Integer.MAX_VALUE))+"1");
+        Bytes source = new ArrayBytes((((long) Integer.MAX_VALUE))+"1");
         PullParser parser = new PullParser( source );
 
         try {
@@ -908,7 +908,7 @@ public class PullParserTest {
 
     @Test
     public void given123_pullFloat_expectResult() {
-        Bytes2 source = new ArrayBytes2("123");
+        Bytes source = new ArrayBytes("123");
         PullParser parser = new PullParser( source );
 
         float v = parser.pullFloat();
@@ -919,7 +919,7 @@ public class PullParserTest {
 
     @Test
     public void givenNeg123_pullFloat_expectResult() {
-        Bytes2 source = new ArrayBytes2("-123");
+        Bytes source = new ArrayBytes("-123");
         PullParser parser = new PullParser( source );
 
         float v = parser.pullFloat();
@@ -931,7 +931,7 @@ public class PullParserTest {
     @Test
     public void givenMaxFloat_pullFloat_expectResult() {
         String     str    = (Integer.MAX_VALUE/10) + "." + (Integer.MAX_VALUE/10);
-        Bytes2 source = new ArrayBytes2( str );
+        Bytes source = new ArrayBytes( str );
         PullParser parser = new PullParser( source );
 
         float v = parser.pullFloat();
@@ -943,7 +943,7 @@ public class PullParserTest {
     @Test
     public void givenMinFloat_pullFloat_expectResult() {
         String     str    = "-"+(Integer.MAX_VALUE/10) + "." + (Integer.MAX_VALUE/10);
-        PullParser parser = new PullParser( new ArrayBytes2(str) );
+        PullParser parser = new PullParser( new ArrayBytes(str) );
 
         float v = parser.pullFloat();
 
@@ -953,7 +953,7 @@ public class PullParserTest {
 
     @Test
     public void givenFloatFollowedByText_pullFloat_expectResult() {
-        Bytes2 source = new ArrayBytes2("1234.12abc");
+        Bytes source = new ArrayBytes("1234.12abc");
         PullParser parser = new PullParser( source );
 
         float v = parser.pullFloat();
@@ -964,7 +964,7 @@ public class PullParserTest {
 
     @Test
     public void givenFloat_pullFloat_expectResult() {
-        Bytes2 source = new ArrayBytes2("3.11");
+        Bytes source = new ArrayBytes("3.11");
         PullParser parser = new PullParser( source );
 
         float v = parser.pullFloat();
@@ -975,7 +975,7 @@ public class PullParserTest {
 
     @Test
     public void givenNonFloat_pullFloat_expectError() {
-        Bytes2 source = new ArrayBytes2("abc");
+        Bytes source = new ArrayBytes("abc");
         PullParser parser = new PullParser( source );
 
         try {
@@ -988,7 +988,7 @@ public class PullParserTest {
 
     @Test
     public void givenDoubleNeg_pullFloat_expectError() {
-        Bytes2 source = new ArrayBytes2("--123");
+        Bytes source = new ArrayBytes("--123");
         PullParser parser = new PullParser( source );
 
         try {
@@ -1003,7 +1003,7 @@ public class PullParserTest {
 
     @Test
     public void given123_pullDouble_expectResult() {
-        Bytes2 source = new ArrayBytes2("123");
+        Bytes source = new ArrayBytes("123");
         PullParser parser = new PullParser( source );
 
         double v = parser.pullDouble();
@@ -1014,7 +1014,7 @@ public class PullParserTest {
 
     @Test
     public void givenNeg123_pullDouble_expectResult() {
-        Bytes2 source = new ArrayBytes2("-123");
+        Bytes source = new ArrayBytes("-123");
         PullParser parser = new PullParser( source );
 
         double v = parser.pullDouble();
@@ -1026,7 +1026,7 @@ public class PullParserTest {
     @Test
     public void givenMaxDouble_pullDouble_expectResult() {
         String     str    = (Integer.MAX_VALUE/10) + "." + (Integer.MAX_VALUE/10);
-        Bytes2 source = new ArrayBytes2( str );
+        Bytes source = new ArrayBytes( str );
         PullParser parser = new PullParser( source );
 
         double v = parser.pullDouble();
@@ -1038,7 +1038,7 @@ public class PullParserTest {
     @Test
     public void givenMinDouble_pullDouble_expectResult() {
         String     str    = "-"+(Integer.MAX_VALUE/10) + "." + (Integer.MAX_VALUE/10);
-        PullParser parser = new PullParser( new ArrayBytes2(str) );
+        PullParser parser = new PullParser( new ArrayBytes(str) );
 
         double v = parser.pullDouble();
 
@@ -1048,7 +1048,7 @@ public class PullParserTest {
 
     @Test
     public void givenDoubleFollowedByText_pullDouble_expectResult() {
-        Bytes2 source = new ArrayBytes2("1234.12abc");
+        Bytes source = new ArrayBytes("1234.12abc");
         PullParser parser = new PullParser( source );
 
         double v = parser.pullDouble();
@@ -1059,7 +1059,7 @@ public class PullParserTest {
 
     @Test
     public void givenNonDouble_pullDouble_expectError() {
-        Bytes2 source = new ArrayBytes2("abc");
+        Bytes source = new ArrayBytes("abc");
         PullParser parser = new PullParser( source );
 
         try {
@@ -1072,7 +1072,7 @@ public class PullParserTest {
 
     @Test
     public void givenDoubleNeg_pullDouble_expectError() {
-        Bytes2 source = new ArrayBytes2("--123");
+        Bytes source = new ArrayBytes("--123");
         PullParser parser = new PullParser( source );
 
         try {
@@ -1088,7 +1088,7 @@ public class PullParserTest {
 
     @Test
     public void given123_optionallyParseValue_expectValue() {
-        Bytes2 source = new ArrayBytes2("123");
+        Bytes source = new ArrayBytes("123");
         PullParser parser = new PullParser( source );
 
         Long v = parser.pullCustom( new NumberParser() );
@@ -1099,7 +1099,7 @@ public class PullParserTest {
 
     @Test
     public void givenABC_optionallyParseValue_expectNull() {
-        Bytes2 source = new ArrayBytes2("abc");
+        Bytes source = new ArrayBytes("abc");
         PullParser parser = new PullParser( source );
 
         Long v = parser.optionallyPull( new NumberParser() );
@@ -1112,7 +1112,7 @@ public class PullParserTest {
 
     @Test
     public void givenTwoNumbersSeparatedByWhitespace_autoSkipWhitspace_expectToParseBothValues() {
-        Bytes2 source = new ArrayBytes2("123 456");
+        Bytes source = new ArrayBytes("123 456");
         PullParser parser = new PullParser( source );
 
         parser.autoSkip( new WhitespaceParser() );
@@ -1132,7 +1132,7 @@ public class PullParserTest {
 
     @Test
     public void givenMultiLineText_startAt0_rewindLine_expectNoChange() {
-        Bytes2 source = new ArrayBytes2("123\r\n456\r\n789\rabc def\naaa");
+        Bytes source = new ArrayBytes("123\r\n456\r\n789\rabc def\naaa");
         PullParser parser = new PullParser( source );
 
         assertEquals( 0, parser.getPosition() );
@@ -1142,7 +1142,7 @@ public class PullParserTest {
 
     @Test
     public void givenMultiLineText_startAtEndOfFirstLineButBeforeEOLMarker_rewindLine_expectRewindToStart() {
-        Bytes2 source = new ArrayBytes2("123\r\n456\r\n789\rabc def\naaa");
+        Bytes source = new ArrayBytes("123\r\n456\r\n789\rabc def\naaa");
         PullParser parser = new PullParser( source );
 
         parser.setPosition( 3 );
@@ -1153,7 +1153,7 @@ public class PullParserTest {
 
     @Test
     public void givenMultiLineText_startAtEndOfFirstLine_rewindLine_expectRewindToStart() {
-        Bytes2 source = new ArrayBytes2("123\r\n456\r\n789\rabc def\naaa");
+        Bytes source = new ArrayBytes("123\r\n456\r\n789\rabc def\naaa");
         PullParser parser = new PullParser( source );
 
         parser.setPosition( 5 );
@@ -1164,7 +1164,7 @@ public class PullParserTest {
 
     @Test
     public void givenMultiLineText_startAtEndOfSecondLineButBeforeEOLMarker_rewindLine_expectRewindToStart() {
-        Bytes2 source = new ArrayBytes2("123\r\n456\r\n789\rabc def\naaa");
+        Bytes source = new ArrayBytes("123\r\n456\r\n789\rabc def\naaa");
         PullParser parser = new PullParser( source );
 
         parser.setPosition( 8 );
@@ -1175,7 +1175,7 @@ public class PullParserTest {
 
     @Test
     public void givenMultiLineText_startAtEndOfSecondLine_rewindLine_expectRewindToStart() {
-        Bytes2 source = new ArrayBytes2("123\r\n456\r\n789\rabc def\naaa");
+        Bytes source = new ArrayBytes("123\r\n456\r\n789\rabc def\naaa");
         PullParser parser = new PullParser( source );
 
         parser.setPosition( 10 );
@@ -1189,7 +1189,7 @@ public class PullParserTest {
 
     @Test
     public void givenBytes_expectHasMoreToOnlyReturnFalseWhenPositionIsAtTheEnd() {
-        Bytes2 source = new ArrayBytes2("123\r\n456\r\n789\rabc def\naaa");
+        Bytes source = new ArrayBytes("123\r\n456\r\n789\rabc def\naaa");
         PullParser parser = new PullParser( source );
 
         for ( int i=0; i<source.sizeBytes()-1; i++ ) {
@@ -1208,7 +1208,7 @@ public class PullParserTest {
 
     @Test
     public void givenMultipleLinesOfText_expectPullLineToReturnEachInTurn() {
-        Bytes2 source = new ArrayBytes2("123\r\n456\r\n789\n\n\rabc def\naaa");
+        Bytes source = new ArrayBytes("123\r\n456\r\n789\n\n\rabc def\naaa");
 
         List<String> expected = Arrays.asList(
             "123",
@@ -1225,7 +1225,7 @@ public class PullParserTest {
 
 
     private static class NumberParser implements ByteMatcher<Long> {
-        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult<Long> result ) {
+        public void parse( Bytes source, long fromInc, long toExc, ParserResult<Long> result ) {
             long num = 0;
 
             long i=fromInc;
@@ -1253,7 +1253,7 @@ public class PullParserTest {
     }
 
     private static class WhitespaceParser implements ByteMatcher<Void> {
-        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult<Void> result ) {
+        public void parse( Bytes source, long fromInc, long toExc, ParserResult<Void> result ) {
             long i=fromInc;
             for ( ; i<toExc; i++ ) {
                 byte v = source.readByte(i, toExc);

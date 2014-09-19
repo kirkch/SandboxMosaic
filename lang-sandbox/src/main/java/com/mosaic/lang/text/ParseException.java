@@ -1,6 +1,6 @@
 package com.mosaic.lang.text;
 
-import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.Bytes;
 
 
 /**
@@ -8,11 +8,11 @@ import com.mosaic.bytes.Bytes2;
  */
 public class ParseException extends RuntimeException {
 
-    public static ParseException newParseException( Bytes2 b, long position, String message ) {
+    public static ParseException newParseException( Bytes b, long position, String message ) {
         return newParseException( b, position, message, null );
     }
 
-    public static ParseException newParseException( Bytes2 b, long position, String message, Throwable ex ) {
+    public static ParseException newParseException( Bytes b, long position, String message, Throwable ex ) {
         long lineNumber   = 1;
         long columnNumber = 1;
 

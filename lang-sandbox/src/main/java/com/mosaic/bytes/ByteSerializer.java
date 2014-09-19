@@ -1,9 +1,6 @@
 package com.mosaic.bytes;
 
 
-import com.mosaic.io.bytes.Bytes;
-
-
 /**
  * Knows how to serialize and de-serialize T.  Assumes that the bytes are shared to reduce
  * copying and objection allocations.

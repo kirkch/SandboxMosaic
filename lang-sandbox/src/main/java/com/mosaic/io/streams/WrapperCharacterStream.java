@@ -1,6 +1,6 @@
 package com.mosaic.io.streams;
 
-import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.Bytes;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.text.UTF8;
 
@@ -32,11 +32,11 @@ public class WrapperCharacterStream implements CharacterStream {
         delegate.writeByteAsNumber( v );
     }
 
-    public void writeUTF8Bytes( Bytes2 bytes ) {
+    public void writeUTF8Bytes( Bytes bytes ) {
         delegate.writeUTF8Bytes( bytes );
     }
 
-    public void writeUTF8Bytes( Bytes2 bytes, int fromIndexInc, int toExc ) {
+    public void writeUTF8Bytes( Bytes bytes, int fromIndexInc, int toExc ) {
         delegate.writeUTF8Bytes( bytes, fromIndexInc, toExc );
     }
 

@@ -1,8 +1,8 @@
 package com.mosaic.bytes.struct;
 
-import com.mosaic.bytes.ArrayBytes2;
+import com.mosaic.bytes.ArrayBytes;
 import com.mosaic.bytes.ByteView;
-import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.Bytes;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.SystemX;
 
@@ -17,14 +17,14 @@ import java.util.NoSuchElementException;
 public abstract class Structs<T> implements Iterable<T> {
 
     private final long   offset;
-    private final Bytes2 bytes;
+    private final Bytes bytes;
     private final long   structSizeBytes;
 
 
     private long allocatedRecordCount;
 
 
-    protected Structs( Bytes2 bytes, long structSizeBytes ) {
+    protected Structs( Bytes bytes, long structSizeBytes ) {
         this( 0, bytes, structSizeBytes );
     }
 
@@ -32,7 +32,7 @@ public abstract class Structs<T> implements Iterable<T> {
      *
      * @param offset start the structs n bytes in, reserving 'offset' number of bytes as a header
      */
-    protected Structs( long offset, Bytes2 bytes, long structSizeBytes ) {
+    protected Structs( long offset, Bytes bytes, long structSizeBytes ) {
         this.offset          = offset;
         this.structSizeBytes = structSizeBytes;
         this.bytes           = bytes;
@@ -116,7 +116,7 @@ public abstract class Structs<T> implements Iterable<T> {
         bytes.writeBytes( destinationOffset, destinationOffset+structSizeBytes, bytes, sourceOffset, sourceOffset+structSizeBytes );
     }
 
-    public void copyTo( long structIndex, Bytes2 destination, long destinationOffset, long destinationMaxExc ) {
+    public void copyTo( long structIndex, Bytes destination, long destinationOffset, long destinationMaxExc ) {
         long sourceOffset       = calcByteOffsetForStructIndex( structIndex );
         long sourceMaxExc       = sourceOffset + structSizeBytes;
 
@@ -125,7 +125,7 @@ public abstract class Structs<T> implements Iterable<T> {
         destination.writeBytes( destinationOffset, destinationMaxExc2, bytes, sourceOffset, sourceMaxExc );
     }
 
-    public void copyFrom( long destinationStructIndex, Bytes2 sourceBytes, long sourceOffset, long sourceMaxExc ) {
+    public void copyFrom( long destinationStructIndex, Bytes sourceBytes, long sourceOffset, long sourceMaxExc ) {
         long destinationOffset = calcByteOffsetForStructIndex( destinationStructIndex );
         long destinationMaxExc = destinationOffset + structSizeBytes;
 
@@ -134,7 +134,7 @@ public abstract class Structs<T> implements Iterable<T> {
         this.bytes.writeBytes( destinationOffset, destinationMaxExc, sourceBytes, sourceOffset, sourceMaxExc2 );
     }
 
-    public void swapRecords( long structIndex1, long structIndex2, Bytes2 tmpBuf, long tmpBufOffset, long tmpBufMaxExc ) {
+    public void swapRecords( long structIndex1, long structIndex2, Bytes tmpBuf, long tmpBufOffset, long tmpBufMaxExc ) {
         long structOffset1 = calcByteOffsetForStructIndex( structIndex1 );
         long structMaxExc1 = structOffset1 + structSizeBytes;
         
@@ -159,7 +159,7 @@ public abstract class Structs<T> implements Iterable<T> {
         private final T s1 = createBlankStruct();
         private final T s2 = createBlankStruct();
 
-        private final Bytes2 tmpBuffer = new ArrayBytes2(structSizeBytes);
+        private final Bytes tmpBuffer = new ArrayBytes(structSizeBytes);
 
         private final Comparator<T> comparator;
 
@@ -241,8 +241,8 @@ public abstract class Structs<T> implements Iterable<T> {
 
     protected void selectInToView( ByteView view, long structIndex ) {
         if ( structIndex < allocatedRecordCount ) {
-            long fromInc    = calcByteOffsetForStructIndex( structIndex );
-            long toExc      = fromInc + structSizeBytes;
+            long fromInc = calcByteOffsetForStructIndex( structIndex );
+            long toExc   = fromInc + structSizeBytes;
 
             view.setBytes( bytes, fromInc, toExc );
         } else {

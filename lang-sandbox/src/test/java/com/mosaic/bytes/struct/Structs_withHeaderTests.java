@@ -1,8 +1,8 @@
 package com.mosaic.bytes.struct;
 
-import com.mosaic.bytes.ArrayBytes2;
-import com.mosaic.bytes.AutoResizingBytes2;
-import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.ArrayBytes;
+import com.mosaic.bytes.AutoResizingBytes;
+import com.mosaic.bytes.Bytes;
 import com.mosaic.bytes.struct.examples.redbull.RedBullStructs;
 import com.mosaic.lang.system.DebugSystem;
 import com.mosaic.lang.system.SystemX;
@@ -17,10 +17,10 @@ import static org.junit.Assert.assertEquals;
 public class Structs_withHeaderTests extends BaseStructsTestCases {
 
     private SystemX system  = new DebugSystem();
-    private Bytes2  bytes;
+    private Bytes bytes;
 
     protected RedBullStructs createNewRedBull( long initialSize ) {
-        bytes = new AutoResizingBytes2( system, new ArrayBytes2(1024), "StructsTests", 100_000 );
+        bytes = new AutoResizingBytes( system, new ArrayBytes(1024), "StructsTests", 100_000 );
 
         int stringLength = bytes.writeUTF8String( 0, 20, "hello" );
 

@@ -7,7 +7,7 @@ import com.mosaic.lang.system.SystemX;
 /**
  *
  */
-public class AutoResizingBytes2 extends WrappedBytes2 {
+public class AutoResizingBytes extends WrappedBytes {
 
     private SystemX system;
     private String  name;
@@ -20,7 +20,7 @@ public class AutoResizingBytes2 extends WrappedBytes2 {
      * @param name            used for logging
      * @param maxExpectedSize warn if the bytes grows past this size
      */
-    public AutoResizingBytes2( SystemX system, Bytes2 delegate, String name, long maxExpectedSize ) {
+    public AutoResizingBytes( SystemX system, Bytes delegate, String name, long maxExpectedSize ) {
         super( delegate );
 
         this.system = system;

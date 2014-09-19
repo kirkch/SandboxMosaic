@@ -1,7 +1,7 @@
 package com.mosaic.lang.text;
 
-import com.mosaic.bytes.ArrayBytes2;
-import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.ArrayBytes;
+import com.mosaic.bytes.Bytes;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.NotThreadSafe;
@@ -22,12 +22,12 @@ import java.util.List;
 public class PullParser {
 
     public static PullParser wrap( String txt ) {
-        Bytes2 hdr = new ArrayBytes2( txt );
+        Bytes hdr = new ArrayBytes( txt );
 
         return new PullParser( hdr );
     }
 
-    public static List<String> toLines( Bytes2 bytes ) {
+    public static List<String> toLines( Bytes bytes ) {
         List<String>  lines = new ArrayList<>();
         PullParser    p     = new PullParser(bytes);
 
@@ -50,10 +50,10 @@ public class PullParser {
 
 
     private long   position = 0;
-    private Bytes2 source;
+    private Bytes source;
 
 
-    public PullParser( Bytes2 bytes ) {
+    public PullParser( Bytes bytes ) {
         QA.argNotNull( bytes, "bytes" );
 
         this.source = bytes;
@@ -473,7 +473,7 @@ public class PullParser {
 
 
     private static final ByteMatcher INT_PARSER = new ByteMatcher() {
-        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
+        public void parse( Bytes source, long fromInc, long toExc, ParserResult result ) {
             int num = 0;
 
             long i=fromInc;
@@ -522,7 +522,7 @@ public class PullParser {
     };
 
     private static final ByteMatcher BOOLEAN_PARSER = new ByteMatcher() {
-        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
+        public void parse( Bytes source, long fromInc, long toExc, ParserResult result ) {
             byte v = source.readByte(fromInc, toExc);
             if ( v == 'T' || v == 't' ) {
                 result.resultMatchedBoolean( true, fromInc, fromInc+1 );
@@ -556,7 +556,7 @@ public class PullParser {
             }
         }
 
-        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
+        public void parse( Bytes source, long fromInc, long toExc, ParserResult result ) {
             int num = 0;
 
             long i=fromInc;
@@ -664,7 +664,7 @@ public class PullParser {
             }
         }
 
-        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
+        public void parse( Bytes source, long fromInc, long toExc, ParserResult result ) {
             long num = 0;
 
             long i=fromInc;
@@ -757,7 +757,7 @@ public class PullParser {
 
 
     private static final ByteMatcher BIGCASH_PARSEROLD = new ByteMatcher() {
-        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
+        public void parse( Bytes source, long fromInc, long toExc, ParserResult result ) {
             long num = 0;
 
             long i=fromInc;
@@ -866,7 +866,7 @@ public class PullParser {
 
 
     private static final ByteMatcher LONG_PARSER = new ByteMatcher() {
-        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
+        public void parse( Bytes source, long fromInc, long toExc, ParserResult result ) {
             long num = 0;
 
             long i=fromInc;
@@ -915,7 +915,7 @@ public class PullParser {
     };
 
     private static final ByteMatcher FLOAT_PARSER = new ByteMatcher() {
-        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
+        public void parse( Bytes source, long fromInc, long toExc, ParserResult result ) {
             byte v = source.readByte(fromInc, toExc);
 
             boolean isNeg;
@@ -941,7 +941,7 @@ public class PullParser {
             }
         }
 
-        private void parseIntegerPart( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
+        private void parseIntegerPart( Bytes source, long fromInc, long toExc, ParserResult result ) {
             float num = 0;
 
             long i=fromInc;
@@ -969,7 +969,7 @@ public class PullParser {
          * @param fromInc where to expect the '.'
          * @param result contains the result so far, including where the parsing started from originally
          */
-        private void parseDecimalPart( Bytes2 source, float num, long fromInc, long toExc, ParserResult result ) {
+        private void parseDecimalPart( Bytes source, float num, long fromInc, long toExc, ParserResult result ) {
             if ( fromInc >= toExc ) {
                 return;
             }
@@ -1006,7 +1006,7 @@ public class PullParser {
 
 
     private static final ByteMatcher DOUBLE_PARSER = new ByteMatcher() {
-        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
+        public void parse( Bytes source, long fromInc, long toExc, ParserResult result ) {
             byte v = source.readByte(fromInc, toExc);
 
             boolean isNeg;
@@ -1033,7 +1033,7 @@ public class PullParser {
 
         }
 
-        private void parseIntegerPart( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
+        private void parseIntegerPart( Bytes source, long fromInc, long toExc, ParserResult result ) {
             double num = 0;
 
             long i=fromInc;
@@ -1061,7 +1061,7 @@ public class PullParser {
          * @param fromInc where to expect the '.'
          * @param result contains the result so far, including where the parsing started from originally
          */
-        private void parseDecimalPart( Bytes2 source, double num, long fromInc, long toExc, ParserResult result ) {
+        private void parseDecimalPart( Bytes source, double num, long fromInc, long toExc, ParserResult result ) {
             if ( fromInc >= toExc ) {
                 return;
             }
@@ -1100,7 +1100,7 @@ public class PullParser {
     private static class NoOpParser implements ByteMatcher {
         public static final ByteMatcher INSTANCE = new NoOpParser();
 
-        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
+        public void parse( Bytes source, long fromInc, long toExc, ParserResult result ) {
             result.resultNoMatch();
         }
     }

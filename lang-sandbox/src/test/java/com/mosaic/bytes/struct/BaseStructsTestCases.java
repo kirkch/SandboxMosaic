@@ -1,7 +1,7 @@
 package com.mosaic.bytes.struct;
 
-import com.mosaic.bytes.ArrayBytes2;
-import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.ArrayBytes;
+import com.mosaic.bytes.Bytes;
 import com.mosaic.bytes.struct.examples.redbull.RedBullStruct;
 import com.mosaic.bytes.struct.examples.redbull.RedBullStructs;
 import com.mosaic.lang.ComparisonResult;
@@ -137,7 +137,7 @@ public abstract class BaseStructsTestCases {
     public void copyRecordTo_bytes() {
         allocateAndPopulateBulls( 3 );
 
-        Bytes2 buf = new ArrayBytes2( 200 );
+        Bytes buf = new ArrayBytes( 200 );
 
         assertEquals( 9, redBulls.getStructSizeBytes() );
         redBulls.copyTo( 2, buf, 3, 3+redBulls.getStructSizeBytes() );
@@ -152,7 +152,7 @@ public abstract class BaseStructsTestCases {
     public void copyRecordFrom_fromBytes() {
         allocateAndPopulateBulls( 3 );
 
-        Bytes2 buf = new ArrayBytes2( 200 );
+        Bytes buf = new ArrayBytes( 200 );
 
         redBulls.copyTo( 1, buf, 3, 200 );
         redBulls.copyFrom( 2, buf, 3, 200 );
@@ -174,7 +174,7 @@ public abstract class BaseStructsTestCases {
     public void swapRecords() {
         allocateAndPopulateBulls( 3 );
 
-        Bytes2 buf = new ArrayBytes2( 3+9 );
+        Bytes buf = new ArrayBytes( 3+9 );
 
         redBulls.swapRecords( 1, 2, buf, 3, buf.sizeBytes() );
 

@@ -1,6 +1,6 @@
 package com.mosaic.lang.text;
 
-import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.Bytes;
 
 
 /**
@@ -38,7 +38,7 @@ public class CharacterParsers {
     private static class EOL implements ByteMatcher {
         public static final ByteMatcher INSTANCE = new EOL();
 
-        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
+        public void parse( Bytes source, long fromInc, long toExc, ParserResult result ) {
             long pos = fromInc;
 
             for ( ; pos < toExc; pos++ ) {
@@ -64,7 +64,7 @@ public class CharacterParsers {
     private static class TabOrSpace implements ByteMatcher {
         public static final ByteMatcher INSTANCE = new TabOrSpace();
 
-        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
+        public void parse( Bytes source, long fromInc, long toExc, ParserResult result ) {
             long pos = fromInc;
 
             for ( ; pos < toExc; pos++ ) {
@@ -90,7 +90,7 @@ public class CharacterParsers {
     private static class TabOrSpaceEOL implements ByteMatcher {
         public static final ByteMatcher INSTANCE = new TabOrSpaceEOL();
 
-        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult result ) {
+        public void parse( Bytes source, long fromInc, long toExc, ParserResult result ) {
             long pos = fromInc;
 
             for ( ; pos < toExc; pos++ ) {
@@ -120,7 +120,7 @@ public class CharacterParsers {
             this.target = target;
         }
 
-        public void parse( Bytes2 source, long fromInc, long toExc, ParserResult<UTF8> result ) {
+        public void parse( Bytes source, long fromInc, long toExc, ParserResult<UTF8> result ) {
             long   sourceIndex = fromInc;
             int    targetIndex = 0;
             byte[] targetBytes = target.getBytes();

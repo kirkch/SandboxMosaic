@@ -1,8 +1,8 @@
 package com.mosaic.io.filesystemx.inmemory;
 
-import com.mosaic.bytes.ArrayBytes2;
-import com.mosaic.bytes.Bytes2;
-import com.mosaic.bytes.WrappedBytes2;
+import com.mosaic.bytes.ArrayBytes;
+import com.mosaic.bytes.Bytes;
+import com.mosaic.bytes.WrappedBytes;
 import com.mosaic.io.filesystemx.FileContents;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
@@ -17,7 +17,7 @@ public class InMemoryFile implements FileX {
     private InMemoryFileSystem fileSystem;
     private InMemoryDirectory  parentDirectory;
     private String             fileName;
-    private Bytes2             bytes;
+    private Bytes bytes;
 
     private boolean            hasBeenDeletedFlag;
 
@@ -27,10 +27,10 @@ public class InMemoryFile implements FileX {
 
 
     InMemoryFile( InMemoryFileSystem fileSystem, InMemoryDirectory parentDirectory, String fileName, int size ) {
-        this( fileSystem, parentDirectory, fileName, new ArrayBytes2(size) );
+        this( fileSystem, parentDirectory, fileName, new ArrayBytes(size) );
     }
 
-    InMemoryFile( InMemoryFileSystem fileSystem, InMemoryDirectory parentDirectory, String fileName, Bytes2 bytes ) {
+    InMemoryFile( InMemoryFileSystem fileSystem, InMemoryDirectory parentDirectory, String fileName, Bytes bytes ) {
         QA.argNotNull( fileSystem, "fileSystem" );
         QA.argNotNull( parentDirectory, "parentDirectory" );
         QA.argNotBlank( fileName, "fileName" );
@@ -54,7 +54,7 @@ public class InMemoryFile implements FileX {
         fileSystem.incrementOpenFileCount();
 
         return new InMemoryFileContents(
-            new WrappedBytes2(bytes) {
+            new WrappedBytes(bytes) {
                 public void release() {
                     fileSystem.decrementOpenFileCount();
                 }
@@ -125,14 +125,14 @@ public class InMemoryFile implements FileX {
         }
     }
 
-    void setBytes( Bytes2 newBytes ) {
+    void setBytes( Bytes newBytes ) {
         this.bytes = newBytes;
     }
 
     private boolean isLocked;
     private class InMemoryFileContents extends FileContents {
 
-        public InMemoryFileContents( Bytes2 delegate ) {
+        public InMemoryFileContents( Bytes delegate ) {
             super( delegate );
         }
 

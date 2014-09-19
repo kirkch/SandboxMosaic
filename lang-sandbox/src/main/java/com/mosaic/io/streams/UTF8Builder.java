@@ -1,8 +1,8 @@
 package com.mosaic.io.streams;
 
-import com.mosaic.bytes.ArrayBytes2;
-import com.mosaic.bytes.AutoResizingBytes2;
-import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.ArrayBytes;
+import com.mosaic.bytes.AutoResizingBytes;
+import com.mosaic.bytes.Bytes;
 import com.mosaic.lang.BigCashType;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.SmallCashType;
@@ -34,17 +34,17 @@ public class UTF8Builder implements CharacterStream {
 
 
     private long   pos;
-    private Bytes2 destinationBytes;
+    private Bytes destinationBytes;
 
     private final byte[] formattingBuffer = new byte[40];
 
 
     public UTF8Builder( SystemX system ) {
-        this( system, new ArrayBytes2(100) );
+        this( system, new ArrayBytes(100) );
     }
 
-    public UTF8Builder( SystemX system, Bytes2 destinationBytes ) {
-        this.destinationBytes = new AutoResizingBytes2(system, destinationBytes, "UTF8Builder", 10000);
+    public UTF8Builder( SystemX system, Bytes destinationBytes ) {
+        this.destinationBytes = new AutoResizingBytes(system, destinationBytes, "UTF8Builder", 10000);
     }
 
     public long positionIndex() {
@@ -124,7 +124,7 @@ public class UTF8Builder implements CharacterStream {
         }
     }
 
-    public void writeUTF8Bytes( Bytes2 bytes ) {
+    public void writeUTF8Bytes( Bytes bytes ) {
         long numBytes = bytes.sizeBytes();
 
         this.destinationBytes.writeBytes( pos, numBytes, bytes );
@@ -132,7 +132,7 @@ public class UTF8Builder implements CharacterStream {
         pos += numBytes;
     }
 
-    public void writeUTF8Bytes( Bytes2 bytes, int fromIndexInc, int toExc ) {
+    public void writeUTF8Bytes( Bytes bytes, int fromIndexInc, int toExc ) {
         long numBytes = toExc - fromIndexInc;
 
         this.destinationBytes.writeBytes( pos, pos+numBytes, bytes, fromIndexInc, toExc );

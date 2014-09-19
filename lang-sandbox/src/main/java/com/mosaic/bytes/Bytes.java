@@ -9,7 +9,7 @@ import java.io.InputStream;
 /**
  *
  */
-public interface Bytes2 {
+public interface Bytes {
 
     public void release();
     public long sizeBytes();
@@ -100,11 +100,11 @@ public interface Bytes2 {
     public int readBytes( long offset, long maxExc, byte[] destinationArray );
     public int writeBytes( long offset, long maxExc, byte[] sourceBytes );
 
-    public int readBytes( long offset, long maxExc, Bytes2 destination );
-    public int writeBytes( long offset, long maxExc, Bytes2 sourceBytes );
+    public int readBytes( long offset, long maxExc, Bytes destination );
+    public int writeBytes( long offset, long maxExc, Bytes sourceBytes );
 
-    public int readBytes( long offset, long maxExc, Bytes2 destination, long destinationInc, long destinationExc );
-    public int writeBytes( long offset, long maxExc, Bytes2 sourceBytes, long sourceInc, long sourceExc );
+    public int readBytes( long offset, long maxExc, Bytes destination, long destinationInc, long destinationExc );
+    public int writeBytes( long offset, long maxExc, Bytes sourceBytes, long sourceInc, long sourceExc );
 
     /**
      * Copies as many bytes that are specified into the supplied

@@ -1,7 +1,7 @@
 package com.mosaic.bytes.struct;
 
 import com.mosaic.bytes.ByteView;
-import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.Bytes;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.SystemX;
 
@@ -23,7 +23,7 @@ public class Struct implements ByteView {
 
     private final long structSizeBytes;
 
-    private Bytes2 bytes;
+    private Bytes bytes;
     private long   base;
     private long   maxExc;
 
@@ -39,7 +39,7 @@ public class Struct implements ByteView {
         this.structSizeBytes = structSizeBytes;
     }
 
-    public void setBytes( Bytes2 bytes, long base, long maxExc ) {
+    public void setBytes( Bytes bytes, long base, long maxExc ) {
         this.bytes  = bytes;
         this.base   = base;
 

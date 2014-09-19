@@ -16,6 +16,6 @@ public interface ByteView {
      * @param base The base address that this entry starts at.
      * @param maxExc The max address-1 that may safely be written to/read from.
      */
-    public void setBytes( Bytes2 bytes, long base, long maxExc );
+    public void setBytes( Bytes bytes, long base, long maxExc );
 
 }

@@ -1,6 +1,5 @@
 package com.mosaic.bytes;
 
-import com.mosaic.io.bytes.ArrayBytes;
 import com.mosaic.lang.QA;
 
 import java.io.BufferedInputStream;
@@ -18,7 +17,7 @@ public class ClassPathBytes2 {
      *
      * @return null if the resource was not found
      */
-    public static Bytes2 loadFromClassPath( ClassLoader classLoader, String resourcePath ) throws IOException {
+    public static Bytes loadFromClassPath( ClassLoader classLoader, String resourcePath ) throws IOException {
         if ( resourcePath.startsWith("/") ) {
             resourcePath = resourcePath.substring(1);
         }
@@ -35,7 +34,7 @@ public class ClassPathBytes2 {
 
         bufferedInput.read( bytes );
 
-        return new ArrayBytes2( bytes );
+        return new ArrayBytes( bytes );
     }
 
 

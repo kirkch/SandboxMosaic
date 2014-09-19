@@ -1,6 +1,6 @@
 package com.mosaic.io.filesystemx.inmemory;
 
-import com.mosaic.bytes.Bytes2;
+import com.mosaic.bytes.Bytes;
 import com.mosaic.io.filesystemx.BaseFileSystemTestCases;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileSystemX;
@@ -26,7 +26,7 @@ public class InMemoryFileSystemTest extends BaseFileSystemTestCases {
 
         FileX newFile = fs.getCurrentWorkingDirectory().addFile( "welcome_msg.txt", "Hello" );
 
-        Bytes2 fileContents = newFile.openFile( FileModeEnum.READ_ONLY );
+        Bytes fileContents = newFile.openFile( FileModeEnum.READ_ONLY );
 
         assertEquals( "Hello", fileContents.toString() );
     }

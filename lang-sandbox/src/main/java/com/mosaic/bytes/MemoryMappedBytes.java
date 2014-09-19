@@ -1,4 +1,4 @@
-package com.mosaic.io.bytes;
+package com.mosaic.bytes;
 
 import com.mosaic.io.RuntimeIOException;
 import com.mosaic.io.filesystemx.FileModeEnum;
@@ -20,6 +20,12 @@ import java.nio.channels.FileChannel;
  */
 public class MemoryMappedBytes extends NativeBytes {
 
+    public static Bytes mapFile( File f, FileModeEnum mode ) {
+        long size = Math.max( f.length(), 1 );  // if the file does not exist, use a default size.. 0  was not suitable for native buffers
+
+        return mapFile( f, mode, size );
+    }
+
     public static Bytes mapFile( File f, FileModeEnum mode, long numBytes ) {
         QA.argIsGTZero( numBytes, "numBytes" );
 
@@ -31,7 +37,7 @@ public class MemoryMappedBytes extends NativeBytes {
             DirectBuffer db = (DirectBuffer) buf;
             long addr = db.address();
 
-            return new MemoryMappedBytes( f.getName(), raf, mode, db, addr, addr, addr + buf.capacity() );
+            return new MemoryMappedBytes( raf, mode, db, addr, addr + buf.capacity() );
         } catch ( FileNotFoundException ex ) {
             throw new RuntimeIOException( "File not found, and cannot create it on a RO request.  Change the call to RW and try again. " + f );
         } catch ( IOException ex ) {
@@ -45,14 +51,12 @@ public class MemoryMappedBytes extends NativeBytes {
     private DirectBuffer     buf;
 
 
-    private MemoryMappedBytes( String name, RandomAccessFile raf, FileModeEnum mode, DirectBuffer buf, long baseAddress, long alignedAddress, long maxAddressExc ) {
-        super( baseAddress, alignedAddress, maxAddressExc );
+    private MemoryMappedBytes( RandomAccessFile raf, FileModeEnum mode, DirectBuffer buf, long baseAddress, long maxAddressExc ) {
+        super( baseAddress, maxAddressExc );
 
-        this.raf = raf;
+        this.raf  = raf;
         this.mode = mode;
-        this.buf = buf;
-
-        setName( name );
+        this.buf  = buf;
     }
 
 
@@ -77,7 +81,6 @@ public class MemoryMappedBytes extends NativeBytes {
     public void resize( long newLength ) {
         QA.argIsGTZero( newLength, "newLength" );
 
-
         try {
             FileChannel      channel         = raf.getChannel();
             MappedByteBuffer newBuf          = channel.map( mode.toMemoryMapMode(), 0, newLength );
@@ -90,12 +93,46 @@ public class MemoryMappedBytes extends NativeBytes {
                 cleaner.clean();
             }
 
-            this.buf = newDirectBuffer;
-
-            super.resized( newAddress, newAddress, newAddress+newLength );
+            this.buf    = newDirectBuffer;
+            this.base   = newAddress;
+            this.maxExc = newAddress+newLength;
         } catch ( IOException ex ) {
             throw RuntimeIOException.recast( ex );
         }
     }
+
+
+
+
+//    public static Bytes2 alloc( long numBytes ) {
+//        long baseAddress = Backdoor.alloc( numBytes );
+//
+//        return new MemoryMappedBytes( baseAddress, baseAddress+numBytes );
+//    }
+//
+//
+//    private MemoryMappedBytes( long base, long maxExc ) {
+//        super( base, maxExc );
+//    }
+//
+//    public void release() {
+//        super.release();
+//
+//        Backdoor.free( base );
+//    }
+//
+//    public void resize( long newLength ) {
+//        QA.argIsGTZero( newLength, "newLength" );
+//
+//
+//        long newBaseAddress = Backdoor.alloc( newLength );
+//
+//
+//        Backdoor.copyBytes( base, newBaseAddress, Math.min(newLength,sizeBytes()) );
+//        Backdoor.free( base );
+//
+//        this.base   = newBaseAddress;
+//        this.maxExc = newBaseAddress+newLength;
+//    }
 
 }
