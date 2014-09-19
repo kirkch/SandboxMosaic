@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 /**
  *
  */
+@SuppressWarnings("unchecked")
 public class ColumnsTest {
 
     private SystemX system = new DebugSystem();

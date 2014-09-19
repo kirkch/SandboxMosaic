@@ -1,7 +1,6 @@
 package com.mosaic.lang;
 
 import com.mosaic.lang.functional.Function0;
-import com.mosaic.lang.math.MathematicalNumber;
 import com.mosaic.lang.reflect.ReflectionException;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.text.UTF8;
@@ -556,12 +555,6 @@ public class QA {
         }
     }
 
-    public static <T extends MathematicalNumber<T>> void argIsLTZero( T a, String argName ) {
-        if ( a.isGTZero() ) {
-            throwException( "%s (%s) must be < 0", argName, a );
-        }
-    }
-
     public static void isLTZero( byte a, String message, Object...args ) {
         isTrue( a < 0, IllegalStateException.class, message, args );
     }
@@ -586,9 +579,6 @@ public class QA {
         isTrue( a < 0.0, IllegalStateException.class, message, args, tolerance );
     }
 
-    public static <T extends MathematicalNumber<T>> void isLTZero( T a, String message, Object...args ) {
-        isTrue( a.isLTEZero(), IllegalStateException.class, message, args );
-    }
 
 // isLTEZero
 
@@ -628,12 +618,6 @@ public class QA {
         }
     }
 
-    public static <T extends MathematicalNumber<T>> void argIsLTEZero( T a, String argName ) {
-        if ( a.isGTZero() ) {
-            throwException( "%s (%s) must be <= 0", argName, a );
-        }
-    }
-
     public static void isLTEZero( byte a, String message, Object...args ) {
         isTrue( a <= 0, IllegalStateException.class, message, args );
     }
@@ -656,10 +640,6 @@ public class QA {
 
     public static void isLTEZero( double a, double tolerance, String message, Object...args ) {
         isTrue( a - tolerance <= 0, IllegalStateException.class, message, args );
-    }
-
-    public static <T extends MathematicalNumber<T>> void isLTEZero( T a, String message, Object...args ) {
-        isTrue( a.isLTEZero(), IllegalStateException.class, message, args );
     }
 
 

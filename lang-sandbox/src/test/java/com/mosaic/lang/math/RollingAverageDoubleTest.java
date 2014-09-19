@@ -8,12 +8,12 @@ import static junit.framework.Assert.fail;
 /**
  *
  */
-public class RollingAverageTest {
+public class RollingAverageDoubleTest {
 
     @Test
     public void cannotHaveNegativeSize() {
         try {
-            new RollingAverage(-1);
+            new RollingAverageDouble(-1);
             fail( "expected IAE" );
         } catch ( IllegalArgumentException e ) {
             assertEquals( "'maxSize' (-1) must be > 0", e.getMessage() );
@@ -23,7 +23,7 @@ public class RollingAverageTest {
     @Test
     public void cannotHaveZeroSize() {
         try {
-            new RollingAverage(0);
+            new RollingAverageDouble(0);
             fail( "expected IAE" );
         } catch ( IllegalArgumentException e ) {
             assertEquals( "'maxSize' (0) must be > 0", e.getMessage() );
@@ -32,7 +32,7 @@ public class RollingAverageTest {
 
     @Test
     public void appendValuesPassRolloverOf3() {
-        RollingAverage a = new RollingAverage(3);
+        RollingAverageDouble a = new RollingAverageDouble(3);
 
         assertEquals( 0.0, a.getAverage(), 0.0001 );
 
@@ -54,7 +54,7 @@ public class RollingAverageTest {
     
     @Test
     public void appendValuesPassRolloverOf2() {
-        RollingAverage a = new RollingAverage(2);
+        RollingAverageDouble a = new RollingAverageDouble(2);
 
         assertEquals( 0.0, a.getAverage(), 0.0001 );
 

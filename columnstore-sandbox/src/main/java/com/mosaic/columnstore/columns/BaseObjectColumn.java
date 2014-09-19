@@ -7,6 +7,7 @@ import com.mosaic.columnstore.ObjectColumn;
 /**
  *
  */
+@SuppressWarnings("unchecked")
 public abstract class BaseObjectColumn<T> implements ObjectColumn<T> {
 
     public void prePopulateColumn( final ObjectColumn destinationColumn ) {

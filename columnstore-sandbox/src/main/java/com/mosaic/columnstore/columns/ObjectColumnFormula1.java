@@ -14,6 +14,7 @@ import java.util.Map;
 /**
  * A formula that processes a single float column into a new float column.
  */
+@SuppressWarnings("unchecked")
 public abstract class ObjectColumnFormula1<T> extends BaseObjectColumn<T> {
 
     private SystemX      system;

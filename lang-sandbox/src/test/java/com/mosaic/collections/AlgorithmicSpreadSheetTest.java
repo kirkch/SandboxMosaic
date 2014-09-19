@@ -43,7 +43,7 @@ public class AlgorithmicSpreadSheetTest {
             }
         } );
 
-        assertEquals( null, table.get(1, 0) );
+        assertEquals( null, (Object) table.get(1, 0) );
         assertEquals( Integer.valueOf(0), table.get(0, 1) );
         assertEquals( Integer.valueOf(1), table.get(1, 1) );
         assertEquals( Integer.valueOf(2), table.get(2, 1) );

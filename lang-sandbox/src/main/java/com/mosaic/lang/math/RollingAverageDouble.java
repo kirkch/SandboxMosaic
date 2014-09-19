@@ -1,7 +1,6 @@
 package com.mosaic.lang.math;
 
 import com.mosaic.lang.QA;
-import com.mosaic.lang.QA;
 
 import java.io.Serializable;
 
@@ -9,7 +8,7 @@ import java.io.Serializable;
 /**
  *
  */
-public class RollingAverage implements Serializable {
+public class RollingAverageDouble implements Serializable {
     private static final long serialVersionUID = 1290200387935L;
 
 
@@ -20,11 +19,11 @@ public class RollingAverage implements Serializable {
     private int indexOfNextInsert;
     private int numValuesInBuffer;
 
-    public RollingAverage() {
+    public RollingAverageDouble() {
         this(10);
     }
 
-    public RollingAverage(int maxSize) {
+    public RollingAverageDouble( int maxSize ) {
         QA.argIsGTZero( maxSize, "maxSize" );
 
         this.circularBuffer = new double[maxSize];

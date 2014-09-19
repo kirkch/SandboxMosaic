@@ -15,7 +15,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class ForkJoinTaskTest {
 
-    private Vector        results = new Vector();
+    private Vector<Long>  results = new Vector<>();
     private AtomicInteger childTaskCount = new AtomicInteger();
 
     @Test

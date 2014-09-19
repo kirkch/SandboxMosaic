@@ -8,7 +8,7 @@ import static junit.framework.Assert.fail;
 /**
  *
  */
-public class RollingAverageIntTest {
+public class RollingAverageDoubleIntTest {
 
     @Test
     public void cannotHaveNegativeSize() {

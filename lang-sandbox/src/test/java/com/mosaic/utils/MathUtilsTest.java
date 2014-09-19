@@ -1,6 +1,5 @@
 package com.mosaic.utils;
 
-import com.mosaic.lang.math.Money;
 import org.junit.Test;
 
 import static com.mosaic.utils.MathUtils.*;
@@ -10,21 +9,6 @@ import static org.junit.Assert.*;
  *
  */
 public class MathUtilsTest {
-    @Test
-    public void testMax() throws Exception {
-        Money a = new Money(10.5);
-        Money b = new Money(10.6);
-
-        assertEquals( 2, max( 1, 2 ).intValue() );
-        assertEquals( 2, max( 2, 1 ).intValue() );
-
-        assertEquals( b, max( a, b ) );
-        assertEquals( b, max( b, a ) );
-        assertEquals( a, max( a, null ) );
-        assertEquals( b, max( null, b ) );
-        assertEquals( b, max( null, b ) );
-        assertNull( max( null, null ) );
-    }
 
     @Test
     public void testRoundUpToClosestPowerOf2() {
