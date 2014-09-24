@@ -3,7 +3,6 @@ package com.mosaic.lang.text;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
-import com.mosaic.lang.QA;
 
 import java.io.UTFDataFormatException;
 
@@ -14,7 +13,7 @@ import java.io.UTFDataFormatException;
 public class UTF8Tools {
 
     public static int write( byte[] bytes, int pos, char c ) {
-        if ( (c >= 0x0000) && (c <= 0x007F) ) {
+        if ( c <= 0x007F ) {
             Backdoor.setByteIn( bytes, pos, (byte) c );
 
             return 1;
@@ -33,7 +32,7 @@ public class UTF8Tools {
     }
 
     public static int write( long ptr, long maxAddressExc, char c ) {
-        if ( (c >= 0x0000) && (c <= 0x007F) ) {
+        if ( c <= 0x007F ) {
             QA.argIsLT( ptr, maxAddressExc, "ptr", "maxAddressExc" );
 
             Backdoor.setByte( ptr, (byte) c );
@@ -174,7 +173,7 @@ public class UTF8Tools {
         char c;
         for ( int i=0; i<seqLength; i++ ) {
             c = characters.charAt(i);
-            if ( (c >= 0x0000) && (c <= 0x007F) ) {
+            if ( c <= 0x007F ) {
                 count++;
             } else if ( c > 0x07FF ) {
                 count += 3;
@@ -187,7 +186,7 @@ public class UTF8Tools {
     }
 
     public static int countBytesFor( char c ) {
-        if ( (c >= 0x0000) && (c <= 0x007F) ) {
+        if ( c <= 0x007F ) {
             return 1;
         } else if ( c > 0x07FF ) {
             return 3;

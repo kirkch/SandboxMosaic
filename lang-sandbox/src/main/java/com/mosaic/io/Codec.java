@@ -1,26 +1,27 @@
 package com.mosaic.io;
 
 import com.mosaic.lang.functional.Try;
+import com.mosaic.lang.functional.TryNow;
+
 
 /**
  *
  */
-public interface Codec<FROM,TO> {
+public interface Codec<A,B> {
 
-    /**
-     *
-     * @return null if the string does not match
-     */
-    public Try<TO> encode( FROM source );
-//  encode( source:FROM ) : TO
-
-    /**
-     *
-     * @return null if the string does not match
-     */
-    public Try<FROM> decode( TO source );
+    public B encode( A v );
+    public A decode( B v );
 
     public boolean supportsDecoding();
     public boolean supportsEncoding();
+
+
+    public default Try<B> tryEncode( A v ) {
+        return TryNow.tryNow( () -> this.encode( v ) );
+    }
+
+    public default Try<A> tryDecode( B v ) {
+        return TryNow.tryNow( () -> this.decode(v) );
+    }
 
 }

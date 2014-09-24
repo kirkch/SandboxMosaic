@@ -17,13 +17,16 @@ public class InMemoryFile implements FileX {
     private InMemoryFileSystem fileSystem;
     private InMemoryDirectory  parentDirectory;
     private String             fileName;
-    private Bytes bytes;
+    private Bytes              bytes;
 
     private boolean            hasBeenDeletedFlag;
 
     private boolean isReadable   = true;
     private boolean isWritable   = true;
     private boolean isExecutable = false;
+
+
+    private Object attachmentNbl;
 
 
     InMemoryFile( InMemoryFileSystem fileSystem, InMemoryDirectory parentDirectory, String fileName, int size ) {
@@ -62,7 +65,7 @@ public class InMemoryFile implements FileX {
         );
     }
 
-    public FileContents openFile( FileModeEnum mode, int sizeInBytes ) {
+    public FileContents openFile( FileModeEnum mode, long sizeInBytes ) {
         bytes.resize( sizeInBytes );
 
         return openFile( mode );
@@ -113,6 +116,21 @@ public class InMemoryFile implements FileX {
 
     public boolean isExecutable() {
         return isExecutable;
+    }
+
+
+    /**
+     * Fetch this files attachment.  An attachment is only supported by InMemoryFile, and is used
+     * by inmemory fakes to share data as though it was persisted in a file but without having to
+     * serialize/deserialize.  This is useful when the serialized form is reasonably complex, such
+     * as when mocking Chronicle Queue and Map.
+     */
+    public Object getAttachmentNbl() {
+        return attachmentNbl;
+    }
+
+    public void setAttachmentNbl( Object attachmentNbl ) {
+        this.attachmentNbl = attachmentNbl;
     }
 
     public String toString() {

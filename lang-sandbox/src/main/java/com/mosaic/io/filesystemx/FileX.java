@@ -40,7 +40,7 @@ public interface FileX {
      *   java.lang.InputStream and 1.7s using this.
      */
     public FileContents openFile( FileModeEnum mode );
-    public FileContents openFile( FileModeEnum mode, int sizeInBytes );
+    public FileContents openFile( FileModeEnum mode, long sizeInBytes );
 
     public default <T> T processFile( Function1<FileContents,T> action, FileModeEnum fileModeEnum ) {
         FileContents f = openFile( fileModeEnum );

@@ -13,12 +13,22 @@ import java.io.InputStream;
  */
 public class WrappedBytes implements Bytes {
     private final Bytes delegate;
+    private final long base;
+    private       long maxExc;
+
 
     public WrappedBytes( Bytes delegate ) {
+        this( delegate, 0, delegate.sizeBytes() );
+    }
+
+    public WrappedBytes( Bytes delegate, long offset, long maxExc ) {
+        this.base = offset;
+        this.maxExc = maxExc;
         QA.notNull( delegate, "delegate" );
 
         this.delegate = delegate;
     }
+
 
     /**
      * Extension point.  The public access method will be modifying the specified range.  Most of
@@ -38,255 +48,412 @@ public class WrappedBytes implements Bytes {
     }
 
     public long sizeBytes() {
-        return delegate.sizeBytes();
+        return maxExc - base;
     }
 
     public void resize( long newLength ) {
-        delegate.resize( newLength );
+        if ( base != 0 || maxExc != delegate.sizeBytes() ) {
+            throw new UnsupportedOperationException( "These bytes have been narrowed, and cannot be resized" );
+        }
+
+        delegate.resize(newLength);
+
+        this.maxExc = newLength;
     }
 
     public void fill( long from, long toExc, byte v ) {
-        touchRW( from, toExc, toExc - from );
+        touchRW( from, toExc, toExc-from );
 
-        delegate.fill( from, toExc, v );
+        long f = from + base;
+        long t = Math.min( this.maxExc, toExc );
+
+
+        delegate.fill( f, t, v );
     }
 
     public boolean readBoolean( long offset, long maxExc ) {
         touchRO( offset, maxExc, SystemX.SIZEOF_BOOLEAN );
 
-        return delegate.readBoolean( offset, maxExc );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+        return delegate.readBoolean( f, t );
     }
 
     public void writeBoolean( long offset, long maxExc, boolean v ) {
         touchRW( offset, maxExc, SystemX.SIZEOF_BOOLEAN );
 
-        delegate.writeBoolean( offset, maxExc, v );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+        delegate.writeBoolean( f, t, v );
     }
 
     public byte readByte( long offset, long maxExc ) {
         touchRO( offset, maxExc, SystemX.SIZEOF_BYTE );
 
-        return delegate.readByte( offset, maxExc );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+        return delegate.readByte( f, t );
     }
 
     public void writeByte( long offset, long maxExc, byte v ) {
         touchRW( offset, maxExc, SystemX.SIZEOF_BYTE );
 
-        delegate.writeByte( offset, maxExc, v );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+        delegate.writeByte( f, t, v );
     }
 
     public short readShort( long offset, long maxExc ) {
         touchRO( offset, maxExc, SystemX.SIZEOF_SHORT );
 
-        return delegate.readShort( offset, maxExc );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+        return delegate.readShort( f, t );
     }
 
     public void writeShort( long offset, long maxExc, short v ) {
         touchRW( offset, maxExc, SystemX.SIZEOF_SHORT );
 
-        delegate.writeShort( offset, maxExc, v );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+        delegate.writeShort( f, t, v );
     }
 
     public char readCharacter( long offset, long maxExc ) {
         touchRO( offset, maxExc, SystemX.SIZEOF_CHAR );
 
-        return delegate.readCharacter( offset, maxExc );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+        return delegate.readCharacter( f, t );
     }
 
     public void writeCharacter( long offset, long maxExc, char v ) {
         touchRW( offset, maxExc, SystemX.SIZEOF_CHAR );
 
-        delegate.writeCharacter( offset, maxExc, v );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+        delegate.writeCharacter( f, t, v );
     }
 
     public int readInt( long offset, long maxExc ) {
         touchRO( offset, maxExc, SystemX.SIZEOF_INT );
 
-        return delegate.readInt( offset, maxExc );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+        return delegate.readInt( f, t );
     }
 
     public void writeInt( long offset, long maxExc, int v ) {
         touchRW( offset, maxExc, SystemX.SIZEOF_INT );
 
-        delegate.writeInt( offset, maxExc, v );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        delegate.writeInt( f, t, v );
     }
 
     public long readLong( long offset, long maxExc ) {
         touchRO( offset, maxExc, SystemX.SIZEOF_LONG );
 
-        return delegate.readLong( offset, maxExc );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.readLong( f, t );
     }
 
     public void writeLong( long offset, long maxExc, long v ) {
         touchRW( offset, maxExc, SystemX.SIZEOF_LONG );
 
-        delegate.writeLong( offset, maxExc, v );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        delegate.writeLong( f, t, v );
     }
 
     public float readFloat( long offset, long maxExc ) {
         touchRO( offset, maxExc, SystemX.SIZEOF_FLOAT );
 
-        return delegate.readFloat( offset, maxExc );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.readFloat( f, t );
     }
 
     public void writeFloat( long offset, long maxExc, float v ) {
         touchRW( offset, maxExc, SystemX.SIZEOF_FLOAT );
 
-        delegate.writeFloat( offset, maxExc, v );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        delegate.writeFloat( f, t, v );
     }
 
     public double readDouble( long offset, long maxExc ) {
         touchRO( offset, maxExc, SystemX.SIZEOF_DOUBLE );
 
-        return delegate.readDouble( offset, maxExc );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.readDouble( f, t );
     }
 
     public void writeDouble( long offset, long maxExc, double v ) {
         touchRW( offset, maxExc, SystemX.SIZEOF_DOUBLE );
 
-        delegate.writeDouble( offset, maxExc, v );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        delegate.writeDouble( f, t, v );
     }
 
     public short readUnsignedByte( long offset, long maxExc ) {
         touchRO( offset, maxExc, SystemX.SIZEOF_UNSIGNED_BYTE );
 
-        return delegate.readUnsignedByte( offset, maxExc );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.readUnsignedByte( f, t );
     }
 
     public void writeUnsignedByte( long offset, long maxExc, short v ) {
         touchRW( offset, maxExc, SystemX.SIZEOF_UNSIGNED_BYTE );
 
-        delegate.writeUnsignedByte( offset, maxExc, v );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        delegate.writeUnsignedByte( f, t, v );
     }
 
     public int readUnsignedShort( long offset, long maxExc ) {
         touchRO( offset, maxExc, SystemX.SIZEOF_UNSIGNED_SHORT );
 
-        return delegate.readUnsignedShort( offset, maxExc );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.readUnsignedShort( f, t );
     }
 
     public void writeUnsignedShort( long offset, long maxExc, int v ) {
         touchRW( offset, maxExc, SystemX.SIZEOF_UNSIGNED_SHORT );
 
-        delegate.writeUnsignedShort( offset, maxExc, v );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        delegate.writeUnsignedShort( f, t, v );
     }
 
     public long readUnsignedInt( long offset, long maxExc ) {
         touchRO( offset, maxExc, SystemX.SIZEOF_UNSIGNED_INT );
 
-        return delegate.readUnsignedInt( offset, maxExc );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.readUnsignedInt( f, t );
     }
 
     public void writeUnsignedInt( long offset, long maxExc, long v ) {
         touchRW( offset, maxExc, SystemX.SIZEOF_UNSIGNED_INT );
 
-        delegate.writeUnsignedInt( offset, maxExc, v );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        delegate.writeUnsignedInt( f, t, v );
     }
 
     public void readUTF8Character( long offset, long maxExc, DecodedCharacter output ) {
-        touchRO( offset, maxExc, maxExc - offset );
+        touchRO( offset, maxExc, maxExc-offset );
 
-        delegate.readUTF8Character( offset, maxExc, output );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        delegate.readUTF8Character( f, t, output );
     }
 
     public int writeUTF8Character( long offset, long maxExc, char c ) {
-        touchRW( offset, maxExc, maxExc - offset );
+        touchRW( offset, maxExc, maxExc-offset );
 
-        return delegate.writeUTF8Character( offset, maxExc, c );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.writeUTF8Character( f, t, c );
     }
 
     public int readUTF8String( long offset, long maxExc, Appendable output ) {
         touchRO( offset, maxExc, maxExc-offset );
 
-        return delegate.readUTF8String( offset, maxExc, output );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.readUTF8String( f, t, output );
     }
 
     public int writeUTF8String( long offset, long maxExc, CharSequence txt ) {
-        touchRW( offset, maxExc, maxExc - offset );
+        touchRW( offset, maxExc, maxExc-offset );
 
-        return delegate.writeUTF8String( offset, maxExc, txt );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.writeUTF8String( f, t, txt );
     }
 
     public int writeUTF8String( long offset, long maxExc, UTF8 txt ) {
         touchRW( offset, maxExc, maxExc-offset );
 
-        return delegate.writeUTF8String( offset, maxExc, txt );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.writeUTF8String( f, t, txt );
     }
 
     public int writeNullTerminatedUTF8String( long offset, long maxExc, CharSequence txt ) {
         touchRW( offset, maxExc, maxExc-offset );
 
-        return delegate.writeNullTerminatedUTF8String( offset, maxExc, txt );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.writeNullTerminatedUTF8String( f, t, txt );
     }
 
     public int writeUTF8StringUndemarcated( long offset, long maxExc, CharSequence txt ) {
         touchRW( offset, maxExc, maxExc-offset );
 
-        return delegate.writeUTF8StringUndemarcated( offset, maxExc, txt );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.writeUTF8StringUndemarcated( f, t, txt );
     }
 
     public int readBytes( long offset, long maxExc, byte[] destinationArray ) {
-        touchRO( offset, maxExc, maxExc - offset );
+        touchRO( offset, maxExc, maxExc-offset );
 
-        return delegate.readBytes( offset, maxExc, destinationArray );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.readBytes( f, t, destinationArray );
     }
 
     public int writeBytes( long offset, long maxExc, byte[] sourceBytes ) {
         touchRW( offset, maxExc, maxExc-offset );
 
-        return delegate.writeBytes( offset, maxExc, sourceBytes );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.writeBytes( f, t, sourceBytes );
     }
 
     public int readBytes( long offset, long maxExc, Bytes destination ) {
-        touchRO( offset, maxExc, maxExc - offset );
+        touchRO( offset, maxExc, maxExc-offset );
 
-        return delegate.readBytes( offset, maxExc, destination );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.readBytes( f, t, destination );
     }
 
     public int writeBytes( long offset, long maxExc, Bytes sourceBytes ) {
         touchRW( offset, maxExc, maxExc-offset );
 
-        return delegate.writeBytes( offset, maxExc, sourceBytes );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.writeBytes( f, t, sourceBytes );
     }
 
     public int readBytes( long offset, long maxExc, Bytes destination, long destinationInc, long destinationExc ) {
-        touchRO( offset, maxExc, maxExc - offset );
+        touchRO( offset, maxExc, maxExc-offset );
 
-        return delegate.readBytes( offset, maxExc, destination, destinationInc, destinationExc );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.readBytes( f, t, destination, destinationInc, destinationExc );
     }
 
     public int writeBytes( long offset, long maxExc, Bytes sourceBytes, long sourceInc, long sourceExc ) {
-        touchRW( offset, maxExc, maxExc - offset );
+        touchRW( offset, maxExc, maxExc-offset );
 
-        return delegate.writeBytes( offset, maxExc, sourceBytes, sourceInc, sourceExc );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.writeBytes( f, t, sourceBytes, sourceInc, sourceExc );
     }
 
     public int readBytes( long offset, long maxExc, byte[] destinationArray, long destinationArrayInc, long destinationArrayExc ) {
-        touchRO( offset, maxExc, maxExc - offset );
+        touchRO( offset, maxExc, maxExc-offset );
 
-        return delegate.readBytes( offset, maxExc, destinationArray, destinationArrayInc, destinationArrayExc );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.readBytes( f, t, destinationArray, destinationArrayInc, destinationArrayExc );
     }
 
     public int writeBytes( long offset, long maxExc, byte[] sourceArray, long sourceArrayInc, long sourceArrayExc ) {
         touchRW( offset, maxExc, maxExc-offset );
 
-        return delegate.writeBytes( offset, maxExc, sourceArray, sourceArrayInc, sourceArrayExc );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.writeBytes( f, t, sourceArray, sourceArrayInc, sourceArrayExc );
     }
 
     public int readBytes( long offset, long maxExc, long toAddressBase, long toAddressInc, long toAddressExc ) {
-        touchRO( offset, maxExc, maxExc - offset );
+        touchRO( offset, maxExc, maxExc-offset );
 
-        return delegate.readBytes( offset, maxExc, toAddressBase, toAddressInc, toAddressExc );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.readBytes( f, t, toAddressBase, toAddressInc, toAddressExc );
     }
 
     public int writeBytes( long offset, long maxExc, long fromAddressBase, long fromAddressInc, long fromAddressExc ) {
         touchRW( offset, maxExc, maxExc-offset );
 
-        return delegate.writeBytes( offset, maxExc, fromAddressBase, fromAddressInc, fromAddressExc );
+        long f = base+offset;
+        long t = Math.min( this.maxExc, maxExc );
+
+
+        return delegate.writeBytes( f, t, fromAddressBase, fromAddressInc, fromAddressExc );
     }
 
     public byte[] toArray() {
-        touchRO( 0, delegate.sizeBytes(), delegate.sizeBytes() );
+        touchRO( base, sizeBytes(), sizeBytes() );
 
         return delegate.toArray();
     }

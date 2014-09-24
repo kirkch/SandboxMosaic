@@ -42,7 +42,7 @@ public class ClassPathFileX implements FileX {
     }
 
     @Override
-    public FileContents openFile( FileModeEnum mode, int sizeInBytes ) {
+    public FileContents openFile( FileModeEnum mode, long sizeInBytes ) {
         throw new UnsupportedOperationException( "not implemented, use loadBytesRO" );
     }
 

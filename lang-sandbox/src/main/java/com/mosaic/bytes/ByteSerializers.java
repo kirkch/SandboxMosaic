@@ -1,6 +1,7 @@
 package com.mosaic.bytes;
 
 import com.mosaic.lang.text.DecodedCharacter;
+import com.mosaic.lang.text.UTF8Tools;
 
 import static com.mosaic.lang.system.SystemX.NULL_BYTE;
 
@@ -26,7 +27,7 @@ public class ByteSerializers {
                 toAddress += b.writeUTF8Character( toAddress, maxExc, c );
             }
 
-//            b.writeByte( toAddress, NULL_BYTE, maxExc );
+            b.writeByte( toAddress, maxExc, NULL_BYTE );
 
             return (toAddress-base)+1;
         }
@@ -38,15 +39,23 @@ public class ByteSerializers {
             long nextAddress = base;
 
             do {
-//                b.readUTF8Character( nextAddress, dec, maxExc );
+                b.readUTF8Character( nextAddress, maxExc, dec );
 
                 if ( dec.c != NULL_BYTE ) {
                     buf.append( dec.c );
+
+                    nextAddress += 1;
+                } else {
+                    break;
                 }
             } while ( nextAddress < maxExc && dec.c != NULL_BYTE );
 
 
             return buf.toString();
+        }
+
+        public long sizeOf( String v ) {
+            return UTF8Tools.countBytesFor(v)+1;
         }
     };
 

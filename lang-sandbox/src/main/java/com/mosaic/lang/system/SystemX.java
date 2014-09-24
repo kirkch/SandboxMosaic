@@ -253,6 +253,16 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
         devAudit( ex );
     }
 
+    public void devAudit( LogMessage msg, Object... args ) {
+        if ( isDevAuditEnabled() ) {
+            String formattedString = msg.getFormattedMessage( args );
+
+            devLog.writeLine( formattedString );
+
+            msg.incDisplayCount();
+        }
+    }
+
     /**
      * Record information that will help a developer diagnose a problem.  This audit level will
      * usually be disabled, as it is likely to be spammy and slow the system down.<p/>
@@ -276,6 +286,16 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
         userLog.writeLine( String.format( msg, args ) );
     }
 
+    public void userAudit( LogMessage msg, Object... args ) {
+        if ( isUserAuditEnabled() ) {
+            String formattedString = msg.getFormattedMessage( args );
+
+            userLog.writeLine( formattedString );
+
+            msg.incDisplayCount();
+        }
+    }
+
     /**
      * Records information that would be useful to the people responsible for keeping the
      * system up and running.  It is expected that most server tools would have this turned on
@@ -289,6 +309,21 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
         opsLog.writeLine( String.format( msg, args ) );
     }
 
+    public void opsAudit( Throwable ex, String msg, Object... args ) {
+        opsLog.writeLine( String.format( msg, args ) );
+        opsLog.writeException( ex );
+    }
+
+    public void opsAudit( LogMessage msg, Object... args ) {
+        if ( isOpsAuditEnabled() ) {
+            String formattedString = msg.getFormattedMessage( args );
+
+            opsLog.writeLine( formattedString );
+
+            msg.incDisplayCount();
+        }
+    }
+
     /**
      * A problem has been detected, and has either been automatically mitigated or end users will
      * not be aware of the problem (yet).<p/>
@@ -298,6 +333,16 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
      */
     public void warn( String msg, Object... args ) {
         warnLog.writeLine( String.format( msg, args ) );
+    }
+
+    public void warn( LogMessage msg, Object... args ) {
+        if ( isWarnEnabled() ) {
+            String formattedString = msg.getFormattedMessage( args );
+
+            warnLog.writeLine( formattedString );
+
+            msg.incDisplayCount();
+        }
     }
 
     // todo consider adding a return value to warn and fatal; the receipt can be used
@@ -336,6 +381,17 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
 
             fatalLog.writeLine( formattedText );
             stderr.writeLine( formattedText );
+        }
+    }
+
+    public void fatal( LogMessage msg, Object... args ) {
+        if ( stderr.isEnabled() || fatalLog.isEnabled() ) {
+            String formattedString = msg.getFormattedMessage( args );
+
+            fatalLog.writeLine( formattedString );
+            stderr.writeLine( formattedString );
+
+            msg.incDisplayCount();
         }
     }
 

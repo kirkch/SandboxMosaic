@@ -45,7 +45,7 @@ public class ActualFile implements FileX {
         return new ActualFileContents( wrapMemoryMappedBytes(bytes) );
     }
 
-    public FileContents openFile( FileModeEnum mode, int sizeInBytes ) {
+    public FileContents openFile( FileModeEnum mode, long sizeInBytes ) {
         Bytes bytes = MemoryMappedBytes.mapFile( file, mode, sizeInBytes );
 
         return new ActualFileContents( wrapMemoryMappedBytes(bytes) );

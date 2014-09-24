@@ -13,7 +13,7 @@ import com.mosaic.lang.system.SystemX;
  * Also see StructRegistry, which provides a type safe set of helper tools for accessing the
  * Struct.
  */
-public class Struct implements ByteView {
+public class Struct extends ByteView {
 
     // Why use Struct at all?  Why not use Bytes directly.  Using Bytes directly is perfectly valid.
     // The time to consider using Struct in preference to Bytes in circumstances where the storage
@@ -22,10 +22,6 @@ public class Struct implements ByteView {
 
 
     private final long structSizeBytes;
-
-    private Bytes bytes;
-    private long   base;
-    private long   maxExc;
 
 
     /**
@@ -39,9 +35,9 @@ public class Struct implements ByteView {
         this.structSizeBytes = structSizeBytes;
     }
 
+    @Override
     public void setBytes( Bytes bytes, long base, long maxExc ) {
-        this.bytes  = bytes;
-        this.base   = base;
+        super.setBytes( bytes, base, maxExc );
 
         if ( SystemX.isDebugRun() ) {  // maxExc is only used in debug builds
             // do not go over the registered fields, even if the supplied maxExc says that we can

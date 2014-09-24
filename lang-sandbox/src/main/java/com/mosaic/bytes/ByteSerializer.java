@@ -17,4 +17,6 @@ public interface ByteSerializer<T> {
      */
     public long encodeInto( T v, Bytes b, long base, long maxExc );
     public T decodeFrom( Bytes b, long base, long maxExc );
+
+    public long sizeOf( T v );
 }
