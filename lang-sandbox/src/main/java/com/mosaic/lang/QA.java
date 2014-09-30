@@ -882,6 +882,12 @@ public class QA {
         }
     }
 
+    public static void isEqualTo( long a, long b, String nameA, String nameB ) {
+        if ( a != b ) {
+            throwIllegalStateException(  "%s (%s) != %s (%s)", nameA, a, nameB, b );
+        }
+    }
+
     public static void isEqualTo( float a, float b, String msg, float tolerance ) {
         if ( Math.abs(a-b) <= tolerance ) {
             throwIllegalStateException(  msg, a, b );

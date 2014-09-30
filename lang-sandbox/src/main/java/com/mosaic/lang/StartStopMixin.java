@@ -1,5 +1,6 @@
 package com.mosaic.lang;
 
+import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
 
 import java.util.ArrayList;
@@ -65,7 +66,7 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
             try {
                 doStart();
             } catch ( Exception ex ) {
-                throw new RuntimeException( ex );
+                Backdoor.throwException( ex );
             }
         }
 

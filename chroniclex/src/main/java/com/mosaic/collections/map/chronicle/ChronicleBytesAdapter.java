@@ -1,4 +1,4 @@
-package com.mosaic.io.chronicle.map;
+package com.mosaic.collections.map.chronicle;
 
 import com.mosaic.bytes.BaseBytes;
 import com.mosaic.bytes.Bytes;

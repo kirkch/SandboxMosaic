@@ -1,0 +1,98 @@
+<html>
+<body>
+
+// OPTION 2: avoids mutating existing data, even meta data
+//           uses more disk space
+
+
+filename={serviceName}{seq}.data      // seq starts from zero, and increments by one each time a new data file is created
+
+
+
+
+
+///  OPTION 1: con, mutates existing pages.. which would cause extra seeks on disks, and ssds to have to
+///      wipe and rewrite an entire block.
+
+
+A journal is a persisted series of events stored such that they can be replayed in the event of
+needing to recover state.
+
+
+
+
+<h2>Data File Format</h2>
+
+The journal is stored across one or more data files.  The layout of the files is designed to be
+append only, once an event is laid down in the file it will not be changed.  There is also no
+meta information that tracks how many messages have been written and so forth, as this would cause
+the hard drives to run slower.
+
+
+<h3>Data File Layout</h3>
+
+The journaled events are stored in the order that they were written, one after the other.  The first
+data file is pre-allocated at a fixed size, this avoids costs in resizing the file as the events
+are written.  When the first data file is full, another is created and writing continues.  Each
+data file follows the same name convention, and are differentiated by a sequence number that starts
+from zero and increments by one each time a new file is created.
+
+<pre>
+filename={serviceName}{seq}.data      // seq starts from zero, and increments by one each time a new data file is created
+
+   journalVersion:ushort              // declares the version of the spec used to define the files layout
+   msgCountSoFar:long                 // how many messages have preceded this point
+                                      // NB at 100 million messages/sec, a long would take over 299 years to overflow
+                                      // thus we can conclude that using a long for msgCountSoFar will be sufficient
+
+
+
+
+   (payloadLength:int,payloadHashCode:int, payload:byte[])*  // the layout of each event, repeats zero or more times up to the end of the file
+                                                             // stops when payloadLength is read as zero
+
+</pre>
+
+
+<h2>Inter Process Concurrency</h2>
+
+The data files are designed to be accessed concurrently by multiple processes.  One writer, and
+multiple readers.  This allows multiple systems to stay in sync with a single master and for
+backups to happen concurrently without stalling the writer.  The multiple readers may be in the same
+process as the writer, a different process on the same machine or on a remote machine.  This is made
+possible by memory mapping the files, and ensuring that the data is synched between processes
+and disk in a pre-determined order.  Thus ensuring that a partially written message is never
+accessed by a reader.
+
+
+<h3>The reader threads</h3>
+
+Once an event has been 'flushed', it will never be changed.  Thus the reader threads must know how
+far they are allowed to read in the list of ordered events, which is determined by the next message
+having a hashCode of zero.
+
+
+<h3>Protecting shared memory readers</h3>
+
+The payload hashcode of a message will only be updated once the event is marked as complete,
+which occurs when flush() is called on the writer.  Access to the variable must be protected by
+a memory barrier to ensure that all data that was written up to that point becomes visible to
+other processes at the appropriate time.
+
+
+<h3>Protecting the events persisted to disk</h3>
+
+The OS may write parts of the data files to disk at any time.  However we cannot be sure that
+a message is on disk until we request a sync between memory and disk;  which is a relatively
+expensive operation.  OS' will ensure that changes to memory mapped files are written to disk
+before the file is closed, even if the process is killed.  However if the machine crashes or the
+cleaner trips on the machines power cord, then data will be lost.
+
+To protect against accidents, programmers may request a sync.  Usually done to ensure that the
+event has been captures before reporting back to a user.  Every message is also immutable, so once
+it is on disk it will never be changed and every event also includes a hashcode; so any corruption
+of an event can be detected when it is read back.
+
+
+</body>
+</html>

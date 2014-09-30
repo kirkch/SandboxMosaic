@@ -1,10 +1,11 @@
 package com.mosaic.io.chronicle.map;
 
 import com.mosaic.bytes.ByteSerializers;
+import com.mosaic.collections.map.chronicle.PersistableChronicleMap;
+import com.mosaic.collections.map.PersistableMap;
 import com.mosaic.io.FileUtils;
 import com.mosaic.lang.system.DebugSystem;
 import com.mosaic.lang.system.SystemX;
-import com.softwaremosaic.junit.annotations.Test;
 import org.junit.After;
 
 import java.io.File;

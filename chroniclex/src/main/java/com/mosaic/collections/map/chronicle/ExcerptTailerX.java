@@ -1,4 +1,4 @@
-package com.mosaic.io.chronicle;
+package com.mosaic.collections.map.chronicle;
 
 import com.mosaic.lang.text.UTF8;
 import net.openhft.chronicle.Chronicle;

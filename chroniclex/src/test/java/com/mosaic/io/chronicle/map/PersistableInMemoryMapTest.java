@@ -1,6 +1,8 @@
 package com.mosaic.io.chronicle.map;
 
 import com.mosaic.bytes.ByteSerializers;
+import com.mosaic.collections.map.inmemory.PersistableInMemoryMap;
+import com.mosaic.collections.map.PersistableMap;
 import com.mosaic.io.filesystemx.inmemory.InMemoryFile;
 import com.mosaic.lang.system.DebugSystem;
 import com.mosaic.lang.system.SystemX;

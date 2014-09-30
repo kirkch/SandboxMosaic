@@ -1,4 +1,4 @@
-package com.mosaic.io.chronicle.map;
+package com.mosaic.collections.map;
 
 import com.mosaic.bytes.ByteView;
 import com.mosaic.lang.StartStoppable;

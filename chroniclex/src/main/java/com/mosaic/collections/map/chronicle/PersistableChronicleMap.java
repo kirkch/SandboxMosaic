@@ -1,8 +1,9 @@
-package com.mosaic.io.chronicle.map;
+package com.mosaic.collections.map.chronicle;
 
 import com.mosaic.bytes.ByteSerializer;
 import com.mosaic.bytes.ByteView;
 import com.mosaic.bytes.Bytes;
+import com.mosaic.collections.map.PersistableMap;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.StartStopMixin;
 import com.mosaic.lang.system.SystemX;

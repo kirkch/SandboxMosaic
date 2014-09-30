@@ -1,9 +1,10 @@
-package com.mosaic.io.chronicle.map;
+package com.mosaic.collections.map.inmemory;
 
 import com.mosaic.bytes.ArrayBytes;
 import com.mosaic.bytes.ByteView;
 import com.mosaic.bytes.ByteSerializer;
 import com.mosaic.bytes.Bytes;
+import com.mosaic.collections.map.PersistableMap;
 import com.mosaic.io.filesystemx.inmemory.InMemoryFile;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.StartStopMixin;

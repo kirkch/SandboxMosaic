@@ -7,6 +7,7 @@ import com.mosaic.bytes.struct.DoubleField;
 import com.mosaic.bytes.struct.LongField;
 import com.mosaic.bytes.struct.Struct;
 import com.mosaic.bytes.struct.StructRegistry;
+import com.mosaic.collections.map.PersistableMap;
 import com.mosaic.lang.StartStoppable;
 import com.mosaic.lang.functional.VoidFunction1;
 import org.junit.After;
