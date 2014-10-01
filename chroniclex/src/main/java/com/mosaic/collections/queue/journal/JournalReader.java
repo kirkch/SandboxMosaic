@@ -3,6 +3,7 @@ package com.mosaic.collections.queue.journal;
 import com.mosaic.bytes.ByteView;
 import com.mosaic.collections.queue.ByteQueueReader;
 import com.mosaic.io.filesystemx.DirectoryX;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.StartStopMixin;
 
 
@@ -11,14 +12,23 @@ import com.mosaic.lang.StartStopMixin;
  */
 public class JournalReader<T extends ByteView> extends StartStopMixin<JournalWriter<T>> implements ByteQueueReader<T> {
     private final DirectoryX      dataDirectory;
+    private final long            startFrom;
 
     private       JournalDataFile dataFile;
 
 
-    public JournalReader( DirectoryX dataDirectory, String serviceName, Class<T> t ) {
+    public JournalReader( DirectoryX dataDirectory, String serviceName ) {
+        this( dataDirectory, serviceName, 0 );
+    }
+
+    public JournalReader( DirectoryX dataDirectory, String serviceName, long startFrom ) {
         super( serviceName );
 
+        QA.argIsGTEZero( startFrom, "startFrom" );
+        QA.argNotNull( dataDirectory, "dataDirectory" );
+
         this.dataDirectory = dataDirectory;
+        this.startFrom     = startFrom;
     }
 
 
@@ -51,10 +61,16 @@ public class JournalReader<T extends ByteView> extends StartStopMixin<JournalWri
 
 
     protected void doStart() {
-        this.dataFile = new JournalDataFile(dataDirectory, getServiceName(), 0).open();
+        this.dataFile = JournalDataFile.openAtRO( dataDirectory, getServiceName(), startFrom ).open();
+
+        this.dataFile.seekTo( startFrom );
     }
 
     protected void doStop() {
+        if ( dataFile == null ) {
+            return;
+        }
+
         this.dataFile.close();
 
         this.dataFile = null;

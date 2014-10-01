@@ -66,25 +66,80 @@ class JournalDataFile {
         }
     }
 
-    public static JournalDataFile selectLastFile( DirectoryX dataDirectory, String serviceName, long perFileSizeBytes, FileModeEnum fileMode ) {
+    public static JournalDataFile selectFirstFileRO( DirectoryX dataDirectory, String serviceName ) {
         List<FileX> dataFiles = dataDirectory.files( f -> f.getFileName().startsWith(serviceName) && f.getFileName().endsWith(".data") );
 
         int fileSeq;
         if ( dataFiles.isEmpty() ) {
             fileSeq = 0;
         } else {
-            fileSeq = selectLatestFileSeqFrom( serviceName, dataFiles );
+            dataFiles.sort( new DataFileNameComparator( serviceName ) );
+
+            FileX tailFile = dataFiles.get( 0 );
+
+            fileSeq = DataFileNameComparator.extractFileSeq( tailFile, serviceName );
         }
 
-        return new JournalDataFile( dataDirectory, serviceName, fileSeq, perFileSizeBytes, fileMode );
+        return new JournalDataFile( dataDirectory, serviceName, fileSeq );
     }
 
-    private static int selectLatestFileSeqFrom( String serviceName, List<FileX> dataFiles ) {
-        dataFiles.sort( new DataFileNameComparator( serviceName ) );
+    public static JournalDataFile openAtRO( DirectoryX dataDirectory, String journalName, long targetMessageSeq ) {
+        List<FileX> dataFiles = dataDirectory.files( f -> f.getFileName().startsWith(journalName) && f.getFileName().endsWith(".data") );
 
-        FileX tailFile = dataFiles.get( dataFiles.size() - 1 );
+        if ( dataFiles.isEmpty() ) {
+            String fileName = journalName + "0.data";
 
-        return DataFileNameComparator.extractFileSeq( tailFile, serviceName );
+            throw new JournalNotFoundException( dataDirectory.getFullPath()+"/"+fileName );
+        }
+
+        dataFiles.sort( new DataFileNameComparator( journalName ) );
+
+        JournalDataFile previousDataFile = null;
+        for ( FileX f : dataFiles ) {
+            JournalDataFile dataFile = new JournalDataFile( dataDirectory, journalName, f );
+
+            dataFile.open();
+
+            try {
+                if ( dataFile.currentMessageSeq > targetMessageSeq ) {
+                    if ( previousDataFile == null ) {
+                        throw new JournalNotFoundException(
+                            String.format("Unable to find msg seq '%s' under '%s'; has the data file been removed?",targetMessageSeq,dataDirectory.getFullPath()+"/"+journalName)
+                        );
+                    }
+
+                    return previousDataFile;
+                } else if ( dataFile.currentMessageSeq == targetMessageSeq ) {
+                    return dataFile;
+                }
+            } finally {
+                dataFile.close();
+            }
+
+            previousDataFile = dataFile;
+        }
+
+
+        throw new JournalNotFoundException(
+            String.format("Unable to find journal data file containing msg seq '%s' under '%s'",targetMessageSeq,dataDirectory.getFullPath()+"/"+journalName)
+        );
+    }
+
+    public static JournalDataFile selectLastFileRW( DirectoryX dataDirectory, String serviceName, long perFileSizeBytes ) {
+        List<FileX> dataFiles = dataDirectory.files( f -> f.getFileName().startsWith(serviceName) && f.getFileName().endsWith(".data") );
+
+        int fileSeq;
+        if ( dataFiles.isEmpty() ) {
+            fileSeq = 0;
+        } else {
+            dataFiles.sort( new DataFileNameComparator( serviceName ) );
+
+            FileX tailFile = dataFiles.get( dataFiles.size() - 1 );
+
+            fileSeq = DataFileNameComparator.extractFileSeq( tailFile, serviceName );
+        }
+
+        return new JournalDataFile( dataDirectory, serviceName, fileSeq, perFileSizeBytes, FileModeEnum.READ_WRITE );
     }
 
 
@@ -103,6 +158,14 @@ class JournalDataFile {
     private final String       journalName;
     private final long         fileSeq;
 
+
+    public JournalDataFile( DirectoryX dataDirectory, String journalName ) {
+        this( dataDirectory, journalName, 0 );
+    }
+
+    public JournalDataFile( DirectoryX dataDirectory, String journalName, FileX dataFile ) {
+        this( dataDirectory, journalName, DataFileNameComparator.extractFileSeq(dataFile, journalName) );
+    }
 
     public JournalDataFile( DirectoryX dataDirectory, String journalName, long fileSeq ) {
         this( dataDirectory, journalName, fileSeq, 0, FileModeEnum.READ_ONLY );
@@ -136,7 +199,12 @@ class JournalDataFile {
         markNextAsEOF();
         close();
 
-        return new JournalDataFile(dataDirectory, journalName, nextFileSeq, perFileSizeBytes, READ_WRITE).open();
+        JournalDataFile newDataFile = new JournalDataFile( dataDirectory, journalName, nextFileSeq, perFileSizeBytes, READ_WRITE ).open();
+
+        newDataFile.contents.writeLong( FILEHEADER_STARTSFROMMSGSEQ_INDEX, FILEHEADER_SIZE, this.currentMessageSeq );
+        newDataFile.currentMessageSeq = this.currentMessageSeq;
+
+        return newDataFile;
     }
 
     public long reserveUsing( ByteView message, int messageSizeBytes ) {
@@ -190,7 +258,7 @@ class JournalDataFile {
     public boolean seekTo( long targetSeq ) {
         seekToBeginningOfFile();
 
-        long currentSeq = 0;
+        long currentSeq = currentMessageSeq;
 
         while ( currentSeq != targetSeq ) {
             if ( !isReadyToReadNextMessage() ) {   // reached the end of the journal
@@ -236,10 +304,11 @@ class JournalDataFile {
     private void scrollToNext() {
         QA.isTrue( isReadyToReadNextMessage(), "scrollToNext() called when isReady returned false" );
 
-        int  len       = contents.readInt( currentIndex+PERMSGHEADER_PAYLOADSIZE_INDEX, fileSize );
-        long nextIndex = currentIndex+PERMSGHEADER_SIZE+len;
+        int  len                = contents.readInt( currentIndex+PERMSGHEADER_PAYLOADSIZE_INDEX, fileSize );
+        long nextIndex          = currentIndex+PERMSGHEADER_SIZE+len;
 
-        this.currentIndex = nextIndex;
+        this.currentIndex       = nextIndex;
+        this.currentMessageSeq += 1;
     }
 
 
@@ -262,9 +331,11 @@ class JournalDataFile {
     }
 
     public void close() {
-        contents.release();
+        if ( contents != null ) {
+            contents.release();
 
-        contents = null;
+            contents = null;
+        }
     }
 
     public boolean hasReachedEOFMarker() {
@@ -296,8 +367,13 @@ class JournalDataFile {
     private int calcHash( long fromInc, long toExc ) {
         long sum = 7;
 
+        // incrementing in 8's means that some bytes at the end of a message may not be included
+        // this is a pragmatic trade-off between robustness and speed.  Summing longs is much
+        // faster than summing bytes, and is marginally faster than ints.  An extra for loop
+        // to catch the stragglers doubles the cost of the checksum.  If this becomes a serious
+        // concern, then we can always pad the affected messages out to be a multiple of 8.
         for ( long i=fromInc; i<toExc-8; i+=8 ) {
-            sum += contents.readLong( i, toExc );;
+            sum += contents.readLong( i, toExc );
 
             sum += sum;  // double add here makes the checksum sensitive to the order of the bytes
         }
@@ -317,8 +393,8 @@ class JournalDataFile {
 
     private void seekToBeginningOfFile() {
         this.currentIndex      = FILEHEADER_SIZE;
-        this.currentMessageSeq = contents.readLong( FILEHEADER_STARTSFROMMSGSEQ_INDEX, FILEHEADER_SIZE );
         this.currentToExc      = currentIndex;
+        this.currentMessageSeq = contents.readLong( FILEHEADER_STARTSFROMMSGSEQ_INDEX, FILEHEADER_SIZE );
     }
 
 }

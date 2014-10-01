@@ -59,7 +59,7 @@ public class JournalWriterBenchmark {
     //   out the deleteAll in the tearDown function before running the writer benchmark.
     @Benchmark( value=3, batchCount=6, durationResultMultiplier=1.0/21, units="per million 24 byte messages" )
     public long reader() {
-        JournalReader reader = new JournalReader<>( dataDir, "journal", Transaction.class );
+        JournalReader reader = new JournalReader<>( dataDir, "journal" );
         reader.start();
 
         Transaction t = new Transaction();

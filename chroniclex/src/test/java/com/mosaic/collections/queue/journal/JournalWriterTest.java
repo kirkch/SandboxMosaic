@@ -1,6 +1,5 @@
 package com.mosaic.collections.queue.journal;
 
-import com.mosaic.bytes.ByteView;
 import com.mosaic.io.CheckSumException;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileModeEnum;
@@ -80,7 +79,7 @@ public class JournalWriterTest {
 
     @Test
     public void givenNoJournal_createReader_expectException() {
-        JournalReader r = new JournalReader<>(dataDir, "unknownJournal", Transaction.class);
+        JournalReader r = new JournalReader<>(dataDir, "unknownJournal");
 
         try {
             r.start();
@@ -319,6 +318,7 @@ public class JournalWriterTest {
 // CHECKSUM FAILURES
 
     @Test
+    @SuppressWarnings("EmptyCatchBlock")
     public void givenNonEmptyJournal_corruptAByteInAPayloadAndStartReader_expectReaderToErrorOnCorruptedPayload() {
         writeMessage( 11, 12, 13 );
         writeMessage( 21, 22, 23 );
@@ -332,7 +332,7 @@ public class JournalWriterTest {
             assertNextMessageIs( 21, 22, 23 );
             fail( "expected checksum failure" );
         } catch ( CheckSumException ex ) {
-
+            // expected
         }
     }
 
@@ -363,15 +363,95 @@ public class JournalWriterTest {
 
 // MISSING DATA FILES
 
-    // givenMultipleDataFiles_removeFirstAndReadAll_expectError
-    // givenMultipleDataFiles_removeFirstAndReadFromMessagePartWayThroughSecondDataFile_expectSuccess
-    // givenMultipleDataFiles_removeMiddleDataFileAndTryToReadAll_expectError
+    @Test
+    public void givenMultipleDataFiles_removeFirstAndReadAll_expectError() {
+        long numMessages = TRANSACTION_COUNT_PERDATAFILE*3;
+
+        for ( long seq=0; seq<numMessages; seq++ ) {
+            writeMessage( seq );
+        }
+
+        journal.stop();
+        reader.stop();
+
+        FileX dataFile0 = dataDir.getFile( "junitJournal0.data" );
+        dataFile0.delete();
+
+
+        try {
+            reader.start();
+
+            fail( "expected JournalNotFoundException" );
+        } catch ( JournalNotFoundException ex ) {
+            assertEquals( "'Unable to find msg seq '0' under '/data/junitJournal'; has the data file been removed?' was not found", ex.getMessage() );
+        }
+    }
+
+    @Test
+    public void givenMultipleDataFiles_removeFirstFileAndThenReadFromAMessagePartWayThroughSecondDataFile_expectSuccess() {
+        long numMessages = TRANSACTION_COUNT_PERDATAFILE*3;
+
+        for ( long seq=0; seq<numMessages; seq++ ) {
+            writeMessage( seq );
+        }
+
+        journal.stop();
+        reader.stop();
+
+        FileX dataFile0 = dataDir.getFile( "junitJournal0.data" );
+        dataFile0.delete();
+
+
+        long startFrom = TRANSACTION_COUNT_PERDATAFILE + TRANSACTION_COUNT_PERDATAFILE / 2;
+        JournalReader<Transaction> r = createAndRegisterReader( startFrom );
+
+        for ( long seq=startFrom; seq<numMessages; seq++ ) {
+            assertNextMessageIs( r, seq );
+        }
+
+        assertFalse( r.readNextInto(transaction) );
+    }
+
+    @Test
+    public void givenMultipleDataFiles_removeMiddleDataFileAndTryToReadAll_expectError() {
+        long numMessages = TRANSACTION_COUNT_PERDATAFILE*3;
+
+        for ( long seq=0; seq<numMessages; seq++ ) {
+            writeMessage( seq );
+        }
+
+        journal.stop();
+        reader.stop();
+
+        FileX dataFile0 = dataDir.getFile( "junitJournal1.data" );
+        dataFile0.delete();
+
+
+        reader.start();
+
+        JournalReader<Transaction> r = createAndRegisterReader();
+
+        for ( long seq=0; seq<TRANSACTION_COUNT_PERDATAFILE; seq++ ) {
+            assertNextMessageIs( r, seq );
+        }
+
+        try {
+            r.readNextInto( transaction );
+            fail( "JournalNotFoundException" );
+        } catch ( JournalNotFoundException ex ) {
+            assertEquals( "'/data/junitJournal1.data' was not found", ex.getMessage() );
+        }
+    }
 
 // SEEK  (specifically jumping between files)
 
 
     private JournalReader<Transaction> createAndRegisterReader() {
-        return registerResource( new JournalReader<>(dataDir, "junitJournal", Transaction.class) );
+        return createAndRegisterReader(0);
+    }
+
+    private JournalReader<Transaction> createAndRegisterReader( long startFrom ) {
+        return registerResource( new JournalReader<>(dataDir, "junitJournal", startFrom) );
     }
 
     private <T extends StartStoppable> T registerResource( T r ) {
@@ -396,7 +476,11 @@ public class JournalWriterTest {
     }
 
     private void assertNextMessageIs( long msgSeq ) {
-        assertNextMessageIs( reader, expectedFrom(msgSeq), expectedTo(msgSeq), expectedAmount(msgSeq) );
+        assertNextMessageIs( reader, msgSeq );
+    }
+
+    private void assertNextMessageIs( JournalReader<Transaction> r, long msgSeq ) {
+        assertNextMessageIs( r, expectedFrom(msgSeq), expectedTo(msgSeq), expectedAmount(msgSeq) );
     }
 
     private long expectedAmount( long msgSeq ) {

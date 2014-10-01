@@ -44,7 +44,7 @@ public class JournalWriter<T extends ByteView> extends StartStopMixin<JournalWri
 
 
     public long reserveUsing( T message, int messageSizeBytes ) {
-        this.currentDataFile = this.currentDataFile.selectDataFileToWriteNextMessage(messageSizeBytes);
+        this.currentDataFile = this.currentDataFile.selectDataFileToWriteNextMessage( messageSizeBytes );
 
         return currentDataFile.reserveUsing( message, messageSizeBytes );
     }
@@ -67,7 +67,7 @@ public class JournalWriter<T extends ByteView> extends StartStopMixin<JournalWri
 
 
     protected void doStart() throws Exception {
-        this.currentDataFile = JournalDataFile.selectLastFile(dataDirectory, getServiceName(), perFileSizeBytes, READ_WRITE).open();
+        this.currentDataFile = JournalDataFile.selectLastFileRW( dataDirectory, getServiceName(), perFileSizeBytes ).open();
 
         this.currentDataFile.seekToEnd();
     }
