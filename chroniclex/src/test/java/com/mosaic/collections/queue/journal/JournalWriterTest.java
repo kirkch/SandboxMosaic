@@ -1,7 +1,10 @@
 package com.mosaic.collections.queue.journal;
 
 import com.mosaic.bytes.ByteView;
+import com.mosaic.io.CheckSumException;
 import com.mosaic.io.filesystemx.DirectoryX;
+import com.mosaic.io.filesystemx.FileModeEnum;
+import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.StartStoppable;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.DebugSystem;
@@ -312,9 +315,50 @@ public class JournalWriterTest {
         assertEquals( "$expected two data files to be created", 2, dataDir.files().size() );
     }
 
+
 // CHECKSUM FAILURES
 
-    // givenNonEmptyJournal_corruptAByteInAPayloadAndStartReader_expectReaderToErrorOnCorruptedPayload
+    @Test
+    public void givenNonEmptyJournal_corruptAByteInAPayloadAndStartReader_expectReaderToErrorOnCorruptedPayload() {
+        writeMessage( 11, 12, 13 );
+        writeMessage( 21, 22, 23 );
+        writeMessage( 31, 32, 33 );
+
+        corruptMessage(1);
+
+        assertNextMessageIs( 11, 12, 13 );
+
+        try {
+            assertNextMessageIs( 21, 22, 23 );
+            fail( "expected checksum failure" );
+        } catch ( CheckSumException ex ) {
+
+        }
+    }
+
+    /**
+     * Corrupt a single byte within the payload of the specified message.
+     */
+    private void corruptMessage( long targetMessageSeq ) {
+        FileX dataFile = dataDir.getFile("junitJournal0.data");
+        long  fileSize = dataFile.sizeInBytes();
+
+        dataFile.processFile( contents -> {
+            long pos               = JournalDataFile.FILEHEADER_SIZE;
+            long currentMessageSeq = 0;
+
+            while ( currentMessageSeq != targetMessageSeq ) {
+                int payloadSize = contents.readInt( pos + JournalDataFile.PERMSGHEADER_PAYLOADSIZE_INDEX, fileSize );
+
+                pos += JournalDataFile.PERMSGHEADER_SIZE + payloadSize;
+                currentMessageSeq += 1;
+            }
+
+            contents.writeByte( pos+JournalDataFile.PERMSGHEADER_SIZE+3, fileSize, (byte) 7 );
+
+           return null;
+        }, FileModeEnum.READ_WRITE );
+    }
 
 
 // MISSING DATA FILES
@@ -377,40 +421,6 @@ public class JournalWriterTest {
         assertEquals( expectedFrom, transaction.getFrom() );
         assertEquals( expectedTo, transaction.getTo() );
         assertEquals( expectedAmount, transaction.getAmount(), 1e-6 );
-    }
-
-
-
-    public static class Transaction extends ByteView {
-        private static final long FROM_INDEX  = 0;
-        private static final long TO_INDEX    = 8;
-        private static final long AMT_INDEX   = 16;
-        private static final int  RECORD_SIZE = 24;
-
-
-        public long getFrom() {
-            return bytes.readLong( base+FROM_INDEX, base+RECORD_SIZE );
-        }
-
-        public long getTo() {
-            return bytes.readLong( base+TO_INDEX, base+RECORD_SIZE );
-        }
-
-        public double getAmount() {
-            return bytes.readDouble( base+AMT_INDEX, base+RECORD_SIZE );
-        }
-
-        public void setFrom( long newValue ) {
-            bytes.writeLong( base+FROM_INDEX, base+RECORD_SIZE, newValue );
-        }
-
-        public void setTo( long newValue ) {
-            bytes.writeLong( base+TO_INDEX, base+RECORD_SIZE, newValue );
-        }
-
-        public void setAmount( double newAmount ) {
-            bytes.writeDouble( base+AMT_INDEX, base+RECORD_SIZE, newAmount );
-        }
     }
 
 }

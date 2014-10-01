@@ -1,6 +1,7 @@
 package com.mosaic.collections.queue.journal;
 
 import com.mosaic.bytes.ByteView;
+import com.mosaic.io.CheckSumException;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileContents;
 import com.mosaic.io.filesystemx.FileModeEnum;
@@ -182,8 +183,9 @@ class JournalDataFile {
         contents.writeInt( currentIndex + PERMSGHEADER_PAYLOADSIZE_INDEX, fileSize, -1 );
     }
 
-// READER FUNCTIONS
 
+
+// READER FUNCTIONS
 
     public boolean seekTo( long targetSeq ) {
         seekToBeginningOfFile();
@@ -208,15 +210,27 @@ class JournalDataFile {
             return false;
         }
 
-        long payloadStart = currentIndex+PERMSGHEADER_SIZE;
+        long payloadStart  = currentIndex+PERMSGHEADER_SIZE;
+        int  payloadLength = contents.readInt( currentIndex+PERMSGHEADER_PAYLOADSIZE_INDEX, fileSize );
+        long payloadEnd    = payloadStart + payloadLength;
 
-        scrollToNext();  // currentIndex now points at start of next message
+        throwOnChecksumFailure( currentIndex+PERMSGHEADER_HASHCODE_INDEX, payloadStart, payloadEnd );
 
-        long payloadEnd = currentIndex;
 
         view.setBytes( contents, payloadStart, payloadEnd );
 
+        scrollToNext();
+
         return true;
+    }
+
+    private void throwOnChecksumFailure( long hashIndex, long fromInc, long toExc ) {
+        int recordedHash = contents.readInt( hashIndex, fileSize );
+        int actualHash   = calcHash(fromInc,toExc);
+
+        if ( recordedHash != actualHash ) {
+            throw new CheckSumException();
+        }
     }
 
     private void scrollToNext() {
@@ -227,6 +241,7 @@ class JournalDataFile {
 
         this.currentIndex = nextIndex;
     }
+
 
 
 // SHARED
@@ -253,8 +268,8 @@ class JournalDataFile {
     }
 
     public boolean hasReachedEOFMarker() {
-        long i = currentIndex + PERMSGHEADER_PAYLOADSIZE_INDEX;
-        int len = contents.readInt( i, fileSize );
+        long i   = currentIndex + PERMSGHEADER_PAYLOADSIZE_INDEX;
+        int  len = contents.readInt( i, fileSize );
 
         return len == -1;
     }
@@ -278,8 +293,16 @@ class JournalDataFile {
         return file;
     }
 
-    private int calcHash( long l, long currentToExc ) {
-        return 42;
+    private int calcHash( long fromInc, long toExc ) {
+        long sum = 7;
+
+        for ( long i=fromInc; i<toExc-8; i+=8 ) {
+            sum += contents.readLong( i, toExc );;
+
+            sum += sum;  // double add here makes the checksum sensitive to the order of the bytes
+        }
+
+        return (int) sum;
     }
 
     private boolean isReadyToReadNextMessage() {
@@ -297,4 +320,5 @@ class JournalDataFile {
         this.currentMessageSeq = contents.readLong( FILEHEADER_STARTSFROMMSGSEQ_INDEX, FILEHEADER_SIZE );
         this.currentToExc      = currentIndex;
     }
+
 }
