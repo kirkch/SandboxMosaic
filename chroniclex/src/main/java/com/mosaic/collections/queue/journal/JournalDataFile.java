@@ -7,6 +7,7 @@ import com.mosaic.io.filesystemx.FileContents;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.system.Backdoor;
 
 import java.util.Comparator;
 import java.util.List;
@@ -66,22 +67,6 @@ class JournalDataFile {
         }
     }
 
-    public static JournalDataFile selectFirstFileRO( DirectoryX dataDirectory, String serviceName ) {
-        List<FileX> dataFiles = dataDirectory.files( f -> f.getFileName().startsWith(serviceName) && f.getFileName().endsWith(".data") );
-
-        int fileSeq;
-        if ( dataFiles.isEmpty() ) {
-            fileSeq = 0;
-        } else {
-            dataFiles.sort( new DataFileNameComparator( serviceName ) );
-
-            FileX tailFile = dataFiles.get( 0 );
-
-            fileSeq = DataFileNameComparator.extractFileSeq( tailFile, serviceName );
-        }
-
-        return new JournalDataFile( dataDirectory, serviceName, fileSeq );
-    }
 
     public static JournalDataFile openAtRO( DirectoryX dataDirectory, String journalName, long targetMessageSeq ) {
         List<FileX> dataFiles = dataDirectory.files( f -> f.getFileName().startsWith(journalName) && f.getFileName().endsWith(".data") );
@@ -94,6 +79,8 @@ class JournalDataFile {
 
         dataFiles.sort( new DataFileNameComparator( journalName ) );
 
+
+        // scan through the data files in order, looking for targetMessageSeq.
         JournalDataFile previousDataFile = null;
         for ( FileX f : dataFiles ) {
             JournalDataFile dataFile = new JournalDataFile( dataDirectory, journalName, f );
@@ -119,10 +106,13 @@ class JournalDataFile {
             previousDataFile = dataFile;
         }
 
+        if ( previousDataFile == null ) {
+            throw new JournalNotFoundException(
+                String.format( "Unable to find journal data file containing msg seq '%s' under '%s'", targetMessageSeq, dataDirectory.getFullPath() + "/" + journalName )
+            );
+        }
 
-        throw new JournalNotFoundException(
-            String.format("Unable to find journal data file containing msg seq '%s' under '%s'",targetMessageSeq,dataDirectory.getFullPath()+"/"+journalName)
-        );
+        return previousDataFile;
     }
 
     public static JournalDataFile selectLastFileRW( DirectoryX dataDirectory, String serviceName, long perFileSizeBytes ) {
@@ -159,9 +149,6 @@ class JournalDataFile {
     private final long         fileSeq;
 
 
-    public JournalDataFile( DirectoryX dataDirectory, String journalName ) {
-        this( dataDirectory, journalName, 0 );
-    }
 
     public JournalDataFile( DirectoryX dataDirectory, String journalName, FileX dataFile ) {
         this( dataDirectory, journalName, DataFileNameComparator.extractFileSeq(dataFile, journalName) );
@@ -185,7 +172,7 @@ class JournalDataFile {
 // WRITER FUNCTIONS
 
     public void sync() {
-
+        contents.sync();
     }
 
     public JournalDataFile selectDataFileToWriteNextMessage( int messageSizeBytes ) {
@@ -224,6 +211,10 @@ class JournalDataFile {
 
         int hash = calcHash( currentIndex+PERMSGHEADER_SIZE, currentToExc );
         contents.writeInt( currentIndex+PERMSGHEADER_HASHCODE_INDEX, currentToExc, hash );
+
+        Backdoor.storeFence(); // very cheap as there is no contention (only 1 writer)
+                               // used here so that any local memory readers get to see the change
+                               // asap, and in a known sequential order
 
         currentMessageSeq++;
 

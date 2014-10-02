@@ -44,6 +44,7 @@ public abstract class BaseBytes implements Bytes {
         this.hasBeenReleased = true;
     }
 
+    public void sync() {}
 
     public long sizeBytes() {
         return maxExc-base;

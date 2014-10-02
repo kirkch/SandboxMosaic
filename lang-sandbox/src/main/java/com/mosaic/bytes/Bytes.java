@@ -13,6 +13,7 @@ public interface Bytes {
 
     public void release();
     public long sizeBytes();
+    public void sync();
 
     public void resize( long newLength );
     public void fill( long from, long toExc, byte v );

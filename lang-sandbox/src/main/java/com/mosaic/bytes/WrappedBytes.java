@@ -61,6 +61,10 @@ public class WrappedBytes implements Bytes {
         this.maxExc = newLength;
     }
 
+    public void sync() {
+        delegate.sync();
+    }
+
     public void fill( long from, long toExc, byte v ) {
         touchRW( from, toExc, toExc-from );
 

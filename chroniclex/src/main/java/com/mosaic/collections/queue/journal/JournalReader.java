@@ -38,6 +38,10 @@ public class JournalReader<T extends ByteView> extends StartStopMixin<JournalWri
      * @return false if the message could not be found
      */
     public boolean seekTo( long messageSeq ) {
+        dataFile.close();
+
+        this.dataFile = JournalDataFile.openAtRO( dataDirectory, getServiceName(), messageSeq ).open();
+
         return dataFile.seekTo( messageSeq );
     }
 

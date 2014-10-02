@@ -1,6 +1,7 @@
 package com.mosaic.lang.system;
 
 import com.mosaic.bytes.Bytes;
+import com.mosaic.io.FileUtils;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileSystemX;
@@ -24,6 +25,7 @@ import java.util.Vector;
 /**
  *
  */
+@SuppressWarnings("UnusedDeclaration")
 public class DebugSystem extends SystemX {
     private static final String DEV   = "DEV";
     private static final String OPS   = "OPS";
@@ -32,14 +34,18 @@ public class DebugSystem extends SystemX {
     private static final String FATAL = "FATAL";
 
 
+    public static DebugSystem withActualFileSystem() {
+        return withActualFileSystem( FileUtils.makeTempDirectory("junit",".tmp").getAbsolutePath() );
+    }
+
     public static DebugSystem withActualFileSystem( String root ) {
         return new DebugSystem(
             ReflectionUtils.getCallersClass().getSimpleName(),
             new ActualFileSystem(root),
             new SystemClock(),
-            new Vector<String>(),
-            new Vector<String>(),
-            new Vector<String>(),
+            new Vector<>(),
+            new Vector<>(),
+            new Vector<>(),
             System.nanoTime()
         );
     }

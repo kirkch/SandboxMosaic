@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 /**
  *
  */
-//@RunWith(JUnitMosaicRunner.class)
+@RunWith(JUnitMosaicRunner.class)
 @SuppressWarnings("UnusedDeclaration")
 public class JournalWriterBenchmark {
 

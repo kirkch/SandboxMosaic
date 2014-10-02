@@ -37,6 +37,18 @@ public class Backdoor {
         mallocCounter.decrementAndGet();
     }
 
+    public static void storeFence() {
+        unsafe.storeFence();
+    }
+
+    public static void loadFence() {
+        unsafe.loadFence();
+    }
+
+    public static void fullFence() {
+        unsafe.fullFence();
+    }
+
     /**
      * Returns a count of how many more calls to allocOffHeap() than free().  The counter
      * is incremented when allocOffHeap() is called, and decremented when free() is

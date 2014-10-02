@@ -6,14 +6,12 @@ import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.StartStoppable;
 import com.mosaic.lang.system.Backdoor;
-import com.mosaic.lang.system.DebugSystem;
+import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.time.Duration;
 import com.softwaremosaic.junit.JUnitMosaic;
-import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Test;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.runner.RunWith;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -23,8 +21,8 @@ import static java.util.Arrays.asList;
 import static org.junit.Assert.*;
 
 
-@RunWith(JUnitMosaicRunner.class )
-public class JournalWriterTest {
+@SuppressWarnings("UnusedDeclaration")
+public abstract class BaseJournalWriterTestCases {
 
     // Size each journal file to be able to store exactly 20 transactions before overflowing
     private static final long TRANSACTION_COUNT_PERDATAFILE = 20;
@@ -35,7 +33,7 @@ public class JournalWriterTest {
 
     private List<StartStoppable> resources = new LinkedList<>();
 
-    private DebugSystem system  = new DebugSystem();
+    private SystemX     system  = createSystem();
     private DirectoryX  dataDir = system.fileSystem.getCurrentWorkingDirectory().getOrCreateDirectory( "data" );
 
 
@@ -48,6 +46,8 @@ public class JournalWriterTest {
     private long initialAllocCount;
 
 
+    protected abstract SystemX createSystem();
+
 
     @Before
     public void setUp() {
@@ -58,23 +58,13 @@ public class JournalWriterTest {
     public void tearDown() {
         resources.forEach( StartStoppable::stop );
 
+        system.fileSystem.getRoot().deleteAll();
+
         JUnitMosaic.spinUntilTrue( () -> Backdoor.getActiveAllocCounter() == initialAllocCount );
         JUnitMosaic.spinUntilTrue( () -> system.fileSystem.getNumberOfOpenFiles() == 0 );
     }
 
-
-
-// todo benchmarks
-//    compare to chronicle
-// todo cat tool
-// sha1 calculations?
-
-
-
-    // impl writer sync()
-    // inmem and memory mapped file tests
-
-
+    
 // EMPTY JOURNAL
 
     @Test
@@ -85,7 +75,7 @@ public class JournalWriterTest {
             r.start();
             fail( "expected FileNotFoundException" );
         } catch ( JournalNotFoundException ex ) {
-            assertEquals( "'/data/unknownJournal0.data' was not found", ex.getMessage() );
+            assertEquals( toFullDir("/data/unknownJournal0.data"), ex.getMessage() );
         }
     }
 
@@ -371,11 +361,7 @@ public class JournalWriterTest {
             writeMessage( seq );
         }
 
-        journal.stop();
-        reader.stop();
-
-        FileX dataFile0 = dataDir.getFile( "junitJournal0.data" );
-        dataFile0.delete();
+        deleteDataFile(0);
 
 
         try {
@@ -383,23 +369,16 @@ public class JournalWriterTest {
 
             fail( "expected JournalNotFoundException" );
         } catch ( JournalNotFoundException ex ) {
-            assertEquals( "'Unable to find msg seq '0' under '/data/junitJournal'; has the data file been removed?' was not found", ex.getMessage() );
+            assertEquals( "Unable to find msg seq '0' under '"+toFullDir("/data/junitJournal")+"'; has the data file been removed?", ex.getMessage() );
         }
     }
 
     @Test
     public void givenMultipleDataFiles_removeFirstFileAndThenReadFromAMessagePartWayThroughSecondDataFile_expectSuccess() {
-        long numMessages = TRANSACTION_COUNT_PERDATAFILE*3;
+        long numMessages = TRANSACTION_COUNT_PERDATAFILE * 3;
+        writeMessages( numMessages );
 
-        for ( long seq=0; seq<numMessages; seq++ ) {
-            writeMessage( seq );
-        }
-
-        journal.stop();
-        reader.stop();
-
-        FileX dataFile0 = dataDir.getFile( "junitJournal0.data" );
-        dataFile0.delete();
+        deleteDataFile(0);
 
 
         long startFrom = TRANSACTION_COUNT_PERDATAFILE + TRANSACTION_COUNT_PERDATAFILE / 2;
@@ -414,20 +393,10 @@ public class JournalWriterTest {
 
     @Test
     public void givenMultipleDataFiles_removeMiddleDataFileAndTryToReadAll_expectError() {
-        long numMessages = TRANSACTION_COUNT_PERDATAFILE*3;
+        writeMessages( TRANSACTION_COUNT_PERDATAFILE*3 );
 
-        for ( long seq=0; seq<numMessages; seq++ ) {
-            writeMessage( seq );
-        }
+        deleteDataFile(1);
 
-        journal.stop();
-        reader.stop();
-
-        FileX dataFile0 = dataDir.getFile( "junitJournal1.data" );
-        dataFile0.delete();
-
-
-        reader.start();
 
         JournalReader<Transaction> r = createAndRegisterReader();
 
@@ -439,11 +408,96 @@ public class JournalWriterTest {
             r.readNextInto( transaction );
             fail( "JournalNotFoundException" );
         } catch ( JournalNotFoundException ex ) {
-            assertEquals( "'/data/junitJournal1.data' was not found", ex.getMessage() );
+            assertEquals( toFullDir("/data/junitJournal1.data"), ex.getMessage() );
         }
     }
 
+
 // SEEK  (specifically jumping between files)
+
+    @Test
+    public void givenThreeFiles_seekForwardWithinFirstFile() {
+        writeMessages( TRANSACTION_COUNT_PERDATAFILE*3 );
+
+        readAndAssertMessagesFrom(10, TRANSACTION_COUNT_PERDATAFILE*3);
+    }
+
+    @Test
+    public void givenThreeFiles_seekForwardToNextFile() {
+        writeMessages( TRANSACTION_COUNT_PERDATAFILE*3 );
+
+        readAndAssertMessagesFrom(TRANSACTION_COUNT_PERDATAFILE+1, TRANSACTION_COUNT_PERDATAFILE*3);
+    }
+
+    @Test
+    public void givenThreeFiles_seekForwardThenBackWithinSameFile() {
+        writeMessages( TRANSACTION_COUNT_PERDATAFILE * 3 );
+
+        readAndAssertMessagesFrom(10, TRANSACTION_COUNT_PERDATAFILE*3);
+        readAndAssertMessagesFrom(2, TRANSACTION_COUNT_PERDATAFILE*3);
+    }
+
+    @Test
+    public void givenThreeFiles_seekForwardThenBackToFirstFile() {
+        writeMessages( TRANSACTION_COUNT_PERDATAFILE * 3 );
+
+        readAndAssertMessagesFrom(TRANSACTION_COUNT_PERDATAFILE+10, TRANSACTION_COUNT_PERDATAFILE*3);
+        readAndAssertMessagesFrom(3, TRANSACTION_COUNT_PERDATAFILE*3);
+    }
+
+    @Test
+    public void givenThreeFiles_seekToBeforeFirstFile_expectException() {
+        writeMessages( TRANSACTION_COUNT_PERDATAFILE * 3 );
+
+        try {
+            reader.seekTo( -1 );
+            fail( "expected exception JournalNotFoundException" );
+        } catch ( JournalNotFoundException ex ) {
+            assertEquals( "Unable to find msg seq '-1' under '"+toFullDir("/data/junitJournal")+"'; has the data file been removed?", ex.getMessage() );
+        }
+    }
+
+    @Test
+    public void givenThreeFiles_removeFirstFile_seekToFirstFile_expectException() {
+        writeMessages( TRANSACTION_COUNT_PERDATAFILE * 3 );
+
+        deleteDataFile(0);
+
+
+        reader = createAndRegisterReader( TRANSACTION_COUNT_PERDATAFILE*2 );
+
+        try {
+            reader.seekTo( 10 );
+            fail( "expected exception JournalNotFoundException" );
+        } catch ( JournalNotFoundException ex ) {
+            assertEquals( "Unable to find msg seq '10' under '"+toFullDir("/data/junitJournal")+"'; has the data file been removed?", ex.getMessage() );
+        }
+    }
+
+    @Test
+    public void givenThreeFiles_seekBeyondLastMessage_expectFalse() {
+        writeMessages( TRANSACTION_COUNT_PERDATAFILE * 3 );
+
+        assertFalse( reader.seekTo( TRANSACTION_COUNT_PERDATAFILE * 3 + 10 ) );
+    }
+
+    private void writeMessages( long numMessages ) {
+        for ( long seq=0; seq<numMessages; seq++ ) {
+            writeMessage( seq );
+        }
+    }
+
+    private void readAndAssertMessagesFrom( long fromSeq, long toSeqExc ) {
+        reader.seekTo( fromSeq );
+
+        for ( long seq=fromSeq; seq<toSeqExc; seq++ ) {
+            assertNextMessageIs( seq );
+        }
+
+        assertFalse( reader.readNextInto(transaction) );
+    }
+
+
 
 
     private JournalReader<Transaction> createAndRegisterReader() {
@@ -505,6 +559,24 @@ public class JournalWriterTest {
         assertEquals( expectedFrom, transaction.getFrom() );
         assertEquals( expectedTo, transaction.getTo() );
         assertEquals( expectedAmount, transaction.getAmount(), 1e-6 );
+    }
+
+    private void deleteDataFile( long fileSeq ) {
+        journal.stop();
+        reader.stop();
+
+        FileX dataFile0 = dataDir.getFile( "junitJournal"+fileSeq+".data" );
+        dataFile0.delete();
+    }
+
+    private String toFullDir( String relDir ) {
+        String d = system.fileSystem.getCurrentWorkingDirectory().getFullPath();
+
+        if ( d.equals("/") ) {
+            return relDir;
+        } else {
+            return d + relDir;
+        }
     }
 
 }

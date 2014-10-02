@@ -184,6 +184,10 @@ public class InMemoryDirectory implements DirectoryX {
         return getOrCreateFile0( filePath );
     }
 
+    public String toString() {
+        return getFullPath();
+    }
+
     private InMemoryFile getOrCreateFile0( String filePath ) {
         QA.argNotBlank( filePath, "filePath" );
 
