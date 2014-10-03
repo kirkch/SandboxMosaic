@@ -16,4 +16,6 @@ public interface FileSystemX {
     public DirectoryX getRoot();
     public DirectoryX getCurrentWorkingDirectory();
     public void setCurrentWorkingDirectory( DirectoryX cwd );
+
+    public DirectoryX getTempDirectory();
 }

@@ -35,7 +35,7 @@ public class DebugSystem extends SystemX {
 
 
     public static DebugSystem withActualFileSystem() {
-        return withActualFileSystem( FileUtils.makeTempDirectory("junit",".tmp").getAbsolutePath() );
+        return withActualFileSystem( FileUtils.makeTempDirectory("debug",".tmp").getAbsolutePath() );
     }
 
     public static DebugSystem withActualFileSystem( String root ) {

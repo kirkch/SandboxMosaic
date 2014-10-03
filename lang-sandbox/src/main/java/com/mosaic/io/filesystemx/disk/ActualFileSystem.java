@@ -63,4 +63,10 @@ public class ActualFileSystem implements FileSystemX {
         this.cwd = newCWD;
     }
 
+    public DirectoryX getTempDirectory() {
+        String path = System.getProperty( "java.io.tmpdir" );
+
+        return new ActualDirectory( this, new File(path) );
+    }
+
 }

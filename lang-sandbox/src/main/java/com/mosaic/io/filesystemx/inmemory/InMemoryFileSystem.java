@@ -60,4 +60,8 @@ public class InMemoryFileSystem implements FileSystemX {
 
         this.cwd = newCWD;
     }
+
+    public DirectoryX getTempDirectory() {
+        return getRoot().getOrCreateDirectory( "tmp" );
+    }
 }

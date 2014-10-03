@@ -191,6 +191,9 @@ public class Struct extends ByteView {
         bytes.writeDouble( base + offset, maxExc, newValue );
     }
 
+    public void sync() {
+        bytes.sync();
+    }
     
     
     private void assertValidIndex( long offset, long size ) {

@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 
 public class StructTest {
 
-    private Bytes bytes;
+    private Bytes  bytes;
     private Struct struct;
 
 

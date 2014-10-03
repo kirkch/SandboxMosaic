@@ -210,10 +210,6 @@ public class ActualDirectory implements DirectoryX {
         return new ActualDirectory( fileSystem, this, child );
     }
 
-    public DirectoryX createDirectoryWithRandomName( String prefix, String postfix ) {
-        return createDirectory( prefix+ SystemX.nextRandomLong()+postfix );
-    }
-
     public FileX addFile( String filePath, String... contents ) {
         File child = new File(file, filePath);
         throwIfDirectory( child );

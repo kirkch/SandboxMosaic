@@ -64,7 +64,7 @@ public abstract class BaseJournalWriterTestCases {
         JUnitMosaic.spinUntilTrue( () -> system.fileSystem.getNumberOfOpenFiles() == 0 );
     }
 
-    
+
 // EMPTY JOURNAL
 
     @Test

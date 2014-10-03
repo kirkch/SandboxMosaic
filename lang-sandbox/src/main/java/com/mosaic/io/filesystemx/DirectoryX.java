@@ -1,6 +1,7 @@
 package com.mosaic.io.filesystemx;
 
 import com.mosaic.lang.functional.Predicate;
+import com.mosaic.lang.system.SystemX;
 
 import java.util.List;
 
@@ -30,8 +31,10 @@ public interface DirectoryX {
     public DirectoryX getDirectory( String dirPath );
 
     public DirectoryX createDirectory( String dirPath );
-    public DirectoryX createDirectoryWithRandomName( String prefix, String postfix );
 
+    public default DirectoryX createDirectoryWithRandomName( String prefix, String postfix ) {
+        return createDirectory( prefix + SystemX.nextRandomLong() + postfix );
+    }
 
 
     /**
@@ -56,4 +59,5 @@ public interface DirectoryX {
 
     public DirectoryX getParentDirectoryNbl();
     public DirectoryX getRoot();
+
 }

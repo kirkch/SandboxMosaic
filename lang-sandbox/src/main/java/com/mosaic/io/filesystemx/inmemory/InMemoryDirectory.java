@@ -147,11 +147,6 @@ public class InMemoryDirectory implements DirectoryX {
     }
 
 
-
-    public DirectoryX createDirectoryWithRandomName( String prefix, String postfix ) {
-        return createDirectory( prefix + SystemX.nextRandomLong() + postfix );
-    }
-
     public List<FileX> files() {
         return new ArrayList( files );
     }
