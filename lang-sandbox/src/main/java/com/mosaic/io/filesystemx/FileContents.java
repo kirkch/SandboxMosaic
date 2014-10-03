@@ -1,13 +1,13 @@
 package com.mosaic.io.filesystemx;
 
 import com.mosaic.bytes.Bytes;
-import com.mosaic.bytes.WrappedBytes;
+import com.mosaic.bytes.BytesDecorator;
 
 
 /**
  *
  */
-public abstract class FileContents extends WrappedBytes {
+public abstract class FileContents extends BytesDecorator {
     public FileContents( Bytes delegate ) {
         super( delegate );
     }

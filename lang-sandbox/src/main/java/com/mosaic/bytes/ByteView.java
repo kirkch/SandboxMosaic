@@ -28,7 +28,7 @@ public abstract class ByteView {
     }
 
     public Bytes getBytes() {
-        return new WrappedBytes( bytes, base, maxExc );
+        return new BytesDecorator( bytes, base, maxExc );
     }
 
     public void writeTo( Bytes toBytes, long toOffset, long toMax ) {

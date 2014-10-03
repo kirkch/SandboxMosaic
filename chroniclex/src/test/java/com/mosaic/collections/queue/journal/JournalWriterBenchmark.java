@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 /**
  *
  */
-@RunWith(JUnitMosaicRunner.class)
+//@RunWith(JUnitMosaicRunner.class)
 @SuppressWarnings("UnusedDeclaration")
 public class JournalWriterBenchmark {
 
@@ -40,6 +40,7 @@ public class JournalWriterBenchmark {
 
     // 40ms per million transaction objects written (!?!)
     // 46ms after adding checksum
+    // 40ms after thinning down the wrapping of bytes classes
     @Benchmark( value=3, batchCount=6, units="per million 24 byte messages" )
     public void writer() {
         for ( int i=0; i<1000000; i++ ) {
@@ -51,10 +52,13 @@ public class JournalWriterBenchmark {
                 t.setAmount( v );
             });
         }
+
+//        writer.sync();   // 80ms per 1m to get the data to disk
     }
 
 
     // 38ms per million
+    // 35ms after reducing the wrapping
     // NB to run, relies on there being data in a journal first... which can be created by commenting
     //   out the deleteAll in the tearDown function before running the writer benchmark.
     @Benchmark( value=3, batchCount=6, durationResultMultiplier=1.0/21, units="per million 24 byte messages" )

@@ -9,19 +9,20 @@ import java.io.InputStream;
 
 
 /**
- *
+ * Base class for wrapping and enhancing bytes.  Built in support for narrowing the view
+ * on the wrapped bytes, and utility for detecthing RW and RO calls.
  */
-public class WrappedBytes implements Bytes {
+public class BytesDecorator implements Bytes {
     private final Bytes delegate;
     private final long base;
     private       long maxExc;
 
 
-    public WrappedBytes( Bytes delegate ) {
+    public BytesDecorator( Bytes delegate ) {
         this( delegate, 0, delegate.sizeBytes() );
     }
 
-    public WrappedBytes( Bytes delegate, long offset, long maxExc ) {
+    public BytesDecorator( Bytes delegate, long offset, long maxExc ) {
         this.base = offset;
         this.maxExc = maxExc;
         QA.notNull( delegate, "delegate" );

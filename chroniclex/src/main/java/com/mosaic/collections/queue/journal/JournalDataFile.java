@@ -377,6 +377,9 @@ class JournalDataFile {
         if ( (hashCodeOffset+4) >= fileSize ) {   // do not run past the end of the file
             return false;
         }
+
+        Backdoor.loadFence();
+
         int hash = contents.readInt( hashCodeOffset, fileSize );
 
         return hash != 0;
