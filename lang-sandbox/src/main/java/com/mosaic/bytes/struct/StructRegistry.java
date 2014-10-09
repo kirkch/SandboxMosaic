@@ -1,6 +1,9 @@
 package com.mosaic.bytes.struct;
 
+import com.mosaic.bytes.ByteFactories;
+import com.mosaic.bytes.Bytes;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.functional.LongFunction1;
 import com.mosaic.lang.system.SystemX;
 
 
@@ -58,12 +61,29 @@ public class StructRegistry {
 
     private long structSizeBytes = 0;
 
-    public Struct createNewStruct() {
+    public Struct createUnallocatedStruct() {
         if ( SystemX.isDebugRun() ) {
             isLocked = true;
         }
 
         return new Struct( structSizeBytes );
+    }
+
+    public Struct createNewOnHeapStruct() {
+        return createNewStruct( ByteFactories.ONHEAP );
+    }
+
+    public Struct createNewOffHeapStruct() {
+        return createNewStruct( ByteFactories.OFFHEAP );
+    }
+
+    public Struct createNewStruct( LongFunction1<Bytes> byteFactory ) {
+        Struct struct = createUnallocatedStruct();
+
+        Bytes bytes = byteFactory.invoke( structSizeBytes );
+        struct.setBytes( bytes, 0, structSizeBytes );
+
+        return struct;
     }
 
     public long sizeBytes() {

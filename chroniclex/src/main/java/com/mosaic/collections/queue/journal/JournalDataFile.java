@@ -1,5 +1,6 @@
 package com.mosaic.collections.queue.journal;
 
+import com.mosaic.bytes.ByteRangeCallback;
 import com.mosaic.bytes.ByteView;
 import com.mosaic.io.CheckSumException;
 import com.mosaic.io.filesystemx.DirectoryX;
@@ -219,6 +220,19 @@ class JournalDataFile {
         currentMessageSeq++;
 
         currentIndex = currentToExc;
+    }
+
+    public void writeMessage( int messageSizeBytes, ByteRangeCallback writerFunction ) {
+        QA.isEqualTo( currentIndex, currentToExc, "currentIndex", "currentToExc" );
+
+        long payloadIndex = currentIndex  + PERMSGHEADER_SIZE;
+        this.currentToExc = payloadIndex + messageSizeBytes;
+
+        contents.writeInt( currentIndex + PERMSGHEADER_PAYLOADSIZE_INDEX, currentToExc, messageSizeBytes );
+
+        writerFunction.receive( contents, payloadIndex, currentToExc );
+
+        complete( currentMessageSeq );
     }
 
     public void seekToEnd() {

@@ -2,45 +2,41 @@ package com.mosaic.bytes.struct.examples.redbull;
 
 import com.mosaic.bytes.struct.Struct;
 
+import static com.mosaic.bytes.struct.examples.redbull.RedBullStructDefinition.*;
+
 
 /**
  * Used for testing of FlyWeight.
  */
-public class RedBullStruct {
-
-    Struct struct;
+public class RedBullStruct extends Struct {
 
     public RedBullStruct() {
-        this( RedBullStructDefinition.structRegistry.createNewStruct() );
-    }
-
-    public RedBullStruct( Struct struct ) {
-        this.struct = struct;
+        super( RedBullStructDefinition.structRegistry );
     }
 
 
     public boolean getHasWings() {
-        return RedBullStructDefinition.hasWingsField.get( struct );
+        return hasWingsField.get(this);
     }
 
     public void setHasWings( boolean hasWingsFlag ) {
-        RedBullStructDefinition.hasWingsField.set( struct, hasWingsFlag );
+        hasWingsField.set( this, hasWingsFlag );
     }
 
     public int getAge() {
-        return RedBullStructDefinition.ageField.get( struct );
+        return ageField.get( this );
     }
 
     public void setAge( int age ) {
-        RedBullStructDefinition.ageField.set( struct, age );
+        ageField.set( this, age );
     }
 
     public float getWeight() {
-        return RedBullStructDefinition.weightField.get(struct);
+        return weightField.get(this);
     }
 
     public void setWeight( float weight ) {
-        RedBullStructDefinition.weightField.set( struct, weight );
+        weightField.set( this, weight );
     }
 
 

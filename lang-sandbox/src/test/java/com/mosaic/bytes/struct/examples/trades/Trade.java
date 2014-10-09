@@ -8,82 +8,77 @@ import static com.mosaic.bytes.struct.examples.trades.TradeLayout.*;
 /**
  *
  */
-public class Trade {
+public class Trade extends Struct {
 
     public static final long SIZE_BYTES = structRegistry.sizeBytes();
 
 
-    Struct struct;
-
     public Trade() {
-        this( structRegistry.createNewStruct() );
+        super( structRegistry );
     }
 
-    public Trade( Struct struct ) {
-        this.struct = struct;
-    }
 
 
     public long getTradeId() {
-        return tradeIdField.get( struct );
+        return tradeIdField.get( this );
     }
 
     public void setTradeId( long newId ) {
-        tradeIdField.set( struct, newId );
+        tradeIdField.set( this, newId );
     }
 
 
     public long getClientId() {
-        return clientIdField.get( struct );
+        return clientIdField.get( this );
     }
 
     public void setClientId( long newId ) {
-        clientIdField.set( struct, newId );
+        clientIdField.set( this, newId );
     }
 
 
     public int getVenueCode() {
-        return venueCodeField.get( struct );
+        return venueCodeField.get( this );
     }
 
     public void setVenueCode( int newCode ) {
-        venueCodeField.set( struct, newCode );
+        venueCodeField.set( this, newCode );
     }
 
 
     public int getInstrumentCode() {
-        return instrumentCodeField.get( struct );
+        return instrumentCodeField.get( this );
     }
 
     public void setInstrumentCode( int newCode ) {
-        instrumentCodeField.set( struct, newCode );
+        instrumentCodeField.set( this, newCode );
     }
 
 
     public long getPrice() {
-        return priceField.get( struct );
+        return priceField.get( this );
     }
 
     public void setPrice( long newPrice ) {
-        priceField.set( struct, newPrice );
+        priceField.set( this, newPrice );
     }
 
 
     public long getQuantity() {
-        return quantityField.get( struct );
+        return quantityField.get( this );
     }
 
     public void setQuantity( long newQuantity ) {
-        quantityField.set( struct, newQuantity );
+        quantityField.set( this, newQuantity );
     }
 
 
     public char getSide() {
-        return sideField.get( struct );
+        return sideField.get( this );
     }
 
     public void setSide( char newSide ) {
-        sideField.set( struct, newSide );
+        sideField.set( this, newSide );
     }
 
 }

@@ -85,6 +85,7 @@ public interface Bytes {
      * @return the number of bytes read
      */
     public int readUTF8String( long offset, long maxExc, Appendable output );
+    public UTF8 readUTF8String( long offset, long maxExc );
     public int writeUTF8String( long offset, long maxExc, CharSequence txt );
     public int writeUTF8String( long offset, long maxExc, UTF8 txt );
 

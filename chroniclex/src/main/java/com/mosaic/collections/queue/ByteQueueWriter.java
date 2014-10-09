@@ -1,7 +1,9 @@
 package com.mosaic.collections.queue;
 
 
+import com.mosaic.bytes.ByteRangeCallback;
 import com.mosaic.bytes.ByteView;
+import com.mosaic.bytes.Bytes;
 import com.mosaic.lang.functional.VoidFunction1;
 
 
@@ -29,7 +31,7 @@ import com.mosaic.lang.functional.VoidFunction1;
  *     });
  * </pre>
  */
-public interface ByteQueueWriter<T extends ByteView> {
+public interface ByteQueueWriter {
 
     /**
      * Reserve the bytes for the next message to go out on the queue and assign them to the
@@ -40,7 +42,7 @@ public interface ByteQueueWriter<T extends ByteView> {
      *
      * @return the seq number of the message that has just been reserved
      */
-    public long reserveUsing( T message, int messageSizeBytes );
+    public <T extends ByteView> long reserveUsing( T message, int messageSizeBytes );
 
     /**
      * Marks the message as ready for readers.  Before this call, readers will not be allowed
@@ -65,6 +67,8 @@ public interface ByteQueueWriter<T extends ByteView> {
      * @param messageSizeBytes the size of the message that will be written
      * @param writerFunction   a function that will write the message
      */
-    public void writeMessage( int messageSizeBytes, VoidFunction1<T> writerFunction );
+    public void writeMessage( int messageSizeBytes, VoidFunction1<Bytes> writerFunction );
+
+    public void writeMessage( int messageSizeBytes, ByteRangeCallback writerFunction );
 
 }

@@ -9,7 +9,7 @@ import java.util.Iterator;
  * A queue consumer.  Receives messages that were published to the queue.  Optimised to reduce
  * byte copying.
  */
-public interface ByteQueueReader<T extends ByteView> {
+public interface ByteQueueReader {
 
     /**
      *
@@ -17,6 +17,6 @@ public interface ByteQueueReader<T extends ByteView> {
      *
      * @return false if there is no 'next' yet
      */
-    public boolean readNextInto( T view );
+    public <T extends ByteView> boolean readNextInto( T view );
 
 }

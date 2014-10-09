@@ -2,7 +2,8 @@ package com.mosaic.io.filesystemx.inmemory;
 
 import com.mosaic.bytes.ArrayBytes;
 import com.mosaic.bytes.Bytes;
-import com.mosaic.bytes.BytesDecorator;
+import com.mosaic.bytes.BytesWrapper;
+import com.mosaic.bytes.WrappedBytesLite;
 import com.mosaic.io.filesystemx.FileContents;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
@@ -56,13 +57,7 @@ public class InMemoryFile implements FileX {
 
         fileSystem.incrementOpenFileCount();
 
-        return new InMemoryFileContents(
-            new BytesDecorator(bytes) {
-                public void release() {
-                    fileSystem.decrementOpenFileCount();
-                }
-            }
-        );
+        return new InMemoryFileContents(bytes);
     }
 
     public FileContents openFile( FileModeEnum mode, long sizeInBytes ) {
@@ -152,6 +147,10 @@ public class InMemoryFile implements FileX {
 
         public InMemoryFileContents( Bytes delegate ) {
             super( delegate );
+        }
+
+        public void release() {
+            fileSystem.decrementOpenFileCount();
         }
 
         public boolean lockFile() {

@@ -180,10 +180,15 @@ public abstract class BasePersistableMapTestCases {
 
 
     protected class Account extends ByteView {
-        private final Struct struct = structRegistry.createNewStruct();
+        private final Struct struct = structRegistry.createUnallocatedStruct();
 
         public Account() {
             setBytes( new ArrayBytes(ACCOUNT_SIZE), 0, ACCOUNT_SIZE );
+        }
+
+
+        public long sizeBytes() {
+            return structRegistry.sizeBytes();
         }
 
         public long getAccountId() {

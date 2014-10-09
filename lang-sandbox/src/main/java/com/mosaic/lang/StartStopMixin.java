@@ -45,17 +45,17 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
         this.serviceName = serviceName;
     }
 
-    protected abstract void doStart() throws Exception;
-    protected abstract void doStop() throws Exception;
+    protected void doStart() throws Exception {};
+    protected void doStop() throws Exception {};
 
 
-    public String getServiceName() {
+    public final String getServiceName() {
         return serviceName;
     }
 
     // todo improve the error handling of Exceptions
 
-    public T start() {
+    public final T start() {
         throwIfShuttingDown();
 
         int initCount = initCounter.incrementAndGet();
@@ -73,7 +73,7 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
         return (T) this;
     }
 
-    public T stop() {
+    public final T stop() {
         int initCount = initCounter.decrementAndGet();
 
         if ( initCount == 0 ) {
@@ -93,11 +93,11 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
         return (T) this;
     }
 
-    public boolean isRunning() {
+    public final boolean isRunning() {
         return initCounter.get() > 0;
     }
 
-    public boolean isShuttingDown() {
+    public final boolean isShuttingDown() {
         return isShuttingDown.get();
     }
 
@@ -106,7 +106,7 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
      * starts, the other services will be started first and when this service is stopped then the
      * other services will be stopped first.
      */
-    public T serviceDependsUpon( Object... otherServices ) {
+    public final T serviceDependsUpon( Object... otherServices ) {
         for ( Object o : otherServices ) {
             if ( o instanceof StartStoppable ) {
                 StartStoppable ss = (StartStoppable) o;
@@ -124,7 +124,7 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
 
 
 
-    protected void throwIfNotReady() {
+    protected final void throwIfNotReady() {
         if ( SystemX.isDebugRun() ) {
             if ( !isRunning() ) {
                 throw new IllegalStateException( "'"+serviceName+"' is not running" );
@@ -132,7 +132,7 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
         }
     }
 
-    protected void throwIfReady() {
+    protected final void throwIfReady() {
         if ( SystemX.isDebugRun() ) {
             if ( isRunning() ) {
                 throw new IllegalStateException( "'"+serviceName+"' is running" );
@@ -140,20 +140,20 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
         }
     }
 
-    private void broadcastInit() {
+    private final void broadcastInit() {
         for ( StartStoppable o : chainedToOthers ) {
             o.start();
         }
     }
 
 
-    private void broadcastTearDown() {
+    private final void broadcastTearDown() {
         for ( StartStoppable o : chainedToOthers ) {
             o.stop();
         }
     }
 
-    private void throwIfShuttingDown() {
+    private final void throwIfShuttingDown() {
         if ( isShuttingDown() ) {
             throw new IllegalStateException( serviceName + " is currently in the process of shutting down" );
         }

@@ -7,7 +7,7 @@ import com.mosaic.lang.system.SystemX;
 /**
  *
  */
-public class AutoResizingBytes extends BytesDecorator {
+public class AutoResizingBytes extends BytesWrapper {
 
     private SystemX system;
     private String  name;

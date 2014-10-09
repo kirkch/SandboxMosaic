@@ -14,6 +14,8 @@ public abstract class ByteView {
     protected long  maxExc;
 
 
+    public abstract long sizeBytes();
+
     /**
      * Updates the shared data region of this fly weight.
      *
@@ -28,7 +30,7 @@ public abstract class ByteView {
     }
 
     public Bytes getBytes() {
-        return new BytesDecorator( bytes, base, maxExc );
+        return new BytesWrapper( bytes, base, maxExc );
     }
 
     public void writeTo( Bytes toBytes, long toOffset, long toMax ) {

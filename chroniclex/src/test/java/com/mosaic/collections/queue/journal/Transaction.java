@@ -13,6 +13,10 @@ public class Transaction extends ByteView {
     static final long AMT_INDEX   = 16;
     static final int  RECORD_SIZE = 24;
 
+    public long sizeBytes() {
+        return RECORD_SIZE;
+    }
+
 
     public long getFrom() {
         return bytes.readLong( base+FROM_INDEX, base+RECORD_SIZE );

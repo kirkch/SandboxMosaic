@@ -206,7 +206,7 @@ public class CLApp_fileLockChildProcessTests {
         doneFileF.getParentFile().mkdirs();
 
         RandomAccessFile doneFile = new RandomAccessFile( doneFileF, "rw" );
-        System.out.println( "doneFile = " + doneFileF );
+
         doneFile.close();
     }
 

@@ -5,8 +5,8 @@ import com.mosaic.io.filesystemx.FileSystemX;
 import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.Cancelable;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.ServiceThread;
 import com.mosaic.lang.StartStopMixin;
-import com.mosaic.lang.ThreadedService;
 import com.mosaic.lang.functional.TryNow;
 import com.mosaic.lang.functional.VoidFunction0;
 import com.mosaic.lang.functional.VoidFunction1;
@@ -565,7 +565,7 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
         opsLog.setEnabled( flag );
     }
 
-    private class TimerThread extends ThreadedService<TimerThread> {
+    private class TimerThread extends ServiceThread<TimerThread> {
         // the larger this value, the more jobs can miss their scheduled time.  On the whole,
         // the timing should be fairly accurate.  However there is no interrupt implemented
         // for the timer thread, so if the thread is asleep on an empty queue (which will be the MAX sleep)

@@ -1,23 +1,31 @@
 package com.mosaic.collections.queue.journal;
 
+import com.mosaic.bytes.ByteRangeCallback;
 import com.mosaic.bytes.ByteView;
+import com.mosaic.bytes.Bytes;
+import com.mosaic.bytes.BytesWrapper;
 import com.mosaic.collections.queue.ByteQueueWriter;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.StartStopMixin;
+import com.mosaic.lang.functional.VoidFunction0;
 import com.mosaic.lang.functional.VoidFunction1;
-import com.mosaic.lang.reflect.ReflectionUtils;
+import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
-
-import static com.mosaic.io.filesystemx.FileModeEnum.READ_WRITE;
+import com.mosaic.lang.text.UTF8;
 
 
 /**
  *
  */
-public class JournalWriter<T extends ByteView> extends StartStopMixin<JournalWriter<T>> implements ByteQueueWriter<T> {
+public class JournalWriter extends StartStopMixin<JournalWriter> implements ByteQueueWriter {
 
-    private final T    myFlyweight;
+    public static long sizeOfUTF8String( UTF8 source ) {
+        return 2 + source.getByteCount();
+    }
+
+
+    private final BytesWrapper myFlyweight;
 
     private DirectoryX dataDirectory;
     private long       perFileSizeBytes;
@@ -25,11 +33,11 @@ public class JournalWriter<T extends ByteView> extends StartStopMixin<JournalWri
     private JournalDataFile currentDataFile;
 
 
-    public JournalWriter( DirectoryX dataDirectory, String serviceName, Class<T> t ) {
-        this( dataDirectory, serviceName, t, 100*SystemX.MEGABYTE );
+    public JournalWriter( DirectoryX dataDirectory, String serviceName ) {
+        this( dataDirectory, serviceName, 100*SystemX.MEGABYTE );
     }
 
-    public JournalWriter( DirectoryX dataDirectory, String serviceName, Class<T> t, long perFileSizeBytes ) {
+    public JournalWriter( DirectoryX dataDirectory, String serviceName, long perFileSizeBytes ) {
         super( serviceName );
 
         QA.argNotNull(  dataDirectory,    "dataDirectory" );
@@ -39,11 +47,11 @@ public class JournalWriter<T extends ByteView> extends StartStopMixin<JournalWri
         this.dataDirectory    = dataDirectory;
         this.perFileSizeBytes = perFileSizeBytes;
 
-        this.myFlyweight      = ReflectionUtils.newInstance( t );
+        this.myFlyweight      = new BytesWrapper();
     }
 
 
-    public long reserveUsing( T message, int messageSizeBytes ) {
+    public <T extends ByteView> long reserveUsing( T message, int messageSizeBytes ) {
         this.currentDataFile = this.currentDataFile.selectDataFileToWriteNextMessage( messageSizeBytes );
 
         return currentDataFile.reserveUsing( message, messageSizeBytes );
@@ -57,10 +65,45 @@ public class JournalWriter<T extends ByteView> extends StartStopMixin<JournalWri
         currentDataFile.sync();
     }
 
-    public void writeMessage( int messageSizeBytes, VoidFunction1<T> writerFunction ) {
+    /**
+     * Reserve n bytes and then provide a callback that will write the data within the reserved
+     * region and then mark the write as complete.<p/>
+     *
+     * This variant of the writeMessage methods is the most efficient;  it will return the underlying
+     * bytes object unwrapped, along with the indexes specifying where the reserved region sits.  This
+     * requires the caller to calculate the writing index, however it saves on pointer chasing.  Which
+     * is a net performance win, in return for a little more developer effort.<p/>
+     *
+     * This method is approximately 10ms faster than its brothers per millions invocations.  That is
+     * approximately 30% faster.
+     */
+    public void writeMessage( int messageSizeBytes, ByteRangeCallback writerFunction ) {
+        this.currentDataFile = this.currentDataFile.selectDataFileToWriteNextMessage( messageSizeBytes );
+
+        currentDataFile.writeMessage( messageSizeBytes, writerFunction );
+    }
+
+    /**
+     *
+     * Reserve n bytes and then provide a callback that will write the data within the reserved
+     * region and then mark the write as complete.<p/>
+     *
+     * This variant will wrap the underlying bytes so that all writes start from zero.  This
+     * convenience wrapping slows the journal by approximately 10ms per millions messages.  As
+     * measured on a mbp.
+     */
+    public void writeMessage( int messageSizeBytes, VoidFunction1<Bytes> writerFunction ) {
         long seq = reserveUsing( myFlyweight, messageSizeBytes );
 
         writerFunction.invoke( myFlyweight );
+
+        complete( seq );
+    }
+
+    public <T extends ByteView> void writeMessageUsing( T msg, VoidFunction0 writerFunction ) {
+        long seq = reserveUsing( msg, Backdoor.toInt(msg.sizeBytes()) );
+
+        writerFunction.invoke();
 
         complete( seq );
     }

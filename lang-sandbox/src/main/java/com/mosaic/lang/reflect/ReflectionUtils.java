@@ -120,6 +120,19 @@ public class ReflectionUtils {
         }
     }
 
+    /**
+     * Returns the class that invoked the method that called this method.  In other words, the method
+     * who called this method wants to know who invoked it.<p/>
+     *
+     * For example:<p/>
+     *
+     * A.main called B.foo<p/>
+     *
+     * within B.foo, it wants to know who called it.  So it calls ReflectionUtils.getCallersClass,
+     * and it returns A.
+     *
+     *
+     */
     public static Class getCallersClass() {
         try {
             return Class.forName( new Exception().getStackTrace()[2].getClassName() );

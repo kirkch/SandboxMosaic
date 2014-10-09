@@ -1,7 +1,6 @@
 package com.mosaic.bytes.struct.examples.redbull;
 
 import com.mosaic.bytes.Bytes;
-import com.mosaic.bytes.struct.Struct;
 import com.mosaic.bytes.struct.Structs;
 
 import static com.mosaic.bytes.struct.examples.redbull.RedBullStructDefinition.*;
@@ -23,10 +22,6 @@ public class RedBullStructs extends Structs<RedBullStruct> {
 
     protected RedBullStruct createBlankStruct() {
         return new RedBullStruct();
-    }
-
-    protected Struct toStruct( RedBullStruct bull ) {
-        return bull.struct;
     }
 
 }

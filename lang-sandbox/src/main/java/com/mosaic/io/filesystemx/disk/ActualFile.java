@@ -42,13 +42,13 @@ public class ActualFile implements FileX {
     public FileContents openFile( FileModeEnum mode ) {
         Bytes bytes = MemoryMappedBytes.mapFile( file, mode );
 
-        return new ActualFileContents( wrapMemoryMappedBytes(bytes) );
+        return new ActualFileContents( bytes );
     }
 
     public FileContents openFile( FileModeEnum mode, long sizeInBytes ) {
         Bytes bytes = MemoryMappedBytes.mapFile( file, mode, sizeInBytes );
 
-        return new ActualFileContents( wrapMemoryMappedBytes(bytes) );
+        return new ActualFileContents( bytes );
     }
 
     public String getFullPath() {
@@ -98,16 +98,6 @@ public class ActualFile implements FileX {
 
 
 
-    private Bytes wrapMemoryMappedBytes( final Bytes bytes ) {
-        fileSystem.incrementOpenFileCount();
-
-        return new WrappedBytesLite(bytes) {
-            public void release() {
-                fileSystem.decrementOpenFileCount();
-            }
-        };
-    }
-
     private void mkdirs() {
         File parentFile = file.getParentFile();
 
@@ -123,6 +113,12 @@ public class ActualFile implements FileX {
 
         public ActualFileContents( Bytes delegate ) {
             super( delegate );
+
+            fileSystem.incrementOpenFileCount();
+        }
+
+        public void release() {
+            fileSystem.decrementOpenFileCount();
         }
 
         public boolean lockFile() {

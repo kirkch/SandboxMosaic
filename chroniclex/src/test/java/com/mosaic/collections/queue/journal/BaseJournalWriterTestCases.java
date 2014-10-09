@@ -37,8 +37,8 @@ public abstract class BaseJournalWriterTestCases {
     private DirectoryX  dataDir = system.fileSystem.getCurrentWorkingDirectory().getOrCreateDirectory( "data" );
 
 
-    private JournalWriter<Transaction> journal = registerResource( new JournalWriter<>(dataDir, "junitJournal", Transaction.class, JOURNAL_FILE_SIZE ) );
-    private JournalReader<Transaction> reader  = createAndRegisterReader();
+    private JournalWriter journal = registerResource( new JournalWriter(dataDir, "junitJournal", JOURNAL_FILE_SIZE ) );
+    private JournalReader reader  = createAndRegisterReader();
 
 
     private Transaction transaction = new Transaction();
@@ -69,7 +69,7 @@ public abstract class BaseJournalWriterTestCases {
 
     @Test
     public void givenNoJournal_createReader_expectException() {
-        JournalReader r = new JournalReader<>(dataDir, "unknownJournal");
+        JournalReader r = new JournalReader(dataDir, "unknownJournal");
 
         try {
             r.start();
@@ -107,14 +107,14 @@ public abstract class BaseJournalWriterTestCases {
 
     @Test
     public void givenEmptyJournalAndMultipleReaders_addMessages_expectReadersToReceiveThem() {
-        JournalReader<Transaction> reader1 = createAndRegisterReader();
-        JournalReader<Transaction> reader2 = createAndRegisterReader();
+        JournalReader reader1 = createAndRegisterReader();
+        JournalReader reader2 = createAndRegisterReader();
 
         writeMessage( 11, 12, 13 );
         writeMessage( 21, 22, 23 );
 
 
-        for ( JournalReader<Transaction> r : asList(reader1, reader2, reader) ) {
+        for ( JournalReader r : asList(reader1, reader2, reader) ) {
             assertNextMessageIs( r, 11, 12, 13 );
             assertNextMessageIs( r, 21, 22, 23 );
 
@@ -127,9 +127,9 @@ public abstract class BaseJournalWriterTestCases {
         writeMessage( 11, 12, 13 );
         writeMessage( 21, 22, 23 );
 
-        JournalReader<Transaction> reader1 = createAndRegisterReader();
+        JournalReader reader1 = createAndRegisterReader();
 
-        for ( JournalReader<Transaction> r : asList(reader1,reader) ) {
+        for ( JournalReader r : asList(reader1,reader) ) {
             assertNextMessageIs( r, 11, 12, 13 );
             assertNextMessageIs( r, 21, 22, 23 );
 
@@ -382,7 +382,7 @@ public abstract class BaseJournalWriterTestCases {
 
 
         long startFrom = TRANSACTION_COUNT_PERDATAFILE + TRANSACTION_COUNT_PERDATAFILE / 2;
-        JournalReader<Transaction> r = createAndRegisterReader( startFrom );
+        JournalReader r = createAndRegisterReader( startFrom );
 
         for ( long seq=startFrom; seq<numMessages; seq++ ) {
             assertNextMessageIs( r, seq );
@@ -398,7 +398,7 @@ public abstract class BaseJournalWriterTestCases {
         deleteDataFile(1);
 
 
-        JournalReader<Transaction> r = createAndRegisterReader();
+        JournalReader r = createAndRegisterReader();
 
         for ( long seq=0; seq<TRANSACTION_COUNT_PERDATAFILE; seq++ ) {
             assertNextMessageIs( r, seq );
@@ -500,12 +500,12 @@ public abstract class BaseJournalWriterTestCases {
 
 
 
-    private JournalReader<Transaction> createAndRegisterReader() {
+    private JournalReader createAndRegisterReader() {
         return createAndRegisterReader(0);
     }
 
-    private JournalReader<Transaction> createAndRegisterReader( long startFrom ) {
-        return registerResource( new JournalReader<>(dataDir, "junitJournal", startFrom) );
+    private JournalReader createAndRegisterReader( long startFrom ) {
+        return registerResource( new JournalReader(dataDir, "junitJournal", startFrom) );
     }
 
     private <T extends StartStoppable> T registerResource( T r ) {
@@ -522,10 +522,10 @@ public abstract class BaseJournalWriterTestCases {
     }
 
     private void writeMessage( long expectedFrom, long expectedTo, long expectedAmount ) {
-        journal.writeMessage( Transaction.RECORD_SIZE, t -> {
-            t.setFrom( expectedFrom );
-            t.setTo( expectedTo );
-            t.setAmount( expectedAmount );
+        journal.writeMessageUsing( transaction, () -> {
+            transaction.setFrom( expectedFrom );
+            transaction.setTo( expectedTo );
+            transaction.setAmount( expectedAmount );
         } );
     }
 
@@ -533,7 +533,7 @@ public abstract class BaseJournalWriterTestCases {
         assertNextMessageIs( reader, msgSeq );
     }
 
-    private void assertNextMessageIs( JournalReader<Transaction> r, long msgSeq ) {
+    private void assertNextMessageIs( JournalReader r, long msgSeq ) {
         assertNextMessageIs( r, expectedFrom(msgSeq), expectedTo(msgSeq), expectedAmount(msgSeq) );
     }
 
@@ -553,7 +553,7 @@ public abstract class BaseJournalWriterTestCases {
         assertNextMessageIs( reader, expectedFrom, expectedTo, expectedAmount );
     }
 
-    private void assertNextMessageIs( JournalReader<Transaction> r, long expectedFrom, long expectedTo, long expectedAmount ) {
+    private void assertNextMessageIs( JournalReader r, long expectedFrom, long expectedTo, long expectedAmount ) {
         assertTrue( "reached end of data file early: " + (expectedFrom/10), r.readNextInto(transaction) );
 
         assertEquals( expectedFrom, transaction.getFrom() );

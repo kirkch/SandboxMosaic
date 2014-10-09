@@ -142,6 +142,10 @@ public class WrappedBytesLite implements Bytes {
         return delegate.readUTF8String( offset, maxExc, output );
     }
 
+    public UTF8 readUTF8String( long offset, long maxExc ) {
+        return delegate.readUTF8String( offset, maxExc );
+    }
+
     public int writeUTF8String( long offset, long maxExc, CharSequence txt ) {
         return delegate.writeUTF8String( offset, maxExc, txt );
     }

@@ -61,6 +61,17 @@ public abstract class BaseBytes implements Bytes {
         writeByte( offset, maxExc, v ? (byte) 1 : (byte) 0 );
     }
 
+    public UTF8 readUTF8String( long offset, long maxExc ) {
+        int numUTF8Bytes = readUnsignedShort( offset, maxExc );
+
+        long from = offset+SIZEOF_SHORT;
+        long toExc = from+numUTF8Bytes;
+
+        QA.isTrue( toExc <= maxExc, "Malformed UTF8 string, length exceeded maxExc" );
+
+        return new UTF8( this, from, toExc );
+    }
+
     public int readUTF8String( long offset, long maxExc, Appendable output ) {
         int numUTF8Bytes = readUnsignedShort( offset, maxExc );
 

@@ -25,8 +25,4 @@ public class Trades extends Structs<Trade> {
         return new Trade();
     }
 
-    protected Struct toStruct( Trade trade ) {
-        return trade.struct;
-    }
-
 }

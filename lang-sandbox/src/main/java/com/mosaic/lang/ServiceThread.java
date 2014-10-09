@@ -9,7 +9,7 @@ import java.io.IOException;
  * the loop() method, and be sure to exit from time to time to give this class
  * the chance to check for any possible shutdown requests.
  */
-public abstract class ThreadedService<T extends StartStoppable<T>> extends StartStopMixin<T> {
+public abstract class ServiceThread<T extends StartStoppable<T>> extends StartStopMixin<T> {
 
     public static enum ThreadType {
         DAEMON, NON_DAEMON;
@@ -24,7 +24,7 @@ public abstract class ThreadedService<T extends StartStoppable<T>> extends Start
     private ThreadType threadType;
 
 
-    public ThreadedService( String serviceName, ThreadType threadType ) {
+    public ServiceThread( String serviceName, ThreadType threadType ) {
         super( serviceName );
 
         QA.argNotNull( threadType, "threadType" );

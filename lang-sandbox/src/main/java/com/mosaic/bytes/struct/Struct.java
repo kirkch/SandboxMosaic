@@ -24,6 +24,10 @@ public class Struct extends ByteView {
     private final long structSizeBytes;
 
 
+    public Struct( StructRegistry reg ) {
+        this( reg.sizeBytes() );
+    }
+
     /**
      * Create a new instance of StructuredBytes.
      *
@@ -49,143 +53,143 @@ public class Struct extends ByteView {
         return structSizeBytes;
     }
 
-    public boolean readBoolean( long offset ) {
+    boolean readBoolean( long offset ) {
         assertValidIndex( offset, SystemX.SIZEOF_BOOLEAN );
 
         return bytes.readBoolean( base+offset, maxExc );
     }
 
-    public void writeBoolean( long offset, boolean newValue ) {
+    void writeBoolean( long offset, boolean newValue ) {
         assertValidIndex( offset, SystemX.SIZEOF_BOOLEAN );
 
         bytes.writeBoolean( base+offset, maxExc, newValue );
     }
 
 
-    public byte readByte( long offset ) {
+    byte readByte( long offset ) {
         assertValidIndex( offset, SystemX.SIZEOF_BYTE );
 
         return bytes.readByte( base + offset, maxExc );
     }
 
-    public void writeByte( long offset, byte newValue ) {
+    void writeByte( long offset, byte newValue ) {
         assertValidIndex( offset, SystemX.SIZEOF_BYTE );
 
         bytes.writeByte( base + offset, maxExc, newValue );
     }
 
 
-    public short readUnsignedByte( long offset ) {
+    short readUnsignedByte( long offset ) {
         assertValidIndex( offset, SystemX.SIZEOF_UNSIGNED_BYTE );
 
         return bytes.readUnsignedByte( base + offset, maxExc );
     }
 
-    public void writeUnsignedByte( long offset, short newValue ) {
+    void writeUnsignedByte( long offset, short newValue ) {
         assertValidIndex( offset, SystemX.SIZEOF_UNSIGNED_BYTE );
 
         bytes.writeUnsignedByte( base + offset, maxExc, newValue );
     }
 
 
-    public short readShort( long offset ) {
+    short readShort( long offset ) {
         assertValidIndex( offset, SystemX.SIZEOF_SHORT );
 
         return bytes.readShort( base + offset, maxExc );
     }
 
-    public void writeShort( long offset, short newValue ) {
+    void writeShort( long offset, short newValue ) {
         assertValidIndex( offset, SystemX.SIZEOF_SHORT );
 
         bytes.writeShort( base + offset, maxExc, newValue );
     }
 
 
-    public int readUnsignedShort( long offset ) {
+    int readUnsignedShort( long offset ) {
         assertValidIndex( offset, SystemX.SIZEOF_UNSIGNED_SHORT );
 
         return bytes.readUnsignedShort( base + offset, maxExc );
     }
 
-    public void writeUnsignedShort( long offset, int newValue ) {
+    void writeUnsignedShort( long offset, int newValue ) {
         assertValidIndex( offset, SystemX.SIZEOF_UNSIGNED_SHORT );
 
         bytes.writeUnsignedShort( base + offset, maxExc, newValue );
     }
 
 
-    public char readCharacter( long offset ) {
+    char readCharacter( long offset ) {
         assertValidIndex( offset, SystemX.SIZEOF_CHAR );
 
         return bytes.readCharacter( base + offset, maxExc );
     }
 
-    public void writeCharacter( long offset, char newValue ) {
+    void writeCharacter( long offset, char newValue ) {
         assertValidIndex( offset, SystemX.SIZEOF_CHAR );
 
         bytes.writeCharacter( base + offset, maxExc, newValue );
     }
 
 
-    public int readInt( long offset ) {
+    int readInt( long offset ) {
         assertValidIndex( offset, SystemX.SIZEOF_INT );
 
         return bytes.readInt( base + offset, maxExc );
     }
 
-    public void writeInt( long offset, int newValue ) {
+    void writeInt( long offset, int newValue ) {
         assertValidIndex( offset, SystemX.SIZEOF_INT );
 
         bytes.writeInt( base + offset, maxExc, newValue );
     }
 
 
-    public long readUnsignedInt( long offset ) {
+    long readUnsignedInt( long offset ) {
         assertValidIndex( offset, SystemX.SIZEOF_UNSIGNED_INT );
 
         return bytes.readUnsignedInt( base + offset, maxExc );
     }
 
-    public void writeUnsignedInt( long offset, long newValue ) {
+    void writeUnsignedInt( long offset, long newValue ) {
         assertValidIndex( offset, SystemX.SIZEOF_UNSIGNED_INT );
 
         bytes.writeUnsignedInt( base + offset, maxExc, newValue );
     }
 
 
-    public long readLong( long offset ) {
+    long readLong( long offset ) {
         assertValidIndex( offset, SystemX.SIZEOF_LONG );
 
         return bytes.readLong( base + offset, maxExc );
     }
 
-    public void writeLong( long offset, long newValue ) {
+    void writeLong( long offset, long newValue ) {
         assertValidIndex( offset, SystemX.SIZEOF_LONG );
 
         bytes.writeLong( base + offset, maxExc, newValue );
     }
 
 
-    public float readFloat( long offset ) {
+    float readFloat( long offset ) {
         assertValidIndex( offset, SystemX.SIZEOF_FLOAT );
 
         return bytes.readFloat( base + offset, maxExc );
     }
 
-    public void writeFloat( long offset, float newValue ) {
+    void writeFloat( long offset, float newValue ) {
         assertValidIndex( offset, SystemX.SIZEOF_FLOAT );
 
         bytes.writeFloat( base + offset, maxExc, newValue );
     }
 
 
-    public double readDouble( long offset ) {
+    double readDouble( long offset ) {
         assertValidIndex( offset, SystemX.SIZEOF_DOUBLE );
 
         return bytes.readDouble( base + offset, maxExc );
     }
 
-    public void writeDouble( long offset, double newValue ) {
+    void writeDouble( long offset, double newValue ) {
         assertValidIndex( offset, SystemX.SIZEOF_DOUBLE );
 
         bytes.writeDouble( base + offset, maxExc, newValue );

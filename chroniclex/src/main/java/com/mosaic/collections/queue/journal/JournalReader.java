@@ -10,7 +10,7 @@ import com.mosaic.lang.StartStopMixin;
 /**
  *
  */
-public class JournalReader<T extends ByteView> extends StartStopMixin<JournalWriter<T>> implements ByteQueueReader<T> {
+public class JournalReader extends StartStopMixin<JournalReader> implements ByteQueueReader {
     private final DirectoryX      dataDirectory;
     private final long            startFrom;
 
@@ -45,7 +45,7 @@ public class JournalReader<T extends ByteView> extends StartStopMixin<JournalWri
         return dataFile.seekTo( messageSeq );
     }
 
-    public boolean readNextInto( T view ) {
+    public <T extends ByteView> boolean readNextInto( T view ) {
         if ( dataFile.readNextInto(view) ) {
             return true;
         } else if ( dataFile.hasReachedEOFMarker() ) { // roll over to the next data file

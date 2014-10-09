@@ -12,14 +12,14 @@ import static org.junit.Assert.assertEquals;
 /**
  *
  */
-public class ThreadedServiceTest {
+public class ServiceThreadTest {
 
 
     @Test
     public void startAndStopAService() {
         String serviceName = "ThreadedServiceTest.startAndStopAService";
 
-        final MyService service = new MyService( serviceName );
+        final MyServiceThread service = new MyServiceThread( serviceName );
 
         assertEquals( 0, service.workCounter.get() );
 
@@ -40,7 +40,7 @@ public class ThreadedServiceTest {
     public void givenAThreadThatGoesToSleepForever_callStop_expectTheThreadToStopRegardless() {
         String serviceName = "ThreadedServiceTest.givenAThreadThatGoesToSleepForever_callStop_expectTheThreadToStopRegardless";
 
-        final SleepyService service = new SleepyService( serviceName );
+        final SleepyServiceThread service = new SleepyServiceThread( serviceName );
 
         assertEquals( 0, service.workCounter.get() );
 
@@ -61,10 +61,10 @@ public class ThreadedServiceTest {
 
 
 
-    private static class MyService extends ThreadedService<MyService> {
+    private static class MyServiceThread extends ServiceThread<MyServiceThread> {
         public final AtomicLong workCounter = new AtomicLong( 0L );
 
-        public MyService( String serviceName ) {
+        public MyServiceThread( String serviceName ) {
             super( serviceName, ThreadType.DAEMON );
         }
 
@@ -75,10 +75,10 @@ public class ThreadedServiceTest {
         }
     }
 
-    private static class SleepyService extends ThreadedService<MyService> {
+    private static class SleepyServiceThread extends ServiceThread<MyServiceThread> {
         public final AtomicLong workCounter = new AtomicLong( 0L );
 
-        public SleepyService( String serviceName ) {
+        public SleepyServiceThread( String serviceName ) {
             super( serviceName, ThreadType.DAEMON );
         }
 
