@@ -27,7 +27,7 @@ public class CLApp_errorTests {
 
         assertEquals( 1, app.runApp() );
 
-        system.assertStandardErrorEquals( app.getName() + " errored unexpectedly and was aborted. The error was 'whoops'." );
+        system.assertStandardErrorEquals( app.getName() + " was aborted unexpectedly.  The error was 'whoops'." );
         system.assertFatalContains( RuntimeException.class, "whoops" );
     }
 

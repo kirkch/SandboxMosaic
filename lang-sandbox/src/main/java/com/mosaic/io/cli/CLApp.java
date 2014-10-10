@@ -168,7 +168,7 @@ public abstract class CLApp {
 
 
         } catch ( Throwable ex ) {
-            system.stderr.writeLine( name + " errored unexpectedly and was aborted. The error was '"+ex.getMessage()+"'." );
+            system.stderr.writeLine( name + " was aborted unexpectedly.  The error was '"+ex.getMessage()+"'." );
             system.fatal( ex );
 
             return 1;

@@ -65,10 +65,12 @@ public abstract class ServiceThread<T extends StartStoppable<T>> extends StartSt
     }
 
     protected void doStop() throws Exception {
-        this.thread.interrupt();
-        this.thread.join();
+        if ( this.thread != null ) {
+            this.thread.interrupt();
+            this.thread.join();
 
-        this.thread = null;
+            this.thread = null;
+        }
     }
 
 }
