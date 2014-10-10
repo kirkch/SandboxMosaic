@@ -1,5 +1,6 @@
 package com.mosaic.collections.queue.journal;
 
+import com.mosaic.bytes.ByteRangeCallback;
 import com.mosaic.bytes.ByteView;
 import com.mosaic.collections.queue.ByteQueueReader;
 import com.mosaic.io.filesystemx.DirectoryX;
@@ -45,8 +46,8 @@ public class JournalReader extends StartStopMixin<JournalReader> implements Byte
         return dataFile.seekTo( messageSeq );
     }
 
-    public <T extends ByteView> boolean readNextInto( T view ) {
-        if ( dataFile.readNextInto(view) ) {
+    public boolean readNext( ByteRangeCallback readerFunction ) {
+        if ( dataFile.readNext(readerFunction) ) {
             return true;
         } else if ( dataFile.hasReachedEOFMarker() ) { // roll over to the next data file
             long nextFileSeq = dataFile.getFileSeq() + 1;
@@ -55,13 +56,15 @@ public class JournalReader extends StartStopMixin<JournalReader> implements Byte
 
             dataFile = new JournalDataFile(dataDirectory, getServiceName(), nextFileSeq).open();
 
-            return dataFile.readNextInto( view );
+            return dataFile.readNext( readerFunction );
         } else {    // the end of the current data file has not been reached;  we are waiting for the next message
             return false;
         }
     }
 
-
+    public <T extends ByteView> boolean readNextInto( T view ) {
+        return readNext( view::setBytes );
+    }
 
 
     protected void doStart() {

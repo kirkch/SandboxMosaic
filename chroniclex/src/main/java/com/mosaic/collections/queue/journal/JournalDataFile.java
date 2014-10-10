@@ -230,7 +230,7 @@ class JournalDataFile {
 
         contents.writeInt( currentIndex + PERMSGHEADER_PAYLOADSIZE_INDEX, currentToExc, messageSizeBytes );
 
-        writerFunction.receive( contents, payloadIndex, currentToExc );
+        writerFunction.invoke( contents, payloadIndex, currentToExc );
 
         complete( currentMessageSeq );
     }
@@ -278,7 +278,7 @@ class JournalDataFile {
         return true;
     }
 
-    public boolean readNextInto( ByteView view ) {
+    public boolean readNext( ByteRangeCallback readerFunction ) {
         if ( !isReadyToReadNextMessage() ) {
             return false;
         }
@@ -290,7 +290,7 @@ class JournalDataFile {
         throwOnChecksumFailure( currentIndex+PERMSGHEADER_HASHCODE_INDEX, payloadStart, payloadEnd );
 
 
-        view.setBytes( contents, payloadStart, payloadEnd );
+        readerFunction.invoke( contents, payloadStart, payloadEnd );
 
         scrollToNext();
 

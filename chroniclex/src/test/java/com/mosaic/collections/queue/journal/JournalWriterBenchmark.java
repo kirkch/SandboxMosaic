@@ -9,11 +9,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 
 /**
  *
  */
-//@RunWith(JUnitMosaicRunner.class)
+@RunWith(JUnitMosaicRunner.class)
 @SuppressWarnings("UnusedDeclaration")
 public class JournalWriterBenchmark {
 
@@ -73,7 +75,14 @@ public class JournalWriterBenchmark {
     // 38ms per million
     // 35ms after reducing the wrapping
     // 34ms after reducing the wrapping further
+    //  32-34ms when using the ByteRangeCallback and 36-39ms when using BytesView as a flyweight.. )
     //
+    // added readNext, and tweaked readNextInto to use readNext.. the idea being to reduce the wrapping of
+    // of bytes which showed excellent speed boosts with writes.  This actually slowed the reads by 1-3ms
+    // and made them more variable.  Using the newer readNext method performs at about the same speed
+    // as before.  This is okay as I want the performance gain when writing, and for reader to match the interface style.
+
+
     // NB to run, relies on there being data in a journal first... which can be created by commenting
     //   out the deleteAll in the tearDown function before running the writer benchmark.
     @Benchmark( value=3, batchCount=6, durationResultMultiplier=1.0/21, units="per million 24 byte messages" )
@@ -89,9 +98,14 @@ public class JournalWriterBenchmark {
             s += t.getFrom() + t.getTo();
             c++;
         }
+//        AtomicLong ns = new AtomicLong();
+//        while ( reader.readNext( (bytes,offset,maxExc) -> {ns.lazySet( bytes.readLong(offset,maxExc)+bytes.readLong(offset+8,maxExc) );}) ) {
+//            c++;
+//        }
 
         reader.stop();
 
+//        return ns.get();
         return s;
     }
 

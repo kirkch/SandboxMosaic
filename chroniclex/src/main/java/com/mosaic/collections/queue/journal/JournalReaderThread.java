@@ -14,7 +14,6 @@ import com.mosaic.lang.text.UTF8;
 public abstract class JournalReaderThread extends ServiceThread<JournalReaderThread> {
 
     private final JournalReader journal;
-    private final View          bytesView = new View();
 
     private long pollIntervalMillis = 100;
 
@@ -36,10 +35,9 @@ public abstract class JournalReaderThread extends ServiceThread<JournalReaderThr
     }
 
 
+    @SuppressWarnings("StatementWithEmptyBody")
     protected long loop() throws InterruptedException {
-        while ( journal.readNextInto(bytesView) ) {
-            messageReceived( bytesView.bytes, bytesView.base, bytesView.maxExc );
-        }
+        while ( journal.readNext(this::messageReceived) ) {}
 
         return pollIntervalMillis;
     }
