@@ -471,6 +471,12 @@ public class QA {
         }
     }
 
+    public static void argIsLTE( long a, long b, String argName1, String argName2 ) {
+        if ( a > b ) {
+            throwException( "%s (%s) must be <= %s (%s)", argName1, a, argName2, b );
+        }
+    }
+
     public static void argIsLTE( float a, float b, String argName, float tolerance ) {
         if ( a > b-tolerance ) {
             throwException( "%s (%s) must be <= %s", argName, a, b );

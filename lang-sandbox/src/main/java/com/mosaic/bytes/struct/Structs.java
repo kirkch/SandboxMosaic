@@ -16,9 +16,9 @@ import java.util.NoSuchElementException;
  */
 public abstract class Structs<T extends Struct> implements Iterable<T> {
 
-    private final long   offset;
+    private final long  offset;
     private final Bytes bytes;
-    private final long   structSizeBytes;
+    private final long  structSizeBytes;
 
 
     private long allocatedRecordCount;
@@ -48,16 +48,16 @@ public abstract class Structs<T extends Struct> implements Iterable<T> {
         return get( id );
     }
 
-    public T get( long tradeId ) {
+    public T get( long structIndex ) {
         T struct = createBlankStruct();
 
-        getInto( struct, tradeId );
+        getInto( struct, structIndex );
 
         return struct;
     }
 
-    public T getInto( T struct, long tradeId ) {
-        selectInToView( struct, tradeId );
+    public T getInto( T struct, long structIndex ) {
+        selectInToView( struct, structIndex );
 
         return struct;
     }
