@@ -17,6 +17,21 @@ import java.util.Objects;
  */
 @SuppressWarnings("UnusedDeclaration")
 public class QA {
+
+// argIsPowerOf2
+
+    public static void argIsPowerOf2( int v, String argName ) {
+        if ( !MathUtils.isPowerOf2(v) ) {
+            throwException( "'%s' (%s) is not a power of two", v, argName );
+        }
+    }
+
+    public static void argIsPowerOf2( long v, String argName ) {
+        if ( !MathUtils.isPowerOf2(v) ) {
+            throwException( "'%s' (%s) is not a power of two", v, argName );
+        }
+    }
+
 // isNotZero
 
     public static void isNotZero( byte v, String message, Object...args ) {
