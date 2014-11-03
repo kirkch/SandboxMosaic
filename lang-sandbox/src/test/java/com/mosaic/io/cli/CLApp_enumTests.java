@@ -30,7 +30,7 @@ public class CLApp_enumTests {
                 colour = registerEnum( "r", "colour", "specify a colour", ColourEnum.class );
             }
 
-            protected int _run() {
+            protected int run() {
                 throw new RuntimeException( "_run was not expected to have been called" );
             }
         };
@@ -69,7 +69,7 @@ public class CLApp_enumTests {
                 colour = registerEnum( "r", "colour", "specify a colour", ColourEnum.class );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertNull( colour.getValue() );
 
                 return 42;
@@ -90,7 +90,7 @@ public class CLApp_enumTests {
                 colour = registerEnum( "r", "colour", "specify a colour", ColourEnum.class );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( ColourEnum.GREEN, colour.getValue() );
 
                 return 42;
@@ -111,7 +111,7 @@ public class CLApp_enumTests {
                 colour = registerEnum( "r", "colour", "specify a colour", ColourEnum.class );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( ColourEnum.RED, colour.getValue() );
 
                 return 42;
@@ -132,7 +132,7 @@ public class CLApp_enumTests {
                 colour = registerEnum( "r", "colour", "specify a colour", ColourEnum.class );
             }
 
-            protected int _run() {
+            protected int run() {
                 throw new RuntimeException( "_run was not expected to have been called" );
             }
         };
@@ -156,7 +156,7 @@ public class CLApp_enumTests {
                 colour = registerEnum( "r", "colour", "specify a colour", ColourEnum.class, ColourEnum.RED );
             }
 
-            protected int _run() {
+            protected int run() {
                 throw new RuntimeException( "_run was not expected to have been called" );
             }
         };
@@ -196,7 +196,7 @@ public class CLApp_enumTests {
                 colour = registerEnum( "r", "colour", "specify a colour", ColourEnum.class, ColourEnum.BLUE );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( ColourEnum.BLUE, colour.getValue() );
 
                 return 42;

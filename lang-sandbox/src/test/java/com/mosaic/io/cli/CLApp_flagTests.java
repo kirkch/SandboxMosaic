@@ -27,7 +27,7 @@ public class CLApp_flagTests {
                 this.debug = registerFlag( "d", "debug", "Enable debug mode." );
             }
 
-            protected int _run() {
+            protected int run() {
                 fail("should not have been run");
 
                 return -1;
@@ -68,7 +68,7 @@ public class CLApp_flagTests {
                 this.debug = registerFlag( "d", "debug", "enable debug mode" );
             }
 
-            protected int _run() {
+            protected int run() {
                 fail("should not have been run");
 
                 return -1;
@@ -109,7 +109,7 @@ public class CLApp_flagTests {
                 this.debug = registerFlag( "d", "debug", "Enable debug mode." );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertFalse( debug.getValue() );
 
                 return 42;
@@ -130,7 +130,7 @@ public class CLApp_flagTests {
                 this.debug = registerFlag( "d", "debug", "Enable debug mode." );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertTrue( "-d was not supplied", debug.getValue() );
 
                 return 42;
@@ -151,7 +151,7 @@ public class CLApp_flagTests {
                 this.debug = registerFlag( "d", "debug", "Enable debug mode." );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertTrue( "-d was not supplied", debug.getValue() );
 
                 return 42;
@@ -179,7 +179,7 @@ public class CLApp_flagTests {
                 this.flag3 = registerFlag( "k", "flag3", "description 3" );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertTrue( "-a was set but the value did not make it through", flag1.getValue() );
                 assertTrue( "-k was set but the value did not make it through", flag3.getValue() );
                 assertFalse( flag2.getValue() );
@@ -206,7 +206,7 @@ public class CLApp_flagTests {
                 this.flag3 = registerFlag( "k", "flag3", "description 3" );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertTrue( "-a was set but the value did not make it through", flag1.getValue() );
                 assertTrue( "-k was set but the value did not make it through", flag3.getValue() );
                 assertFalse( flag2.getValue() );

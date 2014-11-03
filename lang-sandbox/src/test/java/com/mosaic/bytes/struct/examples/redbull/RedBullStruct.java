@@ -1,5 +1,7 @@
 package com.mosaic.bytes.struct.examples.redbull;
 
+import com.mosaic.bytes.ArrayBytes;
+import com.mosaic.bytes.Bytes;
 import com.mosaic.bytes.struct.Struct;
 
 import static com.mosaic.bytes.struct.examples.redbull.RedBullStructDefinition.*;
@@ -9,6 +11,15 @@ import static com.mosaic.bytes.struct.examples.redbull.RedBullStructDefinition.*
  * Used for testing of FlyWeight.
  */
 public class RedBullStruct extends Struct {
+
+    public static RedBullStruct allocateOnHeap() {
+        RedBullStruct struct = new RedBullStruct();
+
+        Bytes bytes = new ArrayBytes( struct.sizeBytes() );
+        struct.setBytes( bytes, 0, struct.sizeBytes() );
+
+        return struct;
+    }
 
     public RedBullStruct() {
         super( RedBullStructDefinition.structRegistry );

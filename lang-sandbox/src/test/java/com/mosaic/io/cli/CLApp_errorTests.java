@@ -20,7 +20,7 @@ public class CLApp_errorTests {
     @Test
     public void givenAppThatThrowsExceptionWhenRun_runApp_expectError() {
         CLApp app = new CLApp(system) {
-            protected int _run() {
+            protected int run() {
                 throw new RuntimeException( "whoops" );
             }
         };
@@ -44,7 +44,7 @@ public class CLApp_errorTests {
                     this.source = registerOption( "so", "source", "file", "the file to be copied" );
                 }
 
-                protected int _run() {
+                protected int run() {
                     return 1;
                 }
             };
@@ -74,7 +74,7 @@ public class CLApp_errorTests {
                     this.destination = registerOption( "d", "source", "file", "the location to copy the file to" );
                 }
 
-                protected int _run() {
+                protected int run() {
                     return 1;
                 }
             };
@@ -99,7 +99,7 @@ public class CLApp_errorTests {
                     this.destination = registerOption( "s", "destination", "file", "the location to copy the file to" );
                 }
 
-                protected int _run() {
+                protected int run() {
                     return 1;
                 }
             };
@@ -124,7 +124,7 @@ public class CLApp_errorTests {
                     this.flag2 = registerFlag( "b", "flag", "the location to copy the file to" );
                 }
 
-                protected int _run() {
+                protected int run() {
                     return 1;
                 }
             };
@@ -149,7 +149,7 @@ public class CLApp_errorTests {
                     this.flag2 = registerFlag( "a", "auto", "desc2" );
                 }
 
-                protected int _run() {
+                protected int run() {
                     return 1;
                 }
             };
@@ -174,7 +174,7 @@ public class CLApp_errorTests {
                     this.option1 = registerOption( "a", "auto", "file", "desc2" );
                 }
 
-                protected int _run() {
+                protected int run() {
                     return 1;
                 }
             };
@@ -199,7 +199,7 @@ public class CLApp_errorTests {
                     this.option1 = registerOption( "r", "f", "file", "desc2" );
                 }
 
-                protected int _run() {
+                protected int run() {
                     return 1;
                 }
             };
@@ -224,7 +224,7 @@ public class CLApp_errorTests {
                     this.option1 = registerOption( "b", "a", "file", "desc2" );
                 }
 
-                protected int _run() {
+                protected int run() {
                     return 1;
                 }
             };
@@ -249,7 +249,7 @@ public class CLApp_errorTests {
                     this.option1 = registerOption( "b", "flag", "file", "desc2" );
                 }
 
-                protected int _run() {
+                protected int run() {
                     return 1;
                 }
             };
@@ -273,7 +273,7 @@ public class CLApp_errorTests {
                 this.option1 = registerOption( "b", "option", "file", "desc2" );
             }
 
-            protected int _run() {
+            protected int run() {
                 return 0;
             }
         };
@@ -296,7 +296,7 @@ public class CLApp_errorTests {
                 this.option1 = registerOption( "b", "option", "file", "desc2" );
             }
 
-            protected int _run() {
+            protected int run() {
                 return 0;
             }
         };

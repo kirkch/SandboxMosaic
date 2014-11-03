@@ -25,7 +25,7 @@ public class CLAppTest {
     @Test
     public void givenAppWithNoFlagsNoArgsNoDescriptionAndReturnsZeroWhenRun_invoke_expectZero() {
         CLApp app = new CLApp(system) {
-            protected int _run() {
+            protected int run() {
                 return 0;
             }
         };
@@ -38,7 +38,7 @@ public class CLAppTest {
     @Test
     public void givenAppWithNoFlagsNoArgsNoDescriptionAndReturnsOneWhenRun_invoke_expectOne() {
         CLApp app = new CLApp(system) {
-            protected int _run() {
+            protected int run() {
                 return 1;
             }
         };
@@ -51,7 +51,7 @@ public class CLAppTest {
     @Test
     public void givenAppWithNoFlagsNoArgsNoDescriptionAndReturnsOneWhenRun_requestHelp_expectDefaultHelp() {
         CLApp app = new CLApp(system) {
-            protected int _run() {
+            protected int run() {
                 return 1;
             }
         };
@@ -85,7 +85,7 @@ public class CLAppTest {
                 setDescription( "This is a test app.  Enjoy." );
             }
 
-            protected int _run() {
+            protected int run() {
                 return 1;
             }
         };
@@ -129,7 +129,7 @@ public class CLAppTest {
                 this.option1 = registerOption( "o", "option1", "name", "description 2" );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertTrue( "-f was set but the value did not make it through", flag1.getValue() );
                 assertEquals( "-o was set but the value did not make it through", "abc", option1.getValue() );
 
@@ -153,7 +153,7 @@ public class CLAppTest {
                 this.option1 = registerOption( "o", "option1", "name", "description 2" );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertTrue( "-f was set but the value did not make it through", flag1.getValue() );
                 assertEquals( "-o was set but the value did not make it through", "abc", option1.getValue() );
 
@@ -180,7 +180,7 @@ public class CLAppTest {
                 this.arg1    = registerArgument( "arg1", "description 3" );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertTrue( "-f was set but the value did not make it through", flag1.getValue() );
                 assertEquals( "-o was set but the value did not make it through", "abc", option1.getValue() );
                 assertEquals( "arg1 was not supplied", "foo bar", arg1.getValue() );
@@ -208,7 +208,7 @@ public class CLAppTest {
                 this.arg1    = registerArgument( "arg1", "description 3" );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertTrue( "-f was set but the value did not make it through", flag1.getValue() );
                 assertEquals( "-o was set but the value did not make it through", "abc", option1.getValue() );
                 assertEquals( "arg1 was not supplied", "foo bar", arg1.getValue() );
@@ -247,7 +247,7 @@ public class CLAppTest {
             } );
 
 
-            protected int _run() {
+            protected int run() {
                 assertTrue( "chained service should be running", s.invoke().isRunning() );
 
                 return 0;
@@ -270,7 +270,7 @@ public class CLAppTest {
                 wasTearDownInvoked.set( true );
             }
 
-            protected int _run() {
+            protected int run() {
                 return 0;
             }
         };
@@ -290,7 +290,7 @@ public class CLAppTest {
                 wasTearDownInvoked.set( true );
             }
 
-            protected int _run() {
+            protected int run() {
                 return 0;
             }
         };
@@ -310,7 +310,7 @@ public class CLAppTest {
                 wasTearDownInvoked.set( true );
             }
 
-            protected int _run() {
+            protected int run() {
                 throw new RuntimeException( "intended exception" );
             }
         };
@@ -328,7 +328,7 @@ public class CLAppTest {
                 wasTearDownInvoked.set( true );
             }
 
-            protected int _run() {
+            protected int run() {
                 throw new RuntimeException( "intended exception" );
             }
         };
@@ -342,7 +342,7 @@ public class CLAppTest {
         system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
 
         CLApp app = new CLApp(system) {
-            protected int _run() {
+            protected int run() {
                 return 0;
             }
         };
@@ -359,7 +359,7 @@ public class CLAppTest {
         system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
 
         CLApp app = new CLApp(system) {
-            protected int _run() {
+            protected int run() {
                 system.clock.add( Duration.minutes(2) );
 
                 return 0;
@@ -388,7 +388,7 @@ public class CLAppTest {
                 registerArgument( "arg2", "description" );
             }
 
-            protected int _run() {
+            protected int run() {
                 return 0;
             }
         };
@@ -403,7 +403,7 @@ public class CLAppTest {
         system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
 
         CLApp app = new CLApp(system) {
-            protected int _run() {
+            protected int run() {
                 return 0;
             }
         };
@@ -421,7 +421,7 @@ public class CLAppTest {
         system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
 
         CLApp app = new CLApp(system) {
-            protected int _run() {
+            protected int run() {
                 return 0;
             }
         };
@@ -436,7 +436,7 @@ public class CLAppTest {
         system.clock.fixCurrentDTM( new DTM(2020,1,1, 10,0,0) );
 
         CLApp app = new CLApp(system) {
-            protected int _run() {
+            protected int run() {
                 return 0;
             }
         };
@@ -456,7 +456,7 @@ public class CLAppTest {
                 registerOption( "b", "flag2", "flag", "description" );
             }
 
-            protected int _run() {
+            protected int run() {
                 return 0;
             }
         };

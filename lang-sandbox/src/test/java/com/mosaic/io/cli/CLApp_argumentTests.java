@@ -41,7 +41,7 @@ public class CLApp_argumentTests {
                     this.destination = registerArgument( "source", "where to copy the file to" );
                 }
 
-                protected int _run() {
+                protected int run() {
                     return 1;
                 }
             };
@@ -65,7 +65,7 @@ public class CLApp_argumentTests {
                 this.destination = registerArgument( "destination", "where to copy the file to" );
             }
 
-            protected int _run() {
+            protected int run() {
                 return 1;
             }
         };
@@ -108,7 +108,7 @@ public class CLApp_argumentTests {
                 setDescription( "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890" );
             }
 
-            protected int _run() {
+            protected int run() {
                 return 1;
             }
         };
@@ -151,7 +151,7 @@ public class CLApp_argumentTests {
                 this.destination = registerArgument( "destination", "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890" );
             }
 
-            protected int _run() {
+            protected int run() {
                 return 10;
             }
         };
@@ -202,7 +202,7 @@ public class CLApp_argumentTests {
                 this.destination = registerArgument( "destination", "where to copy the file to" );
             }
 
-            protected int _run() {
+            protected int run() {
                 return 0;
             }
         };
@@ -228,7 +228,7 @@ public class CLApp_argumentTests {
                 this.destination = registerArgument( "destination", "where to copy the file to" );
             }
 
-            protected int _run() {
+            protected int run() {
                 return 0;
             }
         };
@@ -254,7 +254,7 @@ public class CLApp_argumentTests {
                 this.destination = registerArgumentOptional( "destination", "where to copy the file to" );
             }
 
-            protected int _run() {
+            protected int run() {
                 return 0;
             }
         };
@@ -301,7 +301,7 @@ public class CLApp_argumentTests {
                 this.destination = registerArgumentOptional( "destination", "Where to copy the file to." );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( "a", source.getValue() );
                 assertEquals( "b", destination.getValue() );
 
@@ -327,7 +327,7 @@ public class CLApp_argumentTests {
                 this.destination = registerArgumentOptional( "destination", "where to copy the file to" );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( "a", source.getValue() );
                 assertNull( destination.getValue() );
 
@@ -353,7 +353,7 @@ public class CLApp_argumentTests {
                 this.destination = registerArgumentOptional( "destination", "where to copy the file to" );
             }
 
-            protected int _run() {
+            protected int run() {
                 throw new AssertionError( "must not be called" );
             }
         };
@@ -378,7 +378,7 @@ public class CLApp_argumentTests {
                     this.source      = registerArgument( "source", "the file to be copied" );
                 }
 
-                protected int _run() {
+                protected int run() {
                     throw new AssertionError( "must not be called" );
                 }
             };
@@ -406,7 +406,7 @@ public class CLApp_argumentTests {
                 this.repeatCount = registerArgument( "repeatCount", "the number of times to repeat the operation", parseIntegerFunc );
             }
 
-            protected int _run() {
+            protected int run() {
                 throw new AssertionError( "must not be called" );
             }
         };
@@ -434,7 +434,7 @@ public class CLApp_argumentTests {
                 this.repeatCount = registerArgument( "repeatCount", "the number of times to repeat the operation", parseIntegerFunc );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( 3, repeatCount.getValue().intValue() );
 
                 return 0;
@@ -458,7 +458,7 @@ public class CLApp_argumentTests {
                 this.directory = registerArgumentOptional( "directory", "The directory to scan." ).withDefaultValue("foo");
             }
 
-            protected int _run() {
+            protected int run() {
                 throw new AssertionError( "must not be called" );
             }
         };
@@ -498,7 +498,7 @@ public class CLApp_argumentTests {
                 this.directory = registerArgumentOptional( "directory", "The directory to scan." ).withDefaultValue("foo");
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( "abc", directory.getValue() );
 
                 return 42;
@@ -519,7 +519,7 @@ public class CLApp_argumentTests {
                 this.directory = registerArgumentOptional( "directory", "The directory to scan." ).withDefaultValue("foo");
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( "foo", directory.getValue() );
 
                 return 42;
@@ -538,7 +538,7 @@ public class CLApp_argumentTests {
         CLApp app = new CLApp(system) {
             public CLArgument<Iterable<FileX>> files = scanForFilesArgument( "directory", "The directory to scan.", ".xml" );
 
-            protected int _run() {
+            protected int run() {
                 List<String> actualFileNames = ListUtils.map( files.getValue(), new Function1<FileX, String>() {
                     public String invoke( FileX f ) {
                         return f.getFileName();
@@ -570,7 +570,7 @@ public class CLApp_argumentTests {
         CLApp app = new CLApp(system) {
             public CLArgument<Iterable<FileX>> files = scanForFilesArgument( "directory", "The directory to scan.", ".xml" );
 
-            protected int _run() {
+            protected int run() {
                 return 42;
             }
         };
@@ -586,7 +586,7 @@ public class CLApp_argumentTests {
         CLApp app = new CLApp(system) {
             public CLArgument<Iterable<FileX>> files = scanForFilesArgument( "directory", "The directory to scan.", ".xml" );
 
-            protected int _run() {
+            protected int run() {
                 List<String> actualFileNames = ListUtils.map( files.getValue(), new Function1<FileX, String>() {
                     public String invoke( FileX f ) {
                         return f.getFileName();
@@ -616,7 +616,7 @@ public class CLApp_argumentTests {
         CLApp app = new CLApp(system) {
             public CLArgument<DirectoryX> dir = getOrCreateDirectoryArgument( "directory", "The directory to scan." );
 
-            protected int _run() {
+            protected int run() {
                 assertEquals("logs", dir.getValue().getDirectoryNameNbl());
                 return 42;
             }
@@ -634,7 +634,7 @@ public class CLApp_argumentTests {
         CLApp app = new CLApp(system) {
             public CLArgument<DirectoryX> dir = getOrCreateDirectoryArgument( "directory", "The directory to scan." );
 
-            protected int _run() {
+            protected int run() {
                 assertEquals("/abc/logs", dir.getValue().getFullPath());
                 return 42;
             }
@@ -653,7 +653,7 @@ public class CLApp_argumentTests {
         CLApp app = new CLApp(system) {
             public CLArgument<DirectoryX> dir = getOrCreateDirectoryArgument( "directory", "The directory to scan." );
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( "logs", dir.getValue().getDirectoryNameNbl() );
                 return 42;
             }

@@ -24,7 +24,7 @@ public class CLApp_configTests {
                 this.maxSize = registerOption( "", "max.size", "size", "desc1" );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( "1024kb", maxSize.getValue() );
 
                 return 42;
@@ -47,7 +47,7 @@ public class CLApp_configTests {
                 this.maxSize = registerOption( "", "max.size", "size", "desc1" );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( "1024kb", maxSize.getValue() );
 
                 return 42;
@@ -70,7 +70,7 @@ public class CLApp_configTests {
                 this.maxSize = registerOption( "", "max.size", "size", "desc1" );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( "1mb", maxSize.getValue() );
 
                 return 42;
@@ -93,7 +93,7 @@ public class CLApp_configTests {
                 this.maxSize = registerOption( "", "max.size", "size", "desc1" );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( "1024kb", maxSize.getValue() );
 
                 return 42;
@@ -116,7 +116,7 @@ public class CLApp_configTests {
                 this.maxSize = registerOption( "", "max.size", "size", "desc1" );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( "1024kb", maxSize.getValue() );
 
                 return 42;
@@ -138,7 +138,7 @@ public class CLApp_configTests {
                 this.maxSize = registerOption( "", "max.size", "size", "desc1" );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( "1024kb", maxSize.getValue() );
 
                 return 42;
@@ -163,7 +163,7 @@ public class CLApp_configTests {
                 this.maxSize = registerOption( "", "max.size", "size", "desc1" );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( "1024kb", maxSize.getValue() );
 
                 return 42;

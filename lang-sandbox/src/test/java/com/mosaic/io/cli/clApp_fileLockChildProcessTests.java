@@ -232,7 +232,7 @@ public class CLApp_fileLockChildProcessTests {
         }
 
 
-        protected int _run() throws Exception {
+        protected int run() throws Exception {
             try {
                 DirectoryX dir = dataDir.getValue();
 
@@ -276,7 +276,7 @@ public class CLApp_fileLockChildProcessTests {
         }
 
 
-        protected int _run() throws Exception {
+        protected int run() throws Exception {
             system.userAudit( "App ran" );
 
             return 0;

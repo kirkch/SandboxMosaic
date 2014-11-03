@@ -100,7 +100,7 @@ public class CLApp_fileLockInMemoryTests {
         }
 
         @Override
-        protected int _run() throws Exception {
+        protected int run() throws Exception {
             system.userAudit( "app is running" );
 
             assertTrue( continuationLatch.await(1, TimeUnit.SECONDS) );

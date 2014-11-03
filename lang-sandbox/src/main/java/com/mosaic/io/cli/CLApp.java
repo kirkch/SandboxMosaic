@@ -61,7 +61,7 @@ public abstract class CLApp {
     }
 
 
-    protected abstract int _run() throws Exception;
+    protected abstract int run() throws Exception;
 
     /**
      * Override if you want to invoke code before the app starts to shutdown the services that it
@@ -163,7 +163,7 @@ public abstract class CLApp {
             if ( dataDirectoryFetcherNbl != null ) {
                 return checkLockFileAndPossiblyRun();
             } else {
-                return _run();
+                return run();
             }
 
 
@@ -238,7 +238,7 @@ public abstract class CLApp {
                 fc.resize( pid.length() );
                 fc.writeUTF8StringUndemarcated( 0, pid.length(), pid );
 
-                return _run();
+                return run();
             } catch ( Exception e ) {
                 Backdoor.throwException( e );
                 return 1; // unreachable ;)

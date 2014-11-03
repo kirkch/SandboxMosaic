@@ -26,7 +26,7 @@ public class CLApp_optionTests {
                 this.output = registerOption( "o", "output", "file", "Specify the output directory." );
             }
 
-            protected int _run() {
+            protected int run() {
                 fail("should not have been run");
 
                 return -1;
@@ -67,7 +67,7 @@ public class CLApp_optionTests {
                 this.output = registerOption( "o", "output", "file", "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789" );
             }
 
-            protected int _run() {
+            protected int run() {
                 fail("should not have been run");
 
                 return -1;
@@ -109,7 +109,7 @@ public class CLApp_optionTests {
                 this.output = registerOption( "o", "output", "file", "Specify the output directory." );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertNull( output.getValue() );
 
                 return -1;
@@ -130,7 +130,7 @@ public class CLApp_optionTests {
                 this.output = registerOption( "o", "output", "file", "Specify the output directory." );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( "foo", output.getValue() );
 
                 return -1;
@@ -151,7 +151,7 @@ public class CLApp_optionTests {
                 this.output = registerOption( "o", "output", "file", "Specify the output directory." );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( "foo bar", output.getValue() );
 
                 return -1;
@@ -186,7 +186,7 @@ public class CLApp_optionTests {
                 );
             }
 
-            protected int _run() {
+            protected int run() {
                 fail("should not have been run");
 
                 return -1;
@@ -238,7 +238,7 @@ public class CLApp_optionTests {
                 );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertNull( output.getValue() );
 
                 return -1;
@@ -270,7 +270,7 @@ public class CLApp_optionTests {
                 );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( 42, output.getValue().intValue() );
 
                 return -1;
@@ -302,7 +302,7 @@ public class CLApp_optionTests {
                 );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( 42, output.getValue().intValue() );
 
                 return -1;
@@ -354,7 +354,7 @@ public class CLApp_optionTests {
                 );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( 113, output.getValue().intValue() );
 
                 return -1;
@@ -386,7 +386,7 @@ public class CLApp_optionTests {
                 );
             }
 
-            protected int _run() {
+            protected int run() {
                 assertEquals( 113, output.getValue().intValue() );
 
                 return -1;
@@ -420,7 +420,7 @@ public class CLApp_optionTests {
                 );
             }
 
-            protected int _run() {
+            protected int run() {
                 fail( "will not be called" );
 
                 return -1;
