@@ -3,7 +3,6 @@ package com.mosaic.bytes.struct;
 import com.mosaic.bytes.Bytes;
 import com.mosaic.bytes.OffHeapBytes;
 import com.mosaic.bytes.struct.examples.trades.Trade;
-import com.mosaic.bytes.struct.examples.trades.Trades;
 import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Benchmark;
 import org.junit.After;
@@ -15,13 +14,13 @@ import org.junit.runner.RunWith;
  *
  */
 @RunWith(JUnitMosaicRunner.class)
-public class StructsBenchmark {
+public class StructsArrayBenchmark {
 
     private static final long NUM_RECORDS = 2*1000*1000;
 
-    private Bytes bytes  = new OffHeapBytes( Trade.SIZE_BYTES * (NUM_RECORDS + 1) );
-    private Trades trades = new Trades( bytes );
-    private Trade  trade  = new Trade();
+    private Bytes           bytes  = new OffHeapBytes( Trade.SIZE_BYTES * (NUM_RECORDS + 1) );
+    private Structs<Trade> trades = new StructsArray<>( bytes, Trade::new );
+    private Trade           trade  = new Trade();
 
 
     @Before
@@ -30,7 +29,7 @@ public class StructsBenchmark {
 
 
         for ( int i = 0; i < NUM_RECORDS; i++ ) {
-            trades.getInto( trade, i );
+            trades.selectInto( trade, i );
 
             trade.setTradeId(i);
             trade.setClientId(1);
@@ -72,7 +71,7 @@ in order off heap
     5.20ms per query
 
     6.95ms per query // after Structs -- most of the cost is in an extra addition; as we have the choice to use or to not
-    6.79ms per query //                  use then this cost is acceptable
+    6.79ms per query //                  use them this cost is acceptable
     7.14ms per query
     6.84ms per query
     7.90ms per query
@@ -85,7 +84,7 @@ in order off heap
 
 
         for (int i = 0; i < NUM_RECORDS; i++) {
-            trades.getInto( trade, i );
+            trades.selectInto( trade, i );
 
             if (trade.getSide() == 'B') {
                 buyCost  += (trade.getPrice() * trade.getQuantity());

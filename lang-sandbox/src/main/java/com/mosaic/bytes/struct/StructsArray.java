@@ -12,15 +12,29 @@ import com.mosaic.lang.system.SystemX;
 import java.util.Comparator;
 import java.util.Iterator;
 
+import static com.mosaic.lang.system.SystemX.SIZEOF_LONG;
+
 
 /**
  * Stores structs closely packaged together.  Resizes the underlying data structure and by allocating
  * a new array and then copying.
  */
-public class StructsArray<T extends ByteView> implements Structs2<T> {
+public class StructsArray<T extends ByteView> implements Structs<T> {
+
+    private static final long HEADER_SIZE = SIZEOF_LONG;
+
+
+    public static long requiredSize( long numRecords, long recordSize ) {
+        return HEADER_SIZE + numRecords*recordSize;
+    }
+
 
     public static <T extends ByteView> StructsArray<T> allocate( long initialCapacity, Function0<T> viewFactory, LongFunction1<Bytes> bytesFactory ) {
-        return new StructsArray<>( initialCapacity, viewFactory, bytesFactory );
+        long  recordSize = viewFactory.invoke().sizeBytes();
+        long  numBytes   = requiredSize( initialCapacity, recordSize );
+        Bytes bytes      = bytesFactory.invoke( numBytes );
+
+        return new StructsArray<T>( bytes, viewFactory );
     }
 
     public static <T extends ByteView> StructsArray<T> allocateOffHeap( long initialCapacity, Function0<T> viewFactory ) {
@@ -33,31 +47,23 @@ public class StructsArray<T extends ByteView> implements Structs2<T> {
 
 
 
-    private final long                 recordSize;
-    private final Function0<T>         viewFactory;
+    private final long         recordSize;
+    private final Function0<T> viewFactory;
 
     private Bytes bytes;
 
 
-    /**
-     *
-     * @param initialCapacity  allocate enough space for this many records before needing to resize again
-     */
-    public StructsArray( long initialCapacity, Function0<T> viewFactory, LongFunction1<Bytes> bytesFactory ) {
-        QA.argIsGTEZero( initialCapacity, "initialCapacity" );
-
+    public StructsArray( Bytes bytes, Function0<T> viewFactory ) {
         this.viewFactory  = viewFactory;
         this.recordSize   = viewFactory.invoke().sizeBytes();
-
-        this.bytes        = bytesFactory.invoke( 8 + recordSize*initialCapacity );
+        this.bytes        = bytes;
     }
-
 
     public long numRecords() {
-        return bytes.readLong(0,8);
+        return bytes.readLong(0, SIZEOF_LONG);
     }
 
-    public void selectInto( long index, T view ) {
+    public void selectInto( T view, long index ) {
         throwIfInvalidIndex( index );
 
         long fromOffset = index2Offset( index );
@@ -68,20 +74,20 @@ public class StructsArray<T extends ByteView> implements Structs2<T> {
     public T select( long index ) {
         T view = viewFactory.invoke();
 
-        selectInto( index, view );
+        selectInto( view, index );
 
         return view;
     }
 
     public long allocateNewRecord() {
-        return allocateNewRecord(1);
+        return allocateNewRecords( 1 );
     }
 
-    public long allocateNewRecord( long numRecords ) {
+    public long allocateNewRecords( long numRecords ) {
         long fromIndex = numRecords();
         long nextIndex = fromIndex+numRecords;
 
-        bytes.writeLong( 0, 8, nextIndex );
+        bytes.writeLong( 0, SIZEOF_LONG, nextIndex );
 
         long maxOffsetExc = index2Offset(nextIndex);
         if ( bytes.sizeBytes() < maxOffsetExc ) {
@@ -105,15 +111,14 @@ public class StructsArray<T extends ByteView> implements Structs2<T> {
         T view1 = viewFactory.invoke();
         T view2 = viewFactory.invoke();
 
-
         QuickSortAlgorithm<StructsArray<T>,T> sorter = new QuickSortAlgorithm<>(
             comparator,
             (structs,i) -> {
-                structs.selectInto( i, view1 );
+                structs.selectInto( view1, i );
                 return view1;
             },
             (structs,i) -> {
-                structs.selectInto( i, view2 );
+                structs.selectInto( view2, i );
                 return view2;
             },
             (structs,l,r) -> structs.swapRecords(tmpBuffer,l,r),
@@ -162,7 +167,7 @@ public class StructsArray<T extends ByteView> implements Structs2<T> {
             QA.isLTE( index, numRecords(), "structIndex", "allocatedRecordCount" );
         }
 
-        return 8 + index*recordSize;
+        return requiredSize(index, recordSize);
     }
 
     private void throwIfInvalidIndex( long index ) {

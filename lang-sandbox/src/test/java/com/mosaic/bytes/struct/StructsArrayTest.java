@@ -1,5 +1,7 @@
 package com.mosaic.bytes.struct;
 
+import com.mosaic.bytes.ArrayBytes;
+import com.mosaic.bytes.Bytes;
 import com.mosaic.bytes.struct.examples.redbull.RedBullStruct;
 import com.mosaic.utils.ComparatorUtils;
 import org.junit.Test;
@@ -9,7 +11,7 @@ import static org.junit.Assert.*;
 
 public class StructsArrayTest {
 
-    private Structs2<RedBullStruct> structs = StructsArray.allocateOnHeap( 6, RedBullStruct::new );
+    private Structs<RedBullStruct> structs = StructsArray.allocateOnHeap( 6, RedBullStruct::new );
 
 
 
@@ -112,7 +114,7 @@ public class StructsArrayTest {
 
 
         RedBullStruct bull2 = new RedBullStruct();
-        structs.selectInto( 0, bull2 );
+        structs.selectInto( bull2, 0 );
 
         assertEquals( 42, bull2.getAge() );
         assertEquals( true, bull2.getHasWings() );
@@ -141,7 +143,7 @@ public class StructsArrayTest {
 
     @Test
     public void givenStructsWithTwoElement_callNumRecords_expectTwo() {
-        structs.allocateNewRecord(2);
+        structs.allocateNewRecords( 2 );
 
         assertEquals( 2, structs.numRecords() );
     }
@@ -214,7 +216,7 @@ public class StructsArrayTest {
 
         structs.clearAll();
 
-        structs.allocateNewRecord( 2 );
+        structs.allocateNewRecords( 2 );
         assertBullIsClear( 0 );
     }
 
@@ -299,11 +301,26 @@ public class StructsArrayTest {
     }
 
 
+// PERSISTENCE
+
+    @Test
+    public void allocateRecords_reuseBytesInAnotherInstance_expectRecordsToRemain() {
+        Bytes bytes = new ArrayBytes( StructsArray.requiredSize(10, RedBullStruct.SIZE_BYTES) );
+        structs = new StructsArray<>( bytes, RedBullStruct::new );
+
+        allocateBulls(2);
+
+
+        structs = new StructsArray<>( bytes, RedBullStruct::new );
+
+        assertBull( 0, new RedBullStruct() );
+        assertBull( 1, new RedBullStruct() );
+    }
 
 
 
     private void allocateBulls( int numBulls ) {
-        long firstIndex = structs.allocateNewRecord( numBulls );
+        long firstIndex = structs.allocateNewRecords( numBulls );
 
         for ( long i=firstIndex; i<firstIndex+numBulls; i++ ) {
             allocateBull(i);
@@ -341,7 +358,7 @@ public class StructsArrayTest {
     }
 
     private void assertBull( long i, int expectedAge, boolean expectedHasWings, float expectedWeight, RedBullStruct bull ) {
-        structs.selectInto( i, bull );
+        structs.selectInto( bull, i );
 
         assertEquals( expectedAge, bull.getAge() );
         assertEquals( expectedHasWings, bull.getHasWings() );

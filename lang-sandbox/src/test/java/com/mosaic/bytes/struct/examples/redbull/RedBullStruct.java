@@ -12,6 +12,9 @@ import static com.mosaic.bytes.struct.examples.redbull.RedBullStructDefinition.*
  */
 public class RedBullStruct extends Struct {
 
+    public static final long SIZE_BYTES = RedBullStructDefinition.structRegistry.sizeBytes();
+
+
     public static RedBullStruct allocateOnHeap() {
         RedBullStruct struct = new RedBullStruct();
 
