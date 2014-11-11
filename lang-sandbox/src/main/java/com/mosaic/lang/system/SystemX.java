@@ -565,6 +565,10 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
         opsLog.setEnabled( flag );
     }
 
+    public static int getCoreCount() {
+        return Math.max( 1, Runtime.getRuntime().availableProcessors()/2 );  // assumes hyper threading is turned on
+    }
+
     private class TimerThread extends ServiceThread<TimerThread> {
         // the larger this value, the more jobs can miss their scheduled time.  On the whole,
         // the timing should be fairly accurate.  However there is no interrupt implemented

@@ -20,7 +20,10 @@ import java.util.concurrent.RecursiveAction;
  *
  * Once an instance of ForkJoinTask has been created, just call execute() to fork it off and wait
  * for it to complete.
+ *
+ * @Deprecated replaced by ThreadPool
  */
+@Deprecated
 public abstract class ForkJoinTask extends RecursiveAction implements Cloneable {
 
     private long from;
