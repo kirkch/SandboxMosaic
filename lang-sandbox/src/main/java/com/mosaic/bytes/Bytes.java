@@ -134,4 +134,9 @@ public interface Bytes {
 
     public byte[] toArray();
 
+
+    public default void clear() {
+        this.fill( 0, this.sizeBytes(), (byte) 0 );
+    }
+
 }
