@@ -139,4 +139,8 @@ public interface Bytes {
         this.fill( 0, this.sizeBytes(), (byte) 0 );
     }
 
+    public default void clear( long from, long toExc) {
+        this.fill( from, toExc, (byte) 0 );
+    }
+
 }
