@@ -408,12 +408,21 @@ public class Backdoor {
 
     public static int toInt( long v ) {
         QA.argIsLTE( v, Integer.MAX_VALUE, "v" );
+        QA.argIsGTE( v, Integer.MIN_VALUE, "v" );
 
         return (int) v;
     }
 
+    public static short toShort( int v ) {
+        QA.argIsLTE( v, Short.MAX_VALUE, "v" );
+        QA.argIsGTE( v, Short.MIN_VALUE, "v" );
+
+        return (short) v;
+    }
+
     public static byte toByte( int v ) {
         QA.argIsLTE( v, Byte.MAX_VALUE, "v" );
+        QA.argIsGTE( v, Byte.MIN_VALUE, "v" );
 
         return (byte) v;
     }
