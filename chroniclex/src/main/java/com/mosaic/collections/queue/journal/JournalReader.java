@@ -47,7 +47,9 @@ public class JournalReader extends StartStopMixin<JournalReader> implements Byte
     }
 
     public boolean readNext( ByteRangeCallback readerFunction ) {
-        if ( dataFile.readNext(readerFunction) ) {
+        if ( dataFile == null ) {
+            return false;
+        } else if ( dataFile.readNext(readerFunction) ) {
             return true;
         } else if ( dataFile.hasReachedEOFMarker() ) { // roll over to the next data file
             long nextFileSeq = dataFile.getFileSeq() + 1;

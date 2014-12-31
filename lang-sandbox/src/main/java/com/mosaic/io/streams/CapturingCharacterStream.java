@@ -8,15 +8,19 @@ import com.mosaic.lang.text.UTF8;
 import com.mosaic.utils.MathUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
 /**
  * Captures the information written to a List of Strings.  Useful for tests.
  */
+@SuppressWarnings("unchecked")
 public class CapturingCharacterStream implements CharacterStream {
 
-    public List<String> audit = new ArrayList<>();
+    public  List<String>       audit  = new ArrayList<>();
+    public  List<List<String>> audits = new ArrayList<>();
+
 
     private final StringBuilder buf = new StringBuilder();
 
@@ -27,8 +31,9 @@ public class CapturingCharacterStream implements CharacterStream {
         this( new ArrayList<>() );
     }
 
-    public CapturingCharacterStream( List<String> audit ) {
-        this.audit = audit;
+    public CapturingCharacterStream( List<String>...audits ) {
+        this.audit  = audits[0];
+        this.audits = Arrays.asList(audits);
     }
 
 
@@ -284,20 +289,26 @@ public class CapturingCharacterStream implements CharacterStream {
 
     public void newLine() {
         if ( isEnabled ) {
-            audit.add( formatLine( buf.toString() ) );
-
-            buf.setLength( 0 );
+            appendBufferToAudits();
         }
     }
 
     public void flush() {
         if ( isEnabled ) {
             if ( buf.length() > 0 ) {
-                audit.add( formatLine( buf.toString() ) );
-
-                buf.setLength( 0 );
+                appendBufferToAudits();
             }
         }
+    }
+
+    private void appendBufferToAudits() {
+        String v = formatLine( buf.toString() );
+
+        for ( List<String> log : audits ) {
+            log.add( v );
+        }
+
+        buf.setLength( 0 );
     }
 
     protected String formatLine( String s ) {

@@ -7,6 +7,7 @@ import com.mosaic.columnstore.DoubleColumn;
 /**
  *
  */
+@SuppressWarnings("unchecked")
 public abstract class BaseDoubleColumn implements DoubleColumn {
 
     public void prePopulateColumn( final DoubleColumn destinationColumn ) {

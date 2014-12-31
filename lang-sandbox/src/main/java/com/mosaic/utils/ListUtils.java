@@ -95,18 +95,16 @@ public class ListUtils {
         return results;
     }
 
-    public static <T> List<T> filter( List<T> list, Function1<T,Boolean> predicate ) {
-        if ( list != null && list.isEmpty() ) {
+    public static <T> List<T> filterOutAll( List<T> list, Function1<T, Boolean> removeIfTrue ) {
+        if ( list == null || list.isEmpty() ) {
             return list;
         }
 
-        List<T> results = new ArrayList<T>( list.size() );
+        List<T> results = new ArrayList<>( list.size() );
 
-        if ( list != null ) {
-            for ( T v : list ) {
-                if ( predicate.invoke(v) ) {
-                    results.add(v);
-                }
+        for ( T v : list ) {
+            if ( !removeIfTrue.invoke(v) ) {
+                results.add(v);
             }
         }
 

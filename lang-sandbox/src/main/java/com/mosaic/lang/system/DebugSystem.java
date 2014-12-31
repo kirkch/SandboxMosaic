@@ -25,7 +25,7 @@ import java.util.Vector;
 /**
  *
  */
-@SuppressWarnings("UnusedDeclaration")
+@SuppressWarnings({"UnusedDeclaration","unchecked"})
 public class DebugSystem extends SystemX {
     private static final String DEV   = "DEV";
     private static final String OPS   = "OPS";
@@ -46,6 +46,7 @@ public class DebugSystem extends SystemX {
             new Vector<>(),
             new Vector<>(),
             new Vector<>(),
+            new Vector<>(),
             System.nanoTime()
         );
     }
@@ -57,6 +58,8 @@ public class DebugSystem extends SystemX {
      * [LEVEL nanosFromStart]: message
      */
     public final List<String> logOutput;
+
+    public final List<String> allOutput;
 
     public final List<String> standardOutText;
     public final List<String> standardErrorText;
@@ -81,6 +84,7 @@ public class DebugSystem extends SystemX {
             new Vector<>(),
             new Vector<>(),
             new Vector<>(),
+            new Vector<>(),
             System.nanoTime()
         );
     }
@@ -90,6 +94,7 @@ public class DebugSystem extends SystemX {
         String             systemName,
         FileSystemX        system,
         SystemClock        clock,
+        List<String>       allOutput,
         List<String>       stdOutText,
         List<String>       stdErrorText,
         List<String>       logOutput,
@@ -99,15 +104,16 @@ public class DebugSystem extends SystemX {
             systemName,
             system,
             clock,
-            new CapturingCharacterStream( stdOutText ),
-            new CapturingCharacterStream( stdErrorText ),
-            new CapturingLogCharacterStream(DEV, logOutput, startTime),
-            new CapturingLogCharacterStream(OPS, logOutput, startTime),
-            new CapturingLogCharacterStream(USER, logOutput, startTime),
-            new CapturingLogCharacterStream(WARN, logOutput, startTime),
-            new CapturingLogCharacterStream(FATAL, logOutput, startTime)
+            new CapturingCharacterStream( stdOutText, allOutput ),
+            new CapturingCharacterStream( stdErrorText, allOutput ),
+            new CapturingLogCharacterStream(DEV, startTime, logOutput, allOutput),
+            new CapturingLogCharacterStream(OPS, startTime, logOutput, allOutput),
+            new CapturingLogCharacterStream(USER, startTime, logOutput, allOutput),
+            new CapturingLogCharacterStream(WARN, startTime, logOutput, allOutput),
+            new CapturingLogCharacterStream(FATAL, startTime, logOutput, allOutput)
         );
 
+        this.allOutput         = allOutput;
         this.standardOutText   = stdOutText;
         this.standardErrorText = stdErrorText;
         this.logOutput         = logOutput;
@@ -282,7 +288,7 @@ public class DebugSystem extends SystemX {
     }
 
     public void dumpLog() {
-        for ( String line : logOutput ) {
+        for ( String line : allOutput ) {
             System.out.println( line );
         }
     }
@@ -310,8 +316,8 @@ public class DebugSystem extends SystemX {
 
         private long startTimeNanos;
 
-        public CapturingLogCharacterStream( String logLevel, List<String> auditText, long startTimeNanos ) {
-            super(auditText);
+        public CapturingLogCharacterStream( String logLevel, long startTimeNanos, List<String>...audits) {
+            super(audits);
 
             this.logLevel       = logLevel;
             this.startTimeNanos = startTimeNanos;

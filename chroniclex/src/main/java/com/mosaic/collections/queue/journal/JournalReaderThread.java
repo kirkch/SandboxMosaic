@@ -39,12 +39,15 @@ public abstract class JournalReaderThread extends ServiceThread<JournalReaderThr
     protected long loop() throws InterruptedException {
         while ( journal.readNext(this::messageReceived) ) {}
 
+        sendIdleNotification();
+
         return pollIntervalMillis;
     }
 
 
     protected abstract void messageReceived( Bytes bytes, long offset, long maxExc );
 
+    protected void sendIdleNotification() {}
 
     protected long sizeOfUTF8String( UTF8 str ) {
         return JournalWriter.sizeOfUTF8String( str );
