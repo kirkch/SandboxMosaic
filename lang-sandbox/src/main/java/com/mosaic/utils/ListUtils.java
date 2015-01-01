@@ -96,8 +96,8 @@ public class ListUtils {
     }
 
     public static <T> List<T> filterOutAll( List<T> list, Function1<T, Boolean> removeIfTrue ) {
-        if ( list == null || list.isEmpty() ) {
-            return list;
+        if ( list == null ) {  // list may or may not be mutable; so do not return it even if empty in-case it changes later
+            return null;
         }
 
         List<T> results = new ArrayList<>( list.size() );
