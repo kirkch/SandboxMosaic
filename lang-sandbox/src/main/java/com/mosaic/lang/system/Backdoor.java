@@ -59,6 +59,8 @@ public class Backdoor {
     }
 
     public static <T> T throwException( Throwable ex ) {
+        QA.argNotNull( ex, "ex" );
+
         unsafe.throwException( ex );
 
         // returns null so that callers can write 'return Backdoor.throwException(ex)'
