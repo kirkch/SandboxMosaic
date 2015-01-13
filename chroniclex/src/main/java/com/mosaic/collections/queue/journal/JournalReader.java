@@ -1,8 +1,8 @@
 package com.mosaic.collections.queue.journal;
 
-import com.mosaic.bytes.ByteRangeCallback;
-import com.mosaic.bytes.ByteView;
+import com.mosaic.collections.queue.ByteQueueCallback;
 import com.mosaic.collections.queue.ByteQueueReader;
+import com.mosaic.collections.queue.JournalByteView;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.StartStopMixin;
@@ -46,7 +46,7 @@ public class JournalReader extends StartStopMixin<JournalReader> implements Byte
         return dataFile.seekTo( messageSeq );
     }
 
-    public boolean readNext( ByteRangeCallback readerFunction ) {
+    public boolean readNext( ByteQueueCallback readerFunction ) {
         if ( dataFile == null ) {
             return false;
         } else if ( dataFile.readNext(readerFunction) ) {
@@ -64,7 +64,7 @@ public class JournalReader extends StartStopMixin<JournalReader> implements Byte
         }
     }
 
-    public <T extends ByteView> boolean readNextInto( T view ) {
+    public <T extends JournalByteView> boolean readNextInto( T view ) {
         return readNext( view::setBytes );
     }
 

@@ -1,6 +1,6 @@
 package com.mosaic.collections.queue.journal;
 
-import com.mosaic.bytes.ByteRangeCallback;
+import com.mosaic.collections.queue.ByteQueueCallback;
 import com.mosaic.bytes.ByteView;
 import com.mosaic.bytes.Bytes;
 import com.mosaic.bytes.BytesWrapper;
@@ -77,7 +77,7 @@ public class JournalWriter extends StartStopMixin<JournalWriter> implements Byte
      * This method is approximately 10ms faster than its brothers per millions invocations.  That is
      * approximately 30% faster.
      */
-    public void writeMessage( int messageSizeBytes, ByteRangeCallback writerFunction ) {
+    public void writeMessage( int messageSizeBytes, ByteQueueCallback writerFunction ) {
         this.currentDataFile = this.currentDataFile.selectDataFileToWriteNextMessage( messageSizeBytes );
 
         currentDataFile.writeMessage( messageSizeBytes, writerFunction );

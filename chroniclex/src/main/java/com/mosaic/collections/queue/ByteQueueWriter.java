@@ -1,7 +1,6 @@
 package com.mosaic.collections.queue;
 
 
-import com.mosaic.bytes.ByteRangeCallback;
 import com.mosaic.bytes.ByteView;
 import com.mosaic.bytes.Bytes;
 import com.mosaic.lang.functional.VoidFunction1;
@@ -69,6 +68,6 @@ public interface ByteQueueWriter {
      */
     public void writeMessage( int messageSizeBytes, VoidFunction1<Bytes> writerFunction );
 
-    public void writeMessage( int messageSizeBytes, ByteRangeCallback writerFunction );
+    public void writeMessage( int messageSizeBytes, ByteQueueCallback writerFunction );
 
 }

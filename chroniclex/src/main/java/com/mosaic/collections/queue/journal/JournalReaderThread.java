@@ -45,7 +45,7 @@ public abstract class JournalReaderThread extends ServiceThread<JournalReaderThr
     }
 
 
-    protected abstract void messageReceived( Bytes bytes, long offset, long maxExc );
+    protected abstract void messageReceived( long msgSeq, Bytes bytes, long offset, long maxExc );
 
     protected void sendIdleNotification() {}
 

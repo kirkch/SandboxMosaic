@@ -1,6 +1,6 @@
 package com.mosaic.collections.queue.journal;
 
-import com.mosaic.bytes.ByteRangeCallback;
+import com.mosaic.collections.queue.ByteQueueCallback;
 import com.mosaic.bytes.ByteView;
 import com.mosaic.io.CheckSumException;
 import com.mosaic.io.filesystemx.DirectoryX;
@@ -222,7 +222,7 @@ class JournalDataFile {
         currentIndex = currentToExc;
     }
 
-    public void writeMessage( int messageSizeBytes, ByteRangeCallback writerFunction ) {
+    public void writeMessage( int messageSizeBytes, ByteQueueCallback writerFunction ) {
         QA.isEqualTo( currentIndex, currentToExc, "currentIndex", "currentToExc" );
 
         long payloadIndex = currentIndex  + PERMSGHEADER_SIZE;
@@ -230,7 +230,7 @@ class JournalDataFile {
 
         contents.writeInt( currentIndex + PERMSGHEADER_PAYLOADSIZE_INDEX, currentToExc, messageSizeBytes );
 
-        writerFunction.invoke( contents, payloadIndex, currentToExc );
+        writerFunction.invoke( currentMessageSeq, contents, payloadIndex, currentToExc );
 
         complete( currentMessageSeq );
     }
@@ -278,7 +278,7 @@ class JournalDataFile {
         return true;
     }
 
-    public boolean readNext( ByteRangeCallback readerFunction ) {
+    public boolean readNext( ByteQueueCallback readerFunction ) {
         if ( !isReadyToReadNextMessage() ) {
             return false;
         }
@@ -290,7 +290,7 @@ class JournalDataFile {
         throwOnChecksumFailure( currentIndex+PERMSGHEADER_HASHCODE_INDEX, payloadStart, payloadEnd );
 
 
-        readerFunction.invoke( contents, payloadStart, payloadEnd );
+        readerFunction.invoke( currentMessageSeq, contents, payloadStart, payloadEnd );
 
         scrollToNext();
 

@@ -1,13 +1,13 @@
 package com.mosaic.collections.queue.journal;
 
-import com.mosaic.bytes.ByteView;
+import com.mosaic.collections.queue.JournalByteView;
 
 
 /**
  *
  */
 
-public class Transaction extends ByteView {
+public class Transaction extends JournalByteView {
     static final long FROM_INDEX  = 0;
     static final long TO_INDEX    = 8;
     static final long AMT_INDEX   = 16;
