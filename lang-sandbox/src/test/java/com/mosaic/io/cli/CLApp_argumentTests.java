@@ -664,4 +664,95 @@ public class CLApp_argumentTests {
         system.assertNoAlerts();
     }
 
+
+// registerOptionLong
+
+    @Test
+    public void registerOptionLong_givenNoValue_expectDefaultDefaultToBeNull() {
+        CLApp app = new CLApp(system) {
+            public CLOption<Long> from = registerOptionLong( "f", "from", "fromSeq", "The directory to scan." );
+
+            protected int run() {
+                assertNull(from.getValue());
+                return 42;
+            }
+        };
+
+        assertEquals( 42, app.runApp() );
+
+        system.assertNoAlerts();
+    }
+
+    @Test
+    public void registerOptionLong_givenValue_expectValueToBeReturned() {
+        CLApp app = new CLApp(system) {
+            public CLOption<Long> from = registerOptionLong( "f", "from", "fromSeq", "The directory to scan." );
+
+            protected int run() {
+                assertEquals( 2025L, from.getValue().longValue() );
+                return 42;
+            }
+        };
+
+        assertEquals( 42, app.runApp("-f", "2025") );
+
+        system.assertNoAlerts();
+    }
+
+    @Test
+    public void registerOptionLongWithDefault_givenNoValue_expectDefaultToBeReturned() {
+        CLApp app = new CLApp(system) {
+            public CLOption<Long> from = registerOptionLong( "f", "from", "fromSeq", "The directory to scan.", 10L );
+
+            protected int run() {
+                assertEquals( 10L, from.getValue().longValue() );
+                return 42;
+            }
+        };
+
+        assertEquals( 42, app.runApp() );
+
+        system.assertNoAlerts();
+    }
+
+    @Test
+    public void registerOptionLongWithNoShortName_givenNoValue_expectDefaultToBeReturned() {
+        CLApp app = new CLApp(system) {
+            public CLOption<Long> from = registerOptionLong( null, "from", "fromSeq", "The directory to scan.", 10L );
+
+            protected int run() {
+                assertEquals(10L, from.getValue().longValue());
+                return 42;
+            }
+        };
+
+        assertEquals( 0, app.runApp("--help") );
+
+
+        system.assertStandardOutEquals(
+            "",
+            "Usage: " + app.getClass().getName(),
+            "",
+            "Options:",
+            "",
+            "    --from=<fromSeq>",
+            "        The directory to scan.  Defaults to 10.",
+            "",
+            "    -c <file>, --config=<file>",
+            "        Any command line option may be included within a properties file and",
+            "        specified here.",
+            "",
+            "    -?, --help",
+            "        Display this usage information.",
+            "",
+            "    -v, --verbose",
+            "        Include operational context in logging suitable for Ops. To enable full",
+            "        developer debugging output then pass -ea to the JVM.",
+            ""
+        );
+
+        system.assertNoAlerts();
+    }
+
+
 }

@@ -489,6 +489,26 @@ public abstract class CLApp {
         return registerOption( option );
     }
 
+    protected CLOption<Long> registerOptionLong( String shortName, String longName, String argName, String description ) {
+        return registerOptionLong( shortName, longName, argName, description, null );
+    }
+
+    protected CLOption<Long> registerOptionLong( String shortName, String longName, String argName, String description, Long initialValue ) {
+        Function1<String,Long> argParser = new Function1<String, Long>() {
+            public Long invoke( String arg ) {
+                if ( StringUtils.isBlank(arg) ) {
+                    return null;
+                } else {
+                    return Long.parseLong( arg );
+                }
+            }
+        };
+
+        CLOption<Long> option = CLOption.createOption( shortName, longName, argName, description, initialValue, argParser );
+
+        return registerOption( option );
+    }
+
     protected <T> CLOption<T> registerOption( String shortName, String longName, String argName, String description, T initialValue, Function1<String,T> valueParser ) {
         CLOption<T> option = CLOption.createOption( shortName, longName, argName, description, initialValue, valueParser );
 
@@ -519,7 +539,7 @@ public abstract class CLApp {
         options.add( opt );
         allParameters.add( opt );
 
-        if ( shortName.length() > 0 ) {
+        if ( !StringUtils.isBlank(shortName) ) {
             optionNames.add( shortName );
         }
 
@@ -565,7 +585,7 @@ public abstract class CLApp {
 
 
     private void throwIfInvalidShortName( String shortName ) {
-        if ( shortName.length() > 1 ) {
+        if ( shortName != null && shortName.length() > 1 ) {
             throw new IllegalArgumentException( "'"+shortName+"' is not a valid short name, short names can only be one character long" );
         }
     }
@@ -593,7 +613,7 @@ public abstract class CLApp {
                 throw new IllegalArgumentException( "'"+newName+"' has been declared twice" );
             }
 
-            if ( option.getShortName().equals(newName) ) {
+            if ( option.getShortName() != null && option.getShortName().equals(newName) ) {
                 throw new IllegalArgumentException( "'"+newName+"' has been declared twice" );
             }
         }
