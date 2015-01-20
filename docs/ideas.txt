@@ -1,0 +1,36 @@
+
+
+
+journal
+
+  append only queue
+  alloc heap
+  b-tree index
+
+
+other
+
+  map
+  sorted linked list (useful for free lists)
+
+
+HEAP
+====
+
+
+insert only heap
+------------
+
+||ver endPtr numEntries reserved||len data||
+
+
+mutable heap
+--------
+
+allocate in multiples of n (wastes some space per entry, but makes moving entries about easier).
+  ...  works best when all entries are of the same size
+
+meta:      ||ver numEntries endPtr||
+index:     ||heapPtr||
+freelist:
+heap:      ||len data||

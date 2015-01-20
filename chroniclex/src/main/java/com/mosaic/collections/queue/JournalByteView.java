@@ -24,7 +24,7 @@ public abstract class JournalByteView extends ByteView {
         super.setBytes( bytes, base, maxExc );
     }
 
-    public long getFeedSeq() {
+    public long getMessageSeq() {
         return msgSeq;
     }
 

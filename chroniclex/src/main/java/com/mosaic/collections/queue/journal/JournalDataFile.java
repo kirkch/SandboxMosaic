@@ -68,14 +68,33 @@ class JournalDataFile {
         }
     }
 
+    public static JournalDataFile selectFile( DirectoryX dataDirectory, String serviceName, long perFileSizeBytes ) {
+        List<FileX> dataFiles = dataDirectory.files( f -> f.getFileName().startsWith(serviceName) && f.getFileName().endsWith(".data") );
+
+        int fileSeq;
+        if ( dataFiles.isEmpty() ) {
+            fileSeq = 0;
+        } else {
+            dataFiles.sort( new DataFileNameComparator( serviceName ) );
+
+            FileX tailFile = dataFiles.get( dataFiles.size() - 1 );
+
+            fileSeq = DataFileNameComparator.extractFileSeq( tailFile, serviceName );
+        }
+
+        return new JournalDataFile( dataDirectory, serviceName, fileSeq, perFileSizeBytes, FileModeEnum.READ_WRITE );
+    }
+
 
     public static JournalDataFile openAtRO( DirectoryX dataDirectory, String journalName, long targetMessageSeq ) {
         List<FileX> dataFiles = dataDirectory.files( f -> f.getFileName().startsWith(journalName) && f.getFileName().endsWith(".data") );
 
         if ( dataFiles.isEmpty() ) {
+            // no journal found, auto create it
             String fileName = journalName + "0.data";
 
-            throw new JournalNotFoundException( dataDirectory.getFullPath()+"/"+fileName );
+            FileX firstFile = dataDirectory.getOrCreateFile( fileName );
+            dataFiles.add( firstFile );
         }
 
         dataFiles.sort( new DataFileNameComparator( journalName ) );
@@ -169,6 +188,14 @@ class JournalDataFile {
     }
 
 
+    /**
+     * Returns the seq number of the position that this data file is currently pointing at.  It will
+     * be the seq of the next message written to or read.  Thus when opening a brand new journal, then
+     * this method will return zero.
+     */
+    public long getCurrentMessageSeq() {
+        return currentMessageSeq;
+    }
 
 // WRITER FUNCTIONS
 

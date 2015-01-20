@@ -9,7 +9,7 @@ import com.mosaic.lang.StartStopMixin;
 
 
 /**
- *
+ * Reader for journal data files created using JournalWriter.
  */
 public class JournalReader extends StartStopMixin<JournalReader> implements ByteQueueReader {
     private final DirectoryX      dataDirectory;
@@ -18,6 +18,11 @@ public class JournalReader extends StartStopMixin<JournalReader> implements Byte
     private       JournalDataFile dataFile;
 
 
+    /**
+     * Opens the journal at the first message.  Usually this will be the message with seq zero,
+     * however if the first file has been archived then it will be the first message of the next
+     * file.  If no data files exist, then the first data file will be created empty.
+     */
     public JournalReader( DirectoryX dataDirectory, String serviceName ) {
         this( dataDirectory, serviceName, 0 );
     }
