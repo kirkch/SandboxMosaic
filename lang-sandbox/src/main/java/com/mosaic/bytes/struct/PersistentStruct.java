@@ -26,7 +26,7 @@ public class PersistentStruct<T extends StartStoppable<T>> extends StartStopMixi
     }
 
     public void sync() {
-        fileBytes.sync();
+        fileBytes.flush();
     }
 
     protected void doStart() throws Exception {

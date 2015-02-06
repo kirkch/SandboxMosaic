@@ -1,5 +1,6 @@
-package com.mosaic.bytes;
+package com.mosaic.bytes2.impl;
 
+import com.mosaic.bytes2.Bytes2;
 import com.mosaic.io.RuntimeIOException;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.lang.QA;
@@ -18,15 +19,15 @@ import java.nio.channels.FileChannel;
 /**
  *
  */
-public class MemoryMappedBytes extends NativeBytes {
+public class MemoryMappedBytes2 extends NativeBytes2 {
 
-    public static Bytes mapFile( File f, FileModeEnum mode ) {
+    public static Bytes2 mapFile( File f, FileModeEnum mode ) {
         long size = Math.max( f.length(), 1 );  // if the file does not exist, use a default size.. 0  was not suitable for native buffers
 
         return mapFile( f, mode, size );
     }
 
-    public static Bytes mapFile( File f, FileModeEnum mode, long numBytes ) {
+    public static Bytes2 mapFile( File f, FileModeEnum mode, long numBytes ) {
         QA.argIsGTZero( numBytes, "numBytes" );
 
         try {
@@ -37,7 +38,7 @@ public class MemoryMappedBytes extends NativeBytes {
             DirectBuffer db = (DirectBuffer) buf;
             long addr = db.address();
 
-            return new MemoryMappedBytes( raf, mode, db, addr, addr + buf.capacity() );
+            return new MemoryMappedBytes2( raf, mode, db, addr, addr + buf.capacity() );
         } catch ( FileNotFoundException ex ) {
             throw new RuntimeIOException( "File not found, and cannot create it on a RO request.  Change the call to RW and try again. " + f );
         } catch ( IOException ex ) {
@@ -51,7 +52,7 @@ public class MemoryMappedBytes extends NativeBytes {
     private DirectBuffer     buf;
 
 
-    private MemoryMappedBytes( RandomAccessFile raf, FileModeEnum mode, DirectBuffer buf, long baseAddress, long maxAddressExc ) {
+    private MemoryMappedBytes2( RandomAccessFile raf, FileModeEnum mode, DirectBuffer buf, long baseAddress, long maxAddressExc ) {
         super( baseAddress, maxAddressExc );
 
         this.raf  = raf;

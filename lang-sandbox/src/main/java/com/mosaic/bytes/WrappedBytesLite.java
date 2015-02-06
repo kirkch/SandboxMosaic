@@ -34,8 +34,8 @@ public class WrappedBytesLite implements Bytes {
         delegate.resize(newLength);
     }
 
-    public void sync() {
-        delegate.sync();
+    public void flush() {
+        delegate.flush();
     }
 
     public void fill( long from, long toExc, byte v ) {
@@ -200,6 +200,10 @@ public class WrappedBytesLite implements Bytes {
 
     public int writeBytes( long offset, long maxExc, long fromAddressBase, long fromAddressInc, long fromAddressExc ) {
         return delegate.writeBytes( offset, maxExc, fromAddressBase, fromAddressInc, fromAddressExc );
+    }
+
+    public boolean compareBytes( long offset, long maxExc, byte[] targetBytes ) {
+        return delegate.compareBytes( offset, maxExc, targetBytes );
     }
 
     public byte[] toArray() {

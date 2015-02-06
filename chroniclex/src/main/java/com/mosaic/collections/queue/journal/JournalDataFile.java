@@ -200,7 +200,7 @@ class JournalDataFile {
 // WRITER FUNCTIONS
 
     public void sync() {
-        contents.sync();
+        contents.flush();
     }
 
     public JournalDataFile selectDataFileToWriteNextMessage( int messageSizeBytes ) {

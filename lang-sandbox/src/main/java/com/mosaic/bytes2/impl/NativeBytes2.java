@@ -1,5 +1,6 @@
-package com.mosaic.bytes;
+package com.mosaic.bytes2.impl;
 
+import com.mosaic.bytes2.Bytes2;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
@@ -12,9 +13,9 @@ import static com.mosaic.lang.system.SystemX.*;
 /**
  *
  */
-abstract class NativeBytes extends BaseBytes {
+abstract class NativeBytes2 extends BaseBytes2 {
 
-    protected NativeBytes( long base, long maxExc ) {
+    protected NativeBytes2( long base, long maxExc ) {
         super( base, maxExc );
     }
 
@@ -167,11 +168,11 @@ abstract class NativeBytes extends BaseBytes {
         return UTF8Tools.write( toAddress, base+maxExc, c );
     }
 
-    public int readBytes( long offset, long maxExc, Bytes destination, long destinationInc, long destinationExc ) {
+    public int readBytes( long offset, long maxExc, Bytes2 destination, long destinationInc, long destinationExc ) {
         return destination.writeBytes( destinationInc, destinationExc, base, offset, maxExc );
     }
 
-    public int writeBytes( long offset, long maxExc, Bytes sourceBytes, long sourceInc, long sourceExc ) {
+    public int writeBytes( long offset, long maxExc, Bytes2 sourceBytes, long sourceInc, long sourceExc ) {
         return sourceBytes.readBytes( sourceInc, sourceExc, base, offset, maxExc );
     }
 

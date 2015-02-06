@@ -34,3 +34,50 @@ meta:      ||ver numEntries endPtr||
 index:     ||heapPtr||
 freelist:
 heap:      ||len data||
+
+
+
+    public void selectIntoBySeq( ByteView view, long seq ) {
+
+    }
+
+
+    public ByteViewIterator iterator() {
+        return iterateFrom(0L);
+    }
+
+    public ByteViewIterator iterateFrom( long fromSeqInc ) {
+        return new ByteViewIterator() {
+            public boolean next() {
+                return false;
+            }
+
+            public boolean selectCurrentInto( ByteView view ) {
+                return false;
+            }
+
+            public long getCurrentSeq() {
+                return 0;
+            }
+        };
+    }
+
+
+
+
+Bytes
+------
+
+Bytes
+   - OffHeapBytes
+   - ArrayBytes
+   - NIOBufferBytes
+   - BytesView(Bytes, from, toExc)
+   - AggregateBytes
+
+   - FileMappedBytes     <--- collapse down to reuseOffHeapBytes.. would need a callback mechanism
+   - AutoResizingBytes   <-- do not provide; inherently high latency
+
+FieldRegistery
+   - works to Bytes
+

@@ -1,4 +1,4 @@
-package com.mosaic.bytes;
+package com.mosaic.bytes2;
 
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.text.DecodedCharacter;
@@ -17,18 +17,18 @@ import static org.junit.Assert.*;
 
 
 @SuppressWarnings("unchecked")
-public abstract class BaseBytesTest {
+public abstract class BaseBytesTest2 {
 
     private long         activeAllocCountBeforeTestStarted;
-    private List<Bytes> allocatedBytes = new ArrayList();
+    private List<Bytes2> allocatedBytes = new ArrayList();
 
 
-    protected abstract Bytes _createBytes( long numBytes ) throws IOException;
+    protected abstract Bytes2 _createBytes( long numBytes ) throws IOException;
 
 
-    protected Bytes createBytes( long numBytes ) {
+    protected Bytes2 createBytes( long numBytes ) {
         try {
-            Bytes b = _createBytes( numBytes );
+            Bytes2 b = _createBytes( numBytes );
 
             allocatedBytes.add( b );
 
@@ -45,7 +45,7 @@ public abstract class BaseBytesTest {
 
     @After
     public void tearDown() {
-        for ( Bytes b : allocatedBytes ) {
+        for ( Bytes2 b : allocatedBytes ) {
             b.release();
         }
 
@@ -78,7 +78,7 @@ public abstract class BaseBytesTest {
 
     @Test
     public void allocateBytes2_callSize_expectLengthToMatchRequestedNumberOfBytes2() {
-        Bytes b = createBytes( 5 );
+        Bytes2 b = createBytes( 5 );
 
         assertEquals( 5, b.sizeBytes() );
     }
@@ -87,7 +87,7 @@ public abstract class BaseBytesTest {
     public void writeOneOfEachTypeAndReadBack() {
         long size = 100;
 
-        Bytes b = createBytes( size );
+        Bytes2 b = createBytes( size );
 
         b.writeByte( 0, size, (byte) 1 );
         b.writeCharacter( 1, size, (char) 2 );
@@ -109,7 +109,7 @@ public abstract class BaseBytesTest {
 
     @Test
     public void writeByte_ensureThatItCanBeReadBackAndThatNoOtherByteIsChangedUnintentionally() {
-        Bytes b = initBytes();
+        Bytes2 b = initBytes();
 
         b.writeByte( 5, 100, Byte.MAX_VALUE );
 
@@ -120,7 +120,7 @@ public abstract class BaseBytesTest {
 
     @Test
     public void writeCharacter_ensureThatItCanBeReadBackAndThatNoOtherByteIsChangedUnintentionally() {
-        Bytes b = initBytes();
+        Bytes2 b = initBytes();
 
         b.writeCharacter( 5, 100, Character.MAX_VALUE );
 
@@ -131,7 +131,7 @@ public abstract class BaseBytesTest {
 
     @Test
     public void writeShort_ensureThatItCanBeReadBackAndThatNoOtherByteIsChangedUnintentionally() {
-        Bytes b = initBytes();
+        Bytes2 b = initBytes();
 
         b.writeShort( 5, 100, Short.MAX_VALUE );
 
@@ -142,7 +142,7 @@ public abstract class BaseBytesTest {
 
     @Test
     public void writeInt_ensureThatItCanBeReadBackAndThatNoOtherByteIsChangedUnintentionally() {
-        Bytes b = initBytes();
+        Bytes2 b = initBytes();
 
         b.writeInt( 5, 100, Integer.MAX_VALUE );
 
@@ -153,7 +153,7 @@ public abstract class BaseBytesTest {
 
     @Test
     public void writeLong_ensureThatItCanBeReadBackAndThatNoOtherByteIsChangedUnintentionally() {
-        Bytes b = initBytes();
+        Bytes2 b = initBytes();
 
         b.writeLong( 5, 100, Long.MAX_VALUE );
 
@@ -164,7 +164,7 @@ public abstract class BaseBytesTest {
 
     @Test
     public void writeFloat_ensureThatItCanBeReadBackAndThatNoOtherByteIsChangedUnintentionally() {
-        Bytes b = initBytes();
+        Bytes2 b = initBytes();
 
         b.writeFloat( 5, 100, Float.MAX_VALUE );
 
@@ -175,7 +175,7 @@ public abstract class BaseBytesTest {
 
     @Test
     public void writeDouble_ensureThatItCanBeReadBackAndThatNoOtherByteIsChangedUnintentionally() {
-        Bytes b = initBytes();
+        Bytes2 b = initBytes();
 
         b.writeDouble( 5, 100, Double.MAX_VALUE );
 
@@ -188,7 +188,7 @@ public abstract class BaseBytesTest {
 
     @Test
     public void writeUTF8CharSingleByte_thenReadItBack() {
-        Bytes b   = initBytes();
+        Bytes2 b   = initBytes();
         DecodedCharacter buf = new DecodedCharacter();
 
         assertEquals( 1, b.writeUTF8Character(3, 100, 'e') );
@@ -204,7 +204,7 @@ public abstract class BaseBytesTest {
 
     @Test
     public void writeStringAsUTF8_thenReadItBack() {
-        Bytes b   = initBytes();
+        Bytes2 b   = initBytes();
         StringBuilder buf = new StringBuilder();
 
 
@@ -222,7 +222,7 @@ public abstract class BaseBytesTest {
 
     @Test
     public void writeUTF8String_thenReadItBack() {
-        Bytes b   = initBytes();
+        Bytes2 b   = initBytes();
         StringBuilder buf = new StringBuilder();
 
 
@@ -240,7 +240,7 @@ public abstract class BaseBytesTest {
 
     @Test
     public void writeUTF8StringVariableByteLengths_thenReadItBack() {
-        Bytes b   = initBytes();
+        Bytes2 b   = initBytes();
         StringBuilder buf = new StringBuilder();
 
 
@@ -257,7 +257,7 @@ public abstract class BaseBytesTest {
 
     @Test
     public void writeAllBytes2FromAnArrayAndReadyBack() {
-        Bytes b = initBytes();
+        Bytes2 b = initBytes();
 
 
         b.writeBytes( 2, 100, new byte[]{'a', 'b', 'c'} );
@@ -278,11 +278,11 @@ public abstract class BaseBytesTest {
 
     @Test
     public void writeBytes2FromOneBytes2ClassToAnother() {
-        Bytes source = initBytes();
+        Bytes2 source = initBytes();
         source.writeBytes( 0, 100, new byte[]{'a', 'b', 'c'} );
 
 
-        Bytes sink = initBytes();
+        Bytes2 sink = initBytes();
         sink.writeBytes(2, 100, source, 0, 3);
 
 
@@ -295,11 +295,11 @@ public abstract class BaseBytesTest {
 
     @Test
     public void writeBytes2PositionalFromOneBytes2ClassToAnother() {
-        Bytes source = initBytes();
+        Bytes2 source = initBytes();
         source.writeBytes( 0, 100, new byte[]{'a', 'b', 'c'} );
 
 
-        Bytes sink = initBytes();
+        Bytes2 sink = initBytes();
         sink.writeBytes(3, 100,source);
 
 
@@ -315,7 +315,7 @@ public abstract class BaseBytesTest {
 
     @Test
     public void increaseSizeOfBytes2_expectContentsToBeCopiedOver() {
-        Bytes b = initBytes();
+        Bytes2 b = initBytes();
 
         b.fill( 0, b.sizeBytes(), (byte) 7 );
 
@@ -330,7 +330,7 @@ public abstract class BaseBytesTest {
 
     @Test
     public void reduceSizeOfBytes2_expectContentsToBeTruncated() {
-        Bytes b = initBytes();
+        Bytes2 b = initBytes();
 
         b.fill( 0, b.sizeBytes(), (byte) 7 );
 
@@ -348,14 +348,14 @@ public abstract class BaseBytesTest {
 
     @Test
     public void givenEmptyBytes_compareBytesToBlankArray_expectTrue() {
-        Bytes b = initBytes();
+        Bytes2 b = initBytes();
 
         assertTrue( b.compareBytes(0, 100, new byte[10]) );
     }
 
     @Test
     public void givenBytesContainingABC_compareBytesToBlankArray_expectFalse() {
-        Bytes b = initBytes();
+        Bytes2 b = initBytes();
 
         b.writeBytes( 0, 10, "abc".getBytes() );
 
@@ -364,7 +364,7 @@ public abstract class BaseBytesTest {
 
     @Test
     public void givenBytesContainingABC_compareBytesToArrayContainingABC_expectTrue() {
-        Bytes b = initBytes();
+        Bytes2 b = initBytes();
 
         b.writeBytes( 0, 10, "abc".getBytes() );
 
@@ -373,7 +373,7 @@ public abstract class BaseBytesTest {
 
     @Test
     public void givenBytesContainingABC_compareBytesToArrayContainingBCStartingFrom1_expectTrue() {
-        Bytes b = initBytes();
+        Bytes2 b = initBytes();
 
         b.writeBytes( 0, 10, "abc".getBytes() );
 
@@ -382,7 +382,7 @@ public abstract class BaseBytesTest {
 
     @Test
     public void givenBytesContainingABC_compareBytesToArrayContainingBCStartingFrom2_expectFalse() {
-        Bytes b = initBytes();
+        Bytes2 b = initBytes();
 
         b.writeBytes( 0, 10, "abc".getBytes() );
 
@@ -430,8 +430,8 @@ public abstract class BaseBytesTest {
 
 
 
-    private Bytes initBytes() {
-        Bytes b = createBytes( 100 );
+    private Bytes2 initBytes() {
+        Bytes2 b = createBytes( 100 );
 
         b.fill(0, b.sizeBytes(), (byte) 0);
         assertAllBytes2AreZero( b, 0, b.sizeBytes() );
@@ -440,7 +440,7 @@ public abstract class BaseBytesTest {
     }
 
 
-    private void assertAllBytes2AreZero( Bytes b, long from, long toExc ) {
+    private void assertAllBytes2AreZero( Bytes2 b, long from, long toExc ) {
         for ( long i=from; i<toExc; i++ ) {
             assertEquals( 0, b.readByte(i, b.sizeBytes()) );
         }

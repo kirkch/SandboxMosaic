@@ -463,4 +463,28 @@ public class Backdoor {
 
         return (int) v;
     }
+
+    public static boolean compareBytes( long offset, byte[] targetBytes ) {
+        for ( int i=0; i<targetBytes.length; i++ ) {
+            byte actual = getByte( offset+i );
+
+            if ( actual != targetBytes[i] ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean compareBytes( byte[] sourceArray, int fromIndex, byte[] targetBytes ) {
+        for ( int i=0; i<targetBytes.length; i++ ) {
+            byte actual = sourceArray[fromIndex+i];
+
+            if ( actual != targetBytes[i] ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

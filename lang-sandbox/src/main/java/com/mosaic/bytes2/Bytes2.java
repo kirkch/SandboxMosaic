@@ -1,4 +1,4 @@
-package com.mosaic.bytes;
+package com.mosaic.bytes2;
 
 import com.mosaic.lang.text.DecodedCharacter;
 import com.mosaic.lang.text.UTF8;
@@ -9,7 +9,7 @@ import java.io.InputStream;
 /**
  *
  */
-public interface Bytes {
+public interface Bytes2 {
 
     public void release();
     public long sizeBytes();
@@ -102,11 +102,11 @@ public interface Bytes {
     public int readBytes( long offset, long maxExc, byte[] destinationArray );
     public int writeBytes( long offset, long maxExc, byte[] sourceBytes );
 
-    public int readBytes( long offset, long maxExc, Bytes destination );
-    public int writeBytes( long offset, long maxExc, Bytes sourceBytes );
+    public int readBytes( long offset, long maxExc, Bytes2 destination );
+    public int writeBytes( long offset, long maxExc, Bytes2 sourceBytes );
 
-    public int readBytes( long offset, long maxExc, Bytes destination, long destinationInc, long destinationExc );
-    public int writeBytes( long offset, long maxExc, Bytes sourceBytes, long sourceInc, long sourceExc );
+    public int readBytes( long offset, long maxExc, Bytes2 destination, long destinationInc, long destinationExc );
+    public int writeBytes( long offset, long maxExc, Bytes2 sourceBytes, long sourceInc, long sourceExc );
 
     /**
      * Copies as many bytes that are specified into the supplied
@@ -146,5 +146,10 @@ public interface Bytes {
         this.fill( from, toExc, (byte) 0 );
     }
 
+
+
+    public default Bytes2 narrow( long from, long toExc ) {
+        return new BytesView2( this, from, toExc );
+    }
 
 }

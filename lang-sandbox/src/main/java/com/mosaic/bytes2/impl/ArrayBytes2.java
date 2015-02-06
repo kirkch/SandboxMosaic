@@ -1,5 +1,6 @@
-package com.mosaic.bytes;
+package com.mosaic.bytes2.impl;
 
+import com.mosaic.bytes2.Bytes2;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
@@ -13,26 +14,26 @@ import static com.mosaic.lang.system.SystemX.*;
 /**
  *
  */
-public class ArrayBytes extends BaseBytes {
+public class ArrayBytes2 extends BaseBytes2 {
 
     private byte[] array;
 
 
-    public ArrayBytes( String s ) {
+    public ArrayBytes2( String s ) {
         this( s.getBytes(SystemX.UTF8) );
     }
 
-    public ArrayBytes( long numBytes ) {
+    public ArrayBytes2( long numBytes ) {
         this( new byte[(int) numBytes] );
 
         QA.argIsBetween( 0, numBytes, Integer.MAX_VALUE, "numBytes" );
     }
 
-    public ArrayBytes( byte[] array ) {
+    public ArrayBytes2( byte[] array ) {
         this( array, 0, array.length );
     }
 
-    public ArrayBytes( byte[] array, int offset, int maxExc ) {
+    public ArrayBytes2( byte[] array, int offset, int maxExc ) {
         super( offset, maxExc );
 
         QA.argNotNull( array, "array" );
@@ -179,7 +180,7 @@ public class ArrayBytes extends BaseBytes {
 
         return Backdoor.getUnsignedIntegerFrom( array, i );
     }
-//96 Lynn road (up the chase)
+    //96 Lynn road (up the chase)
     public void writeUnsignedInt( long offset, long maxExc, long v ) {
         long i = index( offset, maxExc, SIZEOF_INT );
 
@@ -208,11 +209,11 @@ public class ArrayBytes extends BaseBytes {
         return numBytesUsed;
     }
 
-    public int readBytes( long offset, long maxExc, Bytes destination, long destinationInc, long destinationExc ) {
+    public int readBytes( long offset, long maxExc, Bytes2 destination, long destinationInc, long destinationExc ) {
         return destination.writeBytes( destinationInc, destinationExc, array, offset, maxExc );
     }
 
-    public int writeBytes( long offset, long maxExc, Bytes sourceBytes, long sourceInc, long sourceExc ) {
+    public int writeBytes( long offset, long maxExc, Bytes2 sourceBytes, long sourceInc, long sourceExc ) {
         return sourceBytes.readBytes( sourceInc, sourceExc, array, offset, maxExc );
     }
 

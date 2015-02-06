@@ -37,4 +37,8 @@ public abstract class ByteView {
         this.bytes.readBytes( base, maxExc, toBytes, toOffset, toMax );
     }
 
+    public void flush() {
+        bytes.flush();
+    }
+
 }

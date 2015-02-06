@@ -257,4 +257,8 @@ public class ChronicleBytesAdapter extends BaseBytes {
 
         return toInt( len );
     }
+
+    public boolean compareBytes( long offset, long maxExc, byte[] targetBytes ) {
+        throw new UnsupportedOperationException( "this file is scheduled for deletion" );
+    }
 }

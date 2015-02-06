@@ -16,7 +16,7 @@ import com.mosaic.lang.system.SystemX;
 public class Struct extends ByteView {
 
     // Why use Struct at all?  Why not use Bytes directly.  Using Bytes directly is perfectly valid.
-    // The time to consider using Struct in preference to Bytes in circumstances where the storage
+    // The time to consider using Struct in preference to Bytes, is in circumstances where the storage
     // of bytes, base and maxExc elsewhere becomes either inconvenient or costly (in terms of memory
     // usage).
 
@@ -196,7 +196,7 @@ public class Struct extends ByteView {
     }
 
     public void sync() {
-        bytes.sync();
+        bytes.flush();
     }
     
     

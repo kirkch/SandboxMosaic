@@ -1,7 +1,6 @@
-package com.mosaic.bytes;
+package com.mosaic.bytes2;
 
 import com.mosaic.lang.QA;
-import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.text.DecodedCharacter;
 import com.mosaic.lang.text.UTF8;
@@ -13,21 +12,21 @@ import java.io.InputStream;
  * Base class for wrapping and enhancing bytes.  Built in support for narrowing the view
  * on the wrapped bytes, and utility for detecting RW and RO calls.
  */
-public class BytesWrapper extends ByteView implements Bytes {
+public class BytesView2 implements Bytes2 {
+
+    protected Bytes2 bytes;
+    protected long   base;
+    protected long   maxExc;
 
 
-    public BytesWrapper() {}
+    public BytesView2() {}
 
-    public BytesWrapper( Bytes bytes ) {
+    public BytesView2( Bytes2 bytes ) {
         this( bytes, 0, bytes.sizeBytes() );
     }
 
-    public BytesWrapper( Bytes bytes, long offset, long maxExc ) {
-        this.base = offset;
-        this.maxExc = maxExc;
-        QA.notNull( bytes, "bytes" );
-
-        this.bytes = bytes;
+    public BytesView2( Bytes2 bytes, long offset, long maxExc ) {
+        setBytes( bytes, offset, maxExc );
     }
 
 
@@ -42,6 +41,22 @@ public class BytesWrapper extends ByteView implements Bytes {
      * the time this method will be blank, and it will get removed by Hotspot, thus no overhead.
      */
     protected void touchRO( long offset, long maxExc, long size ) {}
+
+
+    /**
+     * Points this view at a new location.
+     *
+     * @param bytes The shared instance of Bytes.
+     * @param base The base address that this entry starts at.
+     * @param maxExc The max address-1 that may safely be written to/read from.
+     */
+    public void setBytes( Bytes2 bytes, long base, long maxExc ) {
+        QA.notNull( bytes, "bytes" );
+
+        this.bytes  = bytes;
+        this.base   = base;
+        this.maxExc = maxExc;
+    }
 
 
     public void release() {
@@ -387,7 +402,7 @@ public class BytesWrapper extends ByteView implements Bytes {
         return bytes.writeBytes( f, t, sourceBytes );
     }
 
-    public int readBytes( long offset, long maxExc, Bytes destination ) {
+    public int readBytes( long offset, long maxExc, Bytes2 destination ) {
         touchRO( offset, maxExc, maxExc-offset );
 
         long f = base+offset;
@@ -397,7 +412,7 @@ public class BytesWrapper extends ByteView implements Bytes {
         return bytes.readBytes( f, t, destination );
     }
 
-    public int writeBytes( long offset, long maxExc, Bytes sourceBytes ) {
+    public int writeBytes( long offset, long maxExc, Bytes2 sourceBytes ) {
         touchRW( offset, maxExc, maxExc-offset );
 
         long f = base+offset;
@@ -407,7 +422,7 @@ public class BytesWrapper extends ByteView implements Bytes {
         return bytes.writeBytes( f, t, sourceBytes );
     }
 
-    public int readBytes( long offset, long maxExc, Bytes destination, long destinationInc, long destinationExc ) {
+    public int readBytes( long offset, long maxExc, Bytes2 destination, long destinationInc, long destinationExc ) {
         touchRO( offset, maxExc, maxExc-offset );
 
         long f = base+offset;
@@ -417,7 +432,7 @@ public class BytesWrapper extends ByteView implements Bytes {
         return bytes.readBytes( f, t, destination, destinationInc, destinationExc );
     }
 
-    public int writeBytes( long offset, long maxExc, Bytes sourceBytes, long sourceInc, long sourceExc ) {
+    public int writeBytes( long offset, long maxExc, Bytes2 sourceBytes, long sourceInc, long sourceExc ) {
         touchRW( offset, maxExc, maxExc-offset );
 
         long f = base+offset;
