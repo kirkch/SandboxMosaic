@@ -42,6 +42,9 @@ public interface FileX {
     public FileContents openFile( FileModeEnum mode );
     public FileContents openFile( FileModeEnum mode, long sizeInBytes );
 
+    public FileContents2 openFile2( FileModeEnum mode );
+    public FileContents2 openFile2( FileModeEnum mode, long sizeInBytes );
+
     public default <T> T processFile( Function1<FileContents,T> action, FileModeEnum fileModeEnum ) {
         FileContents f = openFile( fileModeEnum );
 

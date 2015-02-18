@@ -148,7 +148,7 @@ public class StartStopMixinTest {
         public FakeService( String serviceName, Object...dependsOn ) {
             super(serviceName);
 
-            serviceDependsUpon( dependsOn );
+            appendDependency( dependsOn );
         }
 
 

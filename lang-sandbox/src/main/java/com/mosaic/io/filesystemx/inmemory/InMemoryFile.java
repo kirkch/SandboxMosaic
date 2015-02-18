@@ -2,9 +2,11 @@ package com.mosaic.io.filesystemx.inmemory;
 
 import com.mosaic.bytes.ArrayBytes;
 import com.mosaic.bytes.Bytes;
-import com.mosaic.bytes.BytesWrapper;
-import com.mosaic.bytes.WrappedBytesLite;
+import com.mosaic.bytes2.Bytes2;
+import com.mosaic.bytes2.impl.ArrayBytes2;
+import com.mosaic.bytes2.impl.Bytes1ToBytes2Adapter;
 import com.mosaic.io.filesystemx.FileContents;
+import com.mosaic.io.filesystemx.FileContents2;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
@@ -19,6 +21,7 @@ public class InMemoryFile implements FileX {
     private InMemoryDirectory  parentDirectory;
     private String             fileName;
     private Bytes              bytes;
+    private Bytes2             bytes2;
 
     private boolean            hasBeenDeletedFlag;
 
@@ -31,10 +34,14 @@ public class InMemoryFile implements FileX {
 
 
     InMemoryFile( InMemoryFileSystem fileSystem, InMemoryDirectory parentDirectory, String fileName, int size ) {
-        this( fileSystem, parentDirectory, fileName, new ArrayBytes(size) );
+        this( fileSystem, parentDirectory, fileName, new byte[size] );
     }
 
-    InMemoryFile( InMemoryFileSystem fileSystem, InMemoryDirectory parentDirectory, String fileName, Bytes bytes ) {
+    private InMemoryFile( InMemoryFileSystem fileSystem, InMemoryDirectory parentDirectory, String fileName, byte[] bytes ) {
+        this( fileSystem, parentDirectory, fileName, new ArrayBytes(bytes), new ArrayBytes2(bytes) );
+    }
+
+    private InMemoryFile( InMemoryFileSystem fileSystem, InMemoryDirectory parentDirectory, String fileName, Bytes bytes, Bytes2 bytes2 ) {
         QA.argNotNull( fileSystem, "fileSystem" );
         QA.argNotNull( parentDirectory, "parentDirectory" );
         QA.argNotBlank( fileName, "fileName" );
@@ -44,6 +51,7 @@ public class InMemoryFile implements FileX {
         this.parentDirectory = parentDirectory;
         this.fileName        = fileName;
         this.bytes           = bytes;
+        this.bytes2          = bytes2;
     }
 
     public String getFileName() {
@@ -64,6 +72,26 @@ public class InMemoryFile implements FileX {
         bytes.resize( sizeInBytes );
 
         return openFile( mode );
+    }
+
+
+
+    public FileContents2 openFile2( FileModeEnum mode ) {
+        throwIfDeleted();
+
+        fileSystem.incrementOpenFileCount();
+
+        return new InMemoryFileContents2(bytes2);
+    }
+
+    public FileContents2 openFile2( FileModeEnum mode, long sizeInBytes ) {
+        throwIfDeleted();
+
+        bytes.resize( sizeInBytes );
+
+        fileSystem.incrementOpenFileCount();
+
+        return new InMemoryFileContents2(bytes2);
     }
 
     public long sizeInBytes() {
@@ -140,12 +168,48 @@ public class InMemoryFile implements FileX {
 
     void setBytes( Bytes newBytes ) {
         this.bytes = newBytes;
+        this.bytes2 = new Bytes1ToBytes2Adapter( newBytes );
     }
 
     private boolean isLocked;
-    private class InMemoryFileContents extends FileContents {
 
+
+    private class InMemoryFileContents extends FileContents {
         public InMemoryFileContents( Bytes delegate ) {
+            super( delegate );
+        }
+
+        public void release() {
+            fileSystem.decrementOpenFileCount();
+        }
+
+        public boolean lockFile() {
+            if ( isLocked ) {
+                return false;
+            } else {
+                isLocked = true;
+
+                return true;
+            }
+        }
+
+        public boolean isLocked() {
+            return isLocked;
+        }
+
+        public boolean unlockFile() {
+            if ( isLocked ) {
+                isLocked = false;
+
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    private class InMemoryFileContents2 extends FileContents2 {
+        public InMemoryFileContents2( Bytes2 delegate ) {
             super( delegate );
         }
 

@@ -45,10 +45,10 @@ public class ByteFieldsRegistry2 extends Lockable<ByteFieldsRegistry2> {
     private boolean isLocked;
 
 
-    private long numBytesAssignedSoFar = 0;
+    private int numBytesAssignedSoFar = 0;
 
 
-    public long sizeBytes() {
+    public int sizeBytes() {
         return numBytesAssignedSoFar;
     }
 

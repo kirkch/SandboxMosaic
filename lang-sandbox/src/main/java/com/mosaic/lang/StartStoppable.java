@@ -29,6 +29,6 @@ public interface StartStoppable<T extends StartStoppable<T>> {
      * specified objects.  That is if the specified object is an instance
      * of StartStoppable.
      */
-    public T serviceDependsUpon( Object... others );
+    public T appendDependency( Object... others );
 
 }

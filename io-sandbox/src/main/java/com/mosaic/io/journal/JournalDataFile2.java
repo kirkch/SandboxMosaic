@@ -1,0 +1,190 @@
+package com.mosaic.io.journal;
+
+import com.mosaic.bytes.ByteView;
+import com.mosaic.bytes2.BytesView2;
+import com.mosaic.io.filesystemx.DirectoryX;
+import com.mosaic.io.filesystemx.FileContents;
+import com.mosaic.io.filesystemx.FileContents2;
+import com.mosaic.io.filesystemx.FileModeEnum;
+import com.mosaic.io.filesystemx.FileX;
+import com.mosaic.lang.QA;
+import com.mosaic.lang.system.Backdoor;
+
+import java.util.Comparator;
+
+
+/**
+ * Internal file used by JournalReader2 and JournalWriter2.
+ */
+class JournalDataFile2 {
+
+
+    // Data file format:
+    // | version:ushort | startFromMsgSeq:long | (payloadLength:int,payloadHashCode:int, payload:byte[])* |
+
+//    reader stops when payloadLength is read as zero
+//    payloadLength of -1 means that the data file has come to an end, and that there will be another data file to roll over to.
+
+//    NB at 100 million messages/sec, a long would take over 299 years to overflow
+//     thus we can conclude that using a long for msgCountSoFar will be sufficient
+
+
+    /**
+     * declares the version of the spec used to define the files layout
+     */
+    public static final long FILEHEADER_JOURNALVERSION_INDEX   =  0;
+
+    /**
+     * how many messages have preceded this point from other files
+     */
+    public static final long FILEHEADER_STARTSFROMMSGSEQ_INDEX =  2;
+    public static final long FILEHEADER_SIZE                   = 10;
+
+    public static final long PER_MSGHEADER_PAYLOADSIZE_INDEX   =  0;
+    public static final long PER_MSGHEADER_HASHCODE_INDEX      =  4;
+    public static final long PER_MSGHEADER_SIZE                =  8;
+
+    public static final long PER_MSGHEADER_PAYLOADSIZE_SIZE    =  4;
+    public static final long PER_MSGHEADER_HASH_SIZE           =  4;
+
+
+
+
+
+
+    private final DirectoryX   dataDirectory;
+    private final String       journalName;
+    private final int          fileSeq;
+    private final long         perFileSizeBytes;
+    private final FileModeEnum fileMode;
+
+
+    private FileX         file;
+    private FileContents2 contents;
+    private long          fileSize;
+
+    private long          currentIndex;
+    private long          currentToExc;
+    private long          currentMessageSeq;
+
+
+
+    public JournalDataFile2( DirectoryX dataDirectory, String journalName, int fileSeq, long perFileSizeBytes, FileModeEnum readWrite ) {
+        this.dataDirectory    = dataDirectory;
+        this.journalName      = journalName;
+        this.fileSeq          = fileSeq;
+        this.perFileSizeBytes = perFileSizeBytes;
+        this.fileMode         = readWrite;
+    }
+
+
+
+    public JournalDataFile2 open() {
+        QA.isNull( contents, "contents" );
+
+
+        this.file           = fetchFile();
+        long targetFileSize = Math.max( perFileSizeBytes, file.sizeInBytes() );
+        this.contents       = file.openFile2( fileMode, targetFileSize );
+
+        fileSize = targetFileSize;
+
+        seekToBeginningOfFile();
+
+        return this;
+    }
+
+    public void seekToEnd() {
+        while ( isReadyToReadNextMessage() && !hasReachedEOFMarker() ) {   // reached the end of the journal
+            int i = contents.readInt( currentIndex + PER_MSGHEADER_PAYLOADSIZE_INDEX, fileSize );
+            QA.isNotZero( i, "i" );
+
+
+            currentIndex += PER_MSGHEADER_SIZE + i;
+            currentMessageSeq++;
+        }
+
+        currentToExc = currentIndex;
+    }
+
+    public boolean hasReachedEOFMarker() {
+        long i   = currentIndex + PER_MSGHEADER_PAYLOADSIZE_INDEX;
+        int  len = contents.readInt( i, fileSize );
+
+        return len == -1;
+    }
+    
+    public void close() {
+        if ( contents != null ) {
+            contents.release();
+
+            contents = null;
+            file     = null;
+        }
+    }
+
+
+
+    private void seekToBeginningOfFile() {
+        this.currentIndex      = FILEHEADER_SIZE;
+        this.currentToExc      = currentIndex;
+        this.currentMessageSeq = contents.readLong( FILEHEADER_STARTSFROMMSGSEQ_INDEX, FILEHEADER_SIZE );
+    }
+
+    private FileX fetchFile() {
+        String fileName = journalName + fileSeq + ".data";
+
+        this.file = dataDirectory.getOrCreateFile( fileName );
+
+        return file;
+    }
+
+    private boolean isReadyToReadNextMessage() {
+        long hashCodeOffset = currentIndex + PER_MSGHEADER_HASHCODE_INDEX;
+        if ( (hashCodeOffset+4) >= fileSize ) {   // do not run past the end of the file
+            return false;
+        }
+
+        Backdoor.loadFence();
+
+        int hash = contents.readInt( hashCodeOffset, fileSize );
+
+        return hash != 0;
+    }
+
+    public boolean allocateAndAssignTo( BytesView2 view, int messageSizeBytes ) {
+        QA.isEqualTo( currentIndex, currentToExc, "currentIndex", "currentToExc" );
+
+        long payloadIndex = currentIndex + PER_MSGHEADER_SIZE;
+        this.currentToExc = payloadIndex + messageSizeBytes;
+
+        contents.writeInt( currentIndex + PER_MSGHEADER_PAYLOADSIZE_INDEX, currentToExc, messageSizeBytes );
+        view.setBytes( contents, payloadIndex, currentToExc );
+
+        return true;
+    }
+
+
+    public static int extractFileSeq( FileX f, String serviceName ) {
+        String name = f.getFileName();
+        String seqStr = name.substring( serviceName.length(), name.length()-".data".length() );
+
+        return Integer.parseInt( seqStr );
+    }
+
+    static class DataFileNameComparator implements Comparator<FileX> {
+        private String serviceName;
+
+        public DataFileNameComparator( String serviceName ) {
+            this.serviceName = serviceName;
+        }
+
+        public int compare( FileX f1, FileX f2 ) {
+            int seq1 = extractFileSeq( f1, serviceName );
+            int seq2 = extractFileSeq( f2, serviceName );
+
+            return seq1 - seq2;
+        }
+    }
+
+}

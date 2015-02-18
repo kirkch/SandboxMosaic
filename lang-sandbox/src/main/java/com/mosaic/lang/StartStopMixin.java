@@ -34,8 +34,8 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
     }
 
 
-    private List<StartStoppable> chainedToOthers = new ArrayList<>(3);
-    private AtomicInteger        initCounter     = new AtomicInteger(0);
+    private List<StartStoppable> dependencies = new ArrayList<>(3);
+    private AtomicInteger        initCounter = new AtomicInteger(0);
     private String               serviceName;
 
     private AtomicBoolean        isShuttingDown  = new AtomicBoolean(false);
@@ -106,12 +106,12 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
      * starts, the other services will be started first and when this service is stopped then the
      * other services will be stopped first.
      */
-    public final T serviceDependsUpon( Object... otherServices ) {
+    public final T appendDependency( Object... otherServices ) {
         for ( Object o : otherServices ) {
             if ( o instanceof StartStoppable ) {
                 StartStoppable ss = (StartStoppable) o;
 
-                chainedToOthers.add( ss );
+                dependencies.add( ss );
 
                 if ( this.isRunning() ) {
                     ss.start();
@@ -141,14 +141,14 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
     }
 
     private final void broadcastInit() {
-        for ( StartStoppable o : chainedToOthers ) {
+        for ( StartStoppable o : dependencies ) {
             o.start();
         }
     }
 
 
     private final void broadcastTearDown() {
-        for ( StartStoppable o : chainedToOthers ) {
+        for ( StartStoppable o : dependencies ) {
             o.stop();
         }
     }

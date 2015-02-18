@@ -3,7 +3,10 @@ package com.mosaic.io.filesystemx.disk;
 import com.mosaic.bytes.Bytes;
 import com.mosaic.bytes.MemoryMappedBytes;
 import com.mosaic.bytes.WrappedBytesLite;
+import com.mosaic.bytes2.Bytes2;
+import com.mosaic.bytes2.impl.MemoryMappedBytes2;
 import com.mosaic.io.filesystemx.FileContents;
+import com.mosaic.io.filesystemx.FileContents2;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
@@ -50,6 +53,20 @@ public class ActualFile implements FileX {
 
         return new ActualFileContents( bytes );
     }
+
+    public FileContents2 openFile2( FileModeEnum mode ) {
+        Bytes2 bytes = MemoryMappedBytes2.mapFile( file, mode );
+
+        return new ActualFileContents2( bytes );
+    }
+
+    public FileContents2 openFile2( FileModeEnum mode, long sizeInBytes ) {
+        Bytes2 bytes = MemoryMappedBytes2.mapFile( file, mode, sizeInBytes );
+
+        return new ActualFileContents2( bytes );
+    }
+
+
 
     public String getFullPath() {
         return file.getAbsolutePath();
@@ -112,6 +129,60 @@ public class ActualFile implements FileX {
         private FileLock fileLock;
 
         public ActualFileContents( Bytes delegate ) {
+            super( delegate );
+
+            fileSystem.incrementOpenFileCount();
+        }
+
+        public void release() {
+            fileSystem.decrementOpenFileCount();
+        }
+
+        public boolean lockFile() {
+            if ( isLocked() ) {
+                return false;
+            }
+
+            try {
+                RandomAccessFile raf = new RandomAccessFile( file, "rw" );
+
+                this.fileLock = raf.getChannel().tryLock();
+
+                return isLocked();
+            } catch ( IOException e ) {
+                Backdoor.throwException( e );
+                return false;
+            }
+        }
+
+        public boolean isLocked() {
+            return fileLock != null && fileLock.isValid();
+        }
+
+        public boolean unlockFile() {
+            if ( !isLocked() ) {
+                return false;
+            }
+
+            try {
+                this.fileLock.release();
+
+                QA.isFalse( isLocked(), "requested release of file lock but it remains" );
+
+                this.fileLock = null;
+
+                return true;
+            } catch ( IOException e ) {
+                Backdoor.throwException( e );
+                return false;
+            }
+        }
+    }
+
+    private class ActualFileContents2 extends FileContents2 {
+        private FileLock fileLock;
+
+        public ActualFileContents2( Bytes2 delegate ) {
             super( delegate );
 
             fileSystem.incrementOpenFileCount();

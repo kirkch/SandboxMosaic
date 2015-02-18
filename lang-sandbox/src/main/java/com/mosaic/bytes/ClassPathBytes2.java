@@ -1,5 +1,7 @@
 package com.mosaic.bytes;
 
+import com.mosaic.bytes2.Bytes2;
+import com.mosaic.bytes2.impl.ArrayBytes2;
 import com.mosaic.lang.QA;
 
 import java.io.BufferedInputStream;
@@ -35,6 +37,31 @@ public class ClassPathBytes2 {
         bufferedInput.read( bytes );
 
         return new ArrayBytes( bytes );
+    }
+
+    /**
+     * Loads the resource into an on-heap byte[].
+     *
+     * @return null if the resource was not found
+     */
+    public static Bytes2 loadFromClassPath2( ClassLoader classLoader, String resourcePath ) throws IOException {
+        if ( resourcePath.startsWith("/") ) {
+            resourcePath = resourcePath.substring(1);
+        }
+
+        InputStream in = classLoader.getResourceAsStream( resourcePath );
+        if ( in == null ) {
+            return null;
+        }
+
+        BufferedInputStream bufferedInput = new BufferedInputStream( in );
+
+        int    numBytes = countRemainingBytes( bufferedInput );
+        byte[] bytes    = new byte[numBytes];
+
+        bufferedInput.read( bytes );
+
+        return new ArrayBytes2( bytes );
     }
 
 

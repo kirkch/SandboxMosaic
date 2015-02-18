@@ -230,7 +230,7 @@ public class ArrayBytes extends BaseBytes {
 
     public int writeBytes( long offset, long maxExc, byte[] sourceArray, long sourceArrayInc, long sourceArrayExc ) {
         int destinationIndex = Backdoor.toInt( base + offset );
-        int numBytes         = Backdoor.toInt( sourceArrayExc - sourceArrayInc );
+        int numBytes         = Backdoor.toInt( Math.min(sourceArrayExc - sourceArrayInc,maxExc-offset) );
 
         throwIfInvalidIndex( destinationIndex, maxExc, numBytes );
 

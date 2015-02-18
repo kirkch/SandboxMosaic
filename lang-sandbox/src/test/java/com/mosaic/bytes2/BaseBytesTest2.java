@@ -277,7 +277,7 @@ public abstract class BaseBytesTest2 {
     }
 
     @Test
-    public void writeBytes2FromOneBytes2ClassToAnother() {
+    public void writeBytesFromOneBytesClassToAnother() {
         Bytes2 source = initBytes();
         source.writeBytes( 0, 100, new byte[]{'a', 'b', 'c'} );
 

@@ -409,7 +409,7 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
      * SystemX.
      */
     public <T> T registerService( T newService ) {
-        this.serviceDependsUpon( newService );
+        this.appendDependency( newService );
 
         return newService;
     }

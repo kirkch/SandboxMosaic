@@ -2,7 +2,9 @@ package com.mosaic.io.filesystemx.classpath;
 
 import com.mosaic.bytes.Bytes;
 import com.mosaic.bytes.ClassPathBytes2;
+import com.mosaic.bytes2.Bytes2;
 import com.mosaic.io.filesystemx.FileContents;
+import com.mosaic.io.filesystemx.FileContents2;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.NotFoundException;
@@ -43,6 +45,20 @@ public class ClassPathFileX implements FileX {
 
     @Override
     public FileContents openFile( FileModeEnum mode, long sizeInBytes ) {
+        throw new UnsupportedOperationException( "not implemented, use loadBytesRO" );
+    }
+
+    @Override
+    public FileContents2 openFile2( FileModeEnum mode ) {
+        if ( mode.isWritable() || !mode.isReadable() ) {
+            throw new UnsupportedOperationException( "not implemented, use loadBytesRO" );
+        }
+
+        return new ClassPathFileContents2( lazyLoad2() );
+    }
+
+    @Override
+    public FileContents2 openFile2( FileModeEnum mode, long sizeInBytes ) {
         throw new UnsupportedOperationException( "not implemented, use loadBytesRO" );
     }
 
@@ -106,9 +122,46 @@ public class ClassPathFileX implements FileX {
         return bytes;
     }
 
+    private Bytes2 bytes2;
+
+    private Bytes2 lazyLoad2() {
+        if ( bytes2 == null ) {
+            try {
+                bytes2 = ClassPathBytes2.loadFromClassPath2( this.getClass().getClassLoader(), fullPath );
+
+                if ( bytes2 == null ) {
+                    throw new NotFoundException( String.format("unable to find '%s' on the classpath", fullPath) );
+                }
+            } catch ( IOException e ) {
+                return Backdoor.throwException( e );
+            }
+        }
+
+        return bytes2;
+    }
+
 
     private class ClassPathFileContents extends FileContents {
         public ClassPathFileContents( Bytes delegate ) {
+            super( delegate );
+        }
+
+        public boolean lockFile() {
+            throw new UnsupportedOperationException( "files on the classpath cannot be locked" );
+        }
+
+        public boolean isLocked() {
+            return false;
+        }
+
+        public boolean unlockFile() {
+            throw new UnsupportedOperationException( "files on the classpath cannot be locked" );
+        }
+    }
+
+
+    private class ClassPathFileContents2 extends FileContents2 {
+        public ClassPathFileContents2( Bytes2 delegate ) {
             super( delegate );
         }
 
