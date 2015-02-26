@@ -1,27 +1,8 @@
 package com.mosaic.io.journal;
 
-import com.mosaic.io.CheckSumException;
-import com.mosaic.io.filesystemx.DirectoryX;
-import com.mosaic.io.filesystemx.FileModeEnum;
-import com.mosaic.io.filesystemx.FileX;
-import com.mosaic.lang.StartStoppable;
-import com.mosaic.lang.system.Backdoor;
-import com.mosaic.lang.system.SystemX;
-import com.mosaic.lang.time.Duration;
-import com.softwaremosaic.junit.JUnitMosaic;
-//import com.softwaremosaic.junit.annotations.Test;
 import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Test;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.runner.RunWith;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static java.util.Arrays.asList;
-import static org.junit.Assert.*;
 
 
 @RunWith(JUnitMosaicRunner.class)
@@ -55,13 +36,17 @@ public class Journal2Test extends Tests {
 
 // MESSAGES THAT FIT IN SINGLE DATA FILE
 
-//    @Test( threadCheck=true )
-//    public void givenEmptyJournal_addMessage_expectReaderToReceiveIt() {
-//        writeMessage( 11, 12, 13 );
-//
-//        assertNextMessageIs( 0, 11, 12, 13 );
-//        assertFalse( reader.readNextInto(transaction) );
-//    }
+    @Test( threadCheck=true )
+    public void givenEmptyJournal_addMessage_expectReaderToReceiveIt() {
+        system.start();
+
+        writeMessage( 11, 12, 13 );
+
+        assertNextMessageIs( 0, 11, 12, 13 );
+        assertFalse( reader.readNextInto(transaction) );
+
+        system.stop();
+    }
 
 //    @Test
 //    public void givenEmptyJournal_addMessages_expectReaderToReceiveThem() {
@@ -496,7 +481,7 @@ public class Journal2Test extends Tests {
         transaction.setTo( expectedTo );
         transaction.setAmount( expectedAmount );
 
-        writer.flush();
+        writer.completeMessage();
 
 //        writer.writeMessageUsing( transaction, () -> {
 //            transaction.setFrom( expectedFrom );
@@ -525,18 +510,19 @@ public class Journal2Test extends Tests {
 //        return msgSeq*10 + 1;
 //    }
 //
-//    private void assertNextMessageIs( long expectedMessageSeq, long expectedFrom, long expectedTo, long expectedAmount ) {
-//        assertNextMessageIs( reader, expectedMessageSeq, expectedFrom, expectedTo, expectedAmount );
-//    }
-//
-//    private void assertNextMessageIs( JournalReader r, long expectedMessageSeq, long expectedFrom, long expectedTo, long expectedAmount ) {
-//        assertTrue( "reached end of data file early: " + (expectedFrom/10), r.readNextInto(transaction) );
-//
-//        assertEquals( expectedMessageSeq, transaction.getMessageSeq() );
-//        assertEquals( expectedFrom, transaction.getFrom() );
-//        assertEquals( expectedTo, transaction.getTo() );
-//        assertEquals( expectedAmount, transaction.getAmount(), 1e-6 );
-//    }
+    private void assertNextMessageIs( long expectedMessageSeq, long expectedFrom, long expectedTo, long expectedAmount ) {
+        assertNextMessageIs( reader, expectedMessageSeq, expectedFrom, expectedTo, expectedAmount );
+    }
+
+    private void assertNextMessageIs( JournalReader2 r, long expectedMessageSeq, long expectedFrom, long expectedTo, long expectedAmount ) {
+        boolean wasSuccessfullyRead = r.readNextInto( transaction );
+        assertTrue( "reached end of data file early: " + (expectedFrom/10), wasSuccessfullyRead );
+
+        assertEquals( expectedMessageSeq, transaction.getMessageSeq() );
+        assertEquals( expectedFrom, transaction.getFrom() );
+        assertEquals( expectedTo, transaction.getTo() );
+        assertEquals( expectedAmount, transaction.getAmount(), 1e-6 );
+    }
 //
 //    private void deleteDataFile( long fileSeq ) {
 //        journal.stop();

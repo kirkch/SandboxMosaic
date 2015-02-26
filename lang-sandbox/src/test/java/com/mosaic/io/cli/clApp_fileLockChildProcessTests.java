@@ -132,7 +132,7 @@ public class CLApp_fileLockChildProcessTests {
         JUnitMosaic.spinUntilTrue( () -> processOutput1.contains("App has started") );
 
         process1.abort();
-        process1.spinUntilComplete( 3000);
+        process1.spinUntilComplete( 3000 );
 
 
         OSProcess process2 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput2::add, "data", "-v" );

@@ -18,7 +18,7 @@ public class JournalWriter2 extends StartStopMixin<JournalWriter2> {
 
 
     public JournalWriter2( DirectoryX dataDirectory, String serviceName ) {
-        this( dataDirectory, serviceName, 100*SystemX.MEGABYTE );
+        this( dataDirectory, serviceName, Journal2.DEFAULT_PER_FILE_SIZE_BYTES );
     }
 
     public JournalWriter2( DirectoryX dataDirectory, String serviceName, long perFileSizeBytes ) {
@@ -31,11 +31,15 @@ public class JournalWriter2 extends StartStopMixin<JournalWriter2> {
 
 
     public void allocateTo( JournalEntry view, int numBytes ) {
+        currentDataFile.allocateAndAssignTo( view.bytes, numBytes );
+    }
 
+    public void completeMessage() {
+        currentDataFile.complete();
     }
 
     public void flush() {
-
+        currentDataFile.flush();
     }
 
 //    public <T extends ByteView> long reserveUsing( T message, int messageSizeBytes ) {

@@ -933,6 +933,12 @@ public class QA {
         }
     }
 
+    public static void argIsNotEqualTo( long a, long b, String argName1, String argName2 ) {
+        if ( a == b ) {
+            throwException(  "%s (%s) must be != %s (%s)", argName1, a, argName2, b );
+        }
+    }
+
     /**
      * Validates that minInc <= n < maxExc and throws IndexOutOfBoundsException if it fails.
      */

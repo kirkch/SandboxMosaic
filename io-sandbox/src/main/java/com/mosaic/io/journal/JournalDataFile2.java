@@ -95,7 +95,7 @@ class JournalDataFile2 {
     }
 
     public void seekToEnd() {
-        while ( isReadyToReadNextMessage() && !hasReachedEOFMarker() ) {   // reached the end of the journal
+        while ( isReadyToReadNextMessage() /*&& !hasReachedEOFMarker()*/ ) {   // reached the end of the journal
             int i = contents.readInt( currentIndex + PER_MSGHEADER_PAYLOADSIZE_INDEX, fileSize );
             QA.isNotZero( i, "i" );
 
@@ -113,7 +113,30 @@ class JournalDataFile2 {
 
         return len == -1;
     }
-    
+
+    public void complete() {
+        if ( currentIndex == currentToExc ) {
+            return;
+        }
+
+        int hash = calcHash( currentIndex+PER_MSGHEADER_SIZE, currentToExc );
+        contents.writeInt( currentIndex+PER_MSGHEADER_HASHCODE_INDEX, currentToExc, hash );
+
+        Backdoor.storeFence(); // very cheap as there is no contention (only 1 writer)
+        // used here so that any local memory readers get to see the change
+        // asap, and in a known sequential order
+
+        currentMessageSeq++;
+
+        currentIndex = currentToExc;
+    }
+
+    public void flush() {
+        if ( contents != null ) {
+            contents.flush();
+        }
+    }
+
     public void close() {
         if ( contents != null ) {
             contents.release();
@@ -161,6 +184,26 @@ class JournalDataFile2 {
         contents.writeInt( currentIndex + PER_MSGHEADER_PAYLOADSIZE_INDEX, currentToExc, messageSizeBytes );
         view.setBytes( contents, payloadIndex, currentToExc );
 
+        scrollToNext();
+
+        return true;
+    }
+
+    public boolean readNextInto( JournalEntry entry ) {
+        if ( !isReadyToReadNextMessage() ) {
+            return false;
+        }
+
+        QA.isEqualTo( currentIndex, currentToExc, "currentIndex", "currentToExc" );
+
+        long payloadIndex  = currentIndex + PER_MSGHEADER_SIZE;
+        int  payloadLength = contents.readInt(currentIndex + PER_MSGHEADER_PAYLOADSIZE_INDEX, fileSize);
+
+        entry.bytes.setBytes( contents, payloadIndex, payloadIndex+payloadLength );
+        entry.msgSeq = this.currentMessageSeq;
+
+        scrollToNext();
+
         return true;
     }
 
@@ -171,6 +214,39 @@ class JournalDataFile2 {
 
         return Integer.parseInt( seqStr );
     }
+
+
+    private boolean scrollToNext() {
+        if ( isReadyToReadNextMessage() ) {
+            int  len       = contents.readInt( currentIndex + PER_MSGHEADER_PAYLOADSIZE_INDEX, fileSize );
+            long nextIndex = currentIndex + PER_MSGHEADER_SIZE + len;
+
+            this.currentIndex       = nextIndex;
+            this.currentMessageSeq += 1;
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private int calcHash( long fromInc, long toExc ) {
+        long sum = 7;
+
+        // incrementing in 8's means that some bytes at the end of a message may not be included
+        // this is a pragmatic trade-off between robustness and speed.  Summing longs is much
+        // faster than summing bytes, and is marginally faster than ints.  An extra for loop
+        // to catch the stragglers doubles the cost of the checksum.  If this becomes a serious
+        // concern, then we can always pad the affected messages out to be a multiple of 8.
+        for ( long i=fromInc; i<toExc-8; i+=8 ) {
+            sum += contents.readLong( i, toExc );
+
+            sum += sum;  // double add here makes the checksum sensitive to the order of the bytes
+        }
+
+        return (int) sum;
+    }
+
 
     static class DataFileNameComparator implements Comparator<FileX> {
         private String serviceName;

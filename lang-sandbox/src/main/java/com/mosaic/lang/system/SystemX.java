@@ -578,7 +578,7 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
         private static final long MAX_SLEEP_MILLIS = 200;
 
         public TimerThread( String serviceName ) {
-            super( serviceName + "TimerThread", ThreadType.DAEMON );
+            super( "SystemX."+serviceName + "TimerThread", ThreadType.DAEMON );
         }
 
         protected long loop() throws InterruptedException {
@@ -593,7 +593,7 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
                 if ( nowMillis >= nextJobEntry.getKey() ) {
                     for ( TimerJob job : nextJobEntry.getValue() ) {
                         if ( !job.isCancelled() ) {
-                            TryNow.tryNow( job::invoke );
+                            TryNow.tryNow( job::invoke ); // TODO move this invocation outside of the synchronized block
                         }
                     }
 

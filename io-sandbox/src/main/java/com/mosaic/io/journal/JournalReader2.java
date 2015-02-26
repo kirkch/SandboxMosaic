@@ -10,10 +10,11 @@ import com.mosaic.lang.StartStopMixin;
  * Reader for journal data files created using JournalWriter.
  */
 public class JournalReader2 extends StartStopMixin<JournalReader2> {
-    private final DirectoryX dataDirectory;
-    private final long            startFrom;
+    private final DirectoryX       dataDirectory;
 
-//    private       JournalDataFile dataFile;
+
+    private final Journal2         journal;
+    private       JournalDataFile2 currentDataFile;
 
 
     /**
@@ -22,22 +23,26 @@ public class JournalReader2 extends StartStopMixin<JournalReader2> {
      * file.  If no data files exist, then the first data file will be created empty.
      */
     public JournalReader2( DirectoryX dataDirectory, String serviceName ) {
-        this( dataDirectory, serviceName, 0 );
+        this( dataDirectory, serviceName, Journal2.DEFAULT_PER_FILE_SIZE_BYTES );
     }
 
-    public JournalReader2( DirectoryX dataDirectory, String serviceName, long startFrom ) {
+    public JournalReader2( DirectoryX dataDirectory, String serviceName, long perFileSizeBytes ) {
         super( serviceName );
 
-        QA.argIsGTEZero( startFrom, "startFrom" );
         QA.argNotNull( dataDirectory, "dataDirectory" );
 
         this.dataDirectory = dataDirectory;
-        this.startFrom     = startFrom;
+
+        this.journal = new Journal2( dataDirectory, serviceName, perFileSizeBytes );
     }
 
 
     public boolean readNextInto( JournalEntry journalEntry ) {
-        return false;
+        if ( currentDataFile == null ) {
+            return false;
+        }
+
+        return currentDataFile.readNextInto( journalEntry );
     }
 
     public boolean seekTo( long i ) {
@@ -75,26 +80,26 @@ public class JournalReader2 extends StartStopMixin<JournalReader2> {
 //            return false;
 //        }
 //    }
-//
+
 //    public <T extends JournalByteView> boolean readNextInto( T view ) {
 //        return readNext( view::setBytes );
 //    }
-//
-//
-//    protected void doStart() {
-//        this.dataFile = JournalDataFile.openAtRO( dataDirectory, getServiceName(), startFrom ).open();
-//
-//        this.dataFile.seekTo( startFrom );
-//    }
-//
-//    protected void doStop() {
-//        if ( dataFile == null ) {
-//            return;
-//        }
-//
-//        this.dataFile.close();
-//
-//        this.dataFile = null;
-//    }
+
+
+    protected void doStart() {
+        QA.isNull( currentDataFile, "currentDataFile" );
+
+        this.currentDataFile = journal.selectLastFileRW().open();
+    }
+
+    protected void doStop() {
+        if ( currentDataFile == null ) {
+            return;
+        }
+
+        this.currentDataFile.close();
+
+        this.currentDataFile = null;
+    }
 
 }
