@@ -70,6 +70,7 @@ public class InMemoryFile implements FileX {
 
     public FileContents openFile( FileModeEnum mode, long sizeInBytes ) {
         bytes.resize( sizeInBytes );
+        bytes2.resize( sizeInBytes );
 
         return openFile( mode );
     }
@@ -88,6 +89,7 @@ public class InMemoryFile implements FileX {
         throwIfDeleted();
 
         bytes.resize( sizeInBytes );
+        bytes2.resize( sizeInBytes );
 
         fileSystem.incrementOpenFileCount();
 
@@ -109,10 +111,11 @@ public class InMemoryFile implements FileX {
             return;
         }
 
-        bytes.release();
+        bytes2.release();
         parentDirectory.notificationThatChildFileHasBeenDeleted( this );
 
         this.bytes              = null;
+        this.bytes2             = null;
         this.parentDirectory    = null;
         this.hasBeenDeletedFlag = true;
     }
@@ -167,7 +170,7 @@ public class InMemoryFile implements FileX {
     }
 
     void setBytes( Bytes newBytes ) {
-        this.bytes = newBytes;
+        this.bytes  = newBytes;
         this.bytes2 = new Bytes1ToBytes2Adapter( newBytes );
     }
 

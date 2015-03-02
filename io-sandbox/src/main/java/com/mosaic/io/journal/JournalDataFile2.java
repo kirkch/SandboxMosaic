@@ -194,7 +194,7 @@ class JournalDataFile2 {
             return false;
         }
 
-        QA.isEqualTo( currentIndex, currentToExc, "currentIndex", "currentToExc" );
+//        QA.isEqualTo( currentIndex, currentToExc, "currentIndex", "currentToExc" );
 
         long payloadIndex  = currentIndex + PER_MSGHEADER_SIZE;
         int  payloadLength = contents.readInt(currentIndex + PER_MSGHEADER_PAYLOADSIZE_INDEX, fileSize);

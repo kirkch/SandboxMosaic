@@ -2,7 +2,11 @@ package com.mosaic.io.journal;
 
 import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Test;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.runner.RunWith;
+
+import static java.util.Arrays.asList;
 
 
 @RunWith(JUnitMosaicRunner.class)
@@ -21,6 +25,17 @@ public class Journal2Test extends Tests {
     private Transaction2   transaction = new Transaction2();
 
 
+
+    @Before
+    public void setUp() {
+        system.start();
+    }
+
+    @After
+    public void tearDown() {
+        system.stop();
+    }
+
 // EMPTY JOURNAL
 
     @Test
@@ -38,43 +53,39 @@ public class Journal2Test extends Tests {
 
     @Test( threadCheck=true )
     public void givenEmptyJournal_addMessage_expectReaderToReceiveIt() {
-        system.start();
-
         writeMessage( 11, 12, 13 );
 
         assertNextMessageIs( 0, 11, 12, 13 );
         assertFalse( reader.readNextInto(transaction) );
-
-        system.stop();
     }
 
-//    @Test
-//    public void givenEmptyJournal_addMessages_expectReaderToReceiveThem() {
-//        writeMessage( 11, 12, 13 );
-//        writeMessage( 21, 22, 23 );
-//
-//        assertNextMessageIs( 0, 11, 12, 13 );
-//        assertNextMessageIs( 1, 21, 22, 23 );
-//        assertFalse( reader.readNextInto(transaction) );
-//    }
-//
-//    @Test
-//    public void givenEmptyJournalAndMultipleReaders_addMessages_expectReadersToReceiveThem() {
-//        JournalReader reader1 = createAndRegisterReader();
-//        JournalReader reader2 = createAndRegisterReader();
-//
-//        writeMessage( 11, 12, 13 );
-//        writeMessage( 21, 22, 23 );
-//
-//
-//        for ( JournalReader r : asList(reader1, reader2, reader) ) {
-//            assertNextMessageIs( r, 0, 11, 12, 13 );
-//            assertNextMessageIs( r, 1, 21, 22, 23 );
-//
-//            assertFalse( r.readNextInto(transaction) );
-//        }
-//    }
-//
+    @Test
+    public void givenEmptyJournal_addMessages_expectReaderToReceiveThem() {
+        writeMessage( 11, 12, 13 );
+        writeMessage( 21, 22, 23 );
+
+        assertNextMessageIs( 0, 11, 12, 13 );
+        assertNextMessageIs( 1, 21, 22, 23 );
+        assertFalse( reader.readNextInto(transaction) );
+    }
+
+    @Test
+    public void givenEmptyJournalAndMultipleReaders_addMessages_expectReadersToReceiveThem() {
+        JournalReader2 reader1 = createAndRegisterReader();
+        JournalReader2 reader2 = createAndRegisterReader();
+
+        writeMessage( 11, 12, 13 );
+        writeMessage( 21, 22, 23 );
+
+
+        for ( JournalReader2 r : asList(reader1, reader2, reader) ) {
+            assertNextMessageIs( r, 0, 11, 12, 13 );
+            assertNextMessageIs( r, 1, 21, 22, 23 );
+
+            assertFalse( r.readNextInto(transaction) );
+        }
+    }
+
 //    @Test
 //    public void givenQueueWithMessages_startReader_expectReaderToReceiveMessages() {
 //        writeMessage( 11, 12, 13 );
@@ -453,14 +464,14 @@ public class Journal2Test extends Tests {
 //
 //
 //
-//    private JournalReader createAndRegisterReader() {
-//        return createAndRegisterReader(0);
-//    }
-//
-//    private JournalReader createAndRegisterReader( long startFrom ) {
-//        return registerResourceAndStart( new JournalReader( dataDir, "junitJournal", startFrom ) );
-//    }
-//
+    private JournalReader2 createAndRegisterReader() {
+        JournalReader2 j = new JournalReader2( dataDir, "junitJournal", JOURNAL_FILE_SIZE );
+
+        system.registerService(j);
+
+        return j;
+    }
+
 //    private <T extends StartStoppable> T registerResourceAndStart( T r ) {
 //        resources.add( r );
 //
