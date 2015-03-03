@@ -38,16 +38,38 @@ class Journal2 {
     public JournalDataFile2 selectLastFileRW() {
         int fileSeq = selectLastFileSeq();
 
-        return new JournalDataFile2( dataDirectory, serviceName, fileSeq, perFileSizeBytes, FileModeEnum.READ_WRITE );
+        return newDataFile( fileSeq, FileModeEnum.READ_WRITE );
     }
 
     public JournalDataFile2 selectFirstFileRO() {
         int fileSeq = selectFirstFileSeq();
 
-        return new JournalDataFile2( dataDirectory, serviceName, fileSeq, perFileSizeBytes, FileModeEnum.READ_WRITE );
+        return newDataFile( fileSeq, FileModeEnum.READ_ONLY );
+    }
+
+    /**
+     * Seeks to the closest message that it can find that is <= targetMessageSeq
+     */
+    public JournalDataFile2 seekTo( long targetMessageSeq ) {
+        int fileSeq = findJournalFileThatContainsMessageSeq( targetMessageSeq );
+
+        JournalDataFile2 dataFile = newDataFile( fileSeq, FileModeEnum.READ_ONLY ).open();
+
+        while ( dataFile.getCurrentMessageSeq() != targetMessageSeq ) {
+            boolean successFlag = dataFile.scrollToNext();
+
+            if ( !successFlag ) {
+                return dataFile;
+            }
+        }
+
+        return dataFile;
     }
 
 
+    private JournalDataFile2 newDataFile( int fileSeq, FileModeEnum fileMode ) {
+        return new JournalDataFile2( dataDirectory, serviceName, fileSeq, perFileSizeBytes, fileMode );
+    }
 
     private int selectLastFileSeq() {
         return selectFileSeq( files -> files.size() - 1 );
@@ -69,10 +91,10 @@ class Journal2 {
         if ( dataFiles.isEmpty() ) {
             return 0;
         } else {
-            int   i        = selectFileIndexF.invoke( dataFiles );
-            FileX tailFile = dataFiles.get( i );
+            int   i            = selectFileIndexF.invoke( dataFiles );
+            FileX selectedFile = dataFiles.get( i );
 
-            return JournalDataFile2.extractFileSeq( tailFile, serviceName );
+            return JournalDataFile2.extractFileSeq( selectedFile, serviceName );
         }
     }
 
@@ -82,6 +104,46 @@ class Journal2 {
         dataFiles.sort( new JournalDataFile2.DataFileNameComparator(serviceName) );
 
         return dataFiles;
+    }
+
+    private int findJournalFileThatContainsMessageSeq( long targetMessageSeq ) {
+        return selectFileSeq( files -> {
+            // scan through the data files in order, looking for targetMessageSeq.
+            JournalDataFile2 previousDataFile        = null;
+            int              indexOfPreviousDataFile = -1;
+            for ( int i = 0; i < files.size(); i++ ) {
+                FileX f = files.get( i );
+                int fs = JournalDataFile2.extractFileSeq( f, serviceName );
+                JournalDataFile2 dataFile = new JournalDataFile2( dataDirectory, serviceName, fs, perFileSizeBytes, FileModeEnum.READ_WRITE ).open();
+
+                try {
+                    if ( dataFile.getCurrentMessageSeq() > targetMessageSeq ) {
+                        if ( previousDataFile == null ) {
+                            throw new JournalNotFoundException2(
+                                String.format( "Unable to find msg seq '%s' under '%s'; has the data file been removed?", targetMessageSeq, dataDirectory.getFullPath() + "/" + serviceName )
+                            );
+                        }
+
+                        return i;
+                    } else if ( dataFile.getCurrentMessageSeq() == targetMessageSeq ) {
+                        return i;
+                    }
+                } finally {
+                    dataFile.close();
+                }
+
+                previousDataFile        = dataFile;
+                indexOfPreviousDataFile = i;
+            }
+
+            if ( previousDataFile == null ) {
+                throw new JournalNotFoundException2(
+                    String.format( "Unable to find journal data file containing msg seq '%s' under '%s'", targetMessageSeq, dataDirectory.getFullPath() + "/" + serviceName )
+                );
+            }
+
+            return indexOfPreviousDataFile;
+        } );
     }
 
 }

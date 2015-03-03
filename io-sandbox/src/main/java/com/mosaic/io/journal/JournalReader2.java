@@ -45,8 +45,20 @@ public class JournalReader2 extends StartStopMixin<JournalReader2> {
         return currentDataFile.readNextInto( journalEntry );
     }
 
-    public boolean seekTo( long i ) {
-        return false;
+    public boolean seekTo( long messageSeq ) {
+        JournalDataFile2 initialDataFile = this.currentDataFile;
+
+        this.currentDataFile = journal.seekTo(messageSeq);
+
+        if ( currentDataFile.getCurrentMessageSeq() == messageSeq ) {
+            initialDataFile.close();
+
+            return true;
+        } else {
+            this.currentDataFile = initialDataFile;
+
+            return false;
+        }
     }
 
 
@@ -89,7 +101,7 @@ public class JournalReader2 extends StartStopMixin<JournalReader2> {
     protected void doStart() {
         QA.isNull( currentDataFile, "currentDataFile" );
 
-        this.currentDataFile = journal.selectLastFileRW().open();
+        this.currentDataFile = journal.selectFirstFileRO().open();
     }
 
     protected void doStop() {

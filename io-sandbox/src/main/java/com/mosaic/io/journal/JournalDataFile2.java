@@ -216,7 +216,7 @@ class JournalDataFile2 {
     }
 
 
-    private boolean scrollToNext() {
+    public boolean scrollToNext() {
         if ( isReadyToReadNextMessage() ) {
             int  len       = contents.readInt( currentIndex + PER_MSGHEADER_PAYLOADSIZE_INDEX, fileSize );
             long nextIndex = currentIndex + PER_MSGHEADER_SIZE + len;
@@ -245,6 +245,10 @@ class JournalDataFile2 {
         }
 
         return (int) sum;
+    }
+
+    public long getCurrentMessageSeq() {
+        return currentMessageSeq;
     }
 
 

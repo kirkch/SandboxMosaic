@@ -86,36 +86,36 @@ public class Journal2Test extends Tests {
         }
     }
 
-//    @Test
-//    public void givenQueueWithMessages_startReader_expectReaderToReceiveMessages() {
-//        writeMessage( 11, 12, 13 );
-//        writeMessage( 21, 22, 23 );
-//
-//        JournalReader reader1 = createAndRegisterReader();
-//
-//        for ( JournalReader r : asList(reader1,reader) ) {
-//            assertNextMessageIs( r, 0, 11, 12, 13 );
-//            assertNextMessageIs( r, 1, 21, 22, 23 );
-//
-//            assertFalse( r.readNextInto( transaction ) );
-//        }
-//    }
-//
-//    @Test
-//    public void givenQueueWithMessages_startReaderPartWayThrough_expectReaderToReceiveMessages() {
-//        writeMessage( 11, 12, 13 );
-//        writeMessage( 21, 22, 23 );
-//        writeMessage( 31, 32, 33 );
-//        writeMessage( 41, 42, 43 );
-//
-//
-//        reader.seekTo( 2 );
-//        assertNextMessageIs( 2, 31, 32, 33 );
-//        assertNextMessageIs( 3, 41, 42, 43 );
-//
-//        assertFalse( reader.readNextInto( transaction ) );
-//    }
-//
+    @Test
+    public void givenQueueWithMessages_startReader_expectReaderToReceiveMessages() {
+        writeMessage( 11, 12, 13 );
+        writeMessage( 21, 22, 23 );
+
+        JournalReader2 reader1 = createAndRegisterReader();
+
+        for ( JournalReader2 r : asList(reader1,reader) ) {
+            assertNextMessageIs( r, 0, 11, 12, 13 );
+            assertNextMessageIs( r, 1, 21, 22, 23 );
+
+            assertFalse( r.readNextInto( transaction ) );
+        }
+    }
+
+    @Test
+    public void givenQueueWithMessages_startReaderPartWayThrough_expectReaderToReceiveMessages() {
+        writeMessage( 11, 12, 13 );
+        writeMessage( 21, 22, 23 );
+        writeMessage( 31, 32, 33 );
+        writeMessage( 41, 42, 43 );
+
+
+        assertTrue( reader.seekTo(2) );
+        assertNextMessageIs( 2, 31, 32, 33 );
+        assertNextMessageIs( 3, 41, 42, 43 );
+
+        assertFalse( reader.readNextInto( transaction ) );
+    }
+
 //
 //// ROLL OVER DATA FILE
 //
@@ -529,10 +529,10 @@ public class Journal2Test extends Tests {
         boolean wasSuccessfullyRead = r.readNextInto( transaction );
         assertTrue( "reached end of data file early: " + (expectedFrom/10), wasSuccessfullyRead );
 
-        assertEquals( expectedMessageSeq, transaction.getMessageSeq() );
-        assertEquals( expectedFrom, transaction.getFrom() );
-        assertEquals( expectedTo, transaction.getTo() );
-        assertEquals( expectedAmount, transaction.getAmount(), 1e-6 );
+        assertEquals( "messageSeq", expectedMessageSeq, transaction.getMessageSeq() );
+        assertEquals( "from",       expectedFrom,       transaction.getFrom() );
+        assertEquals( "to",         expectedTo,         transaction.getTo() );
+        assertEquals( "amount",     expectedAmount,     transaction.getAmount(), 1e-6 );
     }
 //
 //    private void deleteDataFile( long fileSeq ) {
