@@ -111,13 +111,6 @@ class JournalDataFile2 {
         currentToExc = currentIndex;
     }
 
-    public boolean hasReachedEOFMarker() {
-        long i   = currentIndex + PER_MSGHEADER_PAYLOADSIZE_INDEX;
-        int  len = contents.readInt( i, fileSize );
-
-        return len == -1;
-    }
-
     public void complete() {
         if ( currentIndex == currentToExc ) {
             return;
