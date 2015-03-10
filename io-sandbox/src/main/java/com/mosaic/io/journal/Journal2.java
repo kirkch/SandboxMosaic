@@ -125,7 +125,7 @@ class Journal2 {
                             );
                         }
 
-                        return i;
+                        return i-1;
                     } else if ( dataFile.getCurrentMessageSeq() == targetMessageSeq ) {
                         return i;
                     }

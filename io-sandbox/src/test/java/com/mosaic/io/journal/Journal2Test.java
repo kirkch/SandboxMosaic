@@ -1,10 +1,18 @@
 package com.mosaic.io.journal;
 
+import com.mosaic.io.CheckSumException;
+import com.mosaic.io.filesystemx.FileModeEnum;
+import com.mosaic.io.filesystemx.FileX;
+import com.mosaic.lang.system.Backdoor;
+import com.mosaic.lang.time.Duration;
+import com.softwaremosaic.junit.JUnitMosaic;
 import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Test;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 import static java.util.Arrays.asList;
 
@@ -152,213 +160,211 @@ public class Journal2Test extends Tests {
         assertEquals( "expected two data files to be created", 2, dataDir.files().size() );
     }
 
-//    @Test
-//    public void addEnoughMessagesToOverFlowTwoDataFiles_expectThirdFileToBeCreated() {
-//        long numMessages = TRANSACTION_COUNT_PERDATAFILE*2 + 1;
-//
-//        for ( long seq=0; seq<numMessages; seq++ ) {
-//            writeMessage( seq );
-//        }
-//
-//        for ( long seq=0; seq<numMessages; seq++ ) {
-//            assertNextMessageIs( seq );
-//        }
-//
-//        assertFalse( reader.readNextInto( transaction ) );
-//        assertEquals( "expected three data files to be created", 3, dataDir.files().size() );
-//    }
-//
-//
-//// CONCURRENT
-//
-//    @Test
-//    public void concurrentlyWriteToAndReadFromJournal_expectTheSameBehaviourAsTheSingleThreadedTest() {
-//        long numMessages = TRANSACTION_COUNT_PERDATAFILE*2 + 1;
-//
-//        AtomicLong writeCount = new AtomicLong();
-//        AtomicLong readCount  = new AtomicLong();
-//
-//        new Thread() {
-//            public void run() {
-//                for ( long seq=0; seq<numMessages; seq++ ) {
-//                    writeMessage( seq );
-//
-//                    writeCount.incrementAndGet();
-//
-//
-//                    Backdoor.sleep( Duration.millis( 1 ) );  // spreads the writes out
-//                }
-//            }
-//        }.start();
-//
-//        new Thread() {
-//            public void run() {
-//                Transaction t = new Transaction();
-//
-//                for ( long seq=0; seq<numMessages; seq++ ) {
-//                    JUnitMosaic.spinUntilTrue( () -> reader.readNextInto(t) );
-//
-//                    assertEquals( expectedFrom(seq), t.getFrom() );
-//                    assertEquals( expectedTo(seq), t.getTo() );
-//                    assertEquals( expectedAmount(seq), t.getAmount(), 1e-6 );
-//
-//                    readCount.incrementAndGet();
-//
-//
-//                    // spreads the reads out, so writes occur apx 2*faster than reads
-//                    // this creates a reasonable interleaving of writes and reads
-//                    Backdoor.sleep( Duration.millis(2) );
-//                }
-//            }
-//        }.start();
-//
-//
-//        JUnitMosaic.spinUntilTrue( () -> readCount.get() == numMessages );
-//
-//        assertFalse( reader.readNextInto( transaction ) );
-//        assertEquals( "expected three data files to be created", 3, dataDir.files().size() );
-//    }
-//
-//
-//// RESTARTS
-//
-//    @Test
-//    public void givenEmptyJournal_addMessagesRestartWriterAddMoreMessages_expectReaderToReceiveAllMessages() {
-//        long numMessages = 10; //TRANSACTION_COUNT_PERDATAFILE*2 + 1;
-//
-//        for ( long seq=0; seq<4; seq++ ) {
-//            writeMessage( seq );
-//        }
-//
-//        journal.stop();
-//        journal.start();
-//
-//        for ( long seq=4; seq<numMessages; seq++ ) {
-//            writeMessage( seq );
-//        }
-//
-//
-//        for ( long seq=0; seq<numMessages; seq++ ) {
-//            assertNextMessageIs( seq );
-//        }
-//
-//        assertFalse( reader.readNextInto( transaction ) );
-//        assertEquals( "expected one data file to be created", 1, dataDir.files().size() );
-//    }
-//
-//    @Test
-//    public void givenEmptyJournal_addMessagesToOverflowFirstDataFileRestartWriterAddMoreMessages_expectReaderToReceiveAllMessages() {
-//        long numMessages = TRANSACTION_COUNT_PERDATAFILE*2;
-//
-//        for ( long seq=0; seq<TRANSACTION_COUNT_PERDATAFILE+1; seq++ ) {
-//            writeMessage( seq );
-//        }
-//
-//        assertEquals( "expected two data files to be created", 2, dataDir.files().size() );
-//
-//        journal.stop();
-//        journal.start();
-//
-//        for ( long seq=TRANSACTION_COUNT_PERDATAFILE+1; seq<numMessages; seq++ ) {
-//            writeMessage( seq );
-//        }
-//
-//
-//        for ( long seq=0; seq<numMessages; seq++ ) {
-//            assertNextMessageIs( seq );
-//        }
-//
-//        assertFalse( reader.readNextInto(transaction) );
-//        assertEquals( "$expected two data files to be created", 2, dataDir.files().size() );
-//    }
-//
-//
-//// CHECKSUM FAILURES
-//
-//    @Test
-//    @SuppressWarnings("EmptyCatchBlock")
-//    public void givenNonEmptyJournal_corruptAByteInAPayloadAndStartReader_expectReaderToErrorOnCorruptedPayload() {
-//        writeMessage( 11, 12, 13 );
-//        writeMessage( 21, 22, 23 );
-//        writeMessage( 31, 32, 33 );
-//
-//        corruptMessage(1);
-//
-//        assertNextMessageIs( 0, 11, 12, 13 );
-//
-//        try {
-//            assertNextMessageIs( 1, 21, 22, 23 );
-//            fail( "expected checksum failure" );
-//        } catch ( CheckSumException ex ) {
-//            // expected
-//        }
-//    }
-//
-//    /**
-//     * Corrupt a single byte within the payload of the specified message.
-//     */
-//    private void corruptMessage( long targetMessageSeq ) {
-//        FileX dataFile = dataDir.getFile("junitJournal0.data");
-//        long  fileSize = dataFile.sizeInBytes();
-//
-//        dataFile.processFile( contents -> {
-//            long pos               = JournalDataFile.FILEHEADER_SIZE;
-//            long currentMessageSeq = 0;
-//
-//            while ( currentMessageSeq != targetMessageSeq ) {
-//                int payloadSize = contents.readInt( pos + JournalDataFile.PERMSGHEADER_PAYLOADSIZE_INDEX, fileSize );
-//
-//                pos += JournalDataFile.PERMSGHEADER_SIZE + payloadSize;
-//                currentMessageSeq += 1;
-//            }
-//
-//            contents.writeByte( pos+JournalDataFile.PERMSGHEADER_SIZE+3, fileSize, (byte) 7 );
-//
-//            return null;
-//        }, FileModeEnum.READ_WRITE );
-//    }
-//
-//
-//// MISSING DATA FILES
-//
-//    @Test
-//    public void givenMultipleDataFiles_removeFirstAndReadAll_expectError() {
-//        long numMessages = TRANSACTION_COUNT_PERDATAFILE*3;
-//
-//        for ( long seq=0; seq<numMessages; seq++ ) {
-//            writeMessage( seq );
-//        }
-//
-//        deleteDataFile(0);
-//
-//
-//        try {
-//            reader.start();
-//
-//            fail( "expected JournalNotFoundException" );
-//        } catch ( JournalNotFoundException ex ) {
-//            assertEquals( "Unable to find msg seq '0' under '"+toFullDir("/data/junitJournal")+"'; has the data file been removed?", ex.getMessage() );
-//        }
-//    }
-//
-//    @Test
-//    public void givenMultipleDataFiles_removeFirstFileAndThenReadFromAMessagePartWayThroughSecondDataFile_expectSuccess() {
-//        long numMessages = TRANSACTION_COUNT_PERDATAFILE * 3;
-//        writeMessages( numMessages );
-//
-//        deleteDataFile(0);
-//
-//
-//        long startFrom = TRANSACTION_COUNT_PERDATAFILE + TRANSACTION_COUNT_PERDATAFILE / 2;
-//        JournalReader r = createAndRegisterReader( startFrom );
-//
-//        for ( long seq=startFrom; seq<numMessages; seq++ ) {
-//            assertNextMessageIs( r, seq );
-//        }
-//
-//        assertFalse( r.readNextInto(transaction) );
-//    }
-//
+    @Test
+    public void addEnoughMessagesToOverFlowTwoDataFiles_expectThirdFileToBeCreated() {
+        long numMessages = TRANSACTION_COUNT_PERDATAFILE*2 + 1;
+
+        for ( long seq=0; seq<numMessages; seq++ ) {
+            writeMessage( seq );
+        }
+
+        for ( long seq=0; seq<numMessages; seq++ ) {
+            assertNextMessageIs( seq );
+        }
+
+        assertFalse( reader.readNextInto( transaction ) );
+        assertEquals( "expected three data files to be created", 3, dataDir.files().size() );
+    }
+
+
+// CONCURRENT
+
+    @Test
+    public void concurrentlyWriteToAndReadFromJournal_expectTheSameBehaviourAsTheSingleThreadedTest() {
+        long numFullFiles = 20;
+        long numMessages  = TRANSACTION_COUNT_PERDATAFILE*numFullFiles + 1;
+
+        AtomicLong writeCount = new AtomicLong();
+        AtomicLong readCount  = new AtomicLong();
+
+        new Thread() {
+            public void run() {
+                for ( long seq=0; seq<numMessages; seq++ ) {
+                    writeMessage( seq );
+
+                    writeCount.incrementAndGet();
+
+
+                    Backdoor.sleep( Duration.millis( 1 ) );  // spreads the writes out
+                }
+            }
+        }.start();
+
+        new Thread() {
+            public void run() {
+                Transaction2 t = new Transaction2();
+
+                for ( long seq=0; seq<numMessages; seq++ ) {
+                    JUnitMosaic.spinUntilTrue( () -> reader.readNextInto( t ) );
+
+                    assertEquals( expectedFrom(seq), t.getFrom() );
+                    assertEquals( expectedTo(seq), t.getTo() );
+                    assertEquals( expectedAmount(seq), t.getAmount(), 1e-6 );
+
+                    readCount.incrementAndGet();
+
+
+                    // spreads the reads out, so writes occur apx 2*faster than reads
+                    // this creates a reasonable interleaving of writes and reads
+                    Backdoor.sleep( Duration.millis(2) );
+                }
+            }
+        }.start();
+
+
+        JUnitMosaic.spinUntilTrue( () -> readCount.get() == numMessages );
+
+        assertFalse( reader.readNextInto( transaction ) );
+        assertEquals( "expected three data files to be created", numFullFiles+1, dataDir.files().size() );
+    }
+
+
+// RESTARTS
+
+    @Test
+    public void givenEmptyJournal_addMessagesRestartWriterAddMoreMessages_expectReaderToReceiveAllMessages() {
+        long numMessages = 10;
+
+        for ( long seq=0; seq<4; seq++ ) {
+            writeMessage( seq );
+        }
+
+        writer.stop();
+        writer.start();
+
+        for ( long seq=4; seq<numMessages; seq++ ) {
+            writeMessage( seq );
+        }
+
+
+        for ( long seq=0; seq<numMessages; seq++ ) {
+            assertNextMessageIs( seq );
+        }
+
+        assertFalse( reader.readNextInto( transaction ) );
+        assertEquals( "expected one data file to be created", 1, dataDir.files().size() );
+    }
+
+    @Test
+    public void givenEmptyJournal_addMessagesToOverflowFirstDataFileRestartWriterAddMoreMessages_expectReaderToReceiveAllMessages() {
+        long numMessages = TRANSACTION_COUNT_PERDATAFILE*2;
+
+        for ( long seq=0; seq<TRANSACTION_COUNT_PERDATAFILE+1; seq++ ) {
+            writeMessage( seq );
+        }
+
+        assertEquals( "expected two data files to be created", 2, dataDir.files().size() );
+
+        writer.stop();
+        writer.start();
+
+        for ( long seq=TRANSACTION_COUNT_PERDATAFILE+1; seq<numMessages; seq++ ) {
+            writeMessage( seq );
+        }
+
+
+        for ( long seq=0; seq<numMessages; seq++ ) {
+            assertNextMessageIs( seq );
+        }
+
+        assertFalse( reader.readNextInto(transaction) );
+        assertEquals( "$expected two data files to be created", 2, dataDir.files().size() );
+    }
+
+
+// CHECKSUM FAILURES
+
+    @Test
+    @SuppressWarnings("EmptyCatchBlock")
+    public void givenNonEmptyJournal_corruptAByteInAPayloadAndStartReader_expectReaderToErrorOnCorruptedPayload() {
+        writeMessage( 11, 12, 13 );
+        writeMessage( 21, 22, 23 );
+        writeMessage( 31, 32, 33 );
+
+        corruptMessage(1);
+
+        assertNextMessageIs( 0, 11, 12, 13 );
+
+        try {
+            assertNextMessageIs( 1, 21, 22, 23 );
+            fail( "expected checksum failure" );
+        } catch ( CheckSumException ex ) {
+            // expected
+        }
+    }
+
+    /**
+     * Corrupt a single byte within the payload of the specified message.
+     */
+    private void corruptMessage( long targetMessageSeq ) {
+        FileX dataFile = dataDir.getFile("junitJournal0.data");
+        long  fileSize = dataFile.sizeInBytes();
+
+        dataFile.processFile2( contents -> {
+            long pos               = JournalDataFile2.FILEHEADER_SIZE;
+            long currentMessageSeq = 0;
+
+            while ( currentMessageSeq != targetMessageSeq ) {
+                int payloadSize = contents.readInt( pos + JournalDataFile2.PER_MSGHEADER_PAYLOADSIZE_INDEX, fileSize );
+
+                pos += JournalDataFile2.PER_MSGHEADER_SIZE + payloadSize;
+                currentMessageSeq += 1;
+            }
+
+            contents.writeByte( pos+JournalDataFile2.PER_MSGHEADER_SIZE+3, fileSize, (byte) 7 );
+
+            return null;
+        }, FileModeEnum.READ_WRITE );
+    }
+
+
+// MISSING DATA FILES
+
+    @Test
+    public void givenMultipleDataFiles_removeFirstAndReadAllWillStartFromTheSecondFile_expectError() {
+        long numMessages = TRANSACTION_COUNT_PERDATAFILE*3;
+writeMessages(numMessages);
+
+        deleteDataFile(0);
+
+
+        reader.start();
+
+        for ( long i=TRANSACTION_COUNT_PERDATAFILE; i<numMessages; i++ ) {
+            assertNextMessageIs( i );
+        }
+    }
+
+    @Test
+    public void givenMultipleDataFiles_removeFirstFileAndThenReadFromAMessagePartWayThroughSecondDataFile_expectSuccess() {
+        long numMessages = TRANSACTION_COUNT_PERDATAFILE * 3;
+        writeMessages( numMessages );
+
+        deleteDataFile(0);
+
+
+        long startFrom = TRANSACTION_COUNT_PERDATAFILE + TRANSACTION_COUNT_PERDATAFILE / 2;
+
+        reader.start();
+        assertTrue( reader.seekTo(startFrom) );
+
+        for ( long seq=startFrom; seq<numMessages; seq++ ) {
+            assertNextMessageIs( seq );
+        }
+
+        assertFalse( reader.readNextInto(transaction) );
+    }
+
 //    @Test
 //    public void givenMultipleDataFiles_removeMiddleDataFileAndTryToReadAll_expectError() {
 //        writeMessages( TRANSACTION_COUNT_PERDATAFILE*3 );
@@ -366,7 +372,7 @@ public class Journal2Test extends Tests {
 //        deleteDataFile(1);
 //
 //
-//        JournalReader r = createAndRegisterReader();
+//        JournalReader2 r = createAndRegisterReader();
 //
 //        for ( long seq=0; seq<TRANSACTION_COUNT_PERDATAFILE; seq++ ) {
 //            assertNextMessageIs( r, seq );
@@ -375,12 +381,12 @@ public class Journal2Test extends Tests {
 //        try {
 //            r.readNextInto( transaction );
 //            fail( "JournalNotFoundException" );
-//        } catch ( JournalNotFoundException ex ) {
+//        } catch ( JournalNotFoundException2 ex ) {
 //            assertEquals( toFullDir("/data/junitJournal1.data"), ex.getMessage() );
 //        }
 //    }
-//
-//
+
+
 //// SEEK  (specifically jumping between files)
 //
 //    @Test
@@ -448,12 +454,12 @@ public class Journal2Test extends Tests {
 //
 //        assertFalse( reader.seekTo( TRANSACTION_COUNT_PERDATAFILE * 3 + 10 ) );
 //    }
-//
-//    private void writeMessages( long numMessages ) {
-//        for ( long seq=0; seq<numMessages; seq++ ) {
-//            writeMessage( seq );
-//        }
-//    }
+
+    private void writeMessages( long numMessages ) {
+        for ( long seq=0; seq<numMessages; seq++ ) {
+            writeMessage( seq );
+        }
+    }
 //
 //    private void readAndAssertMessagesFrom( long fromSeq, long toSeqExc ) {
 //        reader.seekTo( fromSeq );
@@ -476,15 +482,6 @@ public class Journal2Test extends Tests {
         return j;
     }
 
-//    private <T extends StartStoppable> T registerResourceAndStart( T r ) {
-//        resources.add( r );
-//
-//        r.start();
-//
-//        return r;
-//    }
-//
-
     private void writeMessage( long msgSeq ) {
         writeMessage( expectedFrom(msgSeq), expectedTo(msgSeq), expectedAmount(msgSeq) );
     }
@@ -497,12 +494,6 @@ public class Journal2Test extends Tests {
         transaction.setAmount( expectedAmount );
 
         writer.completeMessage();
-
-//        writer.writeMessageUsing( transaction, () -> {
-//            transaction.setFrom( expectedFrom );
-//            transaction.setTo( expectedTo );
-//            transaction.setAmount( expectedAmount );
-//        } );
     }
 
     private void assertNextMessageIs( long msgSeq ) {
@@ -538,23 +529,23 @@ public class Journal2Test extends Tests {
         assertEquals( "to "+expectedMessageSeq,         expectedTo,         transaction.getTo() );
         assertEquals( "amount "+expectedMessageSeq,     expectedAmount,     transaction.getAmount(), 1e-6 );
     }
-//
-//    private void deleteDataFile( long fileSeq ) {
-//        journal.stop();
-//        reader.stop();
-//
-//        FileX dataFile0 = dataDir.getFile( "junitJournal"+fileSeq+".data" );
-//        dataFile0.delete();
-//    }
-//
-//    private String toFullDir( String relDir ) {
-//        String d = system.fileSystem.getCurrentWorkingDirectory().getFullPath();
-//
-//        if ( d.equals("/") ) {
-//            return relDir;
-//        } else {
-//            return d + relDir;
-//        }
-//    }
+
+    private void deleteDataFile( long fileSeq ) {
+        writer.stop();
+        reader.stop();
+
+        FileX dataFile0 = dataDir.getFile( "junitJournal"+fileSeq+".data" );
+        dataFile0.delete();
+    }
+
+    private String toFullDir( String relDir ) {
+        String d = system.fileSystem.getCurrentWorkingDirectory().getFullPath();
+
+        if ( d.equals("/") ) {
+            return relDir;
+        } else {
+            return d + relDir;
+        }
+    }
 
 }

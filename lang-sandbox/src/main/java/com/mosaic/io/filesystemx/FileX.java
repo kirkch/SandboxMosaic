@@ -55,6 +55,16 @@ public interface FileX {
         }
     }
 
+    public default <T> T processFile2( Function1<FileContents2,T> action, FileModeEnum fileModeEnum ) {
+        FileContents2 f = openFile2( fileModeEnum );
+
+        try {
+            return action.invoke( f );
+        } finally {
+            f.release();
+        }
+    }
+
     public default <T> T ro( Function1<FileContents,T> action ) {
         return processFile( action, FileModeEnum.READ_ONLY );
     }

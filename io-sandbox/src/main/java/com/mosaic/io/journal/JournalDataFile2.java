@@ -1,6 +1,7 @@
 package com.mosaic.io.journal;
 
 import com.mosaic.bytes2.BytesView2;
+import com.mosaic.io.CheckSumException;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileContents2;
 import com.mosaic.io.filesystemx.FileModeEnum;
@@ -237,7 +238,10 @@ class JournalDataFile2 {
             return false;
         }
 
-        entry.bytes.setBytes( contents, payloadIndex, payloadIndex+payloadLength );
+        long payloadEnd = payloadIndex + payloadLength;
+        throwOnChecksumFailure( currentIndex+PER_MSGHEADER_HASHCODE_INDEX, payloadIndex, payloadEnd );
+
+        entry.bytes.setBytes( contents, payloadIndex, payloadEnd );
         entry.msgSeq = this.currentMessageSeq;
 
         scrollToNext();
@@ -245,6 +249,14 @@ class JournalDataFile2 {
         return true;
     }
 
+    private void throwOnChecksumFailure( long hashIndex, long fromInc, long toExc ) {
+        int recordedHash = contents.readInt( hashIndex, fileSize );
+        int actualHash   = calcHash(fromInc,toExc);
+
+        if ( recordedHash != actualHash ) {
+            throw new CheckSumException();
+        }
+    }
 
     public static int extractFileSeq( FileX f, String serviceName ) {
         String name = f.getFileName();
