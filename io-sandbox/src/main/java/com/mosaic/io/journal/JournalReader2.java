@@ -42,7 +42,21 @@ public class JournalReader2 extends StartStopMixin<JournalReader2> {
             return false;
         }
 
-        return currentDataFile.readNextInto( journalEntry );
+        if ( currentDataFile.isReadyToReadNextMessage() ) {
+            boolean successFlag = currentDataFile.readNextInto( journalEntry );
+
+            if ( successFlag ) {
+                return true;
+            } else {
+                this.currentDataFile.close();
+
+                this.currentDataFile = currentDataFile.nextFile().open();
+
+                return readNextInto( journalEntry );
+            }
+        } else {
+            return false;
+        }
     }
 
     public boolean seekTo( long messageSeq ) {

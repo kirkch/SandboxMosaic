@@ -1,9 +1,7 @@
 package com.mosaic.io.journal;
 
-import com.mosaic.bytes.ByteView;
 import com.mosaic.bytes2.BytesView2;
 import com.mosaic.io.filesystemx.DirectoryX;
-import com.mosaic.io.filesystemx.FileContents;
 import com.mosaic.io.filesystemx.FileContents2;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
@@ -20,6 +18,7 @@ class JournalDataFile2 {
 
 
     // Data file format:
+    // |------------10 bytes-------------------| -------------8 bytes------------------
     // | version:ushort | startFromMsgSeq:long | (payloadLength:int,payloadHashCode:int, payload:byte[])* |
 
 //    reader stops when payloadLength is read as zero
@@ -27,6 +26,11 @@ class JournalDataFile2 {
 
 //    NB at 100 million messages/sec, a long would take over 299 years to overflow
 //     thus we can conclude that using a long for msgCountSoFar will be sufficient
+
+
+    public static final long FILEHEADER_SIZE                   = 10;
+    public static final long PER_MSGHEADER_SIZE                =  8;
+    public static final long FILEFOOTER_SIZE                   =  PER_MSGHEADER_SIZE;
 
 
     /**
@@ -38,14 +42,13 @@ class JournalDataFile2 {
      * how many messages have preceded this point from other files
      */
     public static final long FILEHEADER_STARTSFROMMSGSEQ_INDEX =  2;
-    public static final long FILEHEADER_SIZE                   = 10;
 
     public static final long PER_MSGHEADER_PAYLOADSIZE_INDEX   =  0;
     public static final long PER_MSGHEADER_HASHCODE_INDEX      =  4;
-    public static final long PER_MSGHEADER_SIZE                =  8;
 
-    public static final long PER_MSGHEADER_PAYLOADSIZE_SIZE    =  4;
-    public static final long PER_MSGHEADER_HASH_SIZE           =  4;
+
+//    public static final long PER_MSGHEADER_PAYLOADSIZE_SIZE    =  4;
+//    public static final long PER_MSGHEADER_HASH_SIZE           =  4;
 
 
 
@@ -133,12 +136,16 @@ class JournalDataFile2 {
 
     public void flush() {
         if ( contents != null ) {
+            Backdoor.storeFence();
+
             contents.flush();
         }
     }
 
     public void close() {
         if ( contents != null ) {
+            flush();
+
             contents.release();
 
             contents = null;
@@ -146,7 +153,16 @@ class JournalDataFile2 {
         }
     }
 
+    public JournalDataFile2 nextFile() {
+        return new JournalDataFile2( dataDirectory, journalName, fileSeq+1, perFileSizeBytes, fileMode );
+    }
 
+
+    public void setFirstMessageSeq( long firstMessageSeq ) {
+        contents.writeLong( FILEHEADER_STARTSFROMMSGSEQ_INDEX, FILEHEADER_SIZE, firstMessageSeq );
+
+        this.currentMessageSeq = firstMessageSeq;
+    }
 
     private void seekToBeginningOfFile() {
         this.currentIndex      = FILEHEADER_SIZE;
@@ -162,9 +178,9 @@ class JournalDataFile2 {
         return file;
     }
 
-    private boolean isReadyToReadNextMessage() {
+    public boolean isReadyToReadNextMessage() {
         long hashCodeOffset = currentIndex + PER_MSGHEADER_HASHCODE_INDEX;
-        if ( (hashCodeOffset+4) >= fileSize ) {   // do not run past the end of the file
+        if ( (hashCodeOffset+4) > fileSize ) {   // do not run past the end of the file
             return false;
         }
 
@@ -175,20 +191,38 @@ class JournalDataFile2 {
         return hash != 0;
     }
 
+    /**
+     *
+     * @return true on successful allocation, and false if the end of the file has been reached
+     */
     public boolean allocateAndAssignTo( BytesView2 view, int messageSizeBytes ) {
         QA.isEqualTo( currentIndex, currentToExc, "currentIndex", "currentToExc" );
 
+
         long payloadIndex = currentIndex + PER_MSGHEADER_SIZE;
-        this.currentToExc = payloadIndex + messageSizeBytes;
+        long proposedEndOfMessage = payloadIndex + messageSizeBytes;
+
+        if ( proposedEndOfMessage > this.fileSize - FILEFOOTER_SIZE ) {  // todo add unit test that shows the need for the footer AND create a constant
+            contents.writeInt( currentIndex + PER_MSGHEADER_PAYLOADSIZE_INDEX, fileSize, -1 );
+            contents.writeInt( currentIndex + PER_MSGHEADER_HASHCODE_INDEX,    fileSize, -1 );
+
+            return false;
+        }
+
+        this.currentToExc = proposedEndOfMessage;
 
         contents.writeInt( currentIndex + PER_MSGHEADER_PAYLOADSIZE_INDEX, currentToExc, messageSizeBytes );
         view.setBytes( contents, payloadIndex, currentToExc );
 
-        scrollToNext();
-
         return true;
     }
 
+    /**
+     *
+     * @return returns false when the next message is not ready or the end of the file has been reached.
+     *         To tell the difference call isReadyToReadNextMessage, on end of file it will return true
+     *         but this method will return false.
+     */
     public boolean readNextInto( JournalEntry entry ) {
         if ( !isReadyToReadNextMessage() ) {
             return false;
@@ -198,6 +232,10 @@ class JournalDataFile2 {
 
         long payloadIndex  = currentIndex + PER_MSGHEADER_SIZE;
         int  payloadLength = contents.readInt(currentIndex + PER_MSGHEADER_PAYLOADSIZE_INDEX, fileSize);
+
+        if ( payloadLength == -1 ) {
+            return false;
+        }
 
         entry.bytes.setBytes( contents, payloadIndex, payloadIndex+payloadLength );
         entry.msgSeq = this.currentMessageSeq;

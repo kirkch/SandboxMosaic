@@ -31,7 +31,18 @@ public class JournalWriter2 extends StartStopMixin<JournalWriter2> {
 
 
     public void allocateTo( JournalEntry view, int numBytes ) {
-        currentDataFile.allocateAndAssignTo( view.bytes, numBytes );
+        boolean successFlag = currentDataFile.allocateAndAssignTo( view.bytes, numBytes );
+
+        if ( !successFlag ) {  // roll on to a new file
+            currentDataFile.close();
+
+            long nextMessageSeq = currentDataFile.getCurrentMessageSeq();
+
+            this.currentDataFile = currentDataFile.nextFile().open();
+            this.currentDataFile.setFirstMessageSeq(nextMessageSeq);
+
+            allocateTo( view, numBytes ); // try again after having rolled on to the next data file
+        }
     }
 
     public void completeMessage() {

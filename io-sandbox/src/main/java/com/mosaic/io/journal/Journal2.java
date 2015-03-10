@@ -15,8 +15,9 @@ import java.util.List;
  */
 class Journal2 {
 
-    public static final long FILEHEADER_SIZE    = 0;
-    public static final long PER_MSGHEADER_SIZE = 0;
+    public static final long FILEHEADER_SIZE             = JournalDataFile2.FILEHEADER_SIZE;
+    public static final long FILEFOOTER_SIZE             = JournalDataFile2.FILEFOOTER_SIZE;
+    public static final long PER_MSGHEADER_SIZE          = JournalDataFile2.PER_MSGHEADER_SIZE;
     public static final long DEFAULT_PER_FILE_SIZE_BYTES = 100 * SystemX.MEGABYTE;
 
 

@@ -14,7 +14,7 @@ public class Journal2Test extends Tests {
 
     // Size each journal file to be able to store exactly 20 transactions before overflowing
     private static final long TRANSACTION_COUNT_PERDATAFILE = 20;
-    private static final long JOURNAL_FILE_SIZE             = Journal2.FILEHEADER_SIZE
+    private static final long JOURNAL_FILE_SIZE             = Journal2.FILEHEADER_SIZE + Journal2.FILEFOOTER_SIZE +
         + TRANSACTION_COUNT_PERDATAFILE*(Transaction2.SIZE_BYTES+Journal2.PER_MSGHEADER_SIZE);   // space for the messages
 //        + Journal2.PER_MSGHEADER_PAYLOADSIZE_SIZE;                   // the file is truncated with -1
     // 10 + 20 * (24+8) = 10 + 20*32 = 10 + 640 = 650
@@ -116,38 +116,42 @@ public class Journal2Test extends Tests {
         assertFalse( reader.readNextInto( transaction ) );
     }
 
-//
-//// ROLL OVER DATA FILE
-//
-//    @Test
-//    public void addEnoughMessagesToExactlyMatchSingleDataFileSize_expectNoExtraDataFiles() {
-//        for ( long seq=0; seq<TRANSACTION_COUNT_PERDATAFILE; seq++ ) {
-//            writeMessage( seq );
-//        }
-//
-//        for ( long seq=0; seq<TRANSACTION_COUNT_PERDATAFILE; seq++ ) {
-//            assertNextMessageIs( seq );
-//        }
-//
-//        assertFalse( reader.readNextInto(transaction) );
-//
-//        assertEquals( "expected only one data file to be created", 1, dataDir.files().size() );
-//    }
-//
-//    @Test
-//    public void addEnoughMessagesToOverFlowFirstDataFile_expectSecondFileToBeCreated() {
-//        for ( long seq=0; seq<TRANSACTION_COUNT_PERDATAFILE+1; seq++ ) {
-//            writeMessage( seq );
-//        }
-//
-//        for ( long seq=0; seq<TRANSACTION_COUNT_PERDATAFILE+1; seq++ ) {
-//            assertNextMessageIs( seq );
-//        }
-//
-//        assertFalse( reader.readNextInto( transaction ) );
-//        assertEquals( "expected two data files to be created", 2, dataDir.files().size() );
-//    }
-//
+
+// ROLL OVER DATA FILE
+
+    @Test
+    public void addEnoughMessagesToExactlyMatchSingleDataFileSize_expectNoExtraDataFiles() {
+        for ( long seq=0; seq<TRANSACTION_COUNT_PERDATAFILE; seq++ ) {
+            writeMessage( seq );
+        }
+
+        for ( long seq=0; seq<TRANSACTION_COUNT_PERDATAFILE; seq++ ) {
+            assertNextMessageIs( seq );
+        }
+
+        assertFalse( reader.readNextInto(transaction) );
+
+        assertEquals( "expected only one data file to be created", 1, dataDir.files().size() );
+    }
+
+    @Test
+    public void addEnoughMessagesToOverFlowFirstDataFile_expectSecondFileToBeCreated() {
+        for ( long seq=0; seq<TRANSACTION_COUNT_PERDATAFILE; seq++ ) {
+            writeMessage( seq );
+        }
+
+        writeMessage( TRANSACTION_COUNT_PERDATAFILE );
+
+        for ( long seq=0; seq<TRANSACTION_COUNT_PERDATAFILE; seq++ ) {
+            assertNextMessageIs( seq );
+        }
+
+        assertNextMessageIs( TRANSACTION_COUNT_PERDATAFILE );
+
+        assertFalse( reader.readNextInto( transaction ) );
+        assertEquals( "expected two data files to be created", 2, dataDir.files().size() );
+    }
+
 //    @Test
 //    public void addEnoughMessagesToOverFlowTwoDataFiles_expectThirdFileToBeCreated() {
 //        long numMessages = TRANSACTION_COUNT_PERDATAFILE*2 + 1;
@@ -480,11 +484,11 @@ public class Journal2Test extends Tests {
 //        return r;
 //    }
 //
-//
-//    private void writeMessage( long msgSeq ) {
-//        writeMessage( expectedFrom( msgSeq ), expectedTo(msgSeq), expectedAmount(msgSeq) );
-//    }
-//
+
+    private void writeMessage( long msgSeq ) {
+        writeMessage( expectedFrom(msgSeq), expectedTo(msgSeq), expectedAmount(msgSeq) );
+    }
+
     private void writeMessage( long expectedFrom, long expectedTo, long expectedAmount ) {
         writer.allocateTo( transaction, Transaction2.SIZE_BYTES );
 
@@ -501,26 +505,26 @@ public class Journal2Test extends Tests {
 //        } );
     }
 
-//    private void assertNextMessageIs( long msgSeq ) {
-//        assertNextMessageIs( reader, msgSeq );
-//    }
-//
-//    private void assertNextMessageIs( JournalReader r, long msgSeq ) {
-//        assertNextMessageIs( r, msgSeq, expectedFrom(msgSeq), expectedTo(msgSeq), expectedAmount(msgSeq) );
-//    }
-//
-//    private long expectedAmount( long msgSeq ) {
-//        return msgSeq*10 + 3;
-//    }
-//
-//    private long expectedTo( long msgSeq ) {
-//        return msgSeq*10 + 2;
-//    }
-//
-//    private long expectedFrom( long msgSeq ) {
-//        return msgSeq*10 + 1;
-//    }
-//
+    private void assertNextMessageIs( long msgSeq ) {
+        assertNextMessageIs( reader, msgSeq );
+    }
+
+    private void assertNextMessageIs( JournalReader2 r, long msgSeq ) {
+        assertNextMessageIs( r, msgSeq, expectedFrom(msgSeq), expectedTo(msgSeq), expectedAmount(msgSeq) );
+    }
+
+    private long expectedAmount( long msgSeq ) {
+        return msgSeq*10 + 3;
+    }
+
+    private long expectedTo( long msgSeq ) {
+        return msgSeq*10 + 2;
+    }
+
+    private long expectedFrom( long msgSeq ) {
+        return msgSeq*10 + 1;
+    }
+
     private void assertNextMessageIs( long expectedMessageSeq, long expectedFrom, long expectedTo, long expectedAmount ) {
         assertNextMessageIs( reader, expectedMessageSeq, expectedFrom, expectedTo, expectedAmount );
     }
@@ -530,9 +534,9 @@ public class Journal2Test extends Tests {
         assertTrue( "reached end of data file early: " + (expectedFrom/10), wasSuccessfullyRead );
 
         assertEquals( "messageSeq", expectedMessageSeq, transaction.getMessageSeq() );
-        assertEquals( "from",       expectedFrom,       transaction.getFrom() );
-        assertEquals( "to",         expectedTo,         transaction.getTo() );
-        assertEquals( "amount",     expectedAmount,     transaction.getAmount(), 1e-6 );
+        assertEquals( "from "+expectedMessageSeq,       expectedFrom,       transaction.getFrom() );
+        assertEquals( "to "+expectedMessageSeq,         expectedTo,         transaction.getTo() );
+        assertEquals( "amount "+expectedMessageSeq,     expectedAmount,     transaction.getAmount(), 1e-6 );
     }
 //
 //    private void deleteDataFile( long fileSeq ) {
