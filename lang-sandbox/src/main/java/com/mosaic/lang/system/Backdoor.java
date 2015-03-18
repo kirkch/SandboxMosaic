@@ -68,6 +68,10 @@ public class Backdoor {
         return null;
     }
 
+    public static void sleep( long sleepForMillis ) {
+        sleep( Duration.millis(sleepForMillis) );
+    }
+
     public static void sleep( Duration sleepFor ) {
         long millis = sleepFor.getMillis();
 

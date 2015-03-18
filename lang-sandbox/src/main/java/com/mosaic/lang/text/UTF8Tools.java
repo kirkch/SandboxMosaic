@@ -56,6 +56,51 @@ public class UTF8Tools {
         }
     }
 
+
+    /**
+     * Scans through bytes and returns the byte index (exc) of the last character that
+     * fits within the maxNumBytes.
+     */
+    public static int findTruncationPoint( byte[] bytes, int pos, int maxNumBytes ) {
+        int maxPosExc = Math.min( pos+maxNumBytes, bytes.length );
+
+        int prevPos   = pos;
+        int candidate = pos;
+
+        while ( candidate < maxPosExc ) {
+            prevPos = candidate;
+
+            int c = bytes[candidate] & 0xFF;
+
+            switch (c >> 4) {
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                    candidate += 1;
+                    break;
+                case 12:
+                case 13: {
+                    candidate += 2;
+                    break;
+                }
+                case 14: {
+                    candidate += 3;
+
+                    break;
+                }
+                default:
+                    Backdoor.throwException( new UTFDataFormatException("malformed input around byte") );
+            }
+        }
+
+        return candidate <= maxPosExc ? candidate : prevPos;
+    }
+
     public static void decode( byte[] bytes, int pos, DecodedCharacter output ) {
         int c = bytes[pos] & 0xFF;
         switch (c >> 4) {
@@ -76,7 +121,7 @@ public class UTF8Tools {
                 /* 110x xxxx 10xx xxxx */
                 int char2 = bytes[pos+1];
 
-                if ( !SystemX.isRecklessRun() ) {
+                if ( SystemX.isDebugRun() ) {
                     if ( (char2 & 0xC0) != 0x80 ) {
                         Backdoor.throwException( new UTFDataFormatException("malformed input around byte") );
                     }
@@ -91,7 +136,7 @@ public class UTF8Tools {
                 int char2 = bytes[pos+1];
                 int char3 = bytes[pos+2];
 
-                if ( !SystemX.isRecklessRun() ) {
+                if ( SystemX.isDebugRun() ) {
                     if (((char2 & 0xC0) != 0x80) || ((char3 & 0xC0) != 0x80)) {
                         Backdoor.throwException( new UTFDataFormatException("malformed input around byte") );
                     }
@@ -132,7 +177,7 @@ public class UTF8Tools {
 
                 int char2 = Backdoor.getUnsignedByte( ptr + 1 );
 
-                if ( !SystemX.isRecklessRun() ) {
+                if ( SystemX.isDebugRun() ) {
                     if ( (char2 & 0xC0) != 0x80 ) {
                         Backdoor.throwException( new UTFDataFormatException("malformed input around byte") );
                     }
@@ -149,7 +194,7 @@ public class UTF8Tools {
                 int char2 = Backdoor.getUnsignedByte( ptr + 1 );
                 int char3 = Backdoor.getUnsignedByte( ptr + 2 );
 
-                if ( !SystemX.isRecklessRun() ) {
+                if ( SystemX.isDebugRun() ) {
                     if (((char2 & 0xC0) != 0x80) || ((char3 & 0xC0) != 0x80)) {
                         Backdoor.throwException( new UTFDataFormatException("malformed input around byte") );
                     }
@@ -170,16 +215,10 @@ public class UTF8Tools {
         int count     = 0;
         int seqLength = characters.length();
 
-        char c;
         for ( int i=0; i<seqLength; i++ ) {
-            c = characters.charAt(i);
-            if ( c <= 0x007F ) {
-                count++;
-            } else if ( c > 0x07FF ) {
-                count += 3;
-            } else {
-                count += 2;
-            }
+            char c = characters.charAt(i);
+
+            count += countBytesFor( c );
         }
 
         return count;

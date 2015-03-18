@@ -3,6 +3,7 @@ package com.mosaic.io.journal;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.StartStopMixin;
+import com.mosaic.lang.text.UTF8;
 
 
 /**

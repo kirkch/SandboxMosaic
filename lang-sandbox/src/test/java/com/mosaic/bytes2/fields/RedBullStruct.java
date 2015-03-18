@@ -2,6 +2,7 @@ package com.mosaic.bytes2.fields;
 
 import com.mosaic.bytes2.Bytes2;
 import com.mosaic.bytes2.FixedWidthBytesView;
+import com.mosaic.lang.text.UTF8;
 
 
 /**
@@ -14,6 +15,7 @@ public class RedBullStruct extends FixedWidthBytesView {
     private static final BooleanField2 hasWingsField    = fieldsRegistry.registerBoolean();
     private static final IntField2     ageField         = fieldsRegistry.registerInteger();
     private static final FloatField2   weightField      = fieldsRegistry.registerFloat();
+    private static final UTF8Field2    nameField        = fieldsRegistry.registerUTF8( 30 );
 
 
     public static long SIZE_BYTES = fieldsRegistry.sizeBytes();
@@ -51,6 +53,14 @@ public class RedBullStruct extends FixedWidthBytesView {
 
     public void setWeight( float weight ) {
         weightField.set( this, weight );
+    }
+
+    public UTF8 getName() {
+        return nameField.get(this);
+    }
+
+    public void setName( UTF8 name ) {
+        nameField.set( this, name );
     }
 
 

@@ -33,7 +33,7 @@ public class UTF8ToolsTest {
             UTF8Tools.write( array, 2, '£' );
 
             byte[] poundSign = "£".getBytes( "UTF8" );
-            assertByteArrayEquals( array, 0,0,poundSign[0],poundSign[1], 0 );
+            assertByteArrayEquals( array, 0, 0, poundSign[0], poundSign[1], 0 );
 
             UTF8Tools.decode( array, 2, decodeOutput );
             assertEquals( '£', decodeOutput.c );
@@ -45,7 +45,7 @@ public class UTF8ToolsTest {
         UTF8Tools.write( array, 2, 'グ' );
 
         byte[] kanjiSymbol = "グ".getBytes( "UTF8" );
-        assertByteArrayEquals( array, 0,0,kanjiSymbol[0],kanjiSymbol[1],kanjiSymbol[2] );
+        assertByteArrayEquals( array, 0, 0, kanjiSymbol[0], kanjiSymbol[1], kanjiSymbol[2] );
 
         UTF8Tools.decode( array, 2, decodeOutput );
         assertEquals( 'グ', decodeOutput.c );
@@ -83,7 +83,7 @@ public class UTF8ToolsTest {
             UTF8Tools.write( ptr+2, maxAddressExc, '£' );
 
             byte[] poundSign = "£".getBytes( "UTF8" );
-            assertBytesViaPointer( ptr, 0,0,poundSign[0],poundSign[1], 0 );
+            assertBytesViaPointer( ptr, 0, 0, poundSign[0], poundSign[1], 0 );
 
             UTF8Tools.decode( ptr+2, maxAddressExc, decodeOutput );
             assertEquals( '£', decodeOutput.c );
@@ -104,7 +104,7 @@ public class UTF8ToolsTest {
             UTF8Tools.write( ptr+2, maxAddressExc, 'グ' );
 
             byte[] kanjiSymbol = "グ".getBytes( "UTF8" );
-            assertBytesViaPointer( ptr, 0,0,kanjiSymbol[0],kanjiSymbol[1],kanjiSymbol[2] );
+            assertBytesViaPointer( ptr, 0, 0, kanjiSymbol[0], kanjiSymbol[1], kanjiSymbol[2] );
 
             UTF8Tools.decode( ptr+2, maxAddressExc, decodeOutput );
             assertEquals( 'グ', decodeOutput.c );
@@ -112,6 +112,40 @@ public class UTF8ToolsTest {
         } finally {
             Backdoor.free( ptr );
         }
+    }
+
+    @Test
+    public void findTruncationPoint_truncateAcrossSingleBytes() throws UnsupportedEncodingException {
+        byte[] bytes = "0123456789".getBytes( "UTF-8" );
+
+        assertEquals(  3, UTF8Tools.findTruncationPoint(bytes, 0, 3) );
+        assertEquals( 10, UTF8Tools.findTruncationPoint( bytes, 0, 12 ) );
+    }
+
+    @Test
+    public void findTruncationPoint_truncateAcrossTwoBytes() throws UnsupportedEncodingException {
+        byte[] bytes = "££££".getBytes( "UTF-8" );
+
+        assertEquals( 0, UTF8Tools.findTruncationPoint(bytes, 0, 0) );
+        assertEquals( 0, UTF8Tools.findTruncationPoint(bytes, 0, 1) );
+        assertEquals( 2, UTF8Tools.findTruncationPoint(bytes, 0, 2) );
+        assertEquals( 2, UTF8Tools.findTruncationPoint(bytes, 0, 3) );
+        assertEquals( 4, UTF8Tools.findTruncationPoint(bytes, 0, 4) );
+        assertEquals( 8, UTF8Tools.findTruncationPoint( bytes, 0, 12 ) );
+    }
+
+    @Test
+    public void findTruncationPoint_truncateAcrossThreeBytes() throws UnsupportedEncodingException {
+        byte[] bytes = "グググ".getBytes( "UTF-8" );
+
+        assertEquals( 0, UTF8Tools.findTruncationPoint(bytes, 0, 0) );
+        assertEquals( 0, UTF8Tools.findTruncationPoint(bytes, 0, 1) );
+        assertEquals( 0, UTF8Tools.findTruncationPoint(bytes, 0, 2) );
+        assertEquals( 3, UTF8Tools.findTruncationPoint(bytes, 0, 3) );
+        assertEquals( 3, UTF8Tools.findTruncationPoint(bytes, 0, 4) );
+        assertEquals( 3, UTF8Tools.findTruncationPoint(bytes, 0, 5) );
+        assertEquals( 6, UTF8Tools.findTruncationPoint(bytes, 0, 6) );
+        assertEquals( 9, UTF8Tools.findTruncationPoint( bytes, 0, 12 ) );
     }
 
 

@@ -3,9 +3,11 @@ package com.mosaic.io.cli;
 import com.mosaic.io.FileUtils;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileX;
+import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.LiveSystem;
 import com.mosaic.lang.system.OSProcess;
 import com.mosaic.lang.system.SystemX;
+import com.mosaic.lang.time.Duration;
 import com.softwaremosaic.junit.JUnitMosaic;
 import org.junit.After;
 import org.junit.Before;
@@ -29,10 +31,12 @@ public class CLApp_fileLockChildProcessTests {
 
     private SystemX system;
     private File    dataDir;
+    private File    lockFile;
 
     @Before
     public void setup() throws IOException {
-        this.dataDir = FileUtils.makeTempDirectory( "CLApp_fileLockChildProcessTests", ".dataDir" );
+        this.dataDir  = FileUtils.makeTempDirectory( "CLApp_fileLockChildProcessTests", ".dataDir" );
+        this.lockFile = new File(dataDir, "LOCK");
 
         this.system = LiveSystem.withNoLogging(dataDir);
 
@@ -123,22 +127,33 @@ public class CLApp_fileLockChildProcessTests {
         assertEquals( 1, process2.getResultNoBlock().intValue() );
     }
 
+
     @Test
-    public void startTwoAppsInTheirOwnProcesses_cleanlyShutdownTheFirstProcessBeforeStartingTheSecond_expectTheSecondToStartNormally() throws IOException {
+    public void startTwoAppsInTheirOwnProcesses_cleanlyShutdownTheFirstProcessViaCtrlCBeforeStartingTheSecond_expectTheSecondToStartNormally() throws IOException {
         Vector<String> processOutput1 = new Vector<>();
         Vector<String> processOutput2 = new Vector<>();
 
-        OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, "data", "-v" );
-        JUnitMosaic.spinUntilTrue( () -> processOutput1.contains("App has started") );
+        OSProcess process1 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput1::add, "-v", "data" );
+        JUnitMosaic.spinUntilTrue( 3001, () -> processOutput1.contains("App has started") );
 
+        // whether abort() cleanly kills, or abruptly kills is jvm implementation dependent.
+        // MacOSX usually does it cleanly but not always.. edge cases are irritating, thus this test is
+        // fragile...  options?
+        // considering adding two flags to junit.  1) an OnError handler for reporting the logs, and 2) permit
+        // a retry on error upto a limit.. usually this is bad, but for this test it may be acceptable
         process1.abort();
-        process1.spinUntilComplete( 3001 );
+        process1.spinUntilComplete( 3002 );
+
+
+        JUnitMosaic.spinUntilTrue( 3011, () -> processOutput1.contains("Forced shutdown.") );
+        JUnitMosaic.spinUntilTrue( 3010, () -> !new File(dataDir, "LOCK").exists() );
 
 
         OSProcess process2 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput2::add, "data", "-v" );
-        JUnitMosaic.spinUntilTrue( () -> processOutput2.contains( "App has started" ) );
 
-        assertFalse( processOutput2.contains("Previous run did not shutdown cleanly, recovering") );
+        JUnitMosaic.spinUntilTrue( 3003, () -> processOutput2.contains( "App has started" ) );
+
+        assertFalse( processOutput2.contains( "Previous run did not shutdown cleanly, recovering") );
 
 
         signalChildProcessesToStop( dataDir );
@@ -197,8 +212,8 @@ public class CLApp_fileLockChildProcessTests {
 
 
     private void spinUntilProcessesHaveStopped( OSProcess process1, OSProcess process2 ) {
-        process1.spinUntilComplete( 3000 );
-        process2.spinUntilComplete( 3000 );
+        process1.spinUntilComplete( 3005 );
+        process2.spinUntilComplete( 3006 );
     }
 
     private void signalChildProcessesToStop( File dataDir ) throws IOException {

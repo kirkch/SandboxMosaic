@@ -14,6 +14,11 @@ import java.io.InputStream;
  */
 public class BytesView2 implements Bytes2 {
 
+    public static long sizeOfUTF8String( UTF8 source ) {
+        return 2 + source.getByteCount();
+    }
+
+
     protected Bytes2 bytes;
     protected long   base;
     protected long   maxExc;

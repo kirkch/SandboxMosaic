@@ -79,8 +79,11 @@ public class ProcessRunner {
             promise.onResult( r ->  shutdownHookTicket.cancel() );
 
             promise.onFailure( f -> {
-                TryNow.tryNow( p::destroy );
-                TryNow.tryNow( shutdownHookTicket::cancel );
+                TryNow.tryNow( p::destroy );                 // send signal to other process
+                TryNow.tryNow( shutdownHookTicket::cancel ); // send signal within local process
+
+                system.opsAudit( "Forced shutdown." );
+                stdoutCallback.invoke( "Forced shutdown." );
             } );
 
 

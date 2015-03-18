@@ -4,6 +4,8 @@ import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileSystemX;
 import com.mosaic.lang.QA;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 /**
  *
@@ -14,7 +16,7 @@ public class InMemoryFileSystem implements FileSystemX {
     private DirectoryX root;
     private DirectoryX cwd;
 
-    private int        openFileCount;
+    private AtomicInteger openFileCount = new AtomicInteger(0);
 
 
     public InMemoryFileSystem() {
@@ -30,7 +32,7 @@ public class InMemoryFileSystem implements FileSystemX {
 
 
     public int getNumberOfOpenFiles() {
-        return openFileCount;
+        return openFileCount.get();
     }
 
     public boolean supportsLocking() {
@@ -38,13 +40,13 @@ public class InMemoryFileSystem implements FileSystemX {
     }
 
     void incrementOpenFileCount() {
-        openFileCount++;
+        openFileCount.incrementAndGet();
     }
 
     void decrementOpenFileCount() {
-        openFileCount--;
+        int newValue = openFileCount.decrementAndGet();
 
-        QA.isGTEZero( openFileCount, "openFileCount" );
+        QA.isGTEZero( newValue, "openFileCount" );
     }
 
     public DirectoryX getRoot() {

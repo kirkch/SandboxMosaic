@@ -100,6 +100,10 @@ public class ByteFieldsRegistry2 extends Lockable<ByteFieldsRegistry2> {
         return registerNewField( new ByteArrayField2(numBytesAssignedSoFar, len) );
     }
 
+    public UTF8Field2 registerUTF8( int maxLengthBytes ) {
+        return registerNewField( new UTF8Field2(numBytesAssignedSoFar, maxLengthBytes) );
+    }
+
 
     private <T extends BytesField2> T registerNewField( T field ) {
         throwIfLocked();
