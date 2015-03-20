@@ -12,6 +12,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -120,11 +122,14 @@ public class ProcessRunner {
                 }
             }.start();
 
-            return new OSProcess(pid, promise);
+
+            PrintWriter writer = new PrintWriter(new OutputStreamWriter(p.getOutputStream()));
+
+            return new OSProcess(pid, promise, writer);
         } catch ( IOException ex ) {
             promise.completeWithFailure( new Failure(ex) );
 
-            return new OSProcess(-1, promise);
+            return new OSProcess(-1, promise, null);
         }
     }
 

@@ -7,7 +7,10 @@ import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Test;
 import org.junit.runner.RunWith;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Objects;
 import java.util.Vector;
 
 import static org.junit.Assert.*;
@@ -109,7 +112,20 @@ public class ProcessRunnerTest {
         OSProcess     result = runner.run();
 
 
-        result.completeWithFailure( new Failure(this.getClass(), "abort") );
+        result.completeWithFailure( new Failure( this.getClass(), "abort" ) );
+    }
+
+    @Test(threadCheck=true)
+    public void writeTextToTheChildProcessesStdIn_expectTheChildProcessToBeAbleToReadIt() {
+        String[]      args    = {"-cp", System.getProperty("java.class.path"), EchoMain.class.getName()};
+        ProcessRunner runner  = new ProcessRunner(system, "java", args, System.out::println);
+        OSProcess     process = runner.run();
+
+        process.getPipedWriter().println( "hello world" );
+        process.getPipedWriter().flush();
+
+        // NB EchoMain exits with status zero iff the string 'hello world' is read in
+        assertEquals( 0, process.spinUntilComplete(1000).getResultNoBlock().intValue() );
     }
 
 
@@ -145,6 +161,24 @@ public class ProcessRunnerTest {
     public static class NeverCompletesMain {
         public static void main( String[] args ) {
             Backdoor.sleep( Duration.days(1) );
+        }
+    }
+
+    public static class EchoMain {
+        public static void main( String[] args ) throws IOException {
+            System.out.println( "STARTED" );
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+
+            String input = in.readLine();
+            System.out.println( "READ: '"+input+"'" );
+
+            if ( Objects.equals(input,"hello world") ) {
+                System.out.println(input);
+                System.exit( 0 );
+            } else {
+                System.exit( 1 );
+            }
         }
     }
 }

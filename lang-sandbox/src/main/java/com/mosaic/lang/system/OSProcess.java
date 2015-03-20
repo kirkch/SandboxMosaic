@@ -3,10 +3,12 @@ package com.mosaic.lang.system;
 import com.mosaic.collections.concurrent.Future;
 import com.mosaic.collections.concurrent.FutureWrapper;
 import com.mosaic.lang.Failure;
+import com.mosaic.lang.functional.CompletedCallback;
 import com.mosaic.lang.reflect.ReflectionUtils;
-import sun.misc.Signal;
 
+import java.io.PrintWriter;
 import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
@@ -14,16 +16,38 @@ import java.lang.reflect.Method;
  */
 public class OSProcess extends FutureWrapper<Integer> {
 
-    private final int pid;
+    private final int                          pid;
+    private final AtomicReference<PrintWriter> writer = new AtomicReference<>();
 
 
-    public OSProcess( int pid, Future<Integer> promise ) {
+    public OSProcess( int pid, Future<Integer> promise, PrintWriter writer ) {
         super( promise );
-        this.pid = pid;
+
+        this.pid    = pid;
+        this.writer.set(writer);
+
+        onComplete( new CompletedCallback<Integer>() {
+            public void completedWithResult( Integer processExitStatus ) {
+                OSProcess.this.writer.set( null );
+            }
+
+            public void completedWithFailure( Failure f ) {
+                OSProcess.this.writer.set(null);
+            }
+        });
     }
 
     public int getPid() {
         return pid;
+    }
+
+    /**
+     * Any text written to this writer will find its way into the input of the child process.
+     *
+     * @return could be null
+     */
+    public PrintWriter getPipedWriter() {
+        return writer.get();
     }
 
     /**
