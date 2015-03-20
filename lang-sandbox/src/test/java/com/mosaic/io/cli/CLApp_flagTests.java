@@ -55,6 +55,10 @@ public class CLApp_flagTests {
             "    -v, --verbose",
             "        Include operational context in logging suitable for Ops. To enable full",
             "        developer debugging output then pass -ea to the JVM.",
+            "",
+            "    --Xclock=<file>",
+            "        Share system time via the specified file.  Only used for testing",
+            "        purposes.",
             ""
         );
     }
@@ -96,6 +100,10 @@ public class CLApp_flagTests {
             "    -v, --verbose",
             "        Include operational context in logging suitable for Ops. To enable full",
             "        developer debugging output then pass -ea to the JVM.",
+            "",
+            "    --Xclock=<file>",
+            "        Share system time via the specified file.  Only used for testing",
+            "        purposes.",
             ""
         );
     }

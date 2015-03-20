@@ -1,6 +1,11 @@
 package com.mosaic.lang.time;
 
+import com.mosaic.lang.StartStoppable;
+import com.mosaic.lang.system.Backdoor;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
@@ -73,4 +78,39 @@ public class SystemClockTest {
         assertEquals( 13, nowDTM.getHour() );
     }
 
+    @Test
+    public void mmMappedClock() throws IOException {
+        SystemClock systemClock2 = new SystemClock();
+
+        File tmpFile =  File.createTempFile( "mmclock", ".dat" );
+
+        try {
+            systemClock.memoryMapClock( tmpFile );
+
+            // ensure that a fresh mmClock returns System.currentTimeMillis
+            long t0 = System.currentTimeMillis();
+
+            assertTrue( systemClock.getCurrentMillis() >= t0 );
+
+            // override the time on mmClock -- expect the time to change
+            systemClock.set( 1234 );
+            assertEquals( 1234, systemClock.getCurrentMillis() );
+
+            // systemClock2 has not been memory mapped, so it will not have changed
+            assertTrue( systemClock2.getCurrentMillis() != 1234 );
+
+            // memory map systemClock2 and expect it to get the same value as systemClock1
+            systemClock2.memoryMapClock( tmpFile );
+            assertEquals( 1234, systemClock2.getCurrentMillis() );
+
+            systemClock2.add(Duration.millis(2));
+            assertEquals( 1236, systemClock.getCurrentMillis() );
+            assertEquals( 1236, systemClock2.getCurrentMillis() );
+        } finally {
+            systemClock.stop();
+            systemClock2.stop();
+
+            tmpFile.delete();
+        }
+    }
 }

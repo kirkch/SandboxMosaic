@@ -32,19 +32,39 @@ public class Backdoor {
     }
 
     public static void free( long address ) {
-        unsafe.freeMemory(address);
+        unsafe.freeMemory( address );
 
         mallocCounter.decrementAndGet();
     }
 
+    /**
+     * Ensures lack of reordering of stores before the fence with loads or stores after the fence.
+     *
+     * On x86 this means: next instruction will execute after all SOBs are processed
+     *
+     * http://stackoverflow.com/questions/23603304/java-8-unsafe-xxxfence-instructions
+     */
     public static void storeFence() {
         unsafe.storeFence();
     }
+
+    /**
+     * Ensures lack of reordering of loads before the fence with loads or stores after the fence.
+     *
+     * NB The x86 load queue stores invalidation requests, not actual loads.
+     *
+     * http://stackoverflow.com/questions/23603304/java-8-unsafe-xxxfence-instructions
+     */
 
     public static void loadFence() {
         unsafe.loadFence();
     }
 
+    /**
+     * Applies both a load and a store fence.
+     *
+     * http://stackoverflow.com/questions/23603304/java-8-unsafe-xxxfence-instructions
+     */
     public static void fullFence() {
         unsafe.fullFence();
     }

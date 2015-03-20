@@ -16,6 +16,7 @@ import com.mosaic.lang.time.DTM;
 import com.mosaic.lang.time.Duration;
 import com.mosaic.utils.StringUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -47,6 +48,8 @@ public abstract class CLApp {
     private CLOption<Boolean>     helpFlag;
     private CLOption<Boolean>     isVerboseFlag;   // NB there is no debug flag; to enable that pass -ea to the JVM on startup..
     private CLOption<String>      configFile;
+
+    private CLOption<String>      clockFile;
 
     private Function0<DirectoryX> dataDirectoryFetcherNbl;
 
@@ -87,19 +90,21 @@ public abstract class CLApp {
         helpFlag      = registerFlag( "?", "help", "Display this usage information." );
         isVerboseFlag = registerFlag( "v", "verbose", "Include operational context in logging suitable for Ops. To enable full developer debugging output then pass -ea to the JVM." );
 
-        startedAt = system.getCurrentDTM();
+
+        clockFile     = registerOption( null, "Xclock", "file", "Share system time via the specified file.  Only used for testing purposes." );
     }
 
 
     private void handleTearDown() {
         beforeShutdown();
 
+        DTM      nowDTM   = system.getCurrentDTM();
+        Duration duration = nowDTM.subtract( startedAt );
+
         system.stop();
 
         afterShutdown();
 
-        DTM      nowDTM   = system.getCurrentDTM();
-        Duration duration = nowDTM.subtract( startedAt );
 
         system.opsAudit( "Ran for %s.  Ended at %2d:%02d:%02d UTC on %04d/%02d/%02d.",
             duration.toString(),
@@ -125,6 +130,17 @@ public abstract class CLApp {
 
         system.setDevAuditEnabled( SystemX.isDebugRun() );
         system.setOpsAuditEnabled( isVerboseFlag.getValue() || SystemX.isDebugRun()  );
+
+        startedAt = system.getCurrentDTM();
+
+        if ( clockFile.getValue() != null ) {
+            File f = new File(clockFile.getValue());
+
+            system.clock.memoryMapClock( f );
+
+            system.opsAudit( "System time is coming from: " + f );
+        }
+
 
         auditArgs( normalisedArgs );
         auditEnv();

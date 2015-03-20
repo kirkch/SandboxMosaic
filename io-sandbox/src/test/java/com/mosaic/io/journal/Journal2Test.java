@@ -205,7 +205,7 @@ public class Journal2Test extends Tests {
                 Transaction2 t = new Transaction2();
 
                 for ( long seq=0; seq<numMessages; seq++ ) {
-                    JUnitMosaic.spinUntilTrue( () -> reader.readNextInto( t ) );
+                    JUnitMosaic.spinUntilTrue( () -> reader.readNextInto(t) );
 
                     assertEquals( expectedFrom(seq), t.getFrom() );
                     assertEquals( expectedTo(seq), t.getTo() );

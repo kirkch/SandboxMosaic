@@ -16,21 +16,26 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class StartStopMixin<T extends StartStoppable<T>> implements StartStoppable<T> {
 
     /**
-     * Helper class for starting a service.  Occurred because of type mangling that
+     * Helper method for starting a service.  Occurred because of type mangling that
      * occurred when wanting another interface to implement the StartStoppable interface
      * AND a implementation of that interface to also extend StartStopMixin.
+     *
      * Knickers + Twist -> Static fudge method.
      */
-    public static void init( Object s ) {
+    public static <T> T start( T s ) {
         if ( s instanceof StartStoppable ) {
             ((StartStoppable) s).start();
         }
+
+        return s;
     }
 
-    public static void tearDown( Object s ) {
+    public static <T> T stop( T s ) {
         if ( s instanceof StartStoppable ) {
             ((StartStoppable) s).stop();
         }
+
+        return s;
     }
 
 

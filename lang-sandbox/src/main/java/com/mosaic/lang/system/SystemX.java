@@ -415,6 +415,8 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
     }
 
     protected void doStart() {
+        clock.start();
+
         registerService( new TimerThread(getServiceName()) );
     }
 
@@ -422,6 +424,8 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
         runShutdownHooks();
 
         TryNow.tryNow( () -> Runtime.getRuntime().removeShutdownHook( masterShutdownHook ) );
+
+        clock.stop();
     }
 
 
