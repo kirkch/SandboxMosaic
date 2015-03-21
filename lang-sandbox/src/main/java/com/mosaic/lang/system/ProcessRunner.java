@@ -1,8 +1,10 @@
 package com.mosaic.lang.system;
 
 import com.mosaic.collections.concurrent.Future;
+import com.mosaic.io.IOUtils;
 import com.mosaic.lang.Cancelable;
 import com.mosaic.lang.Failure;
+import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.TryNow;
 import com.mosaic.lang.functional.VoidFunction1;
 import com.mosaic.lang.reflect.ReflectionUtils;
@@ -14,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,6 +31,9 @@ public class ProcessRunner {
     private VoidFunction1<String> stdoutCallback;
     private SystemX               system;
     private File                  cwd;
+
+    private String                separator = IOUtils.LINE_SEPARATOR;
+
 
 
     public ProcessRunner( SystemX system, String cmd, String...args ) {
@@ -54,6 +60,14 @@ public class ProcessRunner {
     }
 
 
+    /**
+     * Specified the EOL separator to use when reading lines of text in from the child process.
+     */
+    public ProcessRunner withLineSeparator( String separator ) {
+        this.separator = separator;
+
+        return this;
+    }
 
     public OSProcess run() {
         ProcessBuilder b = new ProcessBuilder();
@@ -90,19 +104,30 @@ public class ProcessRunner {
 
 
 
-            BufferedReader stdout = new BufferedReader( new InputStreamReader(p.getInputStream()) );
+            Reader stdout = new InputStreamReader(p.getInputStream()) ;
 
             String threadName = "ProcessRunner "+pid+": "+cmd.get(0);
             new Thread(threadName) {
                 public void run() {
+                    StringBuilder buf = new StringBuilder();
+
                     boolean hasReachedEOF = false;
                     while(!hasReachedEOF) {
                         try {
-                            String nextLine = stdout.readLine();
-                            while ( nextLine != null ) {
-                                stdoutCallback.invoke( nextLine );
+                            int c = stdout.read();
+                            while ( c >= 0 ) {
+                                buf.append((char) c);
 
-                                nextLine = stdout.readLine();
+                                int upToExc = buf.indexOf(separator);
+                                if ( upToExc >= 0 ) {
+                                    String txt = buf.substring( 0, upToExc );
+
+                                    stdoutCallback.invoke( txt );
+
+                                    buf.replace( 0, upToExc+separator.length(), "" );
+                                }
+
+                                c = stdout.read();
                             }
 
                             hasReachedEOF = true;

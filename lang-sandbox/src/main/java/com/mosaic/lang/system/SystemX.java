@@ -1,5 +1,6 @@
 package com.mosaic.lang.system;
 
+import com.mosaic.io.IOUtils;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileSystemX;
 import com.mosaic.io.streams.CharacterStream;
@@ -443,7 +444,7 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
      * same classpath as the currently running process.
      */
     public OSProcess runJavaProcess( Class main, String... args ) {
-        return runJavaProcess( main, line -> {}, args );
+        return runJavaProcess( main, IOUtils.LINE_SEPARATOR, line -> {}, args );
     }
 
     /**
@@ -451,6 +452,14 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
      * same classpath as the currently running process.
      */
     public OSProcess runJavaProcess( Class main, VoidFunction1<String> stdoutCallback, String... args ) {
+        return runJavaProcess( main, IOUtils.LINE_SEPARATOR, stdoutCallback, args );
+    }
+
+    /**
+     * Invokes the specified Java Class as a child OS process.  The child process will use the
+     * same classpath as the currently running process.
+     */
+    public OSProcess runJavaProcess( Class main, String lineSeparator, VoidFunction1<String> stdoutCallback, String... args ) {
         String javaHome  = System.getProperty( "java.home" );
         String javaCmd   = new File( javaHome, "bin/java" ).getAbsolutePath();
         String classPath = System.getProperty( "java.class.path" );
@@ -462,7 +471,7 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
         Collections.addAll( javaCmdArgs, args );
 
 
-        ProcessRunner runner = new ProcessRunner( this, javaCmd, javaCmdArgs, stdoutCallback );
+        ProcessRunner runner = new ProcessRunner( this, javaCmd, javaCmdArgs, stdoutCallback ).withLineSeparator( lineSeparator );
 
         runner.setCWD( fileSystem.getCurrentWorkingDirectory().getFullPath() );
 
