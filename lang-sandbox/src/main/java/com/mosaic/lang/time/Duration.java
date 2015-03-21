@@ -1,10 +1,14 @@
 package com.mosaic.lang.time;
 
 
+import com.mosaic.lang.math.Orderable;
+import com.mosaic.utils.ComparatorUtils;
+
+
 /**
  *
  */
-public class Duration {
+public class Duration extends Orderable<Duration> {
 
     private static final long ONE_SECOND_MILLIS = 1000;
     private static final long ONE_MINUTE_MILLIS = ONE_SECOND_MILLIS * 60;
@@ -53,6 +57,29 @@ public class Duration {
     public long getMillis() {
         return millis;
     }
+
+
+    public int compareTo( Duration d ) {
+        return ComparatorUtils.compareAsc(this.millis, d.millis);
+    }
+
+
+    public int getDays() {
+        return (int) (millis / ONE_DAY_MILLIS);
+    }
+
+    public int getHours() {
+        return (int) (millis / ONE_HOUR_MILLIS);
+    }
+
+    public int getMinutes() {
+        return (int) (millis / ONE_MINUTE_MILLIS);
+    }
+
+    public int getSeconds() {
+        return (int) (millis / ONE_SECOND_MILLIS);
+    }
+
 
     public int hashCode() {
         return (int) millis;

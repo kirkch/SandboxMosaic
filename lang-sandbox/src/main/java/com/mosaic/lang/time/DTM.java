@@ -119,6 +119,10 @@ public class DTM extends Orderable<DTM> {
         return new DTM( this.millis + d.getMillis() );
     }
 
+    public DTM subtract( Duration d ) {
+        return new DTM( this.millis - d.getMillis() );
+    }
+
     /**
      * Subtract two date and times to give the length of time between the two dates.
      *
