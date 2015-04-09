@@ -1,9 +1,15 @@
 package com.mosaic.io.journal;
 
 
+import com.mosaic.bytes2.Bytes2;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.ServiceThread;
 import com.mosaic.lang.StartStopMixin;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.mosaic.lang.ServiceThread.ThreadType.NON_DAEMON;
 
 
 /**
@@ -32,6 +38,30 @@ public class JournalReader2 extends StartStopMixin<JournalReader2> {
         this.journal = new Journal2( dataDirectory, serviceName, perFileSizeBytes );
     }
 
+    interface JournalReaderCallback {
+        public void entryReceived( long seq, Bytes2 bytes, long from, long toExc );
+    }
+    interface Subscription {
+        public boolean isActive();
+        public void cancel();
+    }
+
+
+
+
+    private final AtomicInteger callbackCount = new AtomicInteger(0);
+    public Subscription withCallback( JournalReaderCallback callback ) {
+        return withCallback( callback, 0 );
+    }
+    public Subscription withCallback( JournalReaderCallback callback, long fromSeq ) {
+        new ServiceThread(getServiceName()+"-callbackThread"+callbackCount.incrementAndGet(), NON_DAEMON) {
+            protected long loop() throws InterruptedException {
+                return 0;
+            }
+        };
+
+        return null;
+    }
 
     public boolean readNextInto( JournalEntry journalEntry ) {
         if ( currentDataFile == null ) {

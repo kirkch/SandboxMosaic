@@ -2,7 +2,7 @@ package com.mosaic.bytes.struct;
 
 import com.mosaic.lang.NotThreadSafe;
 import com.mosaic.lang.QA;
-import com.mosaic.lang.functional.FunctionLong;
+import com.mosaic.lang.functional.FunctionLong1;
 import com.mosaic.lang.functional.FunctionObjectLong;
 import com.mosaic.lang.functional.VoidFunctionObjectLongLong;
 
@@ -19,14 +19,14 @@ public class QuickSortAlgorithm<C,E> {
     private FunctionObjectLong<C,E>       fetchElement1ByIndexFunc;
     private FunctionObjectLong<C,E>       fetchElement2ByIndexFunc;
     private VoidFunctionObjectLongLong<C> swapElementsByIndexFunc;
-    private FunctionLong<C>               lengthFunc;
+    private FunctionLong1<C> lengthFunc;
 
 
     public QuickSortAlgorithm(
         Comparator<E>                 comparator,
         FunctionObjectLong<C,E>       fetchElementByIndexFunc,
         VoidFunctionObjectLongLong<C> swapElementsByIndexFunc,
-        FunctionLong<C>               lengthFunc
+        FunctionLong1<C> lengthFunc
     ) {
         this( comparator, fetchElementByIndexFunc, fetchElementByIndexFunc, swapElementsByIndexFunc, lengthFunc );
     }
@@ -41,7 +41,7 @@ public class QuickSortAlgorithm<C,E> {
         FunctionObjectLong<C,E>       fetchElement1ByIndexFunc,
         FunctionObjectLong<C,E>       fetchElement2ByIndexFunc,
         VoidFunctionObjectLongLong<C> swapElementsByIndexFunc,
-        FunctionLong<C>               lengthFunc
+        FunctionLong1<C> lengthFunc
     ) {
         this.comparator               = comparator;
         this.fetchElement1ByIndexFunc = fetchElement1ByIndexFunc;
