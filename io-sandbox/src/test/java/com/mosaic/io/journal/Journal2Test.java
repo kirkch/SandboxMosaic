@@ -10,6 +10,7 @@ import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Test;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.internal.runners.model.MultipleFailureException;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -23,9 +24,7 @@ public class Journal2Test extends Tests {
     // Size each journal file to be able to store exactly 20 transactions before overflowing
     private static final long TRANSACTION_COUNT_PERDATAFILE = 20;
     private static final long JOURNAL_FILE_SIZE             = Journal2.FILEHEADER_SIZE + Journal2.FILEFOOTER_SIZE +
-        + TRANSACTION_COUNT_PERDATAFILE*(Transaction2.SIZE_BYTES+Journal2.PER_MSGHEADER_SIZE);   // space for the messages
-//        + Journal2.PER_MSGHEADER_PAYLOADSIZE_SIZE;                   // the file is truncated with -1
-    // 10 + 20 * (24+8) = 10 + 20*32 = 10 + 640 = 650
+        + TRANSACTION_COUNT_PERDATAFILE*(Transaction2.SIZE_BYTES+Journal2.PER_MSGHEADER_SIZE);
 
 
     private JournalReader2 reader      = system.registerService( new JournalReader2(dataDir, "junitJournal", JOURNAL_FILE_SIZE) );
@@ -180,49 +179,53 @@ public class Journal2Test extends Tests {
 // CONCURRENT
 
     @Test
-    public void concurrentlyWriteToAndReadFromJournal_expectTheSameBehaviourAsTheSingleThreadedTest() {
+    public void concurrentlyWriteToAndReadFromJournal_expectTheSameBehaviourAsTheSingleThreadedTest() throws MultipleFailureException {
         long numFullFiles = 20;
         long numMessages  = TRANSACTION_COUNT_PERDATAFILE*numFullFiles + 1;
 
         AtomicLong writeCount = new AtomicLong();
         AtomicLong readCount  = new AtomicLong();
 
-        new Thread() {
-            public void run() {
-                for ( long seq=0; seq<numMessages; seq++ ) {
-                    writeMessage( seq );
 
-                    writeCount.incrementAndGet();
+        Runnable job1 = () -> {
+            for ( long seq=0; seq<numMessages; seq++ ) {
+                writeMessage( seq );
+
+                writeCount.incrementAndGet();
 
 
-                    Backdoor.sleep( Duration.millis( 1 ) );  // spreads the writes out
-                }
+                Backdoor.sleep( Duration.millis( 1 ) );  // spreads the writes out
             }
-        }.start();
+        };
 
-        new Thread() {
-            public void run() {
-                Transaction2 t = new Transaction2();
+        Runnable job2 = () -> {
+            Transaction2 t = new Transaction2();
 
-                for ( long seq=0; seq<numMessages; seq++ ) {
-                    JUnitMosaic.spinUntilTrue( () -> reader.readNextInto(t) );
+            for ( long seq=0; seq<numMessages; seq++ ) {
+                JUnitMosaic.spinUntilTrue( () -> reader.readNextInto(t) );
 
-                    assertEquals( expectedFrom(seq), t.getFrom() );
-                    assertEquals( expectedTo(seq), t.getTo() );
-                    assertEquals( expectedAmount(seq), t.getAmount(), 1e-6 );
+                assertEquals( expectedFrom(seq), t.getFrom() );
+                assertEquals( expectedTo(seq), t.getTo() );
+                assertEquals( expectedAmount(seq), t.getAmount(), 1e-6 );
 
-                    readCount.incrementAndGet();
+                readCount.incrementAndGet();
 
 
-                    // spreads the reads out, so writes occur apx 2*faster than reads
-                    // this creates a reasonable interleaving of writes and reads
-                    Backdoor.sleep( Duration.millis(2) );
-                }
+                // spreads the reads out, so writes occur apx 2*faster than reads
+                // this creates a reasonable interleaving of writes and reads
+                Backdoor.sleep( Duration.millis(2) );
             }
-        }.start();
+        };
+
+        JUnitMosaic.runConcurrentlyAndWaitFor(
+            "Journal2Test.concurrentlyWriteToAndReadFromJournal_expectTheSameBehaviourAsTheSingleThreadedTest",
+            job1,
+            job2
+        );
 
 
-        JUnitMosaic.spinUntilTrue( () -> readCount.get() == numMessages );
+        assertEquals( numMessages, readCount.get() );
+        assertEquals( numMessages, writeCount.get() );
 
         assertFalse( reader.readNextInto( transaction ) );
         assertEquals( "expected three data files to be created", numFullFiles+1, dataDir.files().size() );
