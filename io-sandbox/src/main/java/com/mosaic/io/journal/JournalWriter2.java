@@ -1,9 +1,7 @@
 package com.mosaic.io.journal;
 
-import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.StartStopMixin;
-import com.mosaic.lang.text.UTF8;
 
 
 /**
@@ -15,15 +13,12 @@ public class JournalWriter2 extends StartStopMixin<JournalWriter2> {
     private       JournalDataFile2 currentDataFile;
 
 
-    public JournalWriter2( DirectoryX dataDirectory, String serviceName ) {
-        this( dataDirectory, serviceName, Journal2.DEFAULT_PER_FILE_SIZE_BYTES );
-    }
-
-    public JournalWriter2( DirectoryX dataDirectory, String serviceName, long perFileSizeBytes ) {
+    JournalWriter2( Journal2 journal, String serviceName ) {
         super( serviceName );
 
-        this.journal = new Journal2( dataDirectory, serviceName, perFileSizeBytes );
+        this.journal = journal;
     }
+
 
 
     public void allocateTo( JournalEntry view, int numBytes ) {

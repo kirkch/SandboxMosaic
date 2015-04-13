@@ -4,6 +4,7 @@ import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.functional.FunctionObj2Int;
 import com.mosaic.lang.system.SystemX;
 
@@ -15,16 +16,23 @@ import java.util.List;
  */
 class Journal2 {
 
-    public static final long FILEHEADER_SIZE             = JournalDataFile2.FILEHEADER_SIZE;
-    public static final long FILEFOOTER_SIZE             = JournalDataFile2.FILEFOOTER_SIZE;
-    public static final long PER_MSGHEADER_SIZE          = JournalDataFile2.PER_MSGHEADER_SIZE;
-    public static final long DEFAULT_PER_FILE_SIZE_BYTES = 100 * SystemX.MEGABYTE;
+    static final long FILEHEADER_SIZE             = JournalDataFile2.FILEHEADER_SIZE;
+    static final long FILEFOOTER_SIZE             = JournalDataFile2.FILEFOOTER_SIZE;
+    static final long PER_MSGHEADER_SIZE          = JournalDataFile2.PER_MSGHEADER_SIZE;
+    static final long DEFAULT_PER_FILE_SIZE_BYTES = 100 * SystemX.MEGABYTE;
 
 
-    private final DirectoryX dataDirectory;
-    private final String     serviceName;
-    private final long       perFileSizeBytes;
+    final DirectoryX dataDirectory;
+    final String     serviceName;
+    final long       perFileSizeBytes;
 
+    private final Function0<String> writerServiceNameFactory;
+    private final Function0<String> readerServiceNameFactory;
+
+
+    public Journal2( DirectoryX dataDirectory, String serviceName ) {
+        this( dataDirectory, serviceName, DEFAULT_PER_FILE_SIZE_BYTES );
+    }
 
     public Journal2( DirectoryX dataDirectory, String serviceName, long perFileSizeBytes ) {
         QA.argNotNull(  dataDirectory,    "dataDirectory"    );
@@ -33,16 +41,34 @@ class Journal2 {
         this.dataDirectory    = dataDirectory;
         this.serviceName      = serviceName;
         this.perFileSizeBytes = perFileSizeBytes;
+
+        this.writerServiceNameFactory = NameFactoryUtils.createSequenceNameFactory(serviceName+"-writer");
+        this.readerServiceNameFactory = NameFactoryUtils.createSequenceNameFactory(serviceName+"-reader");
     }
 
 
-    public JournalDataFile2 selectLastFileRW() {
+    public JournalWriter2 createWriter() {
+        String writerServiceName = writerServiceNameFactory.invoke();
+
+        return new JournalWriter2( this, writerServiceName );
+    }
+
+    public JournalReader2 createReader() {
+        String readerServiceName = readerServiceNameFactory.invoke();
+
+        return new JournalReader2( this, readerServiceName );
+    }
+
+
+
+
+    JournalDataFile2 selectLastFileRW() {
         int fileSeq = selectLastFileSeq();
 
         return newDataFile( fileSeq, FileModeEnum.READ_WRITE );
     }
 
-    public JournalDataFile2 selectFirstFileRO() {
+    JournalDataFile2 selectFirstFileRO() {
         int fileSeq = selectFirstFileSeq();
 
         return newDataFile( fileSeq, FileModeEnum.READ_ONLY );
@@ -51,7 +77,7 @@ class Journal2 {
     /**
      * Seeks to the closest message that it can find that is <= targetMessageSeq
      */
-    public JournalDataFile2 seekTo( long targetMessageSeq ) {
+    JournalDataFile2 seekTo( long targetMessageSeq ) {
         int fileSeq = findJournalFileThatContainsMessageSeq( targetMessageSeq );
 
         JournalDataFile2 dataFile = newDataFile( fileSeq, FileModeEnum.READ_ONLY ).open();

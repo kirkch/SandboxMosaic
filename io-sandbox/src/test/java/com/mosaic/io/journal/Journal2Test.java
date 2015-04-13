@@ -27,8 +27,10 @@ public class Journal2Test extends Tests {
         + TRANSACTION_COUNT_PERDATAFILE*(Transaction2.SIZE_BYTES+Journal2.PER_MSGHEADER_SIZE);
 
 
-    private JournalReader2 reader      = system.registerService( new JournalReader2(dataDir, "junitJournal", JOURNAL_FILE_SIZE) );
-    private JournalWriter2 writer      = system.registerService( new JournalWriter2(dataDir, "junitJournal", JOURNAL_FILE_SIZE) );
+    private Journal2       journal     = new Journal2( dataDir, "junitJournal", JOURNAL_FILE_SIZE );
+
+    private JournalReader2 reader      = system.registerService( journal.createReader() );
+    private JournalWriter2 writer      = system.registerService( journal.createWriter() );
     private Transaction2   transaction = new Transaction2();
 
 
@@ -336,7 +338,7 @@ public class Journal2Test extends Tests {
     @Test
     public void givenMultipleDataFiles_removeFirstAndReadAllWillStartFromTheSecondFile_expectError() {
         long numMessages = TRANSACTION_COUNT_PERDATAFILE*3;
-writeMessages(numMessages);
+        writeMessages(numMessages);
 
         deleteDataFile(0);
 
@@ -470,7 +472,7 @@ writeMessages(numMessages);
 
 
     private JournalReader2 createAndRegisterReader() {
-        JournalReader2 j = new JournalReader2( dataDir, "junitJournal", JOURNAL_FILE_SIZE );
+        JournalReader2 j = journal.createReader();
 
         system.registerService(j);
 
