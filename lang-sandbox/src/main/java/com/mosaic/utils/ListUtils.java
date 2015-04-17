@@ -1,9 +1,12 @@
 package com.mosaic.utils;
 
+import com.mosaic.lang.QA;
+import com.mosaic.lang.StartStoppable;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.Function2;
 import com.mosaic.lang.functional.Nullable;
 import com.mosaic.lang.functional.Tuple2;
+import com.mosaic.lang.functional.VoidFunction0;
 import com.mosaic.lang.functional.VoidFunction1;
 import com.mosaic.lang.system.SystemX;
 
@@ -226,4 +229,20 @@ public class ListUtils {
 
         return list;
     }
+
+    /**
+     * Call action on every element of collection, traversing right to left.
+     */
+    public static <T> void forEachReversed( List<T> list, VoidFunction1<T> action ) {
+        QA.argNotNull( list, "list" );
+
+        ListIterator<T> it = list.listIterator(list.size());
+
+        while ( it.hasPrevious() ) {
+            T next = it.previous();
+
+            action.invoke( next );
+        }
+    }
+
 }

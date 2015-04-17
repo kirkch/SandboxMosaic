@@ -14,6 +14,9 @@ import static org.junit.Assert.*;
  */
 public class StartStopMixinTest {
 
+    private final List<String> audit = new ArrayList<>();
+
+
     @Test
     public void givenNewService_callIsRunning_expectFalse() {
         FakeService s1 = new FakeService( "s1" );
@@ -21,7 +24,7 @@ public class StartStopMixinTest {
         List<String> expectedAudit = asList();
 
         assertFalse( s1.isRunning() );
-        assertEquals( expectedAudit, s1.audit );
+        assertEquals( expectedAudit, audit );
     }
 
     @Test
@@ -36,7 +39,7 @@ public class StartStopMixinTest {
         );
 
         assertTrue( s1.isRunning() );
-        assertEquals( expectedAudit, s1.audit );
+        assertEquals( expectedAudit, audit );
     }
 
     @Test
@@ -47,12 +50,10 @@ public class StartStopMixinTest {
         s1.start();
 
 
-        List<String> expectedAudit = asList(
-            "s1.doStart()"
-        );
+        List<String> expectedAudit = asList("s1.doStart()");
 
         assertTrue( s1.isRunning() );
-        assertEquals( expectedAudit, s1.audit );
+        assertEquals( expectedAudit, audit );
     }
 
     @Test
@@ -69,58 +70,181 @@ public class StartStopMixinTest {
         );
 
         assertFalse( s1.isRunning() );
-        assertEquals( expectedAudit, s1.audit );
+        assertEquals( expectedAudit, audit );
+    }
+
+    @Test
+    public void givenDependentService_callStart_expectStartupToCascade() {
+        FakeService s4 = new FakeService( "s4" );
+        FakeService s3 = new FakeService( "s3" );
+        FakeService s2 = new FakeService( "s2" );
+        FakeService s1 = new FakeService( "s1" );
+
+        s4.appendServicesToStartBefore( s2, s3 );
+        s2.appendServicesToStartBefore( s1 );
+
+
+        s4.start();
+
+
+        assertTrue( s1.isRunning() );
+        assertTrue( s2.isRunning() );
+        assertTrue( s3.isRunning() );
+        assertTrue( s4.isRunning() );
+
+        List<String> expectedAudit = asList(
+            "s1.doStart()",
+            "s2.doStart()",
+            "s3.doStart()",
+            "s4.doStart()"
+        );
+
+        assertEquals( expectedAudit, audit );
+    }
+
+    @Test
+    public void givenDependentServices_callStop_expectStopToCascade() {
+        FakeService s4 = new FakeService( "s4" );
+        FakeService s3 = new FakeService( "s3" );
+        FakeService s2 = new FakeService( "s2" );
+        FakeService s1 = new FakeService( "s1" );
+
+        s4.appendServicesToStartBefore( s2, s3 );
+        s2.appendServicesToStartBefore( s1 );
+
+
+        s4.start();
+        s4.stop();
+
+
+        assertFalse( s1.isRunning() );
+        assertFalse( s2.isRunning() );
+        assertFalse( s3.isRunning() );
+        assertFalse( s4.isRunning() );
+
+        List<String> expectedAudit = asList(
+            "s1.doStart()",
+            "s2.doStart()",
+            "s3.doStart()",
+            "s4.doStart()",
+            "s4.doStop()",
+            "s3.doStop()",
+            "s2.doStop()",
+            "s1.doStop()"
+        );
+
+        assertEquals( expectedAudit, audit );
+    }
+
+    @Test
+    public void givenDependentServices_callStartAndStopTwice_expectStartStopToOnlyBeCalledOnce() {
+        FakeService s4 = new FakeService( "s4" );
+        FakeService s3 = new FakeService( "s3" );
+        FakeService s2 = new FakeService( "s2" );
+        FakeService s1 = new FakeService( "s1" );
+
+        s4.appendServicesToStartBefore( s2, s3 );
+        s2.appendServicesToStartBefore( s1 );
+
+
+        s4.start();
+        s4.start();
+        s4.stop();
+        s4.stop();
+
+
+        assertFalse( s1.isRunning() );
+        assertFalse( s2.isRunning() );
+        assertFalse( s3.isRunning() );
+        assertFalse( s4.isRunning() );
+
+        List<String> expectedAudit = asList(
+            "s1.doStart()",
+            "s2.doStart()",
+            "s3.doStart()",
+            "s4.doStart()",
+            "s4.doStop()",
+            "s3.doStop()",
+            "s2.doStop()",
+            "s1.doStop()"
+        );
+
+        assertEquals( expectedAudit, audit );
     }
 
     @Test
     public void givenChainedService_callStart_expectStartupToCascade() {
-        FakeService s3  = new FakeService( "s3" );
-        FakeService s2a = new FakeService( "s2a", s3 );
-        FakeService s2b = new FakeService( "s2b" );
-        FakeService s1  = new FakeService( "s1", s2a, s2b );
+        FakeService s4 = new FakeService( "s4" );
+        FakeService s3 = new FakeService( "s3" );
+        FakeService s2 = new FakeService( "s2" );
+        FakeService s1 = new FakeService( "s1" );
+
+        s1.appendServicesToStartAfter( s2, s4 );
+        s2.appendServicesToStartAfter( s3 );
+
 
         s1.start();
 
 
         assertTrue( s1.isRunning() );
-        assertTrue( s2a.isRunning() );
-        assertTrue( s2b.isRunning() );
+        assertTrue( s2.isRunning() );
         assertTrue( s3.isRunning() );
+        assertTrue( s4.isRunning() );
 
-        assertEquals( asList( "s1.doStart()" ), s1.audit );
-        assertEquals( asList( "s2a.doStart()" ), s2a.audit );
-        assertEquals( asList( "s2b.doStart()" ), s2b.audit );
-        assertEquals( asList( "s3.doStart()" ), s3.audit );
+        List<String> expectedAudit = asList(
+            "s1.doStart()",
+            "s2.doStart()",
+            "s3.doStart()",
+            "s4.doStart()"
+        );
+
+        assertEquals( expectedAudit, audit );
     }
 
     @Test
-    public void givenChainOfStartedServices_callStop_expectStopToCascade() {
-        FakeService s3  = new FakeService( "s3" );
-        FakeService s2a = new FakeService( "s2a", s3 );
-        FakeService s2b = new FakeService( "s2b" );
-        FakeService s1  = new FakeService( "s1", s2a, s2b );
+    public void givenChainedServices_callStop_expectStopToCascade() {
+        FakeService s4 = new FakeService( "s4" );
+        FakeService s3 = new FakeService( "s3" );
+        FakeService s2 = new FakeService( "s2" );
+        FakeService s1 = new FakeService( "s1" );
+
+        s1.appendServicesToStartAfter( s2, s4 );
+        s2.appendServicesToStartAfter( s3 );
+
 
         s1.start();
         s1.stop();
 
 
         assertFalse( s1.isRunning() );
-        assertFalse( s2a.isRunning() );
-        assertFalse( s2b.isRunning() );
+        assertFalse( s2.isRunning() );
         assertFalse( s3.isRunning() );
+        assertFalse( s4.isRunning() );
 
-        assertEquals( asList( "s1.doStart()", "s1.doStop()" ), s1.audit );
-        assertEquals( asList( "s2a.doStart()", "s2a.doStop()" ), s2a.audit );
-        assertEquals( asList( "s2b.doStart()", "s2b.doStop()" ), s2b.audit );
-        assertEquals( asList( "s3.doStart()", "s3.doStop()" ), s3.audit );
+        List<String> expectedAudit = asList(
+            "s1.doStart()",
+            "s2.doStart()",
+            "s3.doStart()",
+            "s4.doStart()",
+            "s4.doStop()",
+            "s3.doStop()",
+            "s2.doStop()",
+            "s1.doStop()"
+        );
+
+        assertEquals( expectedAudit, audit );
     }
 
     @Test
-    public void givenChainOfServices_callStartAndStopTwice_expectStartStopToOnlyBeCalledOnce() {
-        FakeService s3  = new FakeService( "s3" );
-        FakeService s2a = new FakeService( "s2a", s3 );
-        FakeService s2b = new FakeService( "s2b" );
-        FakeService s1  = new FakeService( "s1", s2a, s2b );
+    public void givenChainedServices_callStartAndStopTwice_expectStartStopToOnlyBeCalledOnce() {
+        FakeService s4 = new FakeService( "s4" );
+        FakeService s3 = new FakeService( "s3" );
+        FakeService s2 = new FakeService( "s2" );
+        FakeService s1 = new FakeService( "s1" );
+
+        s1.appendServicesToStartAfter( s2, s4 );
+        s2.appendServicesToStartAfter( s3 );
+
 
         s1.start();
         s1.start();
@@ -129,26 +253,30 @@ public class StartStopMixinTest {
 
 
         assertFalse( s1.isRunning() );
-        assertFalse( s2a.isRunning() );
-        assertFalse( s2b.isRunning() );
+        assertFalse( s2.isRunning() );
         assertFalse( s3.isRunning() );
+        assertFalse( s4.isRunning() );
 
-        assertEquals( asList( "s1.doStart()", "s1.doStop()" ), s1.audit );
-        assertEquals( asList( "s2a.doStart()", "s2a.doStop()" ), s2a.audit );
-        assertEquals( asList( "s2b.doStart()", "s2b.doStop()" ), s2b.audit );
-        assertEquals( asList( "s3.doStart()", "s3.doStop()" ), s3.audit );
+        List<String> expectedAudit = asList(
+            "s1.doStart()",
+            "s2.doStart()",
+            "s3.doStart()",
+            "s4.doStart()",
+            "s4.doStop()",
+            "s3.doStop()",
+            "s2.doStop()",
+            "s1.doStop()"
+        );
+
+        assertEquals( expectedAudit, audit );
     }
 
 
 
     @SuppressWarnings("unchecked")
-    private static class FakeService extends StartStopMixin<FakeService> {
-        public List<String> audit = new ArrayList();
-
-        public FakeService( String serviceName, Object...dependsOn ) {
+    private class FakeService extends StartStopMixin<FakeService> {
+        public FakeService( String serviceName ) {
             super(serviceName);
-
-            appendDependency( dependsOn );
         }
 
 

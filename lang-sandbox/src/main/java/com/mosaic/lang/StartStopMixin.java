@@ -2,6 +2,7 @@ package com.mosaic.lang;
 
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
+import com.mosaic.utils.ListUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,31 +16,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 @SuppressWarnings("unchecked")
 public abstract class StartStopMixin<T extends StartStoppable<T>> implements StartStoppable<T> {
 
-    /**
-     * Helper method for starting a service.  Occurred because of type mangling that
-     * occurred when wanting another interface to implement the StartStoppable interface
-     * AND a implementation of that interface to also extend StartStopMixin.
-     *
-     * Knickers + Twist -> Static fudge method.
-     */
-    public static <T> T start( T s ) {
-        if ( s instanceof StartStoppable ) {
-            ((StartStoppable) s).start();
-        }
 
-        return s;
-    }
+    private List<StartStoppable> dependencies   = new ArrayList<>(3);
+    private List<StartStoppable> linkedServices = new ArrayList<>(3);
 
-    public static <T> T stop( T s ) {
-        if ( s instanceof StartStoppable ) {
-            ((StartStoppable) s).stop();
-        }
-
-        return s;
-    }
-
-
-    private List<StartStoppable> dependencies = new ArrayList<>(3);
     private AtomicInteger        initCounter = new AtomicInteger(0);
     private String               serviceName;
 
@@ -58,7 +38,6 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
         return serviceName;
     }
 
-    // todo improve the error handling of Exceptions
 
     public final T start() {
         throwIfShuttingDown();
@@ -66,13 +45,15 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
         int initCount = initCounter.incrementAndGet();
 
         if ( initCount == 1 ) {
-            broadcastInit();
+            dependencies.forEach( StartStoppable::start );
 
             try {
                 doStart();
             } catch ( Exception ex ) {
                 Backdoor.throwException( ex );
             }
+
+            linkedServices.forEach( StartStoppable::start );
         }
 
         return (T) this;
@@ -84,13 +65,15 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
         if ( initCount == 0 ) {
             this.isShuttingDown.set(true);
 
-            broadcastTearDown();
+            ListUtils.forEachReversed( linkedServices, StartStoppable::stop );
 
             try {
                 doStop();
             } catch ( Exception ex ) {
                 throw new RuntimeException( ex );
             } finally {
+                ListUtils.forEachReversed( dependencies, StartStoppable::stop );
+
                 this.isShuttingDown.set(false);
             }
         }
@@ -106,17 +89,20 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
         return isShuttingDown.get();
     }
 
-    /**
-     * Connect the life cycles of this service with the specified others.  Thus when this service
-     * starts, the other services will be started first and when this service is stopped then the
-     * other services will be stopped first.
-     */
-    public final T appendDependency( Object... otherServices ) {
+    public final T appendServicesToStartBefore( Object... otherServices ) {
+        return appendOtherServices( otherServices, dependencies );
+    }
+
+    public final T appendServicesToStartAfter( Object... otherServices ) {
+        return appendOtherServices( otherServices, linkedServices );
+    }
+
+    private T appendOtherServices( Object[] otherServices, List<StartStoppable> targetCollection ) {
         for ( Object o : otherServices ) {
             if ( o instanceof StartStoppable ) {
                 StartStoppable ss = (StartStoppable) o;
 
-                dependencies.add( ss );
+                targetCollection.add( ss );
 
                 if ( this.isRunning() ) {
                     ss.start();
@@ -126,7 +112,6 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
 
         return (T) this;
     }
-
 
 
     protected final void throwIfNotReady() {
@@ -142,19 +127,6 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
             if ( isRunning() ) {
                 throw new IllegalStateException( "'"+serviceName+"' is running" );
             }
-        }
-    }
-
-    private final void broadcastInit() {
-        for ( StartStoppable o : dependencies ) {
-            o.start();
-        }
-    }
-
-
-    private final void broadcastTearDown() {
-        for ( StartStoppable o : dependencies ) {
-            o.stop();
         }
     }
 

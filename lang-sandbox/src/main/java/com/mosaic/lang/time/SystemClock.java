@@ -3,6 +3,7 @@ package com.mosaic.lang.time;
 
 import com.mosaic.lang.QA;
 import com.mosaic.lang.StartStopMixin;
+import com.mosaic.lang.StartStoppable;
 import com.mosaic.lang.ThreadSafe;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
@@ -124,13 +125,13 @@ public final class SystemClock extends StartStopMixin<SystemClock> {
 
 
     protected void doStop() throws Exception {
-        StartStopMixin.stop( clock );
+        StartStoppable.stopService( clock );
     }
 
     private void changeClockTo( Clock newClock ) {
-        StartStopMixin.stop( this.clock );
+        StartStoppable.stopService( this.clock );
 
-        this.clock = StartStopMixin.start( newClock );
+        this.clock = StartStoppable.startService( newClock );
     }
 
     private interface Clock {
