@@ -4,17 +4,23 @@ import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.ServiceThread;
+import com.mosaic.lang.Subscription;
 import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.functional.FunctionObj2Int;
 import com.mosaic.lang.system.SystemX;
 
 import java.util.List;
 
+import static com.mosaic.lang.ServiceThread.ThreadType.*;
+
 
 /**
- * Internal class used by JournalReader2 and JournalWriter2.
+ * A high speed, low GC, single writer, multiple reader, file backed journal.  A journal can be
+ * used to capture events and to replay them, either for recovery of a JVM on restart or to
+ * distribute events between JVMs.
  */
-class Journal2 {
+public class Journal2 {
 
     static final long FILEHEADER_SIZE             = JournalDataFile2.FILEHEADER_SIZE;
     static final long FILEFOOTER_SIZE             = JournalDataFile2.FILEFOOTER_SIZE;
@@ -28,6 +34,7 @@ class Journal2 {
 
     private final Function0<String> writerServiceNameFactory;
     private final Function0<String> readerServiceNameFactory;
+    private final Function0<String> asyncReaderServiceNameFactory;
 
 
     public Journal2( DirectoryX dataDirectory, String serviceName ) {
@@ -42,8 +49,9 @@ class Journal2 {
         this.serviceName      = serviceName;
         this.perFileSizeBytes = perFileSizeBytes;
 
-        this.writerServiceNameFactory = NameFactoryUtils.createSequenceNameFactory(serviceName+"-writer");
-        this.readerServiceNameFactory = NameFactoryUtils.createSequenceNameFactory(serviceName+"-reader");
+        this.writerServiceNameFactory      = NameFactoryUtils.createSequenceNameFactory(serviceName+"-writer");
+        this.readerServiceNameFactory      = NameFactoryUtils.createSequenceNameFactory(serviceName+"-reader");
+        this.asyncReaderServiceNameFactory = NameFactoryUtils.createSequenceNameFactory(serviceName+"-asyncreader");
     }
 
 
@@ -58,6 +66,23 @@ class Journal2 {
 
         return new JournalReader2( this, readerServiceName );
     }
+
+    public Subscription createReaderAsync( JournalReaderCallback callback ) {
+        return createReaderAsync( callback, 0 );
+    }
+
+    public Subscription createReaderAsync( JournalReaderCallback callback, long fromSeq ) {
+        String readerName = asyncReaderServiceNameFactory.invoke();
+
+        new ServiceThread(readerName, NON_DAEMON) {
+            protected long loop() throws InterruptedException {
+                return 0;
+            }
+        };
+
+        return null;
+    }
+
 
 
 
