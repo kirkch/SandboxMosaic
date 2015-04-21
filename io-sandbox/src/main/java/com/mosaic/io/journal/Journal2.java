@@ -5,8 +5,7 @@ import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.ServiceThread;
-import com.mosaic.lang.StartStopMixin;
-import com.mosaic.lang.Subscription;
+import com.mosaic.lang.StartStoppable;
 import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.functional.FunctionObj2Int;
 import com.mosaic.lang.system.SystemX;
@@ -21,7 +20,7 @@ import static com.mosaic.lang.ServiceThread.ThreadType.*;
  * used to capture events and to replay them, either for recovery of a JVM on restart or to
  * distribute events between JVMs.
  */
-public class Journal2 extends StartStopMixin<Journal2> {
+public class Journal2 {
 
     static final long FILEHEADER_SIZE             = JournalDataFile2.FILEHEADER_SIZE;
     static final long FILEFOOTER_SIZE             = JournalDataFile2.FILEFOOTER_SIZE;
@@ -43,8 +42,6 @@ public class Journal2 extends StartStopMixin<Journal2> {
     }
 
     public Journal2( DirectoryX dataDirectory, String serviceName, long perFileSizeBytes ) {
-        super( serviceName );
-
         QA.argNotNull(  dataDirectory,    "dataDirectory"    );
         QA.argIsGTZero( perFileSizeBytes, "perFileSizeBytes" );
 
@@ -70,20 +67,29 @@ public class Journal2 extends StartStopMixin<Journal2> {
         return new JournalReader2( this, readerServiceName );
     }
 
-    public Subscription createReaderAsync( JournalReaderCallback callback ) {
+    public StartStoppable createReaderAsync( JournalReaderCallback callback ) {
         return createReaderAsync( callback, 0 );
     }
 
-    public Subscription createReaderAsync( JournalReaderCallback callback, long fromSeq ) {
-        String readerName = asyncReaderServiceNameFactory.invoke();
+    public StartStoppable createReaderAsync( JournalReaderCallback callback, long fromSeq ) {
+        String         readerName = asyncReaderServiceNameFactory.invoke();
+        JournalReader2 reader     = createReader();
 
-        final ServiceThread thread = new ServiceThread(readerName, NON_DAEMON) {
+        if ( fromSeq > 0 ) {
+            reader.seekTo( fromSeq );
+        }
+
+        ServiceThread thread = new ServiceThread(readerName, NON_DAEMON) {
             protected long loop() throws InterruptedException {
-                return 0;
+                int successFlag = reader.readNextUsingCallback( callback );
+
+                return successFlag * 100; // === successFlag:boolean ? 0 : 100; but avoids cpu stalls due to branch miss-prediction
             }
         };
 
-        return registerServicesAfter( thread );
+        thread.registerServicesBefore( reader );
+
+        return thread;
     }
 
 

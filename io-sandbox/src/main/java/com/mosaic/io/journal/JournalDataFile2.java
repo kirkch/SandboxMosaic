@@ -211,18 +211,10 @@ class JournalDataFile2 {
         return true;
     }
 
-    /**
-     *
-     * @return returns false when the next message is not ready or the end of the file has been reached.
-     *         To tell the difference call isReadyToReadNextMessage, on end of file it will return true
-     *         but this method will return false.
-     */
-    public boolean readNextInto( JournalEntry entry ) {
+    public boolean readNextUsingCallback( JournalReaderCallback callback ) {
         if ( !isReadyToReadNextMessage() ) {
             return false;
         }
-
-//        QA.isEqualTo( currentIndex, currentToExc, "currentIndex", "currentToExc" );
 
         long payloadIndex  = currentIndex + PER_MSGHEADER_SIZE;
         int  payloadLength = contents.readInt(currentIndex + PER_MSGHEADER_PAYLOADSIZE_INDEX, fileSize);
@@ -234,8 +226,7 @@ class JournalDataFile2 {
         long payloadEnd = payloadIndex + payloadLength;
         throwOnChecksumFailure( currentIndex+PER_MSGHEADER_HASHCODE_INDEX, payloadIndex, payloadEnd );
 
-        entry.bytes.setBytes( contents, payloadIndex, payloadEnd );
-        entry.msgSeq = this.currentMessageSeq;
+        callback.entryReceived( this.currentMessageSeq, contents, payloadIndex, payloadEnd );
 
         scrollToNext();
 
@@ -293,7 +284,6 @@ class JournalDataFile2 {
     public long getCurrentMessageSeq() {
         return currentMessageSeq;
     }
-
 
     static class DataFileNameComparator implements Comparator<FileX> {
         private String serviceName;

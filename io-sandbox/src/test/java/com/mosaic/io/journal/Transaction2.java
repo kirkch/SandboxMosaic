@@ -44,5 +44,10 @@ public class Transaction2 extends JournalEntry {
         amountField.set(bytes, newAmount);
     }
 
+
+    @Override
+    public String toString() {
+        return "Transaction("+getFrom()+","+getTo()+","+getAmount()+")";
+    }
 }
 

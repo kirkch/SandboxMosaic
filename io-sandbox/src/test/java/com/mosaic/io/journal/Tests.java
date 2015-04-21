@@ -6,10 +6,11 @@ import com.mosaic.lang.system.DebugSystem;
 import com.mosaic.lang.system.SystemX;
 import com.softwaremosaic.junit.JUnitMosaic;
 import org.junit.After;
+import org.junit.Before;
 
 
 /**
- *
+ * Convenience base class for tests that make use of SystemX.
  */
 public class Tests extends JUnitMosaic {
 
@@ -25,13 +26,18 @@ public class Tests extends JUnitMosaic {
         return new DebugSystem();
     }
 
+    @Before
+    public void setUp() {
+        system.start();
+    }
+
     @After
     public void tearDown() {
-        system.fileSystem.getRoot().deleteAll();
         system.stop();
+        system.fileSystem.getRoot().deleteAll();
 
         spinUntilTrue( () -> Backdoor.getActiveAllocCounter() == 0 );
-        spinUntilTrue( () -> system.fileSystem.getNumberOfOpenFiles() == 0 );
+        spinUntilTrue( "files left open: "+system.fileSystem.getNumberOfOpenFiles(), () -> system.fileSystem.getNumberOfOpenFiles() == 0 );
     }
 
 

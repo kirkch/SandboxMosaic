@@ -26,24 +26,40 @@ public class JournalReader2 extends StartStopMixin<JournalReader2> {
 
 
     public boolean readNextInto( JournalEntry journalEntry ) {
+        int result = readNextUsingCallback(
+            (seq,bytes,from,toExc) -> {
+                journalEntry.bytes.setBytes( bytes, from, toExc );
+                journalEntry.msgSeq = seq;
+            }
+        );
+
+        return result == 1;
+    }
+
+    /**
+     *
+     * @return 0 when nothing was read else 1;  we do not use boolean here to support an
+     *         optimisation within Journal2.createReaderAsync
+     */
+    int readNextUsingCallback( JournalReaderCallback callback ) {
         if ( currentDataFile == null ) {
-            return false;
+            return 0;
         }
 
         if ( currentDataFile.isReadyToReadNextMessage() ) {
-            boolean successFlag = currentDataFile.readNextInto( journalEntry );
+            boolean successFlag = currentDataFile.readNextUsingCallback( callback );
 
             if ( successFlag ) {
-                return true;
+                return 1;
             } else {
                 this.currentDataFile.close();
 
                 this.currentDataFile = currentDataFile.nextFile().open();
 
-                return readNextInto( journalEntry );
+                return readNextUsingCallback( callback );
             }
         } else {
-            return false;
+            return 0;
         }
     }
 
@@ -57,6 +73,8 @@ public class JournalReader2 extends StartStopMixin<JournalReader2> {
 
             return true;
         } else {
+            this.currentDataFile.close();
+
             this.currentDataFile = initialDataFile;
 
             return false;

@@ -34,17 +34,8 @@ public class Journal2Test extends Tests {
     private Transaction2   transaction = new Transaction2();
 
 
-
-    @Before
-    public void setUp() {
+    public Journal2Test() {
         system.registerServicesAfter( reader, writer );
-
-        system.start();
-    }
-
-    @After
-    public void tearDown() {
-        system.stop();
     }
 
 // EMPTY JOURNAL
