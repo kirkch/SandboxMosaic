@@ -60,21 +60,29 @@ public interface StartStoppable<T extends StartStoppable<T>> {
      */
     public boolean isRunning();
 
-    /**
-     * Before this service is started, ensure that otherServices is started first.  This models
-     * the situation where this object depends on the services of another service.
-     */
-    public T appendServicesToStartBefore( Object... others );
 
 
     /**
-     * After this service has been started, then also start the specified services.  This method
-     * is not for when otherServices depends on this service, but it is for linking together the
-     * life cycle of several objects to ensure that they start and stop together.  For example,
-     * a common scenario is to link all services to SystemX.  Even though SystemX does not depend on
-     * those services (those services may in-fact depend on SystemX), it means that SystemX can
-     * be used to start/stop all services together from one call.  Which is very convenient.
+     * Before this service is started, ensure that otherService is started first.  This models
+     * the situation where this object depends on another service, and it will fail if that
+     * service is not up and running before this one.
+     *
+     * @return a token that can be used to check whether 'otherService' is still subscribed to
+     *     this service and to unregister the service if required.  Unregistering the service
+     *     will not alter the state of either service.
      */
-    public T appendServicesToStartAfter( Object... otherServices );
+    public Subscription registerServicesBefore( StartStoppable... otherServices );
+
+    /**
+     * After this service has been started, then also start the specified service.  This is
+     * a convenience method for services that we want to start at the same time as this service
+     * but this service does not require that service to be up and running before this one is
+     * running.
+     *
+     * @return a token that can be used to check whether 'otherService' is still subscribed to
+     *     this service and to unregister the service if required.  Unregistering the service
+     *     will not alter the state of either service.
+     */
+    public Subscription registerServicesAfter( StartStoppable... otherServices );
 
 }

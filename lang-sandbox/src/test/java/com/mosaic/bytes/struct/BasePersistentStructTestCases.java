@@ -26,7 +26,9 @@ public abstract class BasePersistentStructTestCases {
 
         this.tmpDirectory = system.fileSystem.getTempDirectory().createDirectoryWithRandomName( this.getClass().getSimpleName(), ".junit" );
         this.dataFile     = tmpDirectory.getOrCreateFile( "bull.data" );
-        this.bull         = system.registerService( new PersistentRedBull(dataFile) );
+        this.bull         = new PersistentRedBull(dataFile);
+
+        system.registerServicesAfter( bull );
 
         system.start();
     }

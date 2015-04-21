@@ -17,8 +17,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class StartStopMixin<T extends StartStoppable<T>> implements StartStoppable<T> {
 
 
-    private List<StartStoppable> dependencies   = new ArrayList<>(3);
-    private List<StartStoppable> linkedServices = new ArrayList<>(3);
+    private List<StartStoppable> servicesBefore = new ArrayList<>(3);
+    private List<StartStoppable> servicesAfter  = new ArrayList<>(3);
 
     private AtomicInteger        initCounter = new AtomicInteger(0);
     private String               serviceName;
@@ -45,7 +45,7 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
         int initCount = initCounter.incrementAndGet();
 
         if ( initCount == 1 ) {
-            dependencies.forEach( StartStoppable::start );
+            servicesBefore.forEach( StartStoppable::start );
 
             try {
                 doStart();
@@ -53,7 +53,7 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
                 Backdoor.throwException( ex );
             }
 
-            linkedServices.forEach( StartStoppable::start );
+            servicesAfter.forEach( StartStoppable::start );
         }
 
         return (T) this;
@@ -65,14 +65,14 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
         if ( initCount == 0 ) {
             this.isShuttingDown.set(true);
 
-            ListUtils.forEachReversed( linkedServices, StartStoppable::stop );
+            ListUtils.forEachReversed( servicesAfter, StartStoppable::stop );
 
             try {
                 doStop();
             } catch ( Exception ex ) {
                 throw new RuntimeException( ex );
             } finally {
-                ListUtils.forEachReversed( dependencies, StartStoppable::stop );
+                ListUtils.forEachReversed( servicesBefore, StartStoppable::stop );
 
                 this.isShuttingDown.set(false);
             }
@@ -89,28 +89,13 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
         return isShuttingDown.get();
     }
 
-    public final T appendServicesToStartBefore( Object... otherServices ) {
-        return appendOtherServices( otherServices, dependencies );
+
+    public Subscription registerServicesBefore( StartStoppable... otherServices ) {
+        return appendServices( otherServices, servicesBefore );
     }
 
-    public final T appendServicesToStartAfter( Object... otherServices ) {
-        return appendOtherServices( otherServices, linkedServices );
-    }
-
-    private T appendOtherServices( Object[] otherServices, List<StartStoppable> targetCollection ) {
-        for ( Object o : otherServices ) {
-            if ( o instanceof StartStoppable ) {
-                StartStoppable ss = (StartStoppable) o;
-
-                targetCollection.add( ss );
-
-                if ( this.isRunning() ) {
-                    ss.start();
-                }
-            }
-        }
-
-        return (T) this;
+    public Subscription registerServicesAfter( StartStoppable... otherServices ) {
+        return appendServices( otherServices, servicesAfter );
     }
 
 
@@ -134,6 +119,26 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
         if ( isShuttingDown() ) {
             throw new IllegalStateException( serviceName + " is currently in the process of shutting down" );
         }
+    }
+
+
+    private Subscription appendServices( StartStoppable[] otherServices, List<StartStoppable> targetCollection ) {
+        QA.argHasNoNullElements( otherServices, "otherServices" );
+
+        Subscription compositeSub = null;
+        for ( StartStoppable newService : otherServices ) {
+            Subscription sub = new Subscription( () -> targetCollection.remove(newService) );
+
+            compositeSub = sub.and(compositeSub);
+
+            targetCollection.add( newService );
+
+            if ( this.isRunning() ) {
+                newService.start();
+            }
+        }
+
+        return compositeSub;
     }
 
 }

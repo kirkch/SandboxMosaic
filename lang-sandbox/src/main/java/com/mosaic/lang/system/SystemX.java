@@ -180,6 +180,10 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
         };
 
         Runtime.getRuntime().addShutdownHook(masterShutdownHook);
+
+
+        registerServicesBefore( clock );
+        registerServicesBefore( new TimerThread( getServiceName() ) );
     }
 
 
@@ -405,28 +409,11 @@ public abstract class SystemX extends StartStopMixin<SystemX> {
     }
 
 
-    /**
-     * Registers an instance of StartStoppable to share the same life cycle as this instance of
-     * SystemX.
-     */
-    public <T> T registerService( T newService ) {
-        this.appendServicesToStartBefore( newService );
-
-        return newService;
-    }
-
-    protected void doStart() {
-        clock.start();
-
-        registerService( new TimerThread(getServiceName()) );
-    }
 
     protected void doStop() {
-        runShutdownHooks();
+        runShutdownHooks();  // todo do we still need this given the functionality in StartStopMixin
 
-        TryNow.tryNow( () -> Runtime.getRuntime().removeShutdownHook( masterShutdownHook ) );
-
-        clock.stop();
+        TryNow.tryNow( () -> Runtime.getRuntime().removeShutdownHook(masterShutdownHook) );
     }
 
 

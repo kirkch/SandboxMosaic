@@ -29,14 +29,16 @@ public class Journal2Test extends Tests {
 
     private Journal2       journal     = new Journal2( dataDir, "junitJournal", JOURNAL_FILE_SIZE );
 
-    private JournalReader2 reader      = system.registerService( journal.createReader() );
-    private JournalWriter2 writer      = system.registerService( journal.createWriter() );
+    private JournalReader2 reader      = journal.createReader();
+    private JournalWriter2 writer      = journal.createWriter();
     private Transaction2   transaction = new Transaction2();
 
 
 
     @Before
     public void setUp() {
+        system.registerServicesAfter( reader, writer );
+
         system.start();
     }
 
@@ -474,7 +476,7 @@ public class Journal2Test extends Tests {
     private JournalReader2 createAndRegisterReader() {
         JournalReader2 j = journal.createReader();
 
-        system.registerService(j);
+        system.registerServicesAfter(j);
 
         return j;
     }

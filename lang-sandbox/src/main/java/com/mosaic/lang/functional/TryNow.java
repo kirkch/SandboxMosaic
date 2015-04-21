@@ -3,6 +3,10 @@ package com.mosaic.lang.functional;
 import com.mosaic.lang.Failure;
 import com.mosaic.collections.concurrent.Future;
 import com.mosaic.collections.concurrent.FutureNbl;
+import com.mosaic.lang.MultipleExceptions;
+
+import java.util.List;
+
 
 /**
  * Factory class for jobs that execute immediately.
@@ -33,6 +37,28 @@ public class TryNow {
             return failed( new Failure(e) );
         }
     }
+
+    /**
+     * Invoke each of the supplied ops.  Each op will be invoked even if any of the other ops
+     * throws an exception.  All exceptions will be collected together and thrown as
+     * MultipleExceptions.<p/>
+     *
+     * The typical use case for this method is when shutting down multiple resources
+     */
+    public static void tryAll( VoidFunctionThatThrows...ops ) throws MultipleExceptions {
+        MultipleExceptions exceptions = new MultipleExceptions();
+
+        for ( VoidFunctionThatThrows op : ops ) {
+            try {
+                op.invoke();
+            } catch ( Exception ex ) {
+                exceptions.append( ex );
+            }
+        }
+
+        exceptions.throwIfNotEmpty();
+    }
+
 
     /**
      * Factory method for Try.  Captures the specified value as a happy path result.

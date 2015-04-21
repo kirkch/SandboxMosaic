@@ -80,8 +80,8 @@ public class StartStopMixinTest {
         FakeService s2 = new FakeService( "s2" );
         FakeService s1 = new FakeService( "s1" );
 
-        s4.appendServicesToStartBefore( s2, s3 );
-        s2.appendServicesToStartBefore( s1 );
+        s4.registerServicesBefore( s2, s3 );
+        s2.registerServicesBefore( s1 );
 
 
         s4.start();
@@ -109,8 +109,8 @@ public class StartStopMixinTest {
         FakeService s2 = new FakeService( "s2" );
         FakeService s1 = new FakeService( "s1" );
 
-        s4.appendServicesToStartBefore( s2, s3 );
-        s2.appendServicesToStartBefore( s1 );
+        s4.registerServicesBefore( s2, s3 );
+        s2.registerServicesBefore( s1 );
 
 
         s4.start();
@@ -143,8 +143,8 @@ public class StartStopMixinTest {
         FakeService s2 = new FakeService( "s2" );
         FakeService s1 = new FakeService( "s1" );
 
-        s4.appendServicesToStartBefore( s2, s3 );
-        s2.appendServicesToStartBefore( s1 );
+        s4.registerServicesBefore( s2, s3 );
+        s2.registerServicesBefore( s1 );
 
 
         s4.start();
@@ -179,8 +179,8 @@ public class StartStopMixinTest {
         FakeService s2 = new FakeService( "s2" );
         FakeService s1 = new FakeService( "s1" );
 
-        s1.appendServicesToStartAfter( s2, s4 );
-        s2.appendServicesToStartAfter( s3 );
+        s1.registerServicesAfter( s2, s4 );
+        s2.registerServicesAfter( s3 );
 
 
         s1.start();
@@ -208,8 +208,8 @@ public class StartStopMixinTest {
         FakeService s2 = new FakeService( "s2" );
         FakeService s1 = new FakeService( "s1" );
 
-        s1.appendServicesToStartAfter( s2, s4 );
-        s2.appendServicesToStartAfter( s3 );
+        s1.registerServicesAfter( s2, s4 );
+        s2.registerServicesAfter( s3 );
 
 
         s1.start();
@@ -242,8 +242,8 @@ public class StartStopMixinTest {
         FakeService s2 = new FakeService( "s2" );
         FakeService s1 = new FakeService( "s1" );
 
-        s1.appendServicesToStartAfter( s2, s4 );
-        s2.appendServicesToStartAfter( s3 );
+        s1.registerServicesAfter( s2, s4 );
+        s2.registerServicesAfter( s3 );
 
 
         s1.start();

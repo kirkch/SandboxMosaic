@@ -27,7 +27,7 @@ public abstract class JournalReaderThread extends ServiceThread<JournalReaderThr
 
         this.journal = new JournalReader( dataDirectory, getServiceName() );
 
-        appendServicesToStartBefore( journal );
+        registerServicesBefore( journal );
     }
 
     public void setPollIntervalMillis( long pollIntervalMillis ) {

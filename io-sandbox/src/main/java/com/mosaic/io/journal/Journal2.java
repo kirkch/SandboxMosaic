@@ -5,6 +5,7 @@ import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.ServiceThread;
+import com.mosaic.lang.StartStopMixin;
 import com.mosaic.lang.Subscription;
 import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.functional.FunctionObj2Int;
@@ -20,7 +21,7 @@ import static com.mosaic.lang.ServiceThread.ThreadType.*;
  * used to capture events and to replay them, either for recovery of a JVM on restart or to
  * distribute events between JVMs.
  */
-public class Journal2 {
+public class Journal2 extends StartStopMixin<Journal2> {
 
     static final long FILEHEADER_SIZE             = JournalDataFile2.FILEHEADER_SIZE;
     static final long FILEFOOTER_SIZE             = JournalDataFile2.FILEFOOTER_SIZE;
@@ -42,6 +43,8 @@ public class Journal2 {
     }
 
     public Journal2( DirectoryX dataDirectory, String serviceName, long perFileSizeBytes ) {
+        super( serviceName );
+
         QA.argNotNull(  dataDirectory,    "dataDirectory"    );
         QA.argIsGTZero( perFileSizeBytes, "perFileSizeBytes" );
 
@@ -74,13 +77,13 @@ public class Journal2 {
     public Subscription createReaderAsync( JournalReaderCallback callback, long fromSeq ) {
         String readerName = asyncReaderServiceNameFactory.invoke();
 
-        new ServiceThread(readerName, NON_DAEMON) {
+        final ServiceThread thread = new ServiceThread(readerName, NON_DAEMON) {
             protected long loop() throws InterruptedException {
                 return 0;
             }
         };
 
-        return null;
+        return registerServicesAfter( thread );
     }
 
 
