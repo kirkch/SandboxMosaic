@@ -8,7 +8,7 @@ import com.mosaic.bytes.struct.LongField;
 import com.mosaic.bytes.struct.Struct;
 import com.mosaic.bytes.struct.StructRegistry;
 import com.mosaic.collections.map.PersistableMap;
-import com.mosaic.lang.StartStoppable;
+import com.mosaic.lang.Service;
 import com.mosaic.lang.functional.VoidFunction1;
 import org.junit.After;
 import org.junit.Test;
@@ -43,12 +43,12 @@ public abstract class BasePersistableMapTestCases {
     }
 
 
-    private List<StartStoppable> openedResources = new LinkedList<>();
+    private List<Service> openedResources = new LinkedList<>();
 
     @After
     public void tearDown() {
         // ensure that all resources that were opened during the test run are shutdown promptly
-        for ( StartStoppable r : openedResources ) {
+        for ( Service r : openedResources ) {
             r.stop();
         }
     }

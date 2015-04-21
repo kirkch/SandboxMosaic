@@ -7,7 +7,7 @@ import com.mosaic.bytes.BytesWrapper;
 import com.mosaic.collections.queue.ByteQueueWriter;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.lang.QA;
-import com.mosaic.lang.StartStopMixin;
+import com.mosaic.lang.ServiceMixin;
 import com.mosaic.lang.functional.VoidFunction0;
 import com.mosaic.lang.functional.VoidFunction1;
 import com.mosaic.lang.system.Backdoor;
@@ -18,7 +18,7 @@ import com.mosaic.lang.text.UTF8;
 /**
  *
  */
-public class JournalWriter extends StartStopMixin<JournalWriter> implements ByteQueueWriter {
+public class JournalWriter extends ServiceMixin<JournalWriter> implements ByteQueueWriter {
 
     public static long sizeOfUTF8String( UTF8 source ) {
         return 2 + source.getByteCount();

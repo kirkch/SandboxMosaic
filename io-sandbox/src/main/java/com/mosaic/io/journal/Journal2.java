@@ -4,8 +4,8 @@ import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
+import com.mosaic.lang.Service;
 import com.mosaic.lang.ServiceThread;
-import com.mosaic.lang.StartStoppable;
 import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.functional.FunctionObj2Int;
 import com.mosaic.lang.system.SystemX;
@@ -67,11 +67,11 @@ public class Journal2 {
         return new JournalReader2( this, readerServiceName );
     }
 
-    public StartStoppable createReaderAsync( JournalReaderCallback callback ) {
+    public Service createReaderAsync( JournalReaderCallback callback ) {
         return createReaderAsync( callback, 0 );
     }
 
-    public StartStoppable createReaderAsync( JournalReaderCallback callback, long fromSeq ) {
+    public Service createReaderAsync( JournalReaderCallback callback, long fromSeq ) {
         String         readerName = asyncReaderServiceNameFactory.invoke();
         JournalReader2 reader     = createReader();
 

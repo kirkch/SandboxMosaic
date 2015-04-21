@@ -1,6 +1,6 @@
 package com.mosaic.collections.concurrent;
 
-import com.mosaic.lang.StartStopMixin;
+import com.mosaic.lang.ServiceMixin;
 import com.mosaic.lang.functional.VoidFunctionLong1;
 import com.mosaic.lang.reflect.ReflectionUtils;
 import com.mosaic.lang.system.SystemX;
@@ -14,7 +14,7 @@ import java.util.concurrent.RecursiveAction;
 /**
  *
  */
-public class ForkJoinThreadPool extends StartStopMixin implements ThreadPool {
+public class ForkJoinThreadPool extends ServiceMixin implements ThreadPool {
 
     private long forkThreshold = 100;
     private int  forkFactor    = 2;

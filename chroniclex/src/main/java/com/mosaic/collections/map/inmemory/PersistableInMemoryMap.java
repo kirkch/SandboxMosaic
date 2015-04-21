@@ -7,7 +7,7 @@ import com.mosaic.bytes.Bytes;
 import com.mosaic.collections.map.PersistableMap;
 import com.mosaic.io.filesystemx.inmemory.InMemoryFile;
 import com.mosaic.lang.QA;
-import com.mosaic.lang.StartStopMixin;
+import com.mosaic.lang.ServiceMixin;
 import com.mosaic.lang.system.LogMessage;
 import com.mosaic.lang.system.SystemX;
 
@@ -20,7 +20,7 @@ import java.util.Objects;
  *
  */
 @SuppressWarnings("unchecked")
-public class PersistableInMemoryMap<K, V extends ByteView> extends StartStopMixin<PersistableMap<K,V>>
+public class PersistableInMemoryMap<K, V extends ByteView> extends ServiceMixin<PersistableMap<K,V>>
     implements PersistableMap<K,V>
 {
 

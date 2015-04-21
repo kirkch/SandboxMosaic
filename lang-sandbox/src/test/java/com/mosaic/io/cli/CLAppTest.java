@@ -1,6 +1,6 @@
 package com.mosaic.io.cli;
 
-import com.mosaic.lang.StartStopMixin;
+import com.mosaic.lang.ServiceMixin;
 import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.system.DebugSystem;
 import com.mosaic.lang.time.DTM;
@@ -233,8 +233,8 @@ public class CLAppTest {
 
 // STARTUP/SHUTDOWN EVENTS
 
-    private static class StartStopMock extends StartStopMixin<StartStopMock> {
-        public StartStopMock() {
+    private static class ServiceMock extends ServiceMixin<ServiceMock> {
+        public ServiceMock() {
             super( "mock" );
         }
 
@@ -245,11 +245,11 @@ public class CLAppTest {
     @Test
     public void onStartup_expectChainedServicesToBeStartedFirst() {
 
-        final StartStopMock service = new StartStopMock();
+        final ServiceMock service = new ServiceMock();
 
         CLApp app = new CLApp(system) {
-            Function0<StartStopMock> s = registerService( new Function0<StartStopMock>() {
-                public StartStopMock invoke() {
+            Function0<ServiceMock> s = registerService( new Function0<ServiceMock>() {
+                public ServiceMock invoke() {
                     return service;
                 }
             } );

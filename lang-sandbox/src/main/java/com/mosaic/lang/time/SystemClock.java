@@ -2,8 +2,8 @@ package com.mosaic.lang.time;
 
 
 import com.mosaic.lang.QA;
-import com.mosaic.lang.StartStopMixin;
-import com.mosaic.lang.StartStoppable;
+import com.mosaic.lang.Service;
+import com.mosaic.lang.ServiceMixin;
 import com.mosaic.lang.ThreadSafe;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
@@ -22,7 +22,7 @@ import java.nio.channels.FileChannel;
  * because this class can be adjusted for unit and system testing purposes.
  */
 @ThreadSafe
-public final class SystemClock extends StartStopMixin<SystemClock> {
+public final class SystemClock extends ServiceMixin<SystemClock> {
 
     private volatile Clock clock;
 
@@ -125,13 +125,13 @@ public final class SystemClock extends StartStopMixin<SystemClock> {
 
 
     protected void doStop() throws Exception {
-        StartStoppable.stopService( clock );
+        Service.stopService( clock );
     }
 
     private void changeClockTo( Clock newClock ) {
-        StartStoppable.stopService( this.clock );
+        Service.stopService( this.clock );
 
-        this.clock = StartStoppable.startService( newClock );
+        this.clock = Service.startService( newClock );
     }
 
     private interface Clock {
@@ -186,7 +186,7 @@ public final class SystemClock extends StartStopMixin<SystemClock> {
      * It is suggested to only have one process writing to the memory mapped file, everybody else
      * can just read from it.  This keeps contention on the memory address low.
      */
-    private class MMClock extends StartStopMixin<MMClock> implements Clock {
+    private class MMClock extends ServiceMixin<MMClock> implements Clock {
         private final File file;
 
         private long             currentMillisPtr;

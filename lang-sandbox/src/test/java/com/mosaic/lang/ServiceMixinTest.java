@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 /**
  *
  */
-public class StartStopMixinTest {
+public class ServiceMixinTest {
 
     private final List<String> audit = new ArrayList<>();
 
@@ -274,7 +274,7 @@ public class StartStopMixinTest {
 
 
     @SuppressWarnings("unchecked")
-    private class FakeService extends StartStopMixin<FakeService> {
+    private class FakeService extends ServiceMixin<FakeService> {
         public FakeService( String serviceName ) {
             super(serviceName);
         }

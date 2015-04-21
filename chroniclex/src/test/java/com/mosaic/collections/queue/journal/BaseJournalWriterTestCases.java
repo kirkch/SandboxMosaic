@@ -4,7 +4,7 @@ import com.mosaic.io.CheckSumException;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
-import com.mosaic.lang.StartStoppable;
+import com.mosaic.lang.Service;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.lang.time.Duration;
@@ -31,7 +31,7 @@ public abstract class BaseJournalWriterTestCases {
         + JournalDataFile.PERMSGHEADER_PAYLOADSIZE_SIZE;                   // the file is truncated with -1
               // 10 + 20 * (24+8) = 10 + 20*32 = 10 + 640 = 650
 
-    private List<StartStoppable> resources = new LinkedList<>();
+    private List<Service> resources = new LinkedList<>();
 
     private SystemX     system  = createSystem();
     private DirectoryX  dataDir = system.fileSystem.getCurrentWorkingDirectory().getOrCreateDirectory( "data" );
@@ -56,7 +56,7 @@ public abstract class BaseJournalWriterTestCases {
 
     @After
     public void tearDown() {
-        resources.forEach( StartStoppable::stop );
+        resources.forEach( Service::stop );
 
         system.fileSystem.getRoot().deleteAll();
 
@@ -501,7 +501,7 @@ public abstract class BaseJournalWriterTestCases {
         return registerResourceAndStart( new JournalReader( dataDir, "junitJournal", startFrom ) );
     }
 
-    private <T extends StartStoppable> T registerResourceAndStart( T r ) {
+    private <T extends Service> T registerResourceAndStart( T r ) {
         resources.add( r );
 
         r.start();

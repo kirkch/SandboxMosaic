@@ -14,11 +14,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A default implementation of StartStoppable.
  */
 @SuppressWarnings("unchecked")
-public abstract class StartStopMixin<T extends StartStoppable<T>> implements StartStoppable<T> {
+public abstract class ServiceMixin<T extends Service<T>> implements Service<T> {
 
 
-    private List<StartStoppable> servicesBefore = new ArrayList<>(3);
-    private List<StartStoppable> servicesAfter  = new ArrayList<>(3);
+    private List<Service> servicesBefore = new ArrayList<>(3);
+    private List<Service> servicesAfter  = new ArrayList<>(3);
 
     private AtomicInteger        initCounter = new AtomicInteger(0);
     private String               serviceName;
@@ -26,7 +26,7 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
     private AtomicBoolean        isShuttingDown  = new AtomicBoolean(false);
 
 
-    public StartStopMixin( String serviceName ) {
+    public ServiceMixin( String serviceName ) {
         this.serviceName = serviceName;
     }
 
@@ -45,7 +45,7 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
         int initCount = initCounter.incrementAndGet();
 
         if ( initCount == 1 ) {
-            servicesBefore.forEach( StartStoppable::start );
+            servicesBefore.forEach( Service::start );
 
             try {
                 doStart();
@@ -53,7 +53,7 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
                 Backdoor.throwException( ex );
             }
 
-            servicesAfter.forEach( StartStoppable::start );
+            servicesAfter.forEach( Service::start );
         }
 
         return (T) this;
@@ -65,14 +65,14 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
         if ( initCount == 0 ) {
             this.isShuttingDown.set(true);
 
-            ListUtils.forEachReversed( servicesAfter, StartStoppable::stop );
+            ListUtils.forEachReversed( servicesAfter, Service::stop );
 
             try {
                 doStop();
             } catch ( Exception ex ) {
                 throw new RuntimeException( ex );
             } finally {
-                ListUtils.forEachReversed( servicesBefore, StartStoppable::stop );
+                ListUtils.forEachReversed( servicesBefore, Service::stop );
 
                 this.isShuttingDown.set(false);
             }
@@ -90,11 +90,11 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
     }
 
 
-    public Subscription registerServicesBefore( StartStoppable... otherServices ) {
+    public Subscription registerServicesBefore( Service... otherServices ) {
         return appendServices( otherServices, servicesBefore );
     }
 
-    public Subscription registerServicesAfter( StartStoppable... otherServices ) {
+    public Subscription registerServicesAfter( Service... otherServices ) {
         return appendServices( otherServices, servicesAfter );
     }
 
@@ -122,11 +122,11 @@ public abstract class StartStopMixin<T extends StartStoppable<T>> implements Sta
     }
 
 
-    private Subscription appendServices( StartStoppable[] otherServices, List<StartStoppable> targetCollection ) {
+    private Subscription appendServices( Service[] otherServices, List<Service> targetCollection ) {
         QA.argHasNoNullElements( otherServices, "otherServices" );
 
         Subscription compositeSub = null;
-        for ( StartStoppable newService : otherServices ) {
+        for ( Service newService : otherServices ) {
             Subscription sub = new Subscription( () -> targetCollection.remove(newService) );
 
             compositeSub = sub.and(compositeSub);

@@ -3,14 +3,14 @@ package com.mosaic.bytes.struct;
 import com.mosaic.io.filesystemx.FileContents;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
-import com.mosaic.lang.StartStopMixin;
-import com.mosaic.lang.StartStoppable;
+import com.mosaic.lang.ServiceMixin;
+import com.mosaic.lang.Service;
 
 
 /**
  * A utility base class for structs that are memory mapped to a file.
  */
-public class PersistentStruct<T extends StartStoppable<T>> extends StartStopMixin<T> {
+public class PersistentStruct<T extends Service<T>> extends ServiceMixin<T> {
 
     private final FileX          dataFile;
     private final StructRegistry structRegistry;

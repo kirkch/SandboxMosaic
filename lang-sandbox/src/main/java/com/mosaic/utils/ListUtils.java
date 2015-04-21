@@ -1,17 +1,13 @@
 package com.mosaic.utils;
 
 import com.mosaic.lang.QA;
-import com.mosaic.lang.StartStoppable;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.functional.Function2;
 import com.mosaic.lang.functional.Nullable;
 import com.mosaic.lang.functional.Tuple2;
-import com.mosaic.lang.functional.VoidFunction0;
 import com.mosaic.lang.functional.VoidFunction1;
-import com.mosaic.lang.system.SystemX;
 
 import java.util.*;
-import java.util.function.Predicate;
 
 
 /**

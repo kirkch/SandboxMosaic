@@ -5,7 +5,7 @@ import com.mosaic.bytes.ByteView;
 import com.mosaic.bytes.Bytes;
 import com.mosaic.collections.map.PersistableMap;
 import com.mosaic.lang.QA;
-import com.mosaic.lang.StartStopMixin;
+import com.mosaic.lang.ServiceMixin;
 import com.mosaic.lang.system.SystemX;
 import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
@@ -23,7 +23,7 @@ import static com.mosaic.lang.system.Backdoor.toInt;
  * An implementation of PersistableMap that uses ChronicleMap as its implementation.
  */
 @SuppressWarnings("unchecked")
-public class PersistableChronicleMap<K, V extends ByteView> extends StartStopMixin<PersistableMap<K,V>>
+public class PersistableChronicleMap<K, V extends ByteView> extends ServiceMixin<PersistableMap<K,V>>
     implements PersistableMap<K,V>
 {
     private final SystemX           system;

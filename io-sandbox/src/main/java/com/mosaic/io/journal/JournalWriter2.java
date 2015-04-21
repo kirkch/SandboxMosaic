@@ -1,13 +1,13 @@
 package com.mosaic.io.journal;
 
 import com.mosaic.lang.QA;
-import com.mosaic.lang.StartStopMixin;
+import com.mosaic.lang.ServiceMixin;
 
 
 /**
  *
  */
-public class JournalWriter2 extends StartStopMixin<JournalWriter2> {
+public class JournalWriter2 extends ServiceMixin<JournalWriter2> {
 
     private final Journal2         journal;
     private       JournalDataFile2 currentDataFile;

@@ -5,13 +5,13 @@ import com.mosaic.collections.queue.ByteQueueReader;
 import com.mosaic.collections.queue.JournalByteView;
 import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.lang.QA;
-import com.mosaic.lang.StartStopMixin;
+import com.mosaic.lang.ServiceMixin;
 
 
 /**
  * Reader for journal data files created using JournalWriter.
  */
-public class JournalReader extends StartStopMixin<JournalReader> implements ByteQueueReader {
+public class JournalReader extends ServiceMixin<JournalReader> implements ByteQueueReader {
     private final DirectoryX      dataDirectory;
     private final long            startFrom;
 

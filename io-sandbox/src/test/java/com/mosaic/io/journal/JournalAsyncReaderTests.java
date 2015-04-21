@@ -1,7 +1,7 @@
 package com.mosaic.io.journal;
 
 import com.mosaic.bytes2.Bytes2;
-import com.mosaic.lang.StartStoppable;
+import com.mosaic.lang.Service;
 import com.softwaremosaic.junit.JUnitMosaic;
 import com.softwaremosaic.junit.JUnitMosaicRunner;
 import com.softwaremosaic.junit.annotations.Test;
@@ -30,7 +30,7 @@ public class JournalAsyncReaderTests extends Tests {
 
 
     private List<String> audit = new Vector<>();
-    private StartStoppable reader = journal.createReaderAsync( new JournalReaderCallback() {
+    private Service reader = journal.createReaderAsync( new JournalReaderCallback() {
         public void entryReceived( long seq, Bytes2 bytes, long from, long toExc ) {
             Transaction2 t = new Transaction2();
 

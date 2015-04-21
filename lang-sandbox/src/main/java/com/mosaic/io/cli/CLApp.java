@@ -7,7 +7,7 @@ import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.io.streams.PrettyPrinter;
 import com.mosaic.lang.QA;
-import com.mosaic.lang.StartStoppable;
+import com.mosaic.lang.Service;
 import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.lang.system.Backdoor;
@@ -433,7 +433,7 @@ public abstract class CLApp {
      * This all happens lazily, thus ensuring that it happens after the CLArguments have all
      * been processed and not at all if the service is not actually used.
      */
-    protected <T extends StartStoppable> Function0<T> registerService( final Function0<T> serviceFactory ) {
+    protected <T extends Service> Function0<T> registerService( final Function0<T> serviceFactory ) {
         return new Function0<T>() {
             private T service;
 

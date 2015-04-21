@@ -3,7 +3,7 @@ package com.mosaic.lang;
 /**
  * Interface for classes that need to be started/stopped.  Supports chaining services together.
  */
-public interface StartStoppable<T extends StartStoppable<T>> {
+public interface Service<T extends Service<T>> {
 
     /**
      * Helper method for starting a service.  Occurred because of type mangling that
@@ -13,16 +13,16 @@ public interface StartStoppable<T extends StartStoppable<T>> {
      * Knickers + Twist -> Static fudge method.
      */
     public static <T> T startService( T s ) {
-        if ( s instanceof StartStoppable ) {
-            ((StartStoppable) s).start();
+        if ( s instanceof Service ) {
+            ((Service) s).start();
         }
 
         return s;
     }
 
     public static <T> T stopService( T s ) {
-        if ( s instanceof StartStoppable ) {
-            ((StartStoppable) s).stop();
+        if ( s instanceof Service ) {
+            ((Service) s).stop();
         }
 
         return s;
@@ -71,7 +71,7 @@ public interface StartStoppable<T extends StartStoppable<T>> {
      *     this service and to unregister the service if required.  Unregistering the service
      *     will not alter the state of either service.
      */
-    public Subscription registerServicesBefore( StartStoppable... otherServices );
+    public Subscription registerServicesBefore( Service... otherServices );
 
     /**
      * After this service has been started, then also start the specified service.  This is
@@ -83,6 +83,6 @@ public interface StartStoppable<T extends StartStoppable<T>> {
      *     this service and to unregister the service if required.  Unregistering the service
      *     will not alter the state of either service.
      */
-    public Subscription registerServicesAfter( StartStoppable... otherServices );
+    public Subscription registerServicesAfter( Service... otherServices );
 
 }

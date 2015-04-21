@@ -7,7 +7,7 @@ import com.mosaic.io.streams.CharacterStream;
 import com.mosaic.lang.Cancelable;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.ServiceThread;
-import com.mosaic.lang.StartStopMixin;
+import com.mosaic.lang.ServiceMixin;
 import com.mosaic.lang.functional.TryNow;
 import com.mosaic.lang.functional.VoidFunction0;
 import com.mosaic.lang.functional.VoidFunction1;
@@ -35,7 +35,7 @@ import java.util.concurrent.ForkJoinPool;
 /**
  *
  */
-public abstract class SystemX extends StartStopMixin<SystemX> {
+public abstract class SystemX extends ServiceMixin<SystemX> {
 
     public static final int KILOBYTE              = 1024;
     public static final int MEGABYTE              = KILOBYTE*1024;

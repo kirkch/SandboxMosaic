@@ -9,7 +9,7 @@ import java.io.IOException;
  * the loop() method, and be sure to exit from time to time to give this class
  * the chance to check for any possible shutdown requests.
  */
-public abstract class ServiceThread<T extends StartStoppable<T>> extends StartStopMixin<T> {
+public abstract class ServiceThread<T extends Service<T>> extends ServiceMixin<T> {
 
     public static enum ThreadType {
         DAEMON, NON_DAEMON;
