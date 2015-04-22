@@ -271,6 +271,62 @@ public class ServiceMixinTest {
         assertEquals( expectedAudit, audit );
     }
 
+    @Test
+    public void givenOn2OfEachStartStopFunctions_expectThemToBeInvokedWhenStoppingStartingService() {
+        FakeService s4 = new FakeService( "s4" );
+        FakeService s3 = new FakeService( "s3" );
+        FakeService s2 = new FakeService( "s2" );
+        FakeService s1 = new FakeService( "s1" );
+
+        s1.registerServicesAfter( s2, s4 );
+        s2.registerServicesAfter( s3 );
+
+        s2.onStartBefore( () -> audit.add( "s2 onStartBefore1" ) );
+        s2.onStartBefore( () -> audit.add( "s2 onStartBefore2" ) );
+
+        s2.onStartAfter( () -> audit.add( "s2 onStartAfter1" ) );
+        s2.onStartAfter( () -> audit.add( "s2 onStartAfter2" ) );
+
+        s2.onStopBefore( () -> audit.add( "s2 onStopBefore1" ) );
+        s2.onStopBefore( () -> audit.add( "s2 onStopBefore2" ) );
+
+        s2.onStopAfter( () -> audit.add( "s2 onStopAfter1" ) );
+        s2.onStopAfter( () -> audit.add( "s2 onStopAfter2" ) );
+
+
+        s1.start();
+        s1.start();
+        s1.stop();
+        s1.stop();
+
+
+        assertFalse( s1.isRunning() );
+        assertFalse( s2.isRunning() );
+        assertFalse( s3.isRunning() );
+        assertFalse( s4.isRunning() );
+
+        List<String> expectedAudit = asList(
+            "s1.doStart()",
+            "s2 onStartBefore1",
+            "s2 onStartBefore2",
+            "s2.doStart()",
+            "s2 onStartAfter1",
+            "s2 onStartAfter2",
+            "s3.doStart()",
+            "s4.doStart()",
+            "s4.doStop()",
+            "s3.doStop()",
+            "s2 onStopBefore1",
+            "s2 onStopBefore2",
+            "s2.doStop()",
+            "s2 onStopAfter1",
+            "s2 onStopAfter2",
+            "s1.doStop()"
+        );
+
+        assertEquals( expectedAudit, audit );
+    }
+
 
 
     @SuppressWarnings("unchecked")

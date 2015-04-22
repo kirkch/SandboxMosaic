@@ -1,5 +1,6 @@
 package com.mosaic.lang;
 
+import com.mosaic.lang.functional.VoidFunction0;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.ListUtils;
@@ -19,6 +20,11 @@ public abstract class ServiceMixin<T extends Service<T>> implements Service<T> {
 
     private List<Service> servicesBefore = new ArrayList<>(3);
     private List<Service> servicesAfter  = new ArrayList<>(3);
+
+    private VoidFunction0 onStartBeforeFunc = VoidFunction0.NO_OP;
+    private VoidFunction0 onStartAfterFunc  = VoidFunction0.NO_OP;
+    private VoidFunction0 onStopBeforeFunc  = VoidFunction0.NO_OP;
+    private VoidFunction0 onStopAfterFunc   = VoidFunction0.NO_OP;
 
     private AtomicInteger        initCounter = new AtomicInteger(0);
     private String               serviceName;
@@ -48,7 +54,11 @@ public abstract class ServiceMixin<T extends Service<T>> implements Service<T> {
             servicesBefore.forEach( Service::start );
 
             try {
+                onStartBeforeFunc.invoke();
+
                 doStart();
+
+                onStartAfterFunc.invoke();
             } catch ( Exception ex ) {
                 Backdoor.throwException( ex );
             }
@@ -68,9 +78,13 @@ public abstract class ServiceMixin<T extends Service<T>> implements Service<T> {
             ListUtils.forEachReversed( servicesAfter, Service::stop );
 
             try {
+                onStopBeforeFunc.invoke();
+
                 doStop();
+
+                onStopAfterFunc.invoke();
             } catch ( Exception ex ) {
-                throw new RuntimeException( ex );
+                Backdoor.throwException( ex );
             } finally {
                 ListUtils.forEachReversed( servicesBefore, Service::stop );
 
@@ -97,6 +111,31 @@ public abstract class ServiceMixin<T extends Service<T>> implements Service<T> {
     public Subscription registerServicesAfter( Service... otherServices ) {
         return appendServices( otherServices, servicesAfter );
     }
+
+    public Service<T> onStartBefore( VoidFunction0 callback ) {
+        onStartBeforeFunc = onStartBeforeFunc.and( callback );
+
+        return this;
+    }
+
+    public Service<T> onStartAfter( VoidFunction0 callback ) {
+        onStartAfterFunc = onStartAfterFunc.and( callback );
+
+        return this;
+    }
+
+    public Service<T> onStopBefore( VoidFunction0 callback ) {
+        onStopBeforeFunc = onStopBeforeFunc.and( callback );
+
+        return this;
+    }
+
+    public Service<T> onStopAfter( VoidFunction0 callback ) {
+        onStopAfterFunc = onStopAfterFunc.and( callback );
+
+        return this;
+    }
+
 
 
     protected final void throwIfNotReady() {

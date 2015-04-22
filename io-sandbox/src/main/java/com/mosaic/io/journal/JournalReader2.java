@@ -69,7 +69,9 @@ public class JournalReader2 extends ServiceMixin<JournalReader2> {
         this.currentDataFile = journal.seekTo(messageSeq);
 
         if ( currentDataFile.getCurrentMessageSeq() == messageSeq ) {
-            initialDataFile.close();
+            if ( initialDataFile != null ) {
+                initialDataFile.close();
+            }
 
             return true;
         } else {

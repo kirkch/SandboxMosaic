@@ -75,9 +75,6 @@ public class Journal2 {
         String         readerName = asyncReaderServiceNameFactory.invoke();
         JournalReader2 reader     = createReader();
 
-        if ( fromSeq > 0 ) {
-            reader.seekTo( fromSeq );
-        }
 
         ServiceThread thread = new ServiceThread(readerName, NON_DAEMON) {
             protected long loop() throws InterruptedException {
@@ -86,6 +83,12 @@ public class Journal2 {
                 return successFlag * 100; // === successFlag:boolean ? 0 : 100; but avoids cpu stalls due to branch miss-prediction
             }
         };
+
+        reader.onStartAfter( () -> {
+            if ( fromSeq > 0 ) {
+                reader.seekTo( fromSeq );
+            }
+        });
 
         thread.registerServicesBefore( reader );
 

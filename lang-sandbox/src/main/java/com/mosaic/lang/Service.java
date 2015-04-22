@@ -1,5 +1,8 @@
 package com.mosaic.lang;
 
+import com.mosaic.lang.functional.VoidFunction0;
+
+
 /**
  * Interface for classes that need to be started/stopped.  Supports chaining services together.
  */
@@ -84,5 +87,42 @@ public interface Service<T extends Service<T>> {
      *     will not alter the state of either service.
      */
     public Subscription registerServicesAfter( Service... otherServices );
+
+
+    /**
+     * The supplied callback will be invoked every time this service is started.  When the callback
+     * is called, this service will not yet have started.<p/>
+     *
+     * Callbacks are not expected to throw any exception.  If they do, then the call to start() will
+     * propagate the exception up the stack and leave the service(s) in an undefined state.
+     */
+    public Service<T> onStartBefore( VoidFunction0 callback );
+
+    /**
+     * The supplied callback will be invoked every time this service is started.  When the callback
+     * is called, this service will already be up and running.<p/>
+     *
+     * Callbacks are not expected to throw any exception.  If they do, then the call to start() will
+     * propagate the exception up the stack and leave the service(s) in an undefined state.
+     */
+    public Service<T> onStartAfter( VoidFunction0 callback );
+
+    /**
+     * The supplied callback will be invoked every time this service is stopped.  When the callback
+     * is called, this service will still be running.<p/>
+     *
+     * Callbacks are not expected to throw any exception.  If they do, then the call to start() will
+     * propagate the exception up the stack and leave the service(s) in an undefined state.
+     */
+    public Service<T> onStopBefore( VoidFunction0 callback );
+
+    /**
+     * The supplied callback will be invoked every time this service is stopped.  When the callback
+     * is called, this service will have already been stopped.<p/>
+     *
+     * Callbacks are not expected to throw any exception.  If they do, then the call to start() will
+     * propagate the exception up the stack and leave the service(s) in an undefined state.
+     */
+    public Service<T> onStopAfter( VoidFunction0 callback );
 
 }
