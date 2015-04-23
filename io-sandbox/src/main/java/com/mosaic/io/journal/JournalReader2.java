@@ -26,31 +26,24 @@ public class JournalReader2 extends ServiceMixin<JournalReader2> {
 
 
     public boolean readNextInto( JournalEntry journalEntry ) {
-        int result = readNextUsingCallback(
+        return readNextUsingCallback(
             (seq,bytes,from,toExc) -> {
                 journalEntry.bytes.setBytes( bytes, from, toExc );
                 journalEntry.msgSeq = seq;
             }
         );
-
-        return result == 1;
     }
 
-    /**
-     *
-     * @return 0 when nothing was read else 1;  we do not use boolean here to support an
-     *         optimisation within Journal2.createReaderAsync
-     */
-    int readNextUsingCallback( JournalReaderCallback callback ) {
+    boolean readNextUsingCallback( JournalReaderCallback callback ) {
         if ( currentDataFile == null ) {
-            return 0;
+            return false;
         }
 
         if ( currentDataFile.isReadyToReadNextMessage() ) {
             boolean successFlag = currentDataFile.readNextUsingCallback( callback );
 
             if ( successFlag ) {
-                return 1;
+                return true;
             } else {
                 this.currentDataFile.close();
 
@@ -59,7 +52,7 @@ public class JournalReader2 extends ServiceMixin<JournalReader2> {
                 return readNextUsingCallback( callback );
             }
         } else {
-            return 0;
+            return false;
         }
     }
 

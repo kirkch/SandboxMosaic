@@ -15,7 +15,6 @@ import java.util.Vector;
 
 /**
  * @see com.mosaic.io.journal.Journal2#createReaderAsync(JournalReaderCallback)
- * @see com.mosaic.io.journal.Journal2#createReaderAsync(JournalReaderCallback,long)
  */
 @RunWith(JUnitMosaicRunner.class)
 public class JournalAsyncReaderTests extends Tests {
@@ -132,7 +131,7 @@ public class JournalAsyncReaderTests extends Tests {
 
                 audit.add( "entry(" + seq + "," + t + ")" );
             }
-        }, 2);
+        }, () -> {}, 2);
 
         reader.start();
 

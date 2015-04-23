@@ -8,9 +8,12 @@ import com.mosaic.lang.Service;
 import com.mosaic.lang.ServiceThread;
 import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.functional.FunctionObj2Int;
+import com.mosaic.lang.functional.VoidFunction0;
 import com.mosaic.lang.system.SystemX;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.mosaic.lang.ServiceThread.ThreadType.*;
 
@@ -68,19 +71,37 @@ public class Journal2 {
     }
 
     public Service createReaderAsync( JournalReaderCallback callback ) {
-        return createReaderAsync( callback, 0 );
+        return createReaderAsync( callback, () -> {}, 0 );
     }
 
-    public Service createReaderAsync( JournalReaderCallback callback, long fromSeq ) {
+    public Service createReaderAsync( JournalReaderCallback callback, VoidFunction0 idleCallback ) {
+        return createReaderAsync( callback, idleCallback, 0 );
+    }
+
+    public Service createReaderAsync( JournalReaderCallback callback, VoidFunction0 idleCallback, long fromSeq ) {
         String         readerName = asyncReaderServiceNameFactory.invoke();
         JournalReader2 reader     = createReader();
 
 
         ServiceThread thread = new ServiceThread(readerName, NON_DAEMON) {
-            protected long loop() throws InterruptedException {
-                int successFlag = reader.readNextUsingCallback( callback );
+            private long sequentialIdleCount = 0;
 
-                return successFlag * 100; // === successFlag:boolean ? 0 : 100; but avoids cpu stalls due to branch miss-prediction
+            protected long loop() throws InterruptedException {
+                boolean successFlag = reader.readNextUsingCallback( callback );
+
+                if ( successFlag ) {
+                    sequentialIdleCount = 0;
+
+                    return 0;
+                } else {
+                    sequentialIdleCount++;
+
+                    if ( sequentialIdleCount == 10 ) {
+                        idleCallback.invoke();
+                    }
+
+                    return 10;
+                }
             }
         };
 
@@ -88,7 +109,7 @@ public class Journal2 {
             if ( fromSeq > 0 ) {
                 reader.seekTo( fromSeq );
             }
-        });
+        } );
 
         thread.registerServicesBefore( reader );
 

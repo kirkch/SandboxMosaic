@@ -151,7 +151,7 @@ public class CLApp_fileLockChildProcessTests {
 
         OSProcess process2 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput2::add, "data", "-v" );
 
-        JUnitMosaic.spinUntilTrue( 3003, () -> processOutput2.contains( "App has started" ) );
+        JUnitMosaic.spinUntilTrue( 6003, () -> processOutput2.contains("App has started") );
 
         assertFalse( processOutput2.contains( "Previous run did not shutdown cleanly, recovering") );
 
