@@ -66,6 +66,7 @@ class JournalDataFile2 {
     private FileX         file;
     private FileContents2 contents;
     private long          fileSize;
+    private long          footerOffset;
 
     private long          currentIndex;
     private long          currentToExc;
@@ -91,7 +92,8 @@ class JournalDataFile2 {
         long targetFileSize = Math.max( perFileSizeBytes, file.sizeInBytes() );
         this.contents       = file.openFile2( fileMode, targetFileSize );
 
-        fileSize = targetFileSize;
+        fileSize     = targetFileSize;
+        footerOffset = this.fileSize - FILEFOOTER_SIZE;
 
         seekToBeginningOfFile();
 
@@ -196,7 +198,7 @@ class JournalDataFile2 {
         long payloadIndex = currentIndex + PER_MSGHEADER_SIZE;
         long proposedEndOfMessage = payloadIndex + messageSizeBytes;
 
-        if ( proposedEndOfMessage > this.fileSize - FILEFOOTER_SIZE ) {  // todo add unit test that shows the need for the footer AND create a constant
+        if ( proposedEndOfMessage > footerOffset ) {  // todo add unit test that shows the need for the footer AND create a constant
             contents.writeInt( currentIndex + PER_MSGHEADER_PAYLOADSIZE_INDEX, fileSize, -1 );
             contents.writeInt( currentIndex + PER_MSGHEADER_HASHCODE_INDEX,    fileSize, -1 );
 
