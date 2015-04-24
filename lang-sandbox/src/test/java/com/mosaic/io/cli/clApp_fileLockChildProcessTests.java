@@ -151,7 +151,20 @@ public class CLApp_fileLockChildProcessTests {
 
         OSProcess process2 = system.runJavaProcess( WaitForSignalFileApp.class, processOutput2::add, "data", "-v" );
 
-        JUnitMosaic.spinUntilTrue( 6003, () -> processOutput2.contains("App has started") );
+        try {
+            JUnitMosaic.spinUntilTrue( 6003, () -> processOutput2.contains( "App has started" ) );
+        } catch ( Throwable ex ) {
+            // extra logging as this test is flickering here
+            System.out.println("process 1 output");
+            System.out.println("-----");
+            processOutput1.forEach( System.out::println );
+
+            System.out.println("process 2 output");
+            System.out.println("-----");
+            processOutput2.forEach( System.out::println );
+
+            Backdoor.throwException( ex );
+        }
 
         assertFalse( processOutput2.contains( "Previous run did not shutdown cleanly, recovering") );
 
