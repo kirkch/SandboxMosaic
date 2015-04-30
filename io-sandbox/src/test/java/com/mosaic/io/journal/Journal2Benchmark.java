@@ -50,7 +50,7 @@ public class Journal2Benchmark {
 
 
         for ( int i=0; i<1000000; i++ ) {
-            writer.allocateTo( t, Transaction2.SIZE_BYTES );
+            writer.allocateTo( t );
                 t.setFrom( i );
                 t.setTo( i );
                 t.setAmount( i );

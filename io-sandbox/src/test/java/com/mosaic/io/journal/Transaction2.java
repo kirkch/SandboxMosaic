@@ -6,7 +6,7 @@ import com.mosaic.bytes2.fields.LongField2;
 
 
 /**
- *
+ * Example JournalEntry instance used for unit testing Journal2.
  */
 public class Transaction2 extends JournalEntry {
 
@@ -19,6 +19,9 @@ public class Transaction2 extends JournalEntry {
     public static final int SIZE_BYTES = registry.sizeBytes();
 
 
+    public Transaction2() {
+        super( SIZE_BYTES );
+    }
 
     public long getFrom() {
         return fromField.get( bytes );

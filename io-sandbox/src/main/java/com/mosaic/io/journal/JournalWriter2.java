@@ -19,8 +19,17 @@ public class JournalWriter2 extends ServiceMixin<JournalWriter2> {
         this.journal = journal;
     }
 
+    /**
+     * Allocates space for the specified flyweight.  The flyweight is asked how many bytes to
+     * assign.
+     */
+    public void allocateTo( JournalEntry view ) {
+        allocateTo( view, view.getNumBytes() );
+    }
 
-
+    /**
+     * Allocates space for the specified flyweight.  The number of bytes to allocate is specified. 
+     */
     public void allocateTo( JournalEntry view, int numBytes ) {
         boolean successFlag = currentDataFile.allocateAndAssignTo( view.bytes, numBytes );
 
@@ -32,7 +41,7 @@ public class JournalWriter2 extends ServiceMixin<JournalWriter2> {
             this.currentDataFile = currentDataFile.nextFile().open();
             this.currentDataFile.setFirstMessageSeq(nextMessageSeq);
 
-            allocateTo( view, numBytes ); // try again after having rolled on to the next data file
+            allocateTo( view ); // try again after having rolled on to the next data file
         }
     }
 

@@ -151,7 +151,7 @@ public class JournalAsyncReaderTests extends Tests {
 
 
     private void writeMessage( long expectedFrom, long expectedTo, long expectedAmount ) {
-        writer.allocateTo( transaction, Transaction2.SIZE_BYTES );
+        writer.allocateTo( transaction );
 
         transaction.setFrom( expectedFrom );
         transaction.setTo( expectedTo );
