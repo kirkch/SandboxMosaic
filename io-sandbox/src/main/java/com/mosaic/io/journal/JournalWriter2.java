@@ -28,7 +28,7 @@ public class JournalWriter2 extends ServiceMixin<JournalWriter2> {
     }
 
     /**
-     * Allocates space for the specified flyweight.  The number of bytes to allocate is specified. 
+     * Allocates space for the specified flyweight.  The number of bytes to allocate is specified.
      */
     public void allocateTo( JournalEntry view, int numBytes ) {
         boolean successFlag = currentDataFile.allocateAndAssignTo( view.bytes, numBytes );
