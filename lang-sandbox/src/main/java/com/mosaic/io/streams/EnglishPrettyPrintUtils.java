@@ -12,9 +12,9 @@ import static java.lang.Character.isWhitespace;
 
 
 /**
- *
+ * A set of utils for formatting english sentences and tables of data.
  */
-public class PrettyPrinter {
+public class EnglishPrettyPrintUtils {
 
     public static final ColumnHandler TRUNCATE        = new TruncateColumnHandler();
     public static final ColumnHandler PAD_OR_TRUNCATE = new PadOrTruncateColumnHandler();
@@ -198,7 +198,7 @@ public class PrettyPrinter {
     private CharacterStream out;
     private int[]           fixedColumnWidths;
 
-    public PrettyPrinter( CharacterStream out, int...fixedColumnWidths ) {
+    public EnglishPrettyPrintUtils( CharacterStream out, int... fixedColumnWidths ) {
         assert fixedColumnWidths.length > 0;
 
         this.out               = out;
@@ -358,7 +358,7 @@ public class PrettyPrinter {
             buf.append( str.substring(from, to) );
 
 
-            PrettyPrinter.repeat( buf, ' ', maxWidth-len );
+            EnglishPrettyPrintUtils.repeat( buf, ' ', maxWidth - len );
 
             tableBuffer.set( currentRow, col, buf.toString() );
 

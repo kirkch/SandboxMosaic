@@ -11,12 +11,12 @@ import static org.junit.Assert.assertEquals;
 /**
  *
  */
-public class PrettyPrinterTest {
+public class EnglishPrettyPrintUtilsTest {
 
     @Test
     public void writeColumns_truncateToColumnWidth() {
         CapturingCharacterStream out = new CapturingCharacterStream();
-        PrettyPrinter p = new PrettyPrinter( out, 3,10 );
+        EnglishPrettyPrintUtils p = new EnglishPrettyPrintUtils( out, 3,10 );
 
         p.write( 1,"hello" );
         p.write( "over","flow" );
@@ -32,8 +32,8 @@ public class PrettyPrinterTest {
     @Test
     public void writeColumns_wrapFirstColumnToColumnWidth() {
         CapturingCharacterStream out = new CapturingCharacterStream();
-        PrettyPrinter p = new PrettyPrinter( out, 3,10 );
-        p.setColumnHandler( 0, PrettyPrinter.WRAP );
+        EnglishPrettyPrintUtils p = new EnglishPrettyPrintUtils( out, 3,10 );
+        p.setColumnHandler( 0, EnglishPrettyPrintUtils.WRAP );
 
         p.write( 1,"hello" );
         p.write( "over","flow" );
@@ -50,8 +50,8 @@ public class PrettyPrinterTest {
     @Test
     public void writeColumns_wrapFirstColumnToColumnWidth_ensureWholeWordsMoveToNextLineWherePossible() {
         CapturingCharacterStream out = new CapturingCharacterStream();
-        PrettyPrinter p = new PrettyPrinter( out, 3,7 );
-        p.setColumnHandler( 1, PrettyPrinter.WRAP );
+        EnglishPrettyPrintUtils p = new EnglishPrettyPrintUtils( out, 3,7 );
+        p.setColumnHandler( 1, EnglishPrettyPrintUtils.WRAP );
 
         p.write( 1,"hello jim" );
         p.write( "over","flow" );
@@ -68,8 +68,8 @@ public class PrettyPrinterTest {
     @Test
     public void writeColumns_wrapSecondColumnToColumnWidth() {
         CapturingCharacterStream out = new CapturingCharacterStream();
-        PrettyPrinter p = new PrettyPrinter( out, 4,2 );
-        p.setColumnHandler( 1, PrettyPrinter.WRAP );
+        EnglishPrettyPrintUtils p = new EnglishPrettyPrintUtils( out, 4,2 );
+        p.setColumnHandler( 1, EnglishPrettyPrintUtils.WRAP );
 
         p.write( 1,"hello" );
         p.write( "over","flow" );
@@ -89,8 +89,8 @@ public class PrettyPrinterTest {
     public void printWrapped() {
         CapturingCharacterStream out = new CapturingCharacterStream();
 
-        PrettyPrinter.printWrapped( out, "data" , 10 );
-        PrettyPrinter.printWrapped( out, "over flow", 3 );
+        EnglishPrettyPrintUtils.printWrapped( out, "data", 10 );
+        EnglishPrettyPrintUtils.printWrapped( out, "over flow", 3 );
 
 
         List<String> expected = Arrays.asList(
@@ -107,10 +107,10 @@ public class PrettyPrinterTest {
     public void printPleural() {
         CapturingCharacterStream out = new CapturingCharacterStream();
 
-        PrettyPrinter.printPleural( out, "container", 1 );
+        EnglishPrettyPrintUtils.printPleural( out, "container", 1 );
         out.newLine();
 
-        PrettyPrinter.printPleural( out, "container" , 3 );
+        EnglishPrettyPrintUtils.printPleural( out, "container", 3 );
         out.newLine();
 
 
@@ -126,16 +126,16 @@ public class PrettyPrinterTest {
     public void englishList() {
         CapturingCharacterStream out = new CapturingCharacterStream();
 
-        PrettyPrinter.englishList( out, new String[] {"a","b","c"} );
+        EnglishPrettyPrintUtils.englishList( out, new String[]{"a", "b", "c"} );
         out.newLine();
 
-        PrettyPrinter.englishList( out, new String[] {"a","b","c"},1,2 );
+        EnglishPrettyPrintUtils.englishList( out, new String[]{"a", "b", "c"}, 1, 2 );
         out.newLine();
 
-        PrettyPrinter.englishList( out, new String[] {"a","b","c"},1,3 );
+        EnglishPrettyPrintUtils.englishList( out, new String[]{"a", "b", "c"}, 1, 3 );
         out.newLine();
 
-        PrettyPrinter.englishList( out, new String[] {"a","b","c"},0,1 );
+        EnglishPrettyPrintUtils.englishList( out, new String[]{"a", "b", "c"}, 0, 1 );
         out.flush();
 
         List<String> expected = Arrays.asList(
@@ -150,22 +150,22 @@ public class PrettyPrinterTest {
 
     @Test
     public void cleanEnglishSentence() {
-        assertEquals( "Foo.", PrettyPrinter.cleanEnglishSentence("foo") );
-        assertEquals( "Foo bar.", PrettyPrinter.cleanEnglishSentence("foo bar") );
-        assertEquals( " Foo.", PrettyPrinter.cleanEnglishSentence(" foo ") );
-        assertEquals( " Foo bar.\t ", PrettyPrinter.cleanEnglishSentence(" foo bar \t ") );
+        assertEquals( "Foo.", EnglishPrettyPrintUtils.cleanEnglishSentence( "foo" ) );
+        assertEquals( "Foo bar.", EnglishPrettyPrintUtils.cleanEnglishSentence( "foo bar" ) );
+        assertEquals( " Foo.", EnglishPrettyPrintUtils.cleanEnglishSentence( " foo " ) );
+        assertEquals( " Foo bar.\t ", EnglishPrettyPrintUtils.cleanEnglishSentence( " foo bar \t " ) );
     }
 
     @Test
     public void underscoreCaseToCamelCase() {
-        assertEquals( "", PrettyPrinter.underscoreCaseToCamelCase("") );
-        assertEquals( null, PrettyPrinter.underscoreCaseToCamelCase(null) );
-        assertEquals( "F", PrettyPrinter.underscoreCaseToCamelCase("f") );
-        assertEquals( "Foo", PrettyPrinter.underscoreCaseToCamelCase("Foo") );
-        assertEquals( "Foobar", PrettyPrinter.underscoreCaseToCamelCase("FooBar") );
-        assertEquals( "Foo", PrettyPrinter.underscoreCaseToCamelCase("foo") );
-        assertEquals( "FooBar", PrettyPrinter.underscoreCaseToCamelCase("foo_bar") );
-        assertEquals( "FooBar", PrettyPrinter.underscoreCaseToCamelCase("foo__bar") );
+        assertEquals( "", EnglishPrettyPrintUtils.underscoreCaseToCamelCase( "" ) );
+        assertEquals( null, EnglishPrettyPrintUtils.underscoreCaseToCamelCase( null ) );
+        assertEquals( "F", EnglishPrettyPrintUtils.underscoreCaseToCamelCase( "f" ) );
+        assertEquals( "Foo", EnglishPrettyPrintUtils.underscoreCaseToCamelCase( "Foo" ) );
+        assertEquals( "Foobar", EnglishPrettyPrintUtils.underscoreCaseToCamelCase( "FooBar" ) );
+        assertEquals( "Foo", EnglishPrettyPrintUtils.underscoreCaseToCamelCase( "foo" ) );
+        assertEquals( "FooBar", EnglishPrettyPrintUtils.underscoreCaseToCamelCase( "foo_bar" ) );
+        assertEquals( "FooBar", EnglishPrettyPrintUtils.underscoreCaseToCamelCase( "foo__bar" ) );
     }
 
 }

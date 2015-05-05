@@ -14,18 +14,27 @@ import java.io.Writer;
  */
 public class IndentingWriter extends Writer {
 
-    private final Writer delegate;
+    public static IndentingWriter toIndentingWriter( Appendable buf ) {
+        if ( buf instanceof IndentingWriter ) {
+            return (IndentingWriter) buf;
+        } else {
+            return new IndentingWriter( buf );
+        }
+    }
+
+
+    private final Appendable delegate;
     private final String indentText;
 
     private int     indentationLevel      = 0;
     private boolean indentBeforeNextWrite = true;
 
 
-    public IndentingWriter( Writer delegate ) {
+    public IndentingWriter( Appendable delegate ) {
         this( delegate, "  " );
     }
 
-    public IndentingWriter( Writer delegate, String indentText ) {
+    public IndentingWriter( Appendable delegate, String indentText ) {
         this.indentText = indentText;
         QA.argNotNull(delegate, "delegate");
 
@@ -68,24 +77,55 @@ public class IndentingWriter extends Writer {
     }
 
     public void write( char[] cbuf, int off, int len ) throws IOException {
+        prefixOutputIffRequired();
+
+        for ( int i=off; i<off+len; i++ ) {
+            delegate.append( cbuf[i] );
+        }
+    }
+
+    public Writer append( CharSequence csq ) throws IOException {
+        prefixOutputIffRequired();
+
+        delegate.append( csq );
+
+        return this;
+    }
+
+    public Writer append( CharSequence csq, int start, int end ) throws IOException {
+        prefixOutputIffRequired();
+
+        delegate.append( csq, start, end );
+
+        return this;
+    }
+
+    public Writer append( char c ) throws IOException {
+        prefixOutputIffRequired();
+
+        delegate.append( c );
+
+        return this;
+    }
+
+    public void flush() throws IOException {
+        IOUtils.flush( delegate );
+    }
+
+    public void close() throws IOException {
+        IOUtils.flush( delegate );
+        IOUtils.close( delegate );
+    }
+
+
+    private void prefixOutputIffRequired() throws IOException {
         if ( indentBeforeNextWrite ) {
             for ( int i=0; i<indentationLevel; i++ ) {
-                delegate.write( indentText );
+                delegate.append( indentText );
             }
 
             indentBeforeNextWrite = false;
         }
-
-        delegate.write(cbuf, off, len);
-    }
-
-    public void flush() throws IOException {
-        delegate.flush();
-    }
-
-    public void close() throws IOException {
-        delegate.flush();
-        delegate.close();
     }
 
 }

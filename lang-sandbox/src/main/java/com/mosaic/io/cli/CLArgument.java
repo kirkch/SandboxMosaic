@@ -1,7 +1,7 @@
 package com.mosaic.io.cli;
 
 import com.mosaic.collections.ConsList;
-import com.mosaic.io.streams.PrettyPrinter;
+import com.mosaic.io.streams.EnglishPrettyPrintUtils;
 import com.mosaic.lang.functional.Function1;
 
 
@@ -34,7 +34,7 @@ public class CLArgument<T> implements CLParameter<T> {
 
     public CLArgument( String argumentName, String argumentDescription, Function1<String,T> valueParser ) {
         this.argumentName        = argumentName;
-        this.argumentDescription = PrettyPrinter.cleanEnglishSentence( argumentDescription );
+        this.argumentDescription = EnglishPrettyPrintUtils.cleanEnglishSentence( argumentDescription );
         this.valueParser         = valueParser;
     }
 

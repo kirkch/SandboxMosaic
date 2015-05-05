@@ -5,7 +5,7 @@ import com.mosaic.io.filesystemx.DirectoryX;
 import com.mosaic.io.filesystemx.FileContents;
 import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
-import com.mosaic.io.streams.PrettyPrinter;
+import com.mosaic.io.streams.EnglishPrettyPrintUtils;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.Service;
 import com.mosaic.lang.functional.Function0;
@@ -372,7 +372,7 @@ public abstract class CLApp {
         this.description = new ArrayList();
 
         for ( String line : description ) {
-            this.description.add( PrettyPrinter.cleanEnglishSentence( line ) );
+            this.description.add( EnglishPrettyPrintUtils.cleanEnglishSentence( line ) );
         }
     }
 
@@ -739,7 +739,7 @@ public abstract class CLApp {
                 if ( StringUtils.isBlank(line) ) {
                     system.stdout.newLine();
                 } else {
-                    PrettyPrinter.printWrapped( system.stdout, line, MAX_LINE_LENGTH, "    " );
+                    EnglishPrettyPrintUtils.printWrapped( system.stdout, line, MAX_LINE_LENGTH, "    " );
                 }
             }
 
@@ -751,8 +751,8 @@ public abstract class CLApp {
             system.stdout.writeLine( "" );
 
             int maxArgNameLength = calcLongestArgNameLength();
-            PrettyPrinter p = new PrettyPrinter(system.stdout, 3, maxArgNameLength, 1, MAX_LINE_LENGTH-7-maxArgNameLength);
-            p.setColumnHandler( 3, PrettyPrinter.WRAP );
+            EnglishPrettyPrintUtils p = new EnglishPrettyPrintUtils(system.stdout, 3, maxArgNameLength, 1, MAX_LINE_LENGTH-7-maxArgNameLength);
+            p.setColumnHandler( 3, EnglishPrettyPrintUtils.WRAP );
 
             for ( CLArgument arg : args ) {
                 p.write( "", arg.getLongName(), "-", arg.getArgumentDescription() );

@@ -14,7 +14,7 @@ public class IndentingWriterTest {
     @Test
     public void givenANewWriter_writeNothing_expectNothingToBeWritten() {
         StringWriter sw = new StringWriter();
-        
+
         new IndentingWriter( sw );
 
         assertEquals( "", sw.toString() );

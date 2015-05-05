@@ -1,7 +1,7 @@
 package com.mosaic.utils;
 
-import com.mosaic.io.Formatter;
-import com.mosaic.io.Formatters;
+import com.mosaic.io.PrettyPrinter;
+import com.mosaic.io.PrettyPrinters;
 import com.mosaic.io.RuntimeIOException;
 import com.mosaic.lang.text.UTF8;
 
@@ -81,10 +81,10 @@ public class StringUtils {
 
     // todo move to PrettyPrinter
     public static <T> void join( Appendable buf, Iterable<T> elements, String separator ) {
-        join( buf, elements, separator, Formatters.TO_STRING );
+        join( buf, elements, separator, PrettyPrinters.TO_STRING );
     }
 
-    public static <T> String join( Iterable<T> elements, String separator, Formatter<T> formatter) {
+    public static <T> String join( Iterable<T> elements, String separator, PrettyPrinter<T> formatter) {
         StringBuilder buf = new StringBuilder();
 
         join( buf, elements, separator, formatter );
@@ -92,7 +92,7 @@ public class StringUtils {
         return buf.toString();
     }
 
-    public static <T> void join( Appendable buf, Iterable<T> elements, String separator, Formatter<T> formatter ) {
+    public static <T> void join( Appendable buf, Iterable<T> elements, String separator, PrettyPrinter<T> formatter ) {
         if ( elements == null )  {
             return;
         }

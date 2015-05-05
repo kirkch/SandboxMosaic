@@ -2,7 +2,7 @@ package com.mosaic.io.cli;
 
 import com.mosaic.collections.ConsList;
 import com.mosaic.io.streams.CharacterStream;
-import com.mosaic.io.streams.PrettyPrinter;
+import com.mosaic.io.streams.EnglishPrettyPrintUtils;
 import com.mosaic.lang.functional.Function1;
 import com.mosaic.utils.ListUtils;
 import com.mosaic.utils.StringUtils;
@@ -42,7 +42,7 @@ public abstract class CLOption<T> implements CLParameter<T> {
     public CLOption( String shortName, String longName, String flagDescription, T initialValue, Function1<String, T> valueParser ) {
         this.shortName    = shortName;
         this.longName     = longName;
-        this.description  = PrettyPrinter.cleanEnglishSentence( flagDescription );
+        this.description  = EnglishPrettyPrintUtils.cleanEnglishSentence( flagDescription );
         this.valueParser  = valueParser;
         this.value        = initialValue;
         this.initialValue = initialValue;
@@ -65,8 +65,8 @@ public abstract class CLOption<T> implements CLParameter<T> {
         }
         out.newLine();
 
-        PrettyPrinter p = new PrettyPrinter( out, 7, maxLineLength-7 );
-        p.setColumnHandler( 1, PrettyPrinter.WRAP );
+        EnglishPrettyPrintUtils p = new EnglishPrettyPrintUtils( out, 7, maxLineLength-7 );
+        p.setColumnHandler( 1, EnglishPrettyPrintUtils.WRAP );
 
         if ( initialValue == null || initialValue == Boolean.FALSE ) {
             p.write( "", description );
@@ -104,7 +104,7 @@ public abstract class CLOption<T> implements CLParameter<T> {
 
     public String formatValue( T v ) {
         if ( v.getClass().isEnum() ) {
-            return PrettyPrinter.underscoreCaseToCamelCase( v.toString() );
+            return EnglishPrettyPrintUtils.underscoreCaseToCamelCase( v.toString() );
         } else {
             return v.toString();
         }
@@ -209,17 +209,17 @@ class EnumOption<T extends Enum<T>> extends ValueOption<T> {
     private static <T extends Enum<T>> String processDescription( String description, final Class<T> enumClass ) {
         StringBuilder buf = new StringBuilder();
 
-        buf.append( PrettyPrinter.cleanEnglishSentence( description ).trim() );
+        buf.append( EnglishPrettyPrintUtils.cleanEnglishSentence( description ).trim() );
         buf.append( "  The valid values are: " );
 
         List<T> enumValues = Arrays.asList( enumClass.getEnumConstants() );
         List<String> enumValueNames = ListUtils.map( enumValues, new Function1<T,String>() {
             public String invoke( T v ) {
-                return PrettyPrinter.underscoreCaseToCamelCase( v.name() );
+                return EnglishPrettyPrintUtils.underscoreCaseToCamelCase( v.name() );
             }
         });
 
-        PrettyPrinter.englishList( buf, enumValueNames, "or" );
+        EnglishPrettyPrintUtils.englishList( buf, enumValueNames, "or" );
         buf.append( "." );
 
         return buf.toString();
