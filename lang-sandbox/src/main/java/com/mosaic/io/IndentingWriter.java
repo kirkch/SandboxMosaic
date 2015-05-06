@@ -1,6 +1,8 @@
 package com.mosaic.io;
 
 import com.mosaic.lang.QA;
+import com.mosaic.lang.functional.VoidFunction0;
+import com.mosaic.lang.functional.VoidFunctionThatThrows;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
 
@@ -128,4 +130,15 @@ public class IndentingWriter extends Writer {
         }
     }
 
+    public void indent( VoidFunctionThatThrows f ) {
+        incIndent();
+
+        try {
+            f.invoke();
+        } catch ( Throwable ex ) {
+            Backdoor.throwException( ex );
+        } finally {
+            decIndent();
+        }
+    }
 }
