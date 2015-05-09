@@ -77,8 +77,8 @@ public class PullParser2<L> {
         } while ( numCharactersMatched > 0 && pos.getCharacterOffset() < maxExc );
     }
 
-    public <R> Try<R> createFailure( String s ) {
-        return TryNow.failed( s + ", found '" + pullToEndOfLine() + "'" );
+    public <R> Try<R> createFailure( String msg, Object...args ) {
+        return TryNow.failed( msg + ", instead found '" + pullToEndOfLine() + "'", args );
     }
 
     private String pullToEndOfLine() {

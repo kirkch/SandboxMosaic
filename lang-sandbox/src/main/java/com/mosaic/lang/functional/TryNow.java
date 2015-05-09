@@ -79,8 +79,8 @@ public class TryNow {
      * Factory method for Try.  Captures information as to why the operation
      * failed.
      */
-    public static <T> Try<T> failed( String msg ) {
-        return Future.failed(new Failure(msg));
+    public static <T> Try<T> failed( String msg, Object...args ) {
+        return Future.failed(new Failure(String.format(msg,args)));
     }
 
     /**
