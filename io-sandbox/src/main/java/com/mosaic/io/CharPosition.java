@@ -1,5 +1,8 @@
 package com.mosaic.io;
 
+import com.mosaic.lang.system.Backdoor;
+
+
 /**
  *
  */
@@ -33,11 +36,6 @@ public class CharPosition {
         return columnNumber;
     }
 
-//    /**
-//     * The byte offset from the start of the stream of where this matcher started matching from.
-//     */
-//    public int getByteOffset();
-
     /**
      * The character offset from the start of the stream where this matcher started to match from.
      */
@@ -52,16 +50,16 @@ public class CharPosition {
      * @param numCharacters how many characters to consume
      * @param characters the characters to walk overr
      */
-    CharPosition walkCharacters( int numCharacters, Characters characters ) {
-        int  line              = this.lineNumber;
-        int  col               = this.columnNumber;
-        long totalStreamOffset = this.charOffset;
+    public CharPosition walkCharacters( int numCharacters, CharSequence characters ) {
+        int line   = this.lineNumber;
+        int col    = this.columnNumber;
+        int offset = Backdoor.toInt(this.charOffset);
+        int maxExc = Math.min(offset+numCharacters,characters.length());
 
-        for ( int i=0; i<numCharacters; i++ ) {
+        for ( int i=offset; i<maxExc; i++ ) {
             char c = characters.charAt( i );
 
-
-            totalStreamOffset++;
+            offset++;
 
             if ( c == '\n' ) {
                 col = 0;
@@ -71,7 +69,7 @@ public class CharPosition {
             }
         }
 
-        return new CharPosition( line, col, totalStreamOffset );
+        return new CharPosition( line, col, offset );
     }
 
     public CharPosition setCharacterOffset( long newStreamOffset ) {
@@ -79,7 +77,7 @@ public class CharPosition {
     }
 
     public String toString() {
-        return String.format("public CharPosition(lineNumber=%d, columnNumber=%d, charOffset=%d)",lineNumber,columnNumber, charOffset);
+        return String.format("CharPosition(lineNumber=%d, columnNumber=%d, charOffset=%d)",lineNumber,columnNumber, charOffset);
     }
 
     public int hashCode() {

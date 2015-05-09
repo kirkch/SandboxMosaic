@@ -10,7 +10,7 @@ public class CharacterMatchersTest {
 
     @Test
     public void testJdkRegexp() {
-        CharacterMatcher matcher = CharacterMatchers.jdkRegexp( MockType, "[0-9]+" );
+        CharacterMatcher matcher = CharacterMatchers.regexp( MockType, "[0-9]+" );
 
         assertEquals( 3, matcher.consumeFrom( "123", 0, 3 ) );
         assertEquals( 2, matcher.consumeFrom( "123", 1, 3 ) );
