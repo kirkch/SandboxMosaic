@@ -2,6 +2,7 @@ package com.mosaic.parser;
 
 import com.mosaic.io.CharPosition;
 import com.mosaic.lang.functional.Try;
+import com.mosaic.lang.functional.TryNow;
 import com.mosaic.lang.system.Backdoor;
 import com.mosaic.utils.string.CharacterMatcher;
 import com.mosaic.utils.string.CharacterMatchers;
@@ -36,6 +37,10 @@ public class PullParser2<L> {
         this.maxExc = chars.length();
 
         this.pos.walkCharacters( pos, chars );
+    }
+
+    public CharPosition getPosition() {
+        return pos;
     }
 
     public void setSkipMatcher( CharacterMatcher<L> matcher ) {
@@ -73,7 +78,21 @@ public class PullParser2<L> {
     }
 
     public <R> Try<R> createFailure( String s ) {
-        return null;
+        return TryNow.failed( s + ", found '" + pullToEndOfLine() + "'" );
+    }
+
+    private String pullToEndOfLine() {
+        int fromIndex = Backdoor.toInt( pos.getCharacterOffset() );
+
+        for ( int i=fromIndex; i<maxExc; i++ ) {
+            char c = chars.charAt(i);
+
+            if ( c == '\n' || c == '\r' ) {
+                return chars.subSequence( fromIndex, i ).toString();
+            }
+        }
+
+        return chars.subSequence( fromIndex, maxExc ).toString();
     }
 
 }
