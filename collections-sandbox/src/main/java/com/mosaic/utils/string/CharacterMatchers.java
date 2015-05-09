@@ -1,79 +1,75 @@
 package com.mosaic.utils.string;
 
 import com.mosaic.lang.QA;
-import com.mosaic.lang.QA;
 
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *
+ * Collection of common character matchers.
  */
 public class CharacterMatchers {
-    public static CharacterMatcher constant( String targetStr ) {
-        return new ConstantMatcher( targetStr );
+    public static <T> CharacterMatcher constant( T matchType, String targetStr ) {
+        return new ConstantMatcher<>( matchType, targetStr );
     }
 
     /**
      * Includes line feeds and carridge returns
      */
-    public static CharacterMatcher whitespace() {
-        return WhitespaceMatcher.INSTANCE;
+    public static <T> CharacterMatcher<T> whitespace( T matchType ) {
+        return new WhitespaceMatcher<>(matchType);
     }
 
-    public static CharacterMatcher nonWhitespace() {
-        return NonWhitespaceMatcher.INSTANCE;
+    public static <T> CharacterMatcher<T> nonWhitespace( T matchType ) {
+        return new NonWhitespaceMatcher<>(matchType);
     }
 
-    public static CharacterMatcher jdkRegexp( String regexp ) {
-        return new JDKRegexpMatcher( Pattern.compile( regexp ) );
+    public static <T> CharacterMatcher<T> jdkRegexp( T matchType, String regexp ) {
+        return new JDKRegexpMatcher<>( matchType, Pattern.compile(regexp) );
     }
 
-    public static CharacterMatcher jdkRegexp( Pattern regexp ) {
-        return new JDKRegexpMatcher( regexp );
+    public static <T> CharacterMatcher<T> jdkRegexp( T matchType, Pattern regexp ) {
+        return new JDKRegexpMatcher<>( matchType, regexp );
     }
 
-    public static CharacterMatcher javaVariableName() {
-        return JavaVariableNameMatcher.INSTANCE;
+    public static <T> CharacterMatcher<T> javaVariableName( T matchType ) {
+        return new JavaVariableNameMatcher<>( matchType );
     }
 
-    public static CharacterMatcher javaVariableType() {
-        return JavaVariableTypeMatcher.INSTANCE;
+    public static <T> CharacterMatcher<T> javaVariableType( T matchType ) {
+        return new JavaVariableTypeMatcher<>(matchType);
     }
 
-    public static CharacterMatcher everythingExcept( char c ) {
-        return new EverythingExceptMatcher(c);
+    public static <T> CharacterMatcher<T> everythingExcept( T matchType, char c ) {
+        return new EverythingExceptMatcher<>(matchType, c);
     }
 
-    public static CharacterMatcher everythingExcept( String...constants ) {
+    public static <T> CharacterMatcher<T> everythingExcept( T matchType, String...constants ) {
         int                numConstants = constants.length;
         CharacterMatcher[] matchers     = new CharacterMatcher[numConstants];
 
         for ( int i=0; i<numConstants; i++ ) {
-            matchers[i] = constant( constants[i] );
+            matchers[i] = constant( matchType, constants[i] );
         }
 
-        return new EverythingExceptOneOfMatcher(matchers);
+        return new EverythingExceptOneOfMatcher<>(matchType, matchers);
     }
 
-    public static CharacterMatcher consumeUptoNCharacters( int c ) {
-        return new ConsumeUptoNCharactersMatcher(c);
+    public static <T> CharacterMatcher<T> consumeUptoNCharacters( T matchType, int c ) {
+        return new ConsumeUptoNCharactersMatcher<>(matchType, c);
     }
 }
 
 
-class ConstantMatcher implements CharacterMatcher {
+class ConstantMatcher<T> extends BaseCharacterMatcher<T> {
     private String targetStr;
 
-    public ConstantMatcher( String targetStr ) {
+    public ConstantMatcher( T matchType, String targetStr ) {
+        super( matchType );
+
         QA.notNull( targetStr, "targetStr" );
 
         this.targetStr = targetStr;
-    }
-
-    public String description() {
-        return targetStr;
     }
 
     @Override
@@ -97,8 +93,7 @@ class ConstantMatcher implements CharacterMatcher {
 
 }
 
-class WhitespaceMatcher implements CharacterMatcher {
-    public static final CharacterMatcher INSTANCE = new WhitespaceMatcher();
+class WhitespaceMatcher<T> extends BaseCharacterMatcher<T> {
 
     public static boolean isWhitespace( char c ) {
         switch(c) {
@@ -112,10 +107,8 @@ class WhitespaceMatcher implements CharacterMatcher {
         }
     }
 
-    private WhitespaceMatcher() {}
-
-    public String description() {
-        return "whitespace";
+    WhitespaceMatcher( T matchType ) {
+        super(matchType);
     }
 
     @Override
@@ -136,13 +129,9 @@ class WhitespaceMatcher implements CharacterMatcher {
     }
 }
 
-class NonWhitespaceMatcher implements CharacterMatcher {
-    public static final CharacterMatcher INSTANCE = new NonWhitespaceMatcher();
-
-    private NonWhitespaceMatcher() {}
-
-    public String description() {
-        return "non-whitespace";
+class NonWhitespaceMatcher<T> extends BaseCharacterMatcher<T> {
+    NonWhitespaceMatcher( T matchType ) {
+        super( matchType );
     }
 
     @Override
@@ -163,13 +152,9 @@ class NonWhitespaceMatcher implements CharacterMatcher {
     }
 }
 
-class JavaVariableNameMatcher implements CharacterMatcher {
-    public static final CharacterMatcher INSTANCE = new JavaVariableNameMatcher();
-
-    private JavaVariableNameMatcher() {}
-
-    public String description() {
-        return "java variable name";
+class JavaVariableNameMatcher<T> extends BaseCharacterMatcher<T> {
+    JavaVariableNameMatcher( T matchType ) {
+        super(matchType);
     }
 
     @Override
@@ -209,13 +194,10 @@ class JavaVariableNameMatcher implements CharacterMatcher {
     }
 }
 
-class JavaVariableTypeMatcher implements CharacterMatcher {
-    public static final CharacterMatcher INSTANCE = new JavaVariableTypeMatcher();
+class JavaVariableTypeMatcher<T> extends BaseCharacterMatcher<T> {
 
-    private JavaVariableTypeMatcher() {}
-
-    public String description() {
-        return "java variable type";
+    JavaVariableTypeMatcher( T matchType ) {
+        super(matchType);
     }
 
     @Override
@@ -255,15 +237,13 @@ class JavaVariableTypeMatcher implements CharacterMatcher {
     }
 }
 
-class JDKRegexpMatcher implements CharacterMatcher {
+class JDKRegexpMatcher<T> extends BaseCharacterMatcher<T> {
     private Pattern pattern;
 
-    public JDKRegexpMatcher( Pattern pattern ) {
-        this.pattern = pattern;
-    }
+    public JDKRegexpMatcher( T matchType, Pattern pattern ) {
+        super(matchType);
 
-    public String description() {
-        return pattern.pattern();
+        this.pattern = pattern;
     }
 
     @Override
@@ -275,15 +255,13 @@ class JDKRegexpMatcher implements CharacterMatcher {
     }
 }
 
-class EverythingExceptMatcher implements CharacterMatcher {
+class EverythingExceptMatcher<T> extends BaseCharacterMatcher<T> {
     private final char terminatingChar;
 
-    public EverythingExceptMatcher( char c ) {
-        terminatingChar = c;
-    }
+    public EverythingExceptMatcher( T matchType, char c ) {
+        super( matchType );
 
-    public String description() {
-        return "everything upto and excluding '"+Character.toString(terminatingChar)+"'";
+        terminatingChar = c;
     }
 
     @Override
@@ -302,15 +280,13 @@ class EverythingExceptMatcher implements CharacterMatcher {
     }
 }
 
-class EverythingExceptOneOfMatcher implements CharacterMatcher {
+class EverythingExceptOneOfMatcher<T> extends BaseCharacterMatcher<T> {
     private CharacterMatcher[] exclusions;
 
-    public EverythingExceptOneOfMatcher( CharacterMatcher[] exclusions ) {
-        this.exclusions = exclusions;
-    }
+    public EverythingExceptOneOfMatcher( T matchType, CharacterMatcher[] exclusions ) {
+        super( matchType );
 
-    public String description() {
-        return "everything except one of '"+ Arrays.toString(exclusions)+"'";
+        this.exclusions = exclusions;
     }
 
     @Override
@@ -339,15 +315,13 @@ class EverythingExceptOneOfMatcher implements CharacterMatcher {
     }
 }
 
-class ConsumeUptoNCharactersMatcher implements CharacterMatcher {
+class ConsumeUptoNCharactersMatcher<T> extends BaseCharacterMatcher<T> {
     private final int numCharactersToConsume;
 
-    public ConsumeUptoNCharactersMatcher( int numCharacters ) {
-        this.numCharactersToConsume = numCharacters;
-    }
+    public ConsumeUptoNCharactersMatcher( T matchType, int numCharacters ) {
+        super( matchType );
 
-    public String description() {
-        return "up to " + numCharactersToConsume + " characters";
+        this.numCharactersToConsume = numCharacters;
     }
 
     @Override

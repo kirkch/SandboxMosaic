@@ -3,11 +3,11 @@ package com.mosaic.utils.string;
 /**
  *
  */
-public interface CharacterMatcher {
+public interface CharacterMatcher<T> {
     /**
      * @return numCharactersMatched
      */
     public int consumeFrom( CharSequence seq, int minIndex, int maxIndexExc );
 
-    public String description();
+    public T matchType();
 }

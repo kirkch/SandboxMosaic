@@ -78,6 +78,23 @@ public class IndentingWriter extends Writer {
         indentBeforeNextWrite = true;
     }
 
+    public void print( CharSequence str ) {
+        try {
+            append( str );
+        } catch ( IOException ex ) {
+            Backdoor.throwException( ex );
+        }
+    }
+
+    public void println( CharSequence str ) {
+        try {
+            append( str );
+            newLine();
+        } catch ( IOException ex ) {
+            Backdoor.throwException( ex );
+        }
+    }
+
     public void write( char[] cbuf, int off, int len ) throws IOException {
         prefixOutputIffRequired();
 

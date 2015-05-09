@@ -4,13 +4,13 @@ import org.junit.Test;
 
 import static junit.framework.Assert.*;
 
-/**
- *
- */
+
 public class CharacterMatchersTest {
+    private static final Object MockType = new Object();
+
     @Test
     public void testJdkRegexp() {
-        CharacterMatcher matcher = CharacterMatchers.jdkRegexp( "[0-9]+" );
+        CharacterMatcher matcher = CharacterMatchers.jdkRegexp( MockType, "[0-9]+" );
 
         assertEquals( 3, matcher.consumeFrom( "123", 0, 3 ) );
         assertEquals( 2, matcher.consumeFrom( "123", 1, 3 ) );
@@ -21,7 +21,7 @@ public class CharacterMatchersTest {
 
     @Test
     public void testConstantMatcher() {
-        CharacterMatcher matcher = CharacterMatchers.constant( "rar" );
+        CharacterMatcher matcher = CharacterMatchers.constant( MockType, "rar" );
 
         assertEquals( 0, matcher.consumeFrom( "1", 0, 3 ) );
         assertEquals( 0, matcher.consumeFrom( "123", 0, 3 ) );
@@ -38,7 +38,7 @@ public class CharacterMatchersTest {
 
     @Test
     public void testWhitespaceMatcher() {
-        CharacterMatcher matcher = CharacterMatchers.whitespace();
+        CharacterMatcher matcher = CharacterMatchers.whitespace(MockType);
 
         assertEquals( 0, matcher.consumeFrom( "foo  \t bar\r\n rar", 0, 19 ) );
         assertEquals( 4, matcher.consumeFrom( "foo  \t bar\r\n rar", 3, 19 ) );
@@ -49,7 +49,7 @@ public class CharacterMatchersTest {
 
     @Test
     public void testEverythingExceptMatcher() {
-        CharacterMatcher matcher = CharacterMatchers.everythingExcept( 'o' );
+        CharacterMatcher matcher = CharacterMatchers.everythingExcept( MockType, 'o' );
 
         assertEquals( 1, matcher.consumeFrom( "foo  \t bar\r\n rar", 0, 15 ) );
         assertEquals( 0, matcher.consumeFrom( "foo  \t bar\r\n rar", 1, 15 ) );
@@ -60,7 +60,7 @@ public class CharacterMatchersTest {
 
     @Test
     public void testJavaVariableNameMatcher() {
-        CharacterMatcher matcher = CharacterMatchers.javaVariableName();
+        CharacterMatcher matcher = CharacterMatchers.javaVariableName(MockType);
 
         assertEquals( 0, matcher.consumeFrom( " a ", 0, 3 ) );
         assertEquals( 1, matcher.consumeFrom( " a ", 1, 3 ) );
@@ -81,7 +81,7 @@ public class CharacterMatchersTest {
 
     @Test
     public void testJavaVariableTypeMatcher() {
-        CharacterMatcher matcher = CharacterMatchers.javaVariableType();
+        CharacterMatcher matcher = CharacterMatchers.javaVariableType(MockType);
 
         assertEquals( 0, matcher.consumeFrom( " a ", 0, 3 ) );
         assertEquals( 1, matcher.consumeFrom( " a ", 1, 3 ) );
@@ -128,7 +128,7 @@ public class CharacterMatchersTest {
 
     @Test
     public void testConsumeUptoNCharactersMatcher() {
-        CharacterMatcher matcher = CharacterMatchers.consumeUptoNCharacters( 5 );
+        CharacterMatcher matcher = CharacterMatchers.consumeUptoNCharacters( MockType, 5 );
 
         assertEquals( 5, matcher.consumeFrom( "foo  \t bar\r\n rar", 0, 15 ) );
         assertEquals( 5, matcher.consumeFrom( "foo  \t bar\r\n rar", 1, 15 ) );

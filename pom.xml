@@ -17,7 +17,7 @@
         <module>lang-sandbox</module>
         <module>collections-sandbox</module>
         <module>io-sandbox</module>
-        <module>parsers-sandbox</module>
+        <!--<module>parsers-sandbox</module> TODO delete?-->
 
         <module>columnstore-sandbox</module>
 	</modules>
