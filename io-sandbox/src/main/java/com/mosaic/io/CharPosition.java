@@ -1,11 +1,14 @@
 package com.mosaic.io;
 
+import com.mosaic.lang.Immutable;
+import com.mosaic.lang.QA;
 import com.mosaic.lang.system.Backdoor;
 
 
 /**
- *
+ * Captures the column and line number of a position within a CharSequence.
  */
+@Immutable
 public class CharPosition {
 
     private final int  lineNumber;
@@ -51,6 +54,12 @@ public class CharPosition {
      * @param characters the characters to walk overr
      */
     public CharPosition walkCharacters( int numCharacters, CharSequence characters ) {
+        QA.argIsGTEZero( numCharacters, "numCharacters" );
+
+        if ( numCharacters == 0 ) {
+            return this;
+        }
+
         int line   = this.lineNumber;
         int col    = this.columnNumber;
         int offset = Backdoor.toInt(this.charOffset);
