@@ -8,7 +8,7 @@ import static junit.framework.Assert.*;
 public class CharacterMatchersTest {
     @Test
     public void testJdkRegexp() {
-        CharacterMatcher matcher = CharacterMatchers.jdkRegexp( "[0-9]+" );
+        CharacterMatcher matcher = CharacterMatchers.regexp( "[0-9]+" );
 
         assertEquals( 3, matcher.consumeFrom( "123", 0, 3 ) );
         assertEquals( 2, matcher.consumeFrom( "123", 1, 3 ) );

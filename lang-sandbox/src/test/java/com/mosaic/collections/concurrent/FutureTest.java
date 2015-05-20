@@ -39,7 +39,7 @@ public class FutureTest {
 
             Assert.fail("expected IllegalStateException");
         } catch (IllegalStateException e) {
-            Assert.assertEquals("Unable to retrieve result as future has failed: 'things went south'", e.getMessage());
+            Assert.assertEquals("Unable to retrieve result as future, the future did complete but it holds a failure result: 'things went south'", e.getMessage());
         }
     }
 
@@ -233,7 +233,7 @@ public class FutureTest {
 
             Assert.fail("expected IllegalStateException");
         } catch (IllegalStateException e) {
-            Assert.assertEquals("Unable to retrieve result as future has failed: 'splat'", e.getMessage());
+            Assert.assertEquals("Unable to retrieve result as future, the future did complete but it holds a failure result: 'splat'", e.getMessage());
         }
     }
 

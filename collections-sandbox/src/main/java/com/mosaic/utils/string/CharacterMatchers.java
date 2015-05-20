@@ -25,11 +25,11 @@ public class CharacterMatchers {
         return NonWhitespaceMatcher.INSTANCE;
     }
 
-    public static CharacterMatcher jdkRegexp( String regexp ) {
+    public static CharacterMatcher regexp( String regexp ) {
         return new JDKRegexpMatcher( Pattern.compile( regexp ) );
     }
 
-    public static CharacterMatcher jdkRegexp( Pattern regexp ) {
+    public static CharacterMatcher regexp( Pattern regexp ) {
         return new JDKRegexpMatcher( regexp );
     }
 

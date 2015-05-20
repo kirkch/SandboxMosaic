@@ -86,7 +86,7 @@ public class CharPosition {
     }
 
     public String toString() {
-        return String.format("CharPosition(lineNumber=%d, columnNumber=%d, charOffset=%d)",lineNumber,columnNumber, charOffset);
+        return String.format("[line=%d,col=%d,offset=%d]",lineNumber,columnNumber, charOffset);
     }
 
     public int hashCode() {

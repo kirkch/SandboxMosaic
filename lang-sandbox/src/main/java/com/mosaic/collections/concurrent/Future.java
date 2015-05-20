@@ -321,7 +321,7 @@ public class Future<T> implements Try<T> {
         InternalState<T> state = stateReference.get();
 
         if ( state.hasFailure() ) {
-            throw new IllegalStateException( "Unable to retrieve result as future has failed: '"+state.failure.getMessage()+"'");
+            throw new IllegalStateException( "Unable to retrieve result as future, the future did complete but it holds a failure result: '"+state.failure.getMessage()+"'");
         }
 
         return state.result;

@@ -36,7 +36,7 @@ public class Failure {
 
     public Failure( Throwable ex ) {
         this.source  = ex.getClass();
-        this.message = ex.getMessage();
+        this.message = source.getName() + ": " + ex.getMessage();
         this.ex      = ex;
     }
 

@@ -6,24 +6,39 @@ import com.mosaic.io.CharPosition;
 /**
  * The result of invoking a CharacterParser.
  */
-public interface ParseResult<L,R> {
-    public static <L,R> ParseResult<L,R> matchSucceeded( L matchType, R parsedValue, CharPosition from, CharPosition toExc ) {
-        return new SuccessfulParseResult<>( matchType, parsedValue, from, toExc );
+public interface ParseResult<R> {
+    public static <R> ParseResult<R> matchSucceeded( R parsedValue, CharPosition from, CharPosition toExc ) {
+        return new SuccessfulParseResult<>( parsedValue, from, toExc );
     }
 
-    public static <L,R> ParseResult<L,R> matchFailed( L matchType, String errorMessage, CharPosition pos ) {
-        return new FailedParseResult<>( matchType, errorMessage, pos );
+    public static <R> ParseResult<R> matchFailed( String errorMessage, CharPosition pos ) {
+        return new FailedParseResult<>( errorMessage, pos );
+    }
+
+    public static <R> ParseResult<R> noMatch( CharPosition pos ) {
+        return new NoMatchParseResult<>( pos );
     }
 
     /**
-     * Returns true if the parse attempt was successful.
+     * Returns true if the parse attempt did not error.  That is, it matched or reported a no-match.
+     * That is, it did not start to match a statement and then failed part way through.
      */
-    public boolean wasSuccessful();
+    public boolean successful();
 
     /**
-     * Returns an enum describing what in the parsing grammer we were trying to parse.
+     * Returns true if the parse attempt was matched a value.
      */
-    public L getMatchedType();
+    public boolean matched();
+
+    /**
+     * Returns true if the parse attempt did not match a value and did not error.
+     */
+    public boolean noMatch();
+
+    /**
+     * Returns true if the parse attempt errored.
+     */
+    public boolean errored();
 
     /**
      * Returns the domain value constructed from the text that was parsed.  This value will be
@@ -52,25 +67,31 @@ public interface ParseResult<L,R> {
     public CharPosition getToExc();
 }
 
-class SuccessfulParseResult<L,R> implements ParseResult<L,R> {
-    private L            matchedType;
+class SuccessfulParseResult<R> implements ParseResult<R> {
     private R            parsedValue;
     private CharPosition from;
     private CharPosition toExc;
 
-    public SuccessfulParseResult( L matchedType, R parsedValue, CharPosition from, CharPosition toExc ) {
-        this.matchedType = matchedType;
+    public SuccessfulParseResult( R parsedValue, CharPosition from, CharPosition toExc ) {
         this.parsedValue = parsedValue;
         this.from        = from;
         this.toExc       = toExc;
     }
 
-    public boolean wasSuccessful() {
+    public boolean successful() {
         return true;
     }
 
-    public L getMatchedType() {
-        return matchedType;
+    public boolean matched() {
+        return true;
+    }
+
+    public boolean noMatch() {
+        return false;
+    }
+
+    public boolean errored() {
+        return false;
     }
 
     public R getParsedValueNbl() {
@@ -88,25 +109,35 @@ class SuccessfulParseResult<L,R> implements ParseResult<L,R> {
     public CharPosition getToExc() {
         return toExc;
     }
+
+    public String toString() {
+        return "Matched";
+    }
 }
 
-class FailedParseResult<L,R> implements ParseResult<L,R> {
-    private L            matchedType;
+class FailedParseResult<R> implements ParseResult<R> {
     private String       errorMessage;
     private CharPosition pos;
 
-    public FailedParseResult( L matchedType, String errorMessage, CharPosition pos ) {
-        this.matchedType  = matchedType;
+    public FailedParseResult( String errorMessage, CharPosition pos ) {
         this.errorMessage = errorMessage;
         this.pos          = pos;
     }
 
-    public boolean wasSuccessful() {
-        return true;
+    public boolean successful() {
+        return false;
     }
 
-    public L getMatchedType() {
-        return matchedType;
+    public boolean matched() {
+        return false;
+    }
+
+    public boolean noMatch() {
+        return false;
+    }
+
+    public boolean errored() {
+        return true;
     }
 
     public R getParsedValueNbl() {
@@ -123,5 +154,53 @@ class FailedParseResult<L,R> implements ParseResult<L,R> {
 
     public CharPosition getToExc() {
         return pos;
+    }
+
+    public String toString() {
+        return "FailedMatch("+pos+": "+errorMessage+")";
+    }
+}
+
+class NoMatchParseResult<R> implements ParseResult<R> {
+    private CharPosition pos;
+
+    public NoMatchParseResult( CharPosition pos ) {
+        this.pos = pos;
+    }
+
+    public boolean successful() {
+        return true;
+    }
+
+    public boolean matched() {
+        return false;
+    }
+
+    public boolean noMatch() {
+        return true;
+    }
+
+    public boolean errored() {
+        return false;
+    }
+
+    public R getParsedValueNbl() {
+        return null;
+    }
+
+    public String getErrorMessageNbl() {
+        return null;
+    }
+
+    public CharPosition getFrom() {
+        return pos;
+    }
+
+    public CharPosition getToExc() {
+        return pos;
+    }
+
+    public String toString() {
+        return "NoMatch";
     }
 }

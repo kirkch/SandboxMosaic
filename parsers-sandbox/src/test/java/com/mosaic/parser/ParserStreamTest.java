@@ -139,7 +139,7 @@ public class ParserStreamTest {
         ParserStream p = new ParserStream( text, offset );
 
         CharPosition from = p.getCurrentPosition();
-        int numCharactersConsumed = p.consumeToEndOfLine();
+        int numCharactersConsumed = p.skipToEndOfLine();
         CharPosition toExc = p.getCurrentPosition();
 
         assertEquals( expected.length(), numCharactersConsumed );
@@ -154,13 +154,60 @@ public class ParserStreamTest {
         testConsumeThatDoesNotMatch( 1, "abc", "ab" );
     }
 
+    @Test
+    public void pushPopRollbackTests() {
+        ParserStream in = new ParserStream( "abc\n123\rabc\r\n123\n\rabc" );
+
+        CharPosition p0 = in.getCurrentPosition();
+        in.pushPosition();
+
+        assertSame( "pushing a position must not change the current position", p0, in.getCurrentPosition() );
+
+        in.jumpTo( 4 );
+        CharPosition p4 = in.getCurrentPosition();
+
+        in.rollbackToPreviousPosition();
+        assertEquals( "rollback should have returned us back to the start", p0, in.getCurrentPosition() );
+
+        in.pushPosition();
+        in.jumpTo( 1 );
+        in.pushPosition();
+
+        CharPosition p1 = in.getCurrentPosition();
+
+        in.jumpTo( 4 );
+
+        in.pushPosition();
+        in.popPosition();
+
+        assertEquals( "push should not change the current position", p4, in.getCurrentPosition() );
+
+        in.rollbackToPreviousPosition();
+        assertEquals( "rollback should have returned us to the previous loc", p1, in.getCurrentPosition() );
+
+        in.rollbackToPreviousPosition();
+        assertEquals( "rollback should have returned us back to the start", p0, in.getCurrentPosition() );
+
+
+        // the rollback stack is empty.. try to pop/rollback;  we should get an error
+        try {
+            in.popPosition();
+            fail( "expected exception" );
+        } catch ( ArrayIndexOutOfBoundsException ex ) {}
+
+        try {
+            in.rollbackToPreviousPosition();
+            fail( "expected exception" );
+        } catch ( ArrayIndexOutOfBoundsException ex ) {}
+    }
+
     private void testConsumeThatMatches( int offset, String text, String targetString ) {
         ParserStream     p          = new ParserStream( text, offset );
         CharacterMatcher matcher    = CharacterMatchers.constant(targetString);
         CharPosition     initialPos = p.getCurrentPosition();
 
-        int numCharactersMatched = p.consume( matcher );
-        assertEquals( targetString.length(), numCharactersMatched );
+        String match = p.consume( matcher );
+        assertEquals( targetString, match );
         assertEquals( "characters should have been consumed", (int) (initialPos.getCharacterOffset() + targetString.length()), p.getCurrentPosition().getCharacterOffset() );
     }
 
@@ -169,8 +216,7 @@ public class ParserStreamTest {
         CharacterMatcher matcher    = CharacterMatchers.constant(targetString);
         CharPosition     initialPos = p.getCurrentPosition();
 
-        int numCharactersMatched = p.consume( matcher );
-        assertEquals( 0, numCharactersMatched );
+        assertNull( p.consume(matcher) );
         assertSame( "no characters should have been consumed", initialPos, p.getCurrentPosition() );
     }
 
@@ -217,13 +263,5 @@ public class ParserStreamTest {
         assertEquals( expectNumCharactersConsumed, numCharsConsumed );
         assertEquals( from+numCharsConsumed, in.getCurrentPosition().getCharacterOffset() );
     }
-
-
-
-//    public void pushPosition()
-//    public void popPosition()
-//    rollbackToPreviousPosition()
-
-//    public boolean jumpTo( CharPosition targetPos )
 
 }
