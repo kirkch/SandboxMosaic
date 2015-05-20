@@ -216,7 +216,7 @@ public class ActualDirectory implements DirectoryX {
 
         child.getParentFile().mkdirs();
 
-        String text  = ArrayUtils.makeString( contents, "\n" );
+        String text  = ArrayUtils.toString( contents, "\n" );
         byte[] bytes = text.getBytes( SystemX.UTF8 );
 
 

@@ -7,7 +7,6 @@ import com.mosaic.io.filesystemx.FileModeEnum;
 import com.mosaic.io.filesystemx.FileX;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.Predicate;
-import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.ArrayUtils;
 
 import java.util.ArrayList;
@@ -54,7 +53,7 @@ public class InMemoryDirectory implements DirectoryX {
     public FileX addFile( String filePath, String...contents ) {
         InMemoryFile file = getOrCreateFile0( filePath );
 
-        file.setBytes( new ArrayBytes(ArrayUtils.makeString(contents, "\n")) );
+        file.setBytes( new ArrayBytes(ArrayUtils.toString( contents, "\n" )) );
 
         return file;
     }

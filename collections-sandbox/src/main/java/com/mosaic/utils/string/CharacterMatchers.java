@@ -71,7 +71,7 @@ class ConstantMatcher implements CharacterMatcher {
         this.targetStr = targetStr;
     }
 
-    public String description() {
+    public String toString() {
         return targetStr;
     }
 
@@ -113,7 +113,7 @@ class WhitespaceMatcher implements CharacterMatcher {
 
     private WhitespaceMatcher() {}
 
-    public String description() {
+    public String toString() {
         return "whitespace";
     }
 
@@ -140,7 +140,7 @@ class NonWhitespaceMatcher implements CharacterMatcher {
 
     private NonWhitespaceMatcher() {}
 
-    public String description() {
+    public String toString() {
         return "non-whitespace";
     }
 
@@ -167,8 +167,8 @@ class JavaVariableNameMatcher implements CharacterMatcher {
 
     private JavaVariableNameMatcher() {}
 
-    public String description() {
-        return "java variable name";
+    public String toString() {
+        return "JavaVariableNameMatcher";
     }
 
     @Override
@@ -213,8 +213,8 @@ class JavaVariableTypeMatcher implements CharacterMatcher {
 
     private JavaVariableTypeMatcher() {}
 
-    public String description() {
-        return "java variable type";
+    public String toString() {
+        return "JavaVariableTypeMatcher";
     }
 
     @Override
@@ -261,16 +261,16 @@ class JDKRegexpMatcher implements CharacterMatcher {
         this.pattern = pattern;
     }
 
-    public String description() {
-        return pattern.pattern();
-    }
-
     @Override
     public int consumeFrom( CharSequence seq, int minIndex, int maxIndexExc ) {
         Matcher m = pattern.matcher( seq );
         m.region( minIndex, maxIndexExc );
 
         return m.lookingAt() ? (m.end()-minIndex) : 0;
+    }
+
+    public String toString() {
+        return pattern.toString();
     }
 }
 
@@ -279,10 +279,6 @@ class EverythingExceptMatcher implements CharacterMatcher {
 
     public EverythingExceptMatcher( char c ) {
         terminatingChar = c;
-    }
-
-    public String description() {
-        return "everything upto and excluding '"+Character.toString(terminatingChar)+"'";
     }
 
     @Override
@@ -299,6 +295,10 @@ class EverythingExceptMatcher implements CharacterMatcher {
 
         return count;
     }
+
+    public String toString() {
+        return "EverythingExcept("+terminatingChar+")";
+    }
 }
 
 class EverythingExceptOneOfMatcher implements CharacterMatcher {
@@ -306,10 +306,6 @@ class EverythingExceptOneOfMatcher implements CharacterMatcher {
 
     public EverythingExceptOneOfMatcher( CharacterMatcher[] exclusions ) {
         this.exclusions = exclusions;
-    }
-
-    public String description() {
-        return "everything except one of '"+ Arrays.toString(exclusions)+"'";
     }
 
     @Override
@@ -325,6 +321,10 @@ class EverythingExceptOneOfMatcher implements CharacterMatcher {
         }
 
         return count;
+    }
+
+    public String toString() {
+        return "EverythingExceptOneOf"+Arrays.asList(exclusions);
     }
 
     private boolean hasHitExclusionAt( CharSequence buf, int i, int maxIndexExc ) {
@@ -345,10 +345,6 @@ class ConsumeUptoNCharactersMatcher implements CharacterMatcher {
         this.numCharactersToConsume = numCharacters;
     }
 
-    public String description() {
-        return "up to " + numCharactersToConsume + " characters";
-    }
-
     @Override
     public int consumeFrom( CharSequence seq, int minIndex, int maxIndexExc ) {
         int numCharactersAvailable = applyLowerBoundZero( maxIndexExc - minIndex );
@@ -358,5 +354,9 @@ class ConsumeUptoNCharactersMatcher implements CharacterMatcher {
 
     private int applyLowerBoundZero( int v ) {
         return v < 0 ? 0 : v;
+    }
+
+    public String toString() {
+        return "ConsumeUpToNCharacters("+numCharactersToConsume+")";
     }
 }

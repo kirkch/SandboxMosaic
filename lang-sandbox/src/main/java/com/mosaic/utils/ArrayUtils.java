@@ -5,7 +5,9 @@ import com.mosaic.lang.functional.Function0;
 import com.mosaic.lang.functional.Function1;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -30,7 +32,7 @@ public class ArrayUtils {
     /**
      * Creates a new array containing the result of calling mapFunction on each element of the original array.
      */
-    public static <A,B> B[] map( A[] array, Function1<A,B> mapFunction ) {
+    public static <A,B> Object[] map( A[] array, Function1<A,B> mapFunction ) {
         int      arrayLength = array.length;
         Object[] newArray    = new Object[arrayLength];
 
@@ -38,7 +40,7 @@ public class ArrayUtils {
             newArray[i] = mapFunction.invoke( array[i] );
         }
 
-        return (B[]) newArray;
+        return newArray;
     }
 
     /**
@@ -46,7 +48,7 @@ public class ArrayUtils {
      */
     public static <A,B> B[] map( Class<B> type, A[] array, Function1<A,B> mapFunction ) {
         int arrayLength = array.length;
-        B[] newArray    = (B[]) Array.newInstance( type, arrayLength );;
+        B[] newArray    = (B[]) Array.newInstance( type, arrayLength );
 
         for ( int i=0; i<arrayLength; i++ ) {
             newArray[i] = mapFunction.invoke( array[i] );
@@ -68,7 +70,7 @@ public class ArrayUtils {
         return array;
     }
 
-    public static String makeString( Object[] array, String seperator ) {
+    public static String toString( Object[] array, String seperator ) {
         StringBuilder buf = new StringBuilder(100);
 
         for ( int i=0; i<array.length; i++ ) {

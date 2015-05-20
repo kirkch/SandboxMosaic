@@ -1,10 +1,15 @@
 package com.mosaic.parser;
 
 import com.mosaic.io.CharPosition;
+import com.mosaic.utils.ArrayUtils;
+import com.mosaic.utils.ListUtils;
 import com.mosaic.utils.string.CharacterMatcher;
-import com.mosaic.utils.string.CharacterMatchers;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.mosaic.utils.string.CharacterMatchers.constant;
 import static org.junit.Assert.*;
 
 
@@ -201,9 +206,35 @@ public class ParserStreamTest {
         } catch ( ArrayIndexOutOfBoundsException ex ) {}
     }
 
+    @Test
+    public void zeroOrMoreTests() {
+        testZeroOrMore( "ababc", 5, "a","b","c" );
+        testZeroOrMore( "ababc", 4, "a","b" );
+        testZeroOrMore( "ababc", 1, "a" );
+        testZeroOrMore( " a b a b c", 10, "a","b","c" );
+        testZeroOrMore( " a b a b c", 9, "a","b" );
+        testZeroOrMore( " a b a b c", 3, "a" );
+    }
+
+    @SuppressWarnings( "unchecked" )
+    private void testZeroOrMore( String source, int expectedNumCharactersConsumed, String...matchers ) {
+        ParserStream in = new ParserStream( source );
+
+        List<String> results = new ArrayList<>();
+
+        ParserStream.ParserAndAction<String>[] parserAndActions = ArrayUtils.map( ParserStream.ParserAndAction.class, matchers, str -> new ParserStream.ParserAndAction<>( Parser.wrap( constant( str ) ), results::add ) );
+        ParseResult pr = in.parseZeroOrMore( parserAndActions );
+
+        assertTrue( pr.successful() );
+        assertEquals( expectedNumCharactersConsumed, in.getCurrentPosition().getCharacterOffset() );
+        assertNull( pr.getParsedValueNbl() );
+
+        assertEquals( source.substring(0,expectedNumCharactersConsumed).replaceAll(" ", ""), ListUtils.toString(results, "") );
+    }
+
     private void testConsumeThatMatches( int offset, String text, String targetString ) {
         ParserStream     p          = new ParserStream( text, offset );
-        CharacterMatcher matcher    = CharacterMatchers.constant(targetString);
+        CharacterMatcher matcher    = constant( targetString );
         CharPosition     initialPos = p.getCurrentPosition();
 
         String match = p.consume( matcher );
@@ -213,7 +244,7 @@ public class ParserStreamTest {
 
     private void testConsumeThatDoesNotMatch( int offset, String text, String targetString ) {
         ParserStream     p          = new ParserStream( text, offset );
-        CharacterMatcher matcher    = CharacterMatchers.constant(targetString);
+        CharacterMatcher matcher    = constant( targetString );
         CharPosition     initialPos = p.getCurrentPosition();
 
         assertNull( p.consume(matcher) );

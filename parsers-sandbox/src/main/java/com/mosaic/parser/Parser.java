@@ -1,9 +1,21 @@
 package com.mosaic.parser;
 
 import com.mosaic.io.CharPosition;
+import com.mosaic.utils.string.CharacterMatcher;
 
 
 public abstract class Parser<R> {
+
+    public static Parser<String> wrap( CharacterMatcher m ) {
+        return new Parser<String>() {
+            protected ParseResult<String> doParse( ParserStream in ) {
+                CharPosition from        = in.getCurrentPosition();
+                String       matchedText = in.consume( m );
+
+                return matchedText == null ? noMatch(from) : matched(matchedText, from, in.getCurrentPosition());
+            }
+        };
+    }
 
     public final ParseResult<R> parseFrom( ParserStream in ) {
         in.pushPosition();

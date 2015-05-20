@@ -26,6 +26,23 @@ public class ListUtils {
         return list;
     }
 
+    public static String toString( List list, String seperator ) {
+        StringBuilder buf = new StringBuilder(100);
+
+        boolean printSeperator = false;
+        for ( Object o : list ) {
+            if ( printSeperator ) {
+                buf.append( seperator );
+            } else {
+                printSeperator = true;
+            }
+
+            buf.append( o );
+        }
+
+        return buf.toString();
+    }
+
     public static <T> Nullable<T> firstMatch( List<T> list, Function1<T,Boolean> predicateFunction ) {
         for ( T e : list ) {
             if ( predicateFunction.invoke( e ) ) {

@@ -18,14 +18,14 @@ public interface PrettyPrinter<T> {
     public void write( Appendable buf, T v ) throws IOException;
 
 
-    public default List<String> toText( T v ) {
+    public default String toText( T v ) {
         StringWriter    buf     = new StringWriter();
-        IndentingWriter out     = new IndentingWriter( buf );;
+        IndentingWriter out     = new IndentingWriter( buf );
 
         return tryNow( () -> {
             this.write( out, v );
 
-            return Arrays.asList( buf.toString().split( SystemX.NEWLINE ) );
+            return buf.toString();
         } ).getResultNoBlock();
     }
 
