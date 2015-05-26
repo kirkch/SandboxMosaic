@@ -1,11 +1,7 @@
 package com.mosaic.io;
 
-import com.mosaic.lang.system.SystemX;
-
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.List;
 
 import static com.mosaic.lang.functional.TryNow.tryNow;
 
