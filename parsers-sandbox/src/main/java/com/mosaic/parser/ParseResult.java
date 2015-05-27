@@ -1,6 +1,7 @@
 package com.mosaic.parser;
 
 import com.mosaic.io.CharPosition;
+import com.mosaic.lang.functional.Function1;
 
 
 /**
@@ -65,6 +66,14 @@ public interface ParseResult<R> {
      * the from position.
      */
     public CharPosition getToExc();
+
+
+    /**
+     * Converts a matched value to a new value.  If the result does not contain a matched value, and
+     * is an error instead then the error will be left untouched.
+     */
+    public <B> ParseResult<B> map( Function1<R,B> mappingFunction );
+
 }
 
 class SuccessfulParseResult<R> implements ParseResult<R> {
@@ -76,6 +85,10 @@ class SuccessfulParseResult<R> implements ParseResult<R> {
         this.parsedValue = parsedValue;
         this.from        = from;
         this.toExc       = toExc;
+
+        if ( parsedValue instanceof HasCharPosition ) {
+            ((HasCharPosition) parsedValue).setPosition(from, toExc);
+        }
     }
 
     public boolean successful() {
@@ -113,8 +126,15 @@ class SuccessfulParseResult<R> implements ParseResult<R> {
     public String toString() {
         return "Matched";
     }
+
+    public <B> ParseResult<B> map( Function1<R,B> mappingFunction ) {
+        B mappedValue = mappingFunction.invoke( parsedValue );
+
+        return new SuccessfulParseResult<>( mappedValue, from, toExc );
+    }
 }
 
+@SuppressWarnings("unchecked")
 class FailedParseResult<R> implements ParseResult<R> {
     private String       errorMessage;
     private CharPosition pos;
@@ -159,8 +179,13 @@ class FailedParseResult<R> implements ParseResult<R> {
     public String toString() {
         return "FailedMatch("+pos+": "+errorMessage+")";
     }
+
+    public <B> ParseResult<B> map( Function1<R,B> mappingFunction ) {
+        return (ParseResult<B>) this;
+    }
 }
 
+@SuppressWarnings("unchecked")
 class NoMatchParseResult<R> implements ParseResult<R> {
     private CharPosition pos;
 
@@ -202,5 +227,9 @@ class NoMatchParseResult<R> implements ParseResult<R> {
 
     public String toString() {
         return "NoMatch";
+    }
+
+    public <B> ParseResult<B> map( Function1<R,B> mappingFunction ) {
+        return (ParseResult<B>) this;
     }
 }

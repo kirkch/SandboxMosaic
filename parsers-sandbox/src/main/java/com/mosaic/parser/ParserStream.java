@@ -4,6 +4,7 @@ import com.mosaic.collections.FastStack;
 import com.mosaic.io.CharPosition;
 import com.mosaic.lang.QA;
 import com.mosaic.lang.functional.VoidFunction1;
+import com.mosaic.lang.system.Backdoor;
 import com.mosaic.lang.system.SystemX;
 import com.mosaic.utils.StringUtils;
 import com.mosaic.utils.string.CharacterMatcher;
@@ -145,6 +146,22 @@ public class ParserStream {
     @SuppressWarnings("unchecked")
     public ParseResult parseZeroOrMore( ParserAndAction...parserAndActions ) {
         return new ZeroOrMoreParser(parserAndActions).parseFrom( this );
+    }
+
+    public ParseResult<String> parse( CharacterMatcher m ) {
+        CharPosition from = getCurrentPosition();
+
+        int fromInt               = Backdoor.toInt( from.getCharacterOffset() );
+        int numCharactersConsumed = m.consumeFrom( chars, fromInt, maxExc );
+        if ( numCharactersConsumed == 0 ) {
+            return ParseResult.noMatch( from );
+        }
+
+        String value = chars.subSequence( fromInt, fromInt+numCharactersConsumed ).toString();
+
+        this.pos = pos.walkCharacters( numCharactersConsumed, chars );
+
+        return ParseResult.matchSucceeded( value, from, getCurrentPosition() );
     }
 
     private class ZeroOrMoreParser extends Parser {
