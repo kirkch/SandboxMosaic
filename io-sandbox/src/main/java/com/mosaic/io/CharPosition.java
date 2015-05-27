@@ -10,6 +10,11 @@ import com.mosaic.lang.system.Backdoor;
  */
 @Immutable
 public class CharPosition {
+    /**
+     * The number of columns represented by a tab character.
+     */
+    private static final int TAB_WIDTH = 2;
+
 
     private final int  lineNumber;
     private final int  columnNumber;
@@ -70,7 +75,9 @@ public class CharPosition {
 
             offset++;
 
-            if ( c == '\n' ) {
+            if ( c == '\t' ) {
+                col += TAB_WIDTH;
+            } else if ( c == '\n' ) {
                 col = 0;
                 line++;
             } else {
