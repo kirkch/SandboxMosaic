@@ -35,6 +35,52 @@ public class CharacterMatchersTest {
     }
 
     @Test
+    public void testInts() {
+        CharacterMatcher matcher = CharacterMatchers.integer( false );
+
+        assertEquals( 0, matcher.consumeFrom("a", 0, 1) );
+        assertEquals( 0, matcher.consumeFrom(",", 0, 1) );
+        assertEquals( 1, matcher.consumeFrom("1", 0, 1) );
+        assertEquals( 2, matcher.consumeFrom("+1", 0, 2) );
+        assertEquals( 2, matcher.consumeFrom("-1", 0, 2) );
+        assertEquals( 0, matcher.consumeFrom("++1", 0, 3) );
+        assertEquals( 0, matcher.consumeFrom("--1", 0, 3) );
+        assertEquals( 1, matcher.consumeFrom("1+2", 0, 3) );
+        assertEquals( 1, matcher.consumeFrom("1-2", 0, 3) );
+        assertEquals( 9, matcher.consumeFrom("123456789", 0, 9) );
+        assertEquals( 3, matcher.consumeFrom("123,456,789", 0, 11) );
+        assertEquals( 1, matcher.consumeFrom("1,23456789", 0, 10) );
+        assertEquals( 1, matcher.consumeFrom("1 23456789", 0, 10) );
+        assertEquals( 1, matcher.consumeFrom("1a23456789", 0, 10) );
+        assertEquals( 1, matcher.consumeFrom("1.23456789", 0, 10) );
+        assertEquals( 2, matcher.consumeFrom("123456789", 2, 4) );
+    }
+
+    @Test
+    public void testCommaSensitiveInts() {
+        CharacterMatcher matcher = CharacterMatchers.integer( true );
+
+        assertEquals(  0, matcher.consumeFrom("a", 0, 1) );
+        assertEquals(  0, matcher.consumeFrom(",", 0, 1) );
+        assertEquals(  0, matcher.consumeFrom(",123", 0, 4) );
+        assertEquals(  1, matcher.consumeFrom("1", 0, 1) );
+        assertEquals(  2, matcher.consumeFrom("+1", 0, 2) );
+        assertEquals(  2, matcher.consumeFrom("-1", 0, 2) );
+        assertEquals(  0, matcher.consumeFrom("++1", 0, 3) );
+        assertEquals(  0, matcher.consumeFrom("--1", 0, 3) );
+        assertEquals(  1, matcher.consumeFrom("1+2", 0, 3) );
+        assertEquals(  1, matcher.consumeFrom("1-2", 0, 3) );
+        assertEquals(  9, matcher.consumeFrom("123456789", 0, 9) );
+        assertEquals( 11, matcher.consumeFrom("123,456,789", 0, 11) );
+        assertEquals(  7, matcher.consumeFrom("123,456,78,", 0, 11) );
+        assertEquals(  5, matcher.consumeFrom("1,23456789", 0, 9) );
+        assertEquals(  1, matcher.consumeFrom("1 23456789", 0, 9) );
+        assertEquals(  1, matcher.consumeFrom("1a23456789", 0, 9) );
+        assertEquals(  1, matcher.consumeFrom("1.23456789", 0, 9) );
+        assertEquals(  2, matcher.consumeFrom("123456789", 2, 4) );
+    }
+
+    @Test
     public void testWhitespaceMatcher() {
         CharacterMatcher matcher = CharacterMatchers.whitespace();
 

@@ -41,6 +41,19 @@ public class CharacterMatchers {
         return JavaVariableTypeMatcher.INSTANCE;
     }
 
+    /**
+     *
+     * When support commas is false:  [+-]?\d+
+     * When support commas is true: then \d+ is changed to support 12,332,111 etc
+     */
+    public static CharacterMatcher integer( boolean supportCommas ) {
+        return supportCommas ? CommaIntegerMatcher.INSTANCE : IntegerMatcher.INSTANCE;
+    }
+
+    public static CharacterMatcher digits() {
+        return DigitsOnlyMatcher.INSTANCE;
+    }
+
     public static CharacterMatcher everythingExcept( char c ) {
         return new EverythingExceptMatcher(c);
     }
@@ -156,6 +169,105 @@ class NonWhitespaceMatcher implements CharacterMatcher {
             } else {
                 count++;
             }
+        }
+
+        return count;
+    }
+}
+
+class IntegerMatcher implements CharacterMatcher {
+    public static final CharacterMatcher INSTANCE = new IntegerMatcher();
+
+    private IntegerMatcher() {}
+
+    public String toString() {
+        return "int";
+    }
+
+    public int consumeFrom( CharSequence seq, int minIndex, int maxIndexExc ) {
+        if ( minIndex >= maxIndexExc ) {
+            return 0;
+        }
+
+        char firstChar = seq.charAt( minIndex );
+        if ( firstChar == '+' || firstChar == '-' ) {
+            int numDigits = DigitsOnlyMatcher.INSTANCE.consumeFrom( seq, minIndex + 1, maxIndexExc );
+
+            return numDigits == 0 ? 0 : numDigits + 1;
+        } else {
+            return DigitsOnlyMatcher.INSTANCE.consumeFrom( seq, minIndex, maxIndexExc );
+        }
+    }
+}
+
+class DigitsOnlyMatcher implements CharacterMatcher {
+    public static final CharacterMatcher INSTANCE = new DigitsOnlyMatcher();
+
+    private DigitsOnlyMatcher() {}
+
+    public String toString() {
+        return "digits";
+    }
+
+    public int consumeFrom( CharSequence seq, int minIndex, int maxIndexExc ) {
+        int count = 0;
+
+        for ( int i=minIndex; i<maxIndexExc; i++ ) {
+            char c = seq.charAt(i);
+
+            if ( c >= '0' && c <= '9' ) {
+                count++;
+            } else {
+                return count;
+            }
+        }
+
+        return count;
+    }
+}
+
+class CommaIntegerMatcher implements CharacterMatcher {
+    public static final CharacterMatcher INSTANCE = new CommaIntegerMatcher();
+
+    private CommaIntegerMatcher() {}
+
+    public String toString() {
+        return "comma-int";
+    }
+
+    public int consumeFrom( CharSequence seq, int minIndex, int maxIndexExc ) {
+        int n = consumeUpToFirstComma( seq, minIndex, maxIndexExc );
+
+        if ( n == 0 || n > 3 ) {   // don't support 1234,567 as it should be 1,234,567
+            return n;
+        }
+
+        return consumeCommaBlocks( n, seq, minIndex, maxIndexExc );
+    }
+
+    private int consumeUpToFirstComma( CharSequence seq, int minIndex, int maxIndexExc ) {
+        return IntegerMatcher.INSTANCE.consumeFrom( seq, minIndex, maxIndexExc );
+    }
+
+    private int consumeCommaBlocks( int countSoFar, CharSequence seq, int minIndex, int maxIndexExc ) {
+        int count = countSoFar;
+
+        int p = minIndex + countSoFar;
+        while ( p < maxIndexExc ) {
+            if ( seq.charAt(p) != ',' || p + 4 > maxIndexExc ) { // after a comma there must be 3 digits
+                return count;
+            }
+
+            for ( int i = p+1; i < p+4; i++ ) {
+                char c = seq.charAt( i );
+
+                if ( c < '0' || c > '9' ) {
+                    return count;
+                }
+            }
+
+            p     += 4;
+            count += 4;
         }
 
         return count;
