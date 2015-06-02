@@ -52,6 +52,22 @@ public class CharPosition {
     }
 
 
+    public CharPosition min( CharPosition other ) {
+        if ( other == null ) {
+            return this;
+        }
+
+        return this.charOffset <= other.charOffset ? this : other;
+    }
+
+    public CharPosition max( CharPosition other ) {
+        if ( other == null ) {
+            return this;
+        }
+
+        return this.charOffset >= other.charOffset ? this : other;
+    }
+
     /**
      * Create a new CharPosition based on walking over the supplied characters.
      *
