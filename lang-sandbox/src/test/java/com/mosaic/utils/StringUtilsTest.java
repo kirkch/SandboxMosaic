@@ -17,6 +17,13 @@ import static org.junit.Assert.*;
 public class StringUtilsTest {
 
     @Test
+    public void extractFrom() {
+        assertEquals( "bc", StringUtils.extractFrom("abcd", "bc") );
+        assertEquals( "ll", StringUtils.extractFrom("hello", "l+") );
+        assertEquals( "Foo", StringUtils.extractFrom("public class Foo {", "Foo") );
+    }
+
+    @Test
     public void join() {
         assertEquals( "", StringUtils.join(null,",") );
         assertEquals( "", StringUtils.join(Arrays.asList(),",") );

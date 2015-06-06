@@ -127,7 +127,7 @@ public class ListUtils {
         return results;
     }
 
-    public static <T> List<T> filterNot( List<T> list, Function1<T,Boolean> predicate ) {
+    public static <T> List<T> filter( List<T> list, Function1<T,Boolean> predicate ) {
         if ( list != null && list.isEmpty() ) {
             return list;
         }
@@ -136,7 +136,7 @@ public class ListUtils {
 
         if ( list != null ) {
             for ( T v : list ) {
-                if ( !predicate.invoke(v) ) {
+                if ( predicate.invoke(v) ) {
                     results.add(v);
                 }
             }

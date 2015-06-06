@@ -7,6 +7,8 @@ import com.mosaic.lang.text.UTF8;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -14,6 +16,16 @@ import java.util.List;
  */
 @SuppressWarnings("unchecked")
 public class StringUtils {
+
+    /**
+     * Returns the string that was matched by the regexp.
+     */
+    public static String extractFrom( String s, String regexp ) {
+        Pattern p = Pattern.compile( regexp );
+        Matcher m = p.matcher(s);
+
+        return m.find() ? m.group(0) : null;
+    }
 
     public static String concat( String prefix, Object[] elements, String separator, String postfix ) {
         StringBuilder buf = new StringBuilder(100);
